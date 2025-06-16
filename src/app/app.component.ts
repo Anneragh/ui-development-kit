@@ -1,6 +1,6 @@
 import { BreakpointObserver, Breakpoints, LayoutModule } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -12,6 +12,7 @@ import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import { ConnectionService } from './shared/connection.service';
 import { Router } from '@angular/router';
+import { ComponentInfo, ComponentSelectorService } from './services/component-selector.service';
 
 declare const window: any;
 
@@ -31,11 +32,12 @@ declare const window: any;
     MatButtonModule,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   isSmallScreen: boolean = false;
   sidenavOpened = true;
   isConnected = true;
   isDarkTheme = false;
+  enabledComponents: ComponentInfo[] = [];
 
   constructor(
     private electronService: ElectronService,
@@ -43,7 +45,8 @@ export class AppComponent {
     private connectionService: ConnectionService,
     private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
-    private router: Router
+    private router: Router,
+    private componentSelectorService: ComponentSelectorService
   ) {
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
@@ -70,6 +73,16 @@ export class AppComponent {
       this.isDarkTheme = true;
       this.renderer.addClass(document.body, 'dark-theme');
     }
+  }
+
+  ngOnInit(): void {
+      this.componentSelectorService.enabledComponents$.subscribe(components => {
+        this.enabledComponents = components;
+    });
+  }
+
+  isComponentEnabled(componentName: string): boolean {
+    return this.enabledComponents.some(component => component.name === componentName && component.enabled);
   }
 
   toggleTheme(): void {
