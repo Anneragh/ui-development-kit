@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import {
   Designer,
   RootEditorContext,
@@ -53,6 +53,7 @@ import {
 } from './models/static';
 
 import { FormsModule } from '@angular/forms';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -62,9 +63,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 import { TransformReadV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
+import { AutoSaveService } from '../transform-builder/utils/autosave.service'; // Adjust path as needed
 import { ConditionalModel, createConditional, deserializeConditional, getConditionalIcon, isConditionalStep, serializeConditional } from './models/conditional';
 import { createDateCompare, DateCompareModel, deserializeDateCompare, getDateCompareIcon, isDateCompareStep, operatorMap, serializeDateCompare } from './models/date-compare';
 import { createDateFormat, DateFormatMap, DateFormatModel, deserializeDateFormat, getDateFormatIcon, isDateFormatStep, serializeDateFormat } from './models/date-format';
@@ -99,6 +103,7 @@ import { createUpper, deserializeUpper, getUpperIcon, isUpperStep, serializeUppe
 import { createUUID, deserializeUUID, getUUIDIcon, isUUIDStep, serializeUUID } from './models/uuid';
 import { MapEditorDialogComponent } from './utils/map-editor-dialog.component';
 import { TransformPreviewComponent } from './utils/transform-preview.component';
+
 
 interface StepDefinition {
   id: string;
@@ -331,14 +336,20 @@ export function deserializeToStep(data: any): Step {
     MatIconModule,
     MatSelectModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatBadgeModule
   ],
   templateUrl: './transform-builder.component.html',
   styleUrl: './transform-builder.component.scss',
   encapsulation: ViewEncapsulation.None
 })
-export class TransformBuilderComponent implements OnInit {
+export class TransformBuilderComponent implements OnInit, OnDestroy {
   @Input() transform?: TransformReadV2025;
+
+
+  private destroy$ = new Subject<void>();
+  private autoSaveSubject = new Subject<Definition>();
 
   private designer?: Designer;
   public validatorConfiguration?: ValidatorConfiguration;
@@ -357,8 +368,15 @@ export class TransformBuilderComponent implements OnInit {
   public isReady = false;
   public sourceMap = new Map<string, string>();
 
+  // Auto-save related properties
+  public isSaving = false;
+  public isSyncing = false;
+  public lastAutoSave?: string;
+  public hasUnsavedChanges = false;
+  public isNewTransform = false;
 
-  constructor(private router: Router, private dialog: MatDialog, private sdk: SailPointSDKService) {}
+
+  constructor(private router: Router, private dialog: MatDialog, private sdk: SailPointSDKService, private autoSaveService: AutoSaveService, private snackBar: MatSnackBar) {}
 
   getDefaultFallbackIcon(): string {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -492,6 +510,11 @@ export class TransformBuilderComponent implements OnInit {
       },
     ],
   };
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   
   public ngOnInit(): void {
 
@@ -503,6 +526,16 @@ export class TransformBuilderComponent implements OnInit {
     }
 
     this.updateDefinitionJSON();
+
+    // Set up auto-save debouncing
+    this.autoSaveSubject
+      .pipe(
+        debounceTime(2000), // Wait 2 seconds after last change
+        takeUntil(this.destroy$)
+      )
+      .subscribe(definition => {
+        this.performAutoSave(definition);
+      });
   
     void (async () => {
       try {
@@ -543,6 +576,168 @@ export class TransformBuilderComponent implements OnInit {
       }
     })();
   }
+
+  private loadFromLocalSaveIfExists(): void {
+    if (!this.transform) return;
+
+    const localSave = this.autoSaveService.getLocalSave(this.transform.id!);
+    if (localSave) {
+      // Ask user if they want to restore
+      const shouldRestore = confirm(
+        `Found local changes from ${this.autoSaveService.getTimeSinceLastSave(this.transform.id!)}. ` +
+        'Would you like to restore these changes?'
+      );
+      
+      if (shouldRestore) {
+        this.definition = {
+          properties: { name: localSave.name },
+          sequence: [deserializeToStep(localSave.definition)]
+        };
+        this.hasUnsavedChanges = true;
+        this.snackBar.open('Restored local changes', 'Close', { duration: 3000 });
+      } else {
+        // Clear the local save since user doesn't want it
+        this.autoSaveService.clearLocalSave(this.transform.id!);
+      }
+    }
+  }
+
+  private performAutoSave(definition: Definition): void {
+    if (!definition?.sequence?.[0]) return;
+
+    this.isSaving = true;
+    
+    try {
+      const serializedTransform = serializeStep(definition.sequence[0]);
+      const transformId = this.isNewTransform ? 'new_transform' : (this.transform?.id || 'unknown');
+      const transformName = String(definition.properties?.name || 'Untitled Transform');
+      
+      this.autoSaveService.autoSave(
+        transformId,
+        transformName,
+        serializedTransform,
+        this.isNewTransform,
+        this.transform // Store original cloud version for comparison
+      );
+      
+      const lastSave = this.autoSaveService.getTimeSinceLastSave(transformId, this.isNewTransform);
+      this.lastAutoSave = lastSave === null ? undefined : lastSave;
+      
+      // Update UI to show last save time
+      setTimeout(() => {
+        const lastSave = this.autoSaveService.getTimeSinceLastSave(transformId, this.isNewTransform);
+        this.lastAutoSave = lastSave === null ? undefined : lastSave;
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+      this.snackBar.open('Auto-save failed', 'Close', { duration: 3000 });
+    } finally {
+      this.isSaving = false;
+    }
+  }
+
+  public async syncToCloud(): Promise<void> {
+    // if (!this.definition?.sequence?.[0]) {
+    //   this.snackBar.open('Nothing to save', 'Close', { duration: 3000 });
+    //   return;
+    // }
+
+    // this.isSyncing = true;
+
+    // try {
+    //   const serializedTransform = serializeStep(this.definition.sequence[0]);
+    //   const transformName = this.definition.properties?.name || 'Untitled Transform';
+
+    //   if (this.isNewTransform) {
+    //     // Create new transform
+    //     const response = await this.sdk.createTransform({
+    //       requestBody: {
+    //         name: transformName,
+    //         type: 'accountAttribute', // You might want to detect this dynamically
+    //         attributes: serializedTransform
+    //       }
+    //     });
+        
+    //     this.transform = response.data;
+    //     this.isNewTransform = false;
+    //     this.autoSaveService.clearLocalSave('new_transform', true);
+    //     this.snackBar.open('Transform created successfully', 'Close', { duration: 3000 });
+        
+    //   } else if (this.transform?.id) {
+    //     // Update existing transform
+    //     await this.sdk.updateTransform({
+    //       id: this.transform.id,
+    //       requestBody: {
+    //         name: transformName,
+    //         type: this.transform.type,
+    //         attributes: serializedTransform
+    //       }
+    //     });
+        
+    //     this.autoSaveService.clearLocalSave(this.transform.id);
+    //     this.snackBar.open('Transform updated successfully', 'Close', { duration: 3000 });
+    //   }
+
+    //   this.hasUnsavedChanges = false;
+      
+    // } catch (error) {
+    //   console.error('Sync to cloud failed:', error);
+    //   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    //   this.snackBar.open(`Failed to sync: ${errorMessage}`, 'Close', { duration: 5000 });
+    // } finally {
+    //   this.isSyncing = false;
+    // }
+  }
+
+  public hasLocalChanges(): boolean {
+    if (this.isNewTransform) {
+      return this.hasUnsavedChanges;
+    }
+    return this.transform?.id ? this.autoSaveService.hasLocalChanges(this.transform.id) : false;
+  }
+
+  public restoreFromCloud(): void {
+    if (!this.transform) return;
+
+    const shouldRestore = confirm(
+      'This will discard all local changes and restore the transform from the cloud. Are you sure?'
+    );
+
+    if (shouldRestore) {
+      this.definition = createDefinitionFromTransform(this.transform);
+      this.updateDefinitionJSON();
+      this.hasUnsavedChanges = false;
+      
+      if (this.transform.id) {
+        this.autoSaveService.clearLocalSave(this.transform.id);
+      }
+      
+      this.snackBar.open('Restored from cloud', 'Close', { duration: 3000 });
+    }
+  }
+
+  public discardLocalChanges(): void {
+    const shouldDiscard = confirm(
+      'This will discard all local changes. Are you sure?'
+    );
+
+    if (shouldDiscard) {
+      const transformId = this.isNewTransform ? 'new_transform' : (this.transform?.id || 'unknown');
+      this.autoSaveService.clearLocalSave(transformId, this.isNewTransform);
+      
+      if (this.transform) {
+        this.definition = createDefinitionFromTransform(this.transform);
+        this.updateDefinitionJSON();
+      } else {
+        this.definition = createDefinition();
+        this.updateDefinitionJSON();
+      }
+      
+      this.hasUnsavedChanges = false;
+      this.snackBar.open('Local changes discarded', 'Close', { duration: 3000 });
+    }
+  }
   
   
 
@@ -554,6 +749,10 @@ export class TransformBuilderComponent implements OnInit {
   public onDefinitionChanged(definition: Definition) {
     this.definition = definition;
     this.updateDefinitionJSON();
+
+          // Trigger auto-save
+    this.hasUnsavedChanges = true;
+    this.autoSaveSubject.next(definition);
   }
 
   private updateDefinitionJSON() {
