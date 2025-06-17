@@ -100,9 +100,6 @@
                 <mat-error *ngIf="editor.step.properties[key] === null || editor.step.properties[key] === undefined">
                   {{ key }} is required
                 </mat-error>
-                <!-- <mat-error *ngIf="hasNumberValidationError(editor.step.type, key, editor.step.properties[key])">
-                  {{ getNumberValidationError(editor.step.type, key, editor.step.properties[key]) }}
-                </mat-error> -->
               </mat-form-field>
             </div>
           </ng-template>
@@ -116,12 +113,18 @@
           </ng-template>
         
           <ng-template #textField>
-            <ng-container *ngIf="getChoicesForProperty(editor.step.type, key) as choices; else defaultInput">
+            <!-- Special handling for sourceName -->
+            <ng-container *ngIf="key === 'sourceName' && editor.step.type === 'accountAttribute'">
               <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
                 <mat-label>{{ key }}</mat-label>
-                <mat-select [(ngModel)]="editor.step.properties[key]" [disabled]="editor.isReadonly" [required]="isRequired(editor.step.type, key)" name="{{ key }}"
-                            (selectionChange)="updateProperty(editor.step.properties, key, $event.value, editor.context)">
-                  <mat-option *ngFor="let choice of choices" [value]="choice">{{ getChoiceLabel(editor.step.type, choice) }}</mat-option>
+                <mat-select [(ngModel)]="editor.step.properties[key]" 
+                           [disabled]="editor.isReadonly" 
+                           [required]="isRequired(editor.step.type, key)" 
+                           name="{{ key }}"
+                           (selectionChange)="onSourceNameChanged(editor.step.properties, key, $event.value, editor.context)">
+                  <mat-option *ngFor="let choice of getChoicesForProperty(editor.step.type, key)" [value]="choice">
+                    {{ getChoiceLabel(editor.step.type, choice) }}
+                  </mat-option>
                 </mat-select>
                 <mat-error *ngIf="editor.step.properties[key] === ''">
                   {{ key }} is required
@@ -129,30 +132,70 @@
               </mat-form-field>
             </ng-container>
 
-            <div *ngIf="key === 'inputFormat' && editor.step.properties[key] === 'CUSTOM'">
-              <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
-                <mat-label>Custom Input Format</mat-label>
-                <input matInput [(ngModel)]="customInputDate"
-                       [readonly]="editor.isReadonly"
-                       [required]="true">
-                       </mat-form-field>
-                       <div class="preview" *ngIf="preview">
-                        <strong>Preview:</strong> {{ preview }}
-                      </div>
-            </div>
-        
-            <ng-template #defaultInput>
-              <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
-                <mat-label>{{ key }}</mat-label>
-                <input matInput [(ngModel)]="editor.step.properties[key]" name="{{ key }}"
-                       [readonly]="editor.isReadonly"
-                       [required]="isRequired(editor.step.type, key)"
-                       (input)="updateProperty(editor.step.properties, key, $event, editor.context)">
-                       <mat-error *ngIf="editor.step.properties[key] === ''">
-                        {{ key }} is required
-                      </mat-error>
-              </mat-form-field>
-            </ng-template>
+            <!-- Special handling for accountAttribute -->
+          <ng-container *ngIf="key === 'attributeName' && editor.step.type === 'accountAttribute'">
+            <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
+              <mat-label>{{ key }}</mat-label>
+              <mat-select [(ngModel)]="editor.step.properties[key]" 
+                        [disabled]="editor.isReadonly || isAccountAttributeDisabled(editor)" 
+                        [required]="isRequired(editor.step.type, key)" 
+                        name="{{ key }}"
+                        (selectionChange)="updateProperty(editor.step.properties, key, $event.value, editor.context)">
+                <!-- Fixed: Use attr directly as both value and display text -->
+                <mat-option *ngFor="let attr of getAccountAttributes(editor)" [value]="attr">
+                  {{ attr }}
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="isLoadingAccountAttributes(editor)">Loading attributes...</mat-hint>
+              <mat-hint *ngIf="!editor.step.properties['sourceName'] && !isLoadingAccountAttributes(editor)">
+                Please select a source name first
+              </mat-hint>
+              <mat-error *ngIf="editor.step.properties[key] === ''">
+                {{ key }} is required
+              </mat-error>
+            </mat-form-field>
+          </ng-container>
+
+            <!-- Default handling for other properties -->
+            <ng-container *ngIf="key !== 'sourceName' && key !== 'attributeName'">
+              <ng-container *ngIf="getChoicesForProperty(editor.step.type, key) as choices; else defaultInput">
+                <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
+                  <mat-label>{{ key }}</mat-label>
+                  <mat-select [(ngModel)]="editor.step.properties[key]" [disabled]="editor.isReadonly" [required]="isRequired(editor.step.type, key)" name="{{ key }}"
+                              (selectionChange)="updateProperty(editor.step.properties, key, $event.value, editor.context)">
+                    <mat-option *ngFor="let choice of choices" [value]="choice">{{ getChoiceLabel(editor.step.type, choice) }}</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="editor.step.properties[key] === ''">
+                    {{ key }} is required
+                  </mat-error>
+                </mat-form-field>
+              </ng-container>
+
+              <div *ngIf="key === 'inputFormat' && editor.step.properties[key] === 'CUSTOM'">
+                <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
+                  <mat-label>Custom Input Format</mat-label>
+                  <input matInput [(ngModel)]="customInputDate"
+                         [readonly]="editor.isReadonly"
+                         [required]="true">
+                         </mat-form-field>
+                         <div class="preview" *ngIf="preview">
+                          <strong>Preview:</strong> {{ preview }}
+                        </div>
+              </div>
+          
+              <ng-template #defaultInput>
+                <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
+                  <mat-label>{{ key }}</mat-label>
+                  <input matInput [(ngModel)]="editor.step.properties[key]" name="{{ key }}"
+                         [readonly]="editor.isReadonly"
+                         [required]="isRequired(editor.step.type, key)"
+                         (input)="updateProperty(editor.step.properties, key, $event, editor.context)">
+                         <mat-error *ngIf="editor.step.properties[key] === ''">
+                          {{ key }} is required
+                        </mat-error>
+                </mat-form-field>
+              </ng-template>
+            </ng-container>
           </ng-template>
         </ng-container>
         

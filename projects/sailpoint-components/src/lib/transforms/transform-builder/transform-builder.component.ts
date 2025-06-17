@@ -53,8 +53,8 @@ import {
 } from './models/static';
 
 import { FormsModule } from '@angular/forms';
-import { MatCard, MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -355,6 +355,8 @@ export class TransformBuilderComponent implements OnInit {
   public isReadonly = false;
   public definitionModel?: DefinitionModel<Definition>;
   public isReady = false;
+  public sourceMap = new Map<string, string>();
+
 
   constructor(private router: Router, private dialog: MatDialog, private sdk: SailPointSDKService) {}
 
@@ -504,14 +506,19 @@ export class TransformBuilderComponent implements OnInit {
   
     void (async () => {
       try {
-        const [sources, transforms, rules] = await Promise.all([
-          getAvailableSources(this.sdk),
-          getAvailableTransforms(this.sdk),
-          getAvailableRules(this.sdk),
+        const [sourcesResult, transforms, rules] = await Promise.all([
+            getAvailableSources(this.sdk),
+            getAvailableTransforms(this.sdk),
+            getAvailableRules(this.sdk),
         ]);
-  
-        const model = createMyDefinitionModel({ sources, transforms, rules });
-  
+
+        this.sourceMap = sourcesResult.map;
+
+        const model = createMyDefinitionModel({ 
+            sources: sourcesResult.names, 
+            transforms, 
+            rules 
+        });
         if (!model) {
           throw new Error('Failed to create DefinitionModel.');
         }
@@ -794,6 +801,121 @@ public renameBranchAtIndex<T>(
     } else {
       return false;
     }
+  }
+
+  public onSourceNameChanged(    
+    properties: Properties,
+    name: string,
+    sourceName: Event | MatSlideToggleChange,
+    context: RootEditorContext | StepEditorContext) {
+      console.log('onSourceNameChanged', properties, name, sourceName);
+      if ('notifyChildrenChanged' in context && 'notifyNameChanged' in context) {
+        this.loadAccountAttributes(context, sourceName as unknown as string);
+      }
+  }
+
+
+  private accountAttributesCache = new Map<string, any[]>();
+  private loadingStates = new Map<string, boolean>();
+
+  private async loadAccountAttributes(editor: StepEditorContext, sourceName: string): Promise<void> {
+    return this.loadAccountAttributesForSource(sourceName);
+  }
+
+// Updated method to get account attributes for display with auto-loading
+getAccountAttributes(editor: any): any[] {
+  const sourceName = editor.step.properties['sourceName'];
+  if (!sourceName) {
+    return [];
+  }
+
+  const cacheKey = `${sourceName}`;
+  console.log('getAccountAttributes', sourceName, cacheKey);
+  
+  // Check if we have cached data
+  if (this.accountAttributesCache.has(cacheKey)) {
+    console.log('Account attributes cache:', this.accountAttributesCache.get(cacheKey));
+    return this.accountAttributesCache.get(cacheKey) || [];
+  }
+  
+  // If not cached and not currently loading, start loading
+  if (!this.loadingStates.get(cacheKey)) {
+    console.log('Cache miss - loading account attributes for:', sourceName);
+    // Don't await this - let it load in the background
+    this.loadAccountAttributesForSource(sourceName).catch(error => {
+      console.error('Failed to load account attributes:', error);
+    });
+  }
+  
+  // Return empty array while loading
+  return [];
+}
+
+// Add this simplified loading method that doesn't require editor context
+private async loadAccountAttributesForSource(sourceName: string): Promise<void> {
+  if (!sourceName) {
+    return;
+  }
+
+  const cacheKey = `${sourceName}`;
+  
+  // Check if we already have cached data (double-check)
+  if (this.accountAttributesCache.has(cacheKey)) {
+    return;
+  }
+
+  // Set loading state
+  this.loadingStates.set(cacheKey, true);
+
+  const sourceId = this.sourceMap.get(sourceName);
+  if (typeof sourceId === 'string') {
+    try {
+      const response = await this.sdk.getSourceSchemas({ sourceId });
+      const schemas = response.data;
+
+      const userSchema = schemas.find(schema => 
+        schema.nativeObjectType === "User" || schema.nativeObjectType === "account"
+      );
+      const attributes = userSchema ? userSchema.attributes?.map(value => value.name) : [];
+      
+      console.log('Loaded account attributes for source:', sourceName, attributes);
+      
+      this.accountAttributesCache.set(cacheKey, attributes ?? []);
+      this.loadingStates.set(cacheKey, false);
+      
+      // Trigger change detection to update the UI
+      setTimeout(() => {
+        // This ensures Angular picks up the changes
+      }, 0);
+      
+    } catch (error) {
+      console.error('Error loading account attributes:', error);
+      this.loadingStates.set(cacheKey, false);
+    }
+  } else {
+    this.loadingStates.set(cacheKey, false);
+  }
+}
+
+  isAccountAttributeDisabled(editor: any): boolean {
+    const sourceName = editor.step.properties['sourceName'];
+    return !sourceName || this.isLoadingAccountAttributes(editor);  
+  }
+
+  isLoadingAccountAttributes(editor: any): boolean {
+  const sourceName = editor.step.properties['sourceName'];
+  if (!sourceName) {
+    return false;
+  }
+
+  const cacheKey = `${sourceName}`;
+  return this.loadingStates.get(cacheKey) || false;
+  }
+
+  // Optional: Method to clear cache when needed
+  clearAccountAttributesCache(): void {
+    this.accountAttributesCache.clear();
+    this.loadingStates.clear();
   }
 
   isRequired(stepName: string, key: string): boolean {

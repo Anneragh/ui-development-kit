@@ -113,9 +113,23 @@ return createStepModel<AccountAttributeStep>(
 }
 
 
-export async function getAvailableSources(sdk: SailPointSDKService): Promise<string[]> {
+export async function getAvailableSources(sdk: SailPointSDKService): Promise<{
+    names: string[],
+    map: Map<string, string>
+}> {
     const response = await sdk.listSources();
-    return response.data.map(source => source.name);
+    const sourceMap = new Map<string, string>();
+    
+    response.data.forEach(source => {
+        if (typeof source.name === 'string' && typeof source.id === 'string') {
+            sourceMap.set(source.name, source.id);
+        }
+    });
+    
+    return {
+        names: response.data.map(source => source.name),
+        map: sourceMap
+    };
 }
 
 
