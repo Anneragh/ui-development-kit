@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
-import { SailPointSDKService } from 'sailpoint-components';
-import { MatDialog } from '@angular/material/dialog';
-import { IdentityV2025 } from 'sailpoint-api-client';
-import { GenericDialogComponent } from '../../../projects/sailpoint-components/src/lib/generic-dialog/generic-dialog.component';
-import { CommonModule } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   CdkDragDrop,
-  DragDrop,
   DragDropModule,
-  moveItemInArray,
+  moveItemInArray
 } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { IdentityV2025 } from 'sailpoint-api-client';
+import { SailPointSDKService } from 'sailpoint-components';
+import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
 
 @Component({
   selector: 'app-identities',
@@ -20,6 +20,7 @@ import {
     CommonModule,
     MatProgressSpinnerModule,
     DragDropModule,
+    MatPaginatorModule, // Added this import
   ],
   templateUrl: './identities.component.html',
   styleUrl: './identities.component.scss',
@@ -32,11 +33,29 @@ export class IdentitiesComponent implements OnInit {
   hasDataLoaded = false;
   showColumnSelector = false;
   columnOrder: string[] = [];
+  pageSize = 10;
+  pageIndex = 0;
+  totalCount = 0; // Added totalCount property
 
-  constructor(private dialog: MatDialog, private sdk: SailPointSDKService) {}
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  constructor(private dialog: MatDialog, private sdk: SailPointSDKService,  private cdr: ChangeDetectorRef
+) {}
 
   ngOnInit() {
     void this.loadIdentities();
+  }
+
+  onPageChange(event: PageEvent) {
+    console.log('Page change event:', event);
+    console.log('Previous state:', { pageIndex: this.pageIndex, pageSize: this.pageSize });
+    
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    
+    console.log('New state:', { pageIndex: this.pageIndex, pageSize: this.pageSize });
+    
+    this.loadIdentities();
   }
 
   async loadIdentities() {
@@ -44,8 +63,36 @@ export class IdentitiesComponent implements OnInit {
     this.hasDataLoaded = false;
 
     try {
-      const response = await this.sdk.listIdentities();
+      console.log('Loading identities with pageIndex:', this.pageIndex, 'and pageSize:', this.pageSize);
+      const offset = this.pageIndex * this.pageSize;
+      const limit = this.pageSize;
+
+      const IdentitiesV2025ApiListIdentitiesRequest = {
+        offset: offset,
+        limit: limit,
+        count: true
+      }
+      
+      const response = await this.sdk.listIdentities(IdentitiesV2025ApiListIdentitiesRequest);
       this.identities = response.data ?? [];
+      
+      let count: number | undefined;
+      if (
+        response.headers &&
+        typeof (response.headers as any).get === 'function'
+      ) {
+        const headerValue = (response.headers as any).get('X-Total-Count');
+        count = headerValue ? Number(headerValue) : undefined;
+      } else if (
+        response.headers &&
+        typeof (response.headers as any)['x-total-count'] !== 'undefined'
+      ) {
+        // Axios style: headers are plain objects with lower-case keys
+        count = Number((response.headers as any)['x-total-count']);
+      }
+
+      this.totalCount = count ?? 500; // Adjust based on your API response structure
+
 
       if (this.identities.length > 0) {
         this.allColumns = Object.keys(this.identities[0]);
@@ -54,6 +101,7 @@ export class IdentitiesComponent implements OnInit {
       }
 
       this.hasDataLoaded = true;
+      this.cdr.detectChanges(); // Add this line
     } catch (error) {
       this.openMessageDialog(
         'Error loading identities: ' + String(error),
