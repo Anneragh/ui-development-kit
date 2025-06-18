@@ -4,27 +4,32 @@
 </button>
 
 <!-- Dropdown panel -->
-<div class="dropdown-panel" *ngIf="showColumnSelector">
-  <div
-    cdkDropList
-    (cdkDropListDropped)="dropColumn($event)"
-    class="column-selector"
-  >
-    <div
-      *ngFor="let col of columnOrder"
-      cdkDrag
-      class="column-option"
-    >
-      <input
-        type="checkbox"
-        [checked]="isColumnDisplayed(col)"
-        (change)="toggleColumn(col)"
-      />
-      {{ col }}
-      <span class="drag-handle">☰</span>
-    </div>
+<div
+  #dropdownPanel
+  class="dropdown-panel"
+  *ngIf="showColumnSelector"
+  cdkDropList
+  (cdkDropListDropped)="dropColumn($event)"
+>
+  <div *ngFor="let col of columnOrder" cdkDrag class="column-option">
+    <input
+      type="checkbox"
+      [checked]="isColumnDisplayed(col)"
+      (change)="toggleColumn(col)"
+    />
+    {{ col }}
+    <span class="drag-handle">☰</span>
   </div>
 </div>
+
+<!-- Search bar -->
+<input
+  type="text"
+  placeholder="Search identities..."
+  [(ngModel)]="searchQuery"
+  (ngModelChange)="applyFilter()"
+  class="search-input"
+/>
 
 <!-- Spinner -->
 <div *ngIf="loading" class="spinner-container">
@@ -35,7 +40,7 @@
 <!-- Table -->
 <table
   mat-table
-  [dataSource]="identities"
+  [dataSource]="filteredIdentities"
   class="mat-elevation-z8"
   *ngIf="!loading && identities.length"
 >

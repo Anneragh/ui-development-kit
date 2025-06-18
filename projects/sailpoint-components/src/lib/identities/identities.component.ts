@@ -1,21 +1,35 @@
 import {
   CdkDragDrop,
   DragDropModule,
-  moveItemInArray
+  moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  ElementRef,
+  HostListener,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from 'sailpoint-components';
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-identities',
+  standalone: true,
   imports: [
+    FormsModule,
     MatTableModule,
     CommonModule,
     MatProgressSpinnerModule,
@@ -36,25 +50,50 @@ export class IdentitiesComponent implements OnInit {
   pageSize = 10;
   pageIndex = 0;
   totalCount = 0; // Added totalCount property
-
+  searchQuery = '';
+  filteredIdentities: IdentityV2025[] = [];
+  @ViewChild('dropdownPanel') dropdownPanel!: ElementRef;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private dialog: MatDialog, private sdk: SailPointSDKService,  private cdr: ChangeDetectorRef
-) {}
+  constructor(
+    private dialog: MatDialog,
+    private sdk: SailPointSDKService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     void this.loadIdentities();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    if (
+      this.showColumnSelector &&
+      this.dropdownPanel &&
+      !this.dropdownPanel.nativeElement.contains(target) &&
+      !target.closest('.customizeColumnsToggle')
+    ) {
+      this.showColumnSelector = false;
+    }
+  }
+
   onPageChange(event: PageEvent) {
     console.log('Page change event:', event);
-    console.log('Previous state:', { pageIndex: this.pageIndex, pageSize: this.pageSize });
-    
+    console.log('Previous state:', {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize,
+    });
+
     this.pageSize = event.pageSize;
     this.pageIndex = event.pageIndex;
-    
-    console.log('New state:', { pageIndex: this.pageIndex, pageSize: this.pageSize });
-    
+
+    console.log('New state:', {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize,
+    });
+
     this.loadIdentities();
   }
 
@@ -63,19 +102,18 @@ export class IdentitiesComponent implements OnInit {
     this.hasDataLoaded = false;
 
     try {
-      console.log('Loading identities with pageIndex:', this.pageIndex, 'and pageSize:', this.pageSize);
       const offset = this.pageIndex * this.pageSize;
       const limit = this.pageSize;
 
-      const IdentitiesV2025ApiListIdentitiesRequest = {
+      const request = {
         offset: offset,
         limit: limit,
-        count: true
-      }
-      
-      const response = await this.sdk.listIdentities(IdentitiesV2025ApiListIdentitiesRequest);
+        count: true,
+      };
+
+      const response = await this.sdk.listIdentities(request);
       this.identities = response.data ?? [];
-      
+
       let count: number | undefined;
       if (
         response.headers &&
@@ -87,21 +125,22 @@ export class IdentitiesComponent implements OnInit {
         response.headers &&
         typeof (response.headers as any)['x-total-count'] !== 'undefined'
       ) {
-        // Axios style: headers are plain objects with lower-case keys
         count = Number((response.headers as any)['x-total-count']);
       }
 
-      this.totalCount = count ?? 500; // Adjust based on your API response structure
+      this.totalCount = count ?? 500;
 
-
-      if (this.identities.length > 0) {
+      // Only initialize columns once
+      if (this.allColumns.length === 0 && this.identities.length > 0) {
         this.allColumns = Object.keys(this.identities[0]);
         this.columnOrder = [...this.allColumns];
         this.displayedColumns = [...this.allColumns];
+        this.filteredIdentities = [...this.identities]; // set initially
+        this.applyFilter(); // apply any existing search filter
       }
 
       this.hasDataLoaded = true;
-      this.cdr.detectChanges(); // Add this line
+      this.cdr.detectChanges();
     } catch (error) {
       this.openMessageDialog(
         'Error loading identities: ' + String(error),
@@ -129,6 +168,21 @@ export class IdentitiesComponent implements OnInit {
         newDisplay.includes(c)
       );
     }
+  }
+
+  applyFilter(): void {
+    const query = this.searchQuery.trim().toLowerCase();
+
+    if (!query) {
+      this.filteredIdentities = [...this.identities];
+      return;
+    }
+
+    this.filteredIdentities = this.identities.filter((identity) =>
+      Object.values(identity).some((value) =>
+        value?.toString().toLowerCase().includes(query)
+      )
+    );
   }
 
   dropColumn(event: CdkDragDrop<string[]>) {
