@@ -1,6 +1,15 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 
+declare global {
+    interface Window {
+        electronAPI: {
+            readConfig: () => Promise<any>;
+            writeConfig: (config: any) => Promise<any>;
+        };
+    }
+}
+
 export interface ComponentInfo {
     name: string;
     displayName: string;
@@ -15,7 +24,8 @@ export interface ComponentInfo {
 })
 
 export class ComponentSelectorService {
-    private readonly STORAGE_KEY = 'sailpoint-enabled-components';
+    private STORAGE_KEY = 'enabledComponents';
+    private isElectron = typeof window !== 'undefined' && !!window.electronAPI;
 
     private availableComponents: ComponentInfo[] = [
         {
@@ -58,31 +68,44 @@ export class ComponentSelectorService {
     private updateEnabledComponents(): void {
         const enabledComponents = this.availableComponents //.filter(c => c.enabled);
         this.enabledComponentsSubject.next(enabledComponents);
-        this.saveEnabledComponents();
+        this.saveEnabledComponents().catch(error => {
+            console.error('Failed to save enabled components:', error);
+        });
     }
 
-    private saveEnabledComponents(): void {
+    private async saveEnabledComponents(): Promise<void> {
         try {
             const enabledNames = this.availableComponents
                 .filter(component => component.enabled)
                 .map(component => component.name);
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(enabledNames));
+            if (this.isElectron) {
+                const config = await window.electronAPI.readConfig();
+                config.components = { enabled: enabledNames };
+                await window.electronAPI.writeConfig(config);
+            } else {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(enabledNames));
+            }
         } catch (error) {
             console.error('Failed to save enabled components:', error);
         }
     }
 
-    private loadEnabledComponents(): void {
+    private async loadEnabledComponents(): Promise<void> {
         try {
-            const stored = localStorage.getItem(this.STORAGE_KEY);
-            if (stored) {
-                const enabledNames = JSON.parse(stored) as string[];
-                this.availableComponents.forEach(component => {
-                    component.enabled = enabledNames.includes(component.name);
-                });
+            let enabledNames: string[] = [];
+            if (this.isElectron) {
+                const config = await window.electronAPI.readConfig();
+                enabledNames = config.components?.enabled || [];
+            } else {
+                const stored = localStorage.getItem(this.STORAGE_KEY);
+                enabledNames = stored ? JSON.parse(stored) : [];
             }
+
+            this.availableComponents.forEach(component => {
+                component.enabled = enabledNames.includes(component.name);
+            });
         } catch (error) {
-            console.error('Failed to save enabled components:', error);
+            console.error('Failed to load enabled components:', error);
         }
         this.updateEnabledComponents();
     }
