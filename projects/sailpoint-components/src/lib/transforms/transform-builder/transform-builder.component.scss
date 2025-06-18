@@ -239,7 +239,7 @@ html {
 }
 
 .transform-name {
-  position: absolute;
+  position: absolute !important;
   padding: 10px;
   top: 16px;
   left: 40%;
@@ -317,8 +317,14 @@ html {
   border-bottom: none !important;
 }
 
-
-
-.mat-mdc-card {
-  position: absolute !important;
+.autosave-controls {
+  position: absolute;
+  bottom: 5px;
+  left: 35%;
+  z-index: 1000;
+  color:#0071ce !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+  border-radius: .5rem;
+  font-family: 'Poppins' !important;
 }

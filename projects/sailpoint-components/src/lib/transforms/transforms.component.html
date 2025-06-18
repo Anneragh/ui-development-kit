@@ -6,6 +6,7 @@
     <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
   </mat-form-field>
   <button id="new-transform-button" mat-raised-button color="primary" (click)="onEdit(undefined)">Create New</button>
+  <button id="new-transform-button" mat-raised-button color="primary" (click)="onEdit(undefined)">Import Transform</button>
 
   
   <!-- Spinner -->
@@ -45,6 +46,7 @@
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let transform">
         <button id="edit-transform-button" mat-raised-button color="primary" (click)="onEdit(transform)">Edit</button>
+        <button id="delete-transform-button" mat-raised-button color="primary" (click)="onDelete(transform)">Delete</button>
       </td>
     </ng-container>
   

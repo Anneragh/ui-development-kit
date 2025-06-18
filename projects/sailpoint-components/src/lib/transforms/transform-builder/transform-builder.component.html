@@ -1,4 +1,4 @@
-<div class="autosave-controls" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+<div *ngIf="isReady" class="autosave-controls" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
   
   <!-- Auto-save status -->
   <div class="autosave-status" style="display: flex; align-items: center; gap: 0.5rem;">
@@ -8,8 +8,8 @@
     <span class="status-text">
       <ng-container *ngIf="isSaving">Saving...</ng-container>
       <ng-container *ngIf="!isSaving && hasLocalChanges()">
-        Unsaved changes
-        <span *ngIf="lastAutoSave" style="color: #666; font-size: 0.9em;">(saved {{ lastAutoSave }})</span>
+        Has unsaved changes
+        <!-- <span *ngIf="lastAutoSave" style="color: #666; font-size: 0.9em;">(saved {{ lastAutoSave }})</span> -->
       </ng-container>
       <ng-container *ngIf="!isSaving && !hasLocalChanges()">All changes saved</ng-container>
     </span>
@@ -26,27 +26,26 @@
       <mat-icon>delete</mat-icon>
       Discard Changes
     </button>
-
+    
     <button 
-      mat-stroked-button 
-      color="primary" 
-      (click)="restoreFromCloud()"
-      [disabled]="isNewTransform || !hasLocalChanges() || isSyncing"
-      *ngIf="!isNewTransform && hasLocalChanges()">
-      <mat-icon>cloud_download</mat-icon>
-      Restore from Cloud
-    </button>
+    mat-raised-button 
+    color="accent" 
+    (click)="downloadTransform()"
+    [disabled]="!definition?.sequence?.[0]"
+    matTooltip="Download Transform Definition">
+    <mat-icon>download</mat-icon>
+    Download
+  </button>
 
     <button 
       mat-raised-button 
       color="primary" 
-      (click)="syncToCloud()"
-      [disabled]="isSyncing || (!hasLocalChanges() && !isNewTransform)"
+      (click)="saveToCloud()"
       [matBadge]="hasLocalChanges() ? '!' : null"
       matBadgeColor="warn"
       matBadgeSize="small">
       <mat-icon>{{ isSyncing ? 'sync' : 'cloud_upload' }}</mat-icon>
-      {{ isSyncing ? 'Syncing...' : (isNewTransform ? 'Create Transform' : 'Sync to Cloud') }}
+      {{ isSyncing ? 'Syncing...' : (isNewTransform ? 'Create Transform' : 'Save') }}
     </button>
   </div>
 </div>

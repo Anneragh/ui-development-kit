@@ -7,8 +7,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { TransformReadV2025 } from 'sailpoint-api-client';
-import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
+import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { TransformBuilderComponent } from './transform-builder/transform-builder.component';
 
 
@@ -75,8 +75,33 @@ export class TransformsComponent implements OnInit {
   // }
 
   onEdit(transform?: TransformReadV2025): void {
+    if (transform?.type === 'usernameGenerator') {
+      this.dialog.open(GenericDialogComponent, {
+        data: {
+          title: 'Not Supported',
+          message: 'The usernameGenerator transform type cannot be edited using the transform builder.',
+        }
+      });
+      return;
+    }
+
     this.transform = transform;
     this.editing = true;
+  }
+
+  onDelete(transform: TransformReadV2025): void {
+    this.dialog.open(GenericDialogComponent, {
+      data: {
+        title: 'Delete Transform',
+        message: `Are you sure you want to delete the transform "${transform.name}"? This action cannot be undone.`,
+        showCancel: true,
+        cancelButtonText: 'Cancel'
+      }
+    }).afterClosed().subscribe(async confirmed => {
+      if (confirmed) {
+        console.log('Deleting transform:', transform);
+      }
+    });
   }
   
 

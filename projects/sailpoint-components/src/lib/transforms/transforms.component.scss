@@ -18,6 +18,20 @@
     margin-bottom: 0px;
 }
 
+#delete-transform-button {
+    margin-left: 25px;
+    border-radius: .5rem;
+    color: #ff0000;
+    border: 1px solid #ff0000;
+    background-color: #ffffff;
+}
+
+#delete-transform-button:hover {
+    background-color: #ff0000;
+    color: #ffffff;
+    border: 1px solid #ff0000;
+}
+
 .transform-builder-container {
     position: relative;
   }

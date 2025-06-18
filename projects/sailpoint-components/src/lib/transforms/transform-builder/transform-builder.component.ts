@@ -66,7 +66,8 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
-import { TransformReadV2025 } from 'sailpoint-api-client';
+import { TransformReadV2025, TransformsV2025ApiCreateTransformRequest, TransformsV2025ApiUpdateTransformRequest } from 'sailpoint-api-client';
+import { GenericDialogComponent } from '../../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
 import { AutoSaveService } from '../transform-builder/utils/autosave.service'; // Adjust path as needed
 import { ConditionalModel, createConditional, deserializeConditional, getConditionalIcon, isConditionalStep, serializeConditional } from './models/conditional';
@@ -425,42 +426,60 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     },
 
     canInsertStep: (step, targetSequence, targetIndex) => {
-      const stepType = step.type;
-      
-      // Check the step that would be directly above (previous)
-      if (targetIndex > 0) {
-        const previousStep = targetSequence[targetIndex - 1];
-        if (previousStep.type === stepType) {
-          return false; // Same type directly above
-        }
-      }
-      
-      // Check the step that would be directly below (next)
-      if (targetIndex < targetSequence.length) {
-        const nextStep = targetSequence[targetIndex];
-        if (nextStep.type === stepType) {
-          return false; // Same type directly below
-        }
-      }
-      
-      return true; // Allow insertion
-    },
-    // Optional: Also prevent moving existing steps to invalid positions
-    canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
-      // Reuse the same logic for move operations
-      const stepType = step.type;
-      
-      // Check adjacent positions in target sequence
-      const previousStep = targetIndex > 0 ? targetSequence[targetIndex - 1] : null;
-      const nextStep = targetIndex < targetSequence.length ? targetSequence[targetIndex] : null;
-      
-      if ((previousStep && previousStep.type === stepType) || 
-          (nextStep && nextStep.type === stepType)) {
-        return false;
-      }
-      
-      return true;
+  const stepType = step.type;
+  
+  // Check if trying to insert after accountAttribute or identityAttribute
+  if (targetIndex > 0) {
+    const previousStep = targetSequence[targetIndex - 1];
+    if (previousStep.type === 'accountAttribute' || previousStep.type === 'identityAttribute') {
+      return false; // Cannot insert after these step types
     }
+    
+    // Existing logic: Check for same type directly above
+    if (previousStep.type === stepType) {
+      return false; // Same type directly above
+      
+    }
+  }
+  
+  // Check the step that would be directly below (next)
+  if (targetIndex < targetSequence.length) {
+    const nextStep = targetSequence[targetIndex];
+    if (nextStep.type === stepType) {
+      console.log(`Cannot insert step of type "${stepType}" directly after another step of the same type.`);
+      this.openMessageDialog(
+        `Cannot insert step of type "${stepType}" directly after another step of the same type.`,
+        'Cannot insert step',
+      )
+      return false; // Same type directly below
+    }
+  }
+  
+  return true; // Allow insertion
+},
+
+canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
+  const stepType = step.type;
+  
+  // Check if trying to move after accountAttribute or identityAttribute
+  if (targetIndex > 0) {
+    const previousStep = targetSequence[targetIndex - 1];
+    if (previousStep.type === 'accountAttribute' || previousStep.type === 'identityAttribute') {
+      return false; // Cannot move after these step types
+    }
+  }
+  
+  // Check adjacent positions in target sequence
+  const previousStep = targetIndex > 0 ? targetSequence[targetIndex - 1] : null;
+  const nextStep = targetIndex < targetSequence.length ? targetSequence[targetIndex] : null;
+  
+  if ((previousStep && previousStep.type === stepType) || 
+      (nextStep && nextStep.type === stepType)) {
+    return false;
+  }
+  
+  return true;
+}
   };
 
   public readonly toolboxConfiguration: ToolboxConfiguration = {
@@ -520,6 +539,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
     if (!this.transform) {
       this.definition = createDefinition();
+      this.isNewTransform = true;
     } else {
       this.definition = createDefinitionFromTransform(this.transform);
       this.isReadonly = false;
@@ -637,57 +657,58 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async syncToCloud(): Promise<void> {
-    // if (!this.definition?.sequence?.[0]) {
-    //   this.snackBar.open('Nothing to save', 'Close', { duration: 3000 });
-    //   return;
-    // }
+  public async saveToCloud(): Promise<void> {
+    if (!this.definition?.sequence?.[0]) {
+      this.snackBar.open('Nothing to save', 'Close', { duration: 3000 });
+      return;
+    }
 
-    // this.isSyncing = true;
+    this.isSyncing = true;
 
-    // try {
-    //   const serializedTransform = serializeStep(this.definition.sequence[0]);
-    //   const transformName = this.definition.properties?.name || 'Untitled Transform';
+    try {
+      let serializedTransform = serializeStep(this.definition.sequence[0]);
 
-    //   if (this.isNewTransform) {
-    //     // Create new transform
-    //     const response = await this.sdk.createTransform({
-    //       requestBody: {
-    //         name: transformName,
-    //         type: 'accountAttribute', // You might want to detect this dynamically
-    //         attributes: serializedTransform
-    //       }
-    //     });
-        
-    //     this.transform = response.data;
-    //     this.isNewTransform = false;
-    //     this.autoSaveService.clearLocalSave('new_transform', true);
-    //     this.snackBar.open('Transform created successfully', 'Close', { duration: 3000 });
-        
-    //   } else if (this.transform?.id) {
-    //     // Update existing transform
-    //     await this.sdk.updateTransform({
-    //       id: this.transform.id,
-    //       requestBody: {
-    //         name: transformName,
-    //         type: this.transform.type,
-    //         attributes: serializedTransform
-    //       }
-    //     });
-        
-    //     this.autoSaveService.clearLocalSave(this.transform.id);
-    //     this.snackBar.open('Transform updated successfully', 'Close', { duration: 3000 });
-    //   }
+      let newTransform: TransformReadV2025 = serializedTransform as TransformReadV2025;
 
-    //   this.hasUnsavedChanges = false;
+    
+      newTransform.name = String(this.definition?.properties?.name ?? newTransform.name);
+      console.log('Saving transform to cloud:', newTransform);
+
+      // If the transform already exists, update it
+      if (this.transform?.id) {
+          const transformUpdateRequest: TransformsV2025ApiUpdateTransformRequest = {
+                    transformV2025: newTransform,
+                    id: this.transform?.id
+                  }
+
+        await this.sdk.updateTransform(transformUpdateRequest)
+
+        this.autoSaveService.clearLocalSave(this.transform.id);
+
+        this.snackBar.open(`Transform "${newTransform.name}" updated successfully`, 'Close', { duration: 3000 });
+      } else {
+        // If it's a new transform, create it
+        const createTransformRequest: TransformsV2025ApiCreateTransformRequest = {
+          transformV2025: newTransform,
+        }
+
+        const response = await this.sdk.createTransform(createTransformRequest);
+
+        this.transform = response.data;
+        this.isNewTransform = false;
+        this.autoSaveService.clearLocalSave('new_transform', true);
+        this.snackBar.open('Transform created successfully', 'Close', { duration: 3000 });
+      }
+
+      this.hasUnsavedChanges = false;
       
-    // } catch (error) {
-    //   console.error('Sync to cloud failed:', error);
-    //   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    //   this.snackBar.open(`Failed to sync: ${errorMessage}`, 'Close', { duration: 5000 });
-    // } finally {
-    //   this.isSyncing = false;
-    // }
+    } catch (error) {
+      console.error('Save to cloud failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.snackBar.open(`Failed to sync: ${errorMessage}`, 'Close', { duration: 5000 });
+    } finally {
+      this.isSyncing = false;
+    }
   }
 
   public hasLocalChanges(): boolean {
@@ -1147,5 +1168,55 @@ private async loadAccountAttributesForSource(sourceName: string): Promise<void> 
 
     return false;
   }
+
+  openMessageDialog(errorMessage: string, title: string): void {
+    this.dialog.open(GenericDialogComponent, {
+      data: {
+        title: title,
+        message: errorMessage,
+      },
+    });
+  }
+
+  public downloadTransform(): void {
+  if (!this.definition?.sequence?.[0]) {
+    this.snackBar.open('No transform to download', 'Close', { duration: 3000 });
+    return;
+  }
+
+  try {
+    let serializedTransform = serializeStep(this.definition.sequence[0]);
+
+    let transformDownload: TransformReadV2025 = serializedTransform as TransformReadV2025;
+
+    
+    transformDownload.name = String(this.definition?.properties?.name ?? transformDownload.name);
+    // Convert to JSON string with formatting
+    const jsonContent = JSON.stringify(transformDownload, null, 2);
+    
+    // Create blob and download
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create temporary download link
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${transformDownload.name}.json`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    this.snackBar.open(`Downloaded ${transformDownload.name}.json`, 'Close', { duration: 3000 });
+    
+  } catch (error) {
+    console.error('Download failed:', error);
+    this.snackBar.open('Failed to download transform', 'Close', { duration: 3000 });
+  }
+}
   
 }
