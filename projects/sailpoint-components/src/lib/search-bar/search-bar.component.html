@@ -1,0 +1,7 @@
+<input
+  type="text"
+  class="search-bar"
+  [placeholder]="placeholder"
+  [(ngModel)]="searchQuery"
+  (ngModelChange)="onSearch($event)"
+/>

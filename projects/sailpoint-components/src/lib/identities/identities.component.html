@@ -1,35 +1,14 @@
-<!-- Dropdown trigger -->
-<button class="customizeColumnsToggle" (click)="showColumnSelector = !showColumnSelector">
-  Customize Columns
-</button>
-
-<!-- Dropdown panel -->
-<div
-  #dropdownPanel
-  class="dropdown-panel"
-  *ngIf="showColumnSelector"
-  cdkDropList
-  (cdkDropListDropped)="dropColumn($event)"
->
-  <div *ngFor="let col of columnOrder" cdkDrag class="column-option">
-    <input
-      type="checkbox"
-      [checked]="isColumnDisplayed(col)"
-      (change)="toggleColumn(col)"
-    />
-    {{ col }}
-    <span class="drag-handle">☰</span>
-  </div>
-</div>
-
-<!-- Search bar -->
-<input
-  type="text"
-  placeholder="Search identities..."
-  [(ngModel)]="searchQuery"
-  (ngModelChange)="applyFilter()"
-  class="search-input"
+<app-column-customizer
+  [allColumns]="columnOrder"
+  [displayedColumns]="displayedColumns"
+  (displayedColumnsChange)="displayedColumns = $event"
 />
+
+<app-search-bar
+  [data]="identities"
+  placeholder="Search identities..."
+  (filtered)="filteredIdentities = $event"
+></app-search-bar>
 
 <!-- Spinner -->
 <div *ngIf="loading" class="spinner-container">
@@ -42,7 +21,7 @@
   mat-table
   [dataSource]="filteredIdentities"
   class="mat-elevation-z8"
-  *ngIf="!loading && identities.length"
+  *ngIf="!loading && filteredIdentities.length"
 >
   <!-- Always render all column defs -->
   <ng-container
