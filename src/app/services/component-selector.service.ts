@@ -56,7 +56,7 @@ export class ComponentSelectorService {
     }
 
     private updateEnabledComponents(): void {
-        const enabledComponents = this.availableComponents.filter(c => c.enabled);
+        const enabledComponents = this.availableComponents //.filter(c => c.enabled);
         this.enabledComponentsSubject.next(enabledComponents);
         this.saveEnabledComponents();
     }
