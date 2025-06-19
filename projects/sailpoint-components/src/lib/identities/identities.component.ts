@@ -142,6 +142,11 @@ export class IdentitiesComponent implements OnInit {
     this.loadIdentities();
   }
 
+  isSorted(column: string): boolean {
+    const apiField = this.sortFieldMap[column] || column;
+    return this.sorters.some((s) => s === apiField || s === `-${apiField}`);
+  }
+
   getSortSymbol(displayColumn: string): string | null {
     const apiField = this.sortFieldMap[displayColumn] || displayColumn;
     const match = this.sorters.find(
