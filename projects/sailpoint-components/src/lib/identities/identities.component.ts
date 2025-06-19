@@ -34,12 +34,23 @@ export class IdentitiesComponent implements OnInit {
   columnOrder: string[] = [];
   displayedColumns: string[] = [];
   allColumns: string[] = [];
+  columnWidths: Record<string, string> = {};
   loading = false;
   hasDataLoaded = false;
   pageSize = 10;
   pageIndex = 0;
   totalCount = 0;
+  sorters: string[] = [];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  readonly sortableFields = ['name', 'alias', 'identityStatus'];
+  readonly sortFieldMap: Record<string, string> = {
+    identityStatus: 'cloudStatus',
+  };
+
+  isSorted(column: string): boolean {
+    const apiField = this.sortFieldMap[column] || column;
+    return this.sorters.some((s) => s === apiField || s === `-${apiField}`);
+  }
 
   constructor(
     private dialog: MatDialog,
@@ -76,13 +87,14 @@ export class IdentitiesComponent implements OnInit {
     try {
       const offset = this.pageIndex * this.pageSize;
       const limit = this.pageSize;
+      const sortersParam = this.sorters.join(',');
 
       const request = {
-        offset: offset,
-        limit: limit,
+        offset,
+        limit,
         count: true,
+        sorters: sortersParam || undefined,
       };
-
       const response = await this.sdk.listIdentities(request);
       this.identities = response.data ?? [];
 
@@ -106,6 +118,10 @@ export class IdentitiesComponent implements OnInit {
         this.allColumns = Object.keys(this.identities[0]);
         this.columnOrder = [...this.allColumns];
         this.displayedColumns = [...this.allColumns];
+        if (!this.displayedColumns.includes('viewAction')) {
+          this.displayedColumns.push('viewAction');
+        }
+        this.columnWidths['viewAction'] = '100px'; // Optional fixed width
       }
 
       // ✅ always update for current page
@@ -123,8 +139,91 @@ export class IdentitiesComponent implements OnInit {
     }
   }
 
+  toggleSort(displayColumn: string): void {
+    if (!this.sortableFields.includes(displayColumn)) return;
+
+    const apiField = this.sortFieldMap[displayColumn] || displayColumn;
+    const existingIndex = this.sorters.findIndex(
+      (s) => s === apiField || s === `-${apiField}`
+    );
+
+    if (existingIndex > -1) {
+      const isAsc = !this.sorters[existingIndex].startsWith('-');
+      if (isAsc) {
+        this.sorters[existingIndex] = `-${apiField}`;
+      } else {
+        this.sorters.splice(existingIndex, 1);
+      }
+    } else {
+      this.sorters.push(apiField);
+    }
+
+    this.loadIdentities();
+  }
+
+  getSortSymbol(displayColumn: string): string | null {
+    const apiField = this.sortFieldMap[displayColumn] || displayColumn;
+    const match = this.sorters.find(
+      (s) => s === apiField || s === `-${apiField}`
+    );
+    if (!match) return null;
+    return match.startsWith('-') ? '▼' : '▲';
+  }
+
+  clearSort(): void {
+    this.sorters = [];
+    this.loadIdentities();
+  }
+
   trackByFn(index: number, item: string): string {
     return item;
+  }
+
+  async onView(identity: IdentityV2025): Promise<void> {
+    try {
+      if (!identity.id) {
+        this.openMessageDialog('Identity ID is missing.', 'Error');
+        return;
+      }
+      const response = await this.sdk.getIdentity({ id: identity.id });
+      const details = JSON.stringify(response, null, 2); // pretty print
+      this.openMessageDialog(
+        details,
+        `Identity Details: ${identity.name || identity.id}`
+      );
+    } catch (error) {
+      this.openMessageDialog(
+        `Failed to load identity details: ${String(error)}`,
+        'Error'
+      );
+    }
+  }
+
+  startResize(event: MouseEvent, column: string): void {
+    event.preventDefault();
+    const startX = event.pageX;
+    const startWidth = (event.target as HTMLElement).parentElement!.offsetWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const delta = moveEvent.pageX - startX;
+      const newWidth = startWidth + delta;
+      this.columnWidths[column] = `${newWidth}px`;
+
+      // Force view update
+      this.cdr.detectChanges();
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }
+
+  getIdentityById(id: string): Promise<IdentityV2025> {
+    return this.sdk.getIdentity({ id }).then((res) => res.data);
   }
 
   openMessageDialog(errorMessage: string, title: string): void {

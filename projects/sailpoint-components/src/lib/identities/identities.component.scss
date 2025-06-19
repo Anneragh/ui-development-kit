@@ -9,3 +9,59 @@
   border: none;
   height: 75vh; // takes full viewport height (adjust as needed)
 }
+
+.resizable-header {
+  position: relative;
+  user-select: none;
+  padding-right: 8px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resize-handle {
+  width: 2px;
+  cursor: col-resize;
+  height: 100%;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.459);
+}
+
+.resize-handle:hover {
+  background-color: #0071ce;
+}
+
+.sortable {
+  cursor: pointer;
+}
+
+.sortable:hover {
+  background-color: #f3f3f3;
+}
+
+.sort-icon {
+  margin-left: 6px;
+  font-size: 0.95rem;
+  color: black;
+
+  // Highlight active sort
+  &.active {
+    color: #415364;
+    font-weight: bold;
+  }
+}
+td.mat-cell,
+th.mat-header-cell {
+  vertical-align: middle;
+}
+
+td.mat-cell:last-child,
+th.mat-header-cell:last-child {
+  text-align: center;
+}
