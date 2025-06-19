@@ -33,10 +33,12 @@ interface Tenant {
   clientSecret: string | null;
   name: string;
   authType: string;
+  tenantName: string;
 }
 
 interface EnvironmentConfig {
-  tenantName: string;
+  environmentName: string;
+  tempTenantName?: string; // Only used during creation to auto-generate URLs
   tenantUrl: string;
   baseUrl: string;
   authType: 'oauth' | 'pat';
@@ -84,7 +86,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   oauthValidationStatus: 'unknown' | 'valid' | 'invalid' | 'testing' = 'unknown';
   
   config: EnvironmentConfig = {
-    tenantName: '',
+    environmentName: '',
     tenantUrl: '',
     baseUrl: '',
     authType: 'pat'
@@ -179,6 +181,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       await this.setActiveEnvironment(this.actualTenant.name);
       // Refresh tenant data to ensure we have the latest auth type
       await this.refreshCurrentTenantAuthType();
+      
+      // Auto-adjust auth method based on available credentials
+      await this.autoAdjustAuthMethod();
+      
       // Always load the selected environment's configuration
       this.loadEnvironmentForEditing(this.actualTenant);
     }
@@ -240,9 +246,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (this.actualTenant.authType === 'oauth') {
         // Perform OAuth authentication
         await this.performOAuthConnection();
-      } else {
-        // Perform PAT authentication (default)
+      } else if (this.actualTenant.authType === 'pat') {
+        // Perform PAT authentication
         await this.performPATConnection();
+      } else {
+        this.openErrorDialog('Invalid authentication method', 'Connection Error');
       }
     } catch (error) {
       console.error('Error connecting to ISC:', error);
@@ -415,10 +423,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadEnvironmentForEditing(tenant: Tenant): void {
     this.config = {
-      tenantName: tenant.name,
+      environmentName: tenant.name,
       tenantUrl: tenant.tenantUrl,
       baseUrl: tenant.apiUrl,
-      authType: this.globalAuthMethod as 'oauth' | 'pat', // Use global auth method
+      authType: tenant.authType as 'oauth' | 'pat', // Use tenant's authType instead of global
       clientId: tenant.clientId || '',
       clientSecret: tenant.clientSecret || ''
     };
@@ -428,7 +436,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.oauthValidationStatus = 'unknown';
     
     // Auto-validate OAuth if using OAuth method
-    if (this.globalAuthMethod === 'oauth' && this.config.baseUrl) {
+    if (this.config.authType === 'oauth' && this.config.baseUrl) {
       void this.validateOAuthEndpoint();
     }
   }
@@ -438,7 +446,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const currentAuthType = await window.electronAPI.getGlobalAuthType();
     
     this.config = {
-      tenantName: '',
+      environmentName: '',
       tenantUrl: '',
       baseUrl: '',
       authType: currentAuthType as 'oauth' | 'pat'
@@ -447,10 +455,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onTenantNameChange() {
     const isNewEnvironment = this.selectedTenant === 'new';
-    if (isNewEnvironment && this.config.tenantName) {
+    if (isNewEnvironment && this.config.tempTenantName) {
       // Auto-generate URLs based on tenant name
-      this.config.tenantUrl = `https://${this.config.tenantName}.identitynow.com`;
-      this.config.baseUrl = `https://${this.config.tenantName}.api.identitynow.com`;
+      this.config.tenantUrl = `https://${this.config.tempTenantName}.identitynow.com`;
+      this.config.baseUrl = `https://${this.config.tempTenantName}.api.identitynow.com`;
       
       // Trigger OAuth validation if using OAuth
       if (this.globalAuthMethod === 'oauth') {
@@ -482,7 +490,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     try {
       const isUpdate = this.selectedTenant !== 'new';
       const result = await window.electronAPI.createOrUpdateEnvironment({
-        environmentName: this.config.tenantName,
+        environmentName: this.config.environmentName,
         tenantUrl: this.config.tenantUrl,
         baseUrl: this.config.baseUrl,
         authType: this.config.authType,
@@ -520,12 +528,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       data: {
         title: 'Confirm Deletion',
         message: `Are you sure you want to delete the environment "${String(this.actualTenant.name)}"? This action cannot be undone.`,
-        showCancel: true
+        isConfirmation: true,
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
       }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
+      if (result === true) {
         void (async () => {
           try {
             const deleteResult = await window.electronAPI.deleteEnvironment(this.actualTenant!.name);
@@ -536,6 +546,8 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.selectedTenant = 'new';
               this.actualTenant = undefined;
               this.showEnvironmentDetails = false;
+              this.isConnected = false;
+              this.connectionService.setConnectionState(false);
             } else {
               this.showError(String(deleteResult.error || 'Failed to delete environment'));
             }
@@ -622,8 +634,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   validateConfig(): boolean {
-    if (!this.config.tenantName.trim()) {
-      this.showError('Tenant name is required');
+    if (!this.config.environmentName.trim()) {
+      this.showError('Environment name is required');
+      return false;
+    }
+
+    // Only validate tempTenantName for new environments
+    if (this.selectedTenant === 'new' && !this.config.tempTenantName?.trim()) {
+      this.showError('Tenant name is required to generate URLs');
       return false;
     }
 
@@ -687,5 +705,64 @@ export class HomeComponent implements OnInit, OnDestroy {
       duration: 3000,
       panelClass: ['success-snackbar']
     });
+  }
+
+  async autoAdjustAuthMethod(): Promise<void> {
+    if (!this.actualTenant) return;
+
+    const currentAuthMethod = this.globalAuthMethod;
+    const hasPATCredentials = !!(this.actualTenant.clientId && this.actualTenant.clientSecret);
+    
+    console.log(`Auto-adjusting auth method for ${this.actualTenant.name}:`);
+    console.log(`- Current method: ${currentAuthMethod}`);
+    console.log(`- Has PAT credentials: ${hasPATCredentials}`);
+
+    // If PAT is selected but credentials are missing, switch to OAuth
+    if (currentAuthMethod === 'pat' && !hasPATCredentials) {
+      console.log('PAT selected but credentials missing, switching to OAuth');
+      this.globalAuthMethod = 'oauth';
+      await window.electronAPI.setGlobalAuthType('oauth');
+      this.actualTenant.authType = 'oauth';
+      this.showSuccess(`Switched to OAuth authentication for ${this.actualTenant.name} (PAT credentials not configured)`);
+      return;
+    }
+
+    // If OAuth is selected, validate the endpoint
+    if (currentAuthMethod === 'oauth') {
+      // Set up temporary config to test OAuth endpoint
+      const tempConfig = {
+        baseUrl: this.actualTenant.apiUrl
+      };
+      
+      try {
+        const oauthInfoUrl = `${tempConfig.baseUrl}/oauth/info`;
+        const response = await fetch(oauthInfoUrl, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        // If OAuth endpoint is not reachable and we have PAT credentials, switch to PAT
+        if (!response.ok && hasPATCredentials) {
+          console.log('OAuth endpoint not reachable but PAT credentials available, switching to PAT');
+          this.globalAuthMethod = 'pat';
+          await window.electronAPI.setGlobalAuthType('pat');
+          this.actualTenant.authType = 'pat';
+          this.showSuccess(`Switched to PAT authentication for ${this.actualTenant.name} (OAuth endpoint not reachable)`);
+          return;
+        }
+      } catch (error) {
+        // If OAuth endpoint test fails and we have PAT credentials, switch to PAT
+        if (hasPATCredentials) {
+          console.log('OAuth endpoint test failed but PAT credentials available, switching to PAT');
+          this.globalAuthMethod = 'pat';
+          await window.electronAPI.setGlobalAuthType('pat');
+          this.actualTenant.authType = 'pat';
+          this.showSuccess(`Switched to PAT authentication for ${this.actualTenant.name} (OAuth endpoint not available)`);
+          return;
+        }
+      }
+    }
+
+    console.log(`Keeping current auth method: ${currentAuthMethod}`);
   }
 }

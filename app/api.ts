@@ -37,6 +37,7 @@ interface Tenant {
   clientSecret: string | null;
   name: string;
   authType: string; // Global authentication type
+  tenantName: string;
 }
 
 async function getConfig(): Promise<CLIConfig> {
@@ -422,14 +423,16 @@ export const getTenants = async () => {
 
     const tenants: Tenant[] = [];
     for (let environment of Object.keys(config.environments)) {
+      const envConfig = config.environments[environment];
       tenants.push({
         active: environment === activeEnv,
         name: environment,
-        apiUrl: config.environments[environment].baseurl,
-        tenantUrl: config.environments[environment].tenanturl,
+        apiUrl: envConfig.baseurl,
+        tenantUrl: envConfig.tenanturl,
         clientId: await getClientId(environment),
         clientSecret: await getClientSecret(environment),
         authType: config.authtype,
+        tenantName: environment,
       });
     }
     return tenants;
