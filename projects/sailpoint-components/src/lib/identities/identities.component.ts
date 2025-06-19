@@ -9,10 +9,10 @@ import {
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { IdentityV2025 } from 'sailpoint-api-client';
-import { SailPointSDKService } from 'sailpoint-components';
+import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
-import { SearchBarComponent } from 'projects/sailpoint-components/src/lib/search-bar/search-bar.component';
-import { ColumnCustomizerComponent } from 'projects/sailpoint-components/src/lib/column-customizer/column-customizer.component';
+import { SearchBarComponent } from '../search-bar/search-bar.component';
+import { ColumnCustomizerComponent } from '../column-customizer/column-customizer.component';
 
 @Component({
   selector: 'app-identities',
