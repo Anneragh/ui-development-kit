@@ -4,9 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { TransformReadV2025 } from 'sailpoint-api-client';
+import { TransformReadV2025, TransformsV2025ApiDeleteTransformRequest } from 'sailpoint-api-client';
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { TransformBuilderComponent } from './transform-builder/transform-builder.component';
@@ -16,7 +17,7 @@ import { TransformBuilderComponent } from './transform-builder/transform-builder
 @Component({
   selector: 'app-transforms',
   standalone: true,
-  imports: [MatTableModule, CommonModule, MatProgressSpinnerModule, MatInputModule, MatButtonModule, TransformBuilderComponent],
+  imports: [MatTableModule, CommonModule, MatProgressSpinnerModule, MatInputModule, MatButtonModule, TransformBuilderComponent, MatSnackBarModule],
   templateUrl: './transforms.component.html',
   styleUrl: './transforms.component.scss'
 })
@@ -29,7 +30,7 @@ export class TransformsComponent implements OnInit {
     transform: TransformReadV2025 | undefined;
     editing = false;
   
-    constructor(private dialog: MatDialog, private sdk: SailPointSDKService, private router: Router) {}
+    constructor(private dialog: MatDialog, private sdk: SailPointSDKService, private router: Router, private snackBar: MatSnackBar) {}
 
   
     ngOnInit() {
@@ -95,11 +96,30 @@ export class TransformsComponent implements OnInit {
         title: 'Delete Transform',
         message: `Are you sure you want to delete the transform "${transform.name}"? This action cannot be undone.`,
         showCancel: true,
-        cancelButtonText: 'Cancel'
+        cancelText: 'Cancel',
+        confirmText: 'Yes',
+        isConfirmation: true
       }
     }).afterClosed().subscribe(async confirmed => {
       if (confirmed) {
+
         console.log('Deleting transform:', transform);
+
+      try {
+        const transformDeleteRequest: TransformsV2025ApiDeleteTransformRequest = {
+          id: transform.id
+        } 
+        await this.sdk.deleteTransform(transformDeleteRequest);
+        this.transforms = this.transforms.filter(transformFilter => transformFilter.internal !== true && transformFilter.id !== transform.id) ?? [];
+        this.dataSource = new MatTableDataSource(this.transforms);
+        this.hasDataLoaded = true;
+        this.snackBar.open(`${transform.name} transform successfully deleted`, 'Close', { duration: 3000 });
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.openMessageDialog(`Error deleting transform: ${message}`, 'Error');
+      } finally {
+        this.loading = false;
+      }
       }
     });
   }
