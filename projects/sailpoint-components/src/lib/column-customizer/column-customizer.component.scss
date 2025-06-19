@@ -44,3 +44,18 @@
   color: #ffffff;
   border: 1px solid #0033a1;
 }
+
+:host {
+  /* Dark mode overrides */
+  :host-context(.dark-theme) .customizeColumnsToggle {
+    color: #54c0e8;
+    border: 1px solid #54c0e8; /* Light blue */
+    background-color: #1e1e1e; /* Dark surface */
+  }
+
+  :host-context(.dark-theme) .customizeColumnsToggle:hover {
+    background-color: #54c0e8;
+    color: #ffffff;
+    border: 1px solid #54c0e8;
+  }
+}

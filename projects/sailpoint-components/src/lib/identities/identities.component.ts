@@ -96,7 +96,16 @@ export class IdentitiesComponent implements OnInit {
 
       if (this.allColumns.length === 0 && this.identities.length > 0) {
         this.allColumns = Object.keys(this.identities[0]);
+
+       
+
         this.columnOrder = [...this.allColumns];
+
+        if (!this.columnOrder.includes('viewAction')) {
+          this.columnOrder.push('viewAction');
+        }
+
+
         this.displayedColumns = [...this.allColumns];
         if (!this.displayedColumns.includes('viewAction')) {
           this.displayedColumns.push('viewAction');

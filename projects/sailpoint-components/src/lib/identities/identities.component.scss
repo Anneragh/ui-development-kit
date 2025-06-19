@@ -65,3 +65,35 @@ td.mat-cell:last-child,
 th.mat-header-cell:last-child {
   text-align: center;
 }
+
+#viewIdentity {
+  padding: 8px;
+  border-radius: 0.5rem;
+  margin-bottom: 10px;
+  color: #0033a1;
+  border: 1px solid #0033a1;
+  background-color: #ffffff;
+  margin-top: 10px;
+  width: 55px;
+}
+
+#viewIdentity:hover {
+  background-color: #0033a1;
+  color: #ffffff;
+  border: 1px solid #0033a1;
+}
+
+:host {
+  /* Dark mode overrides */
+  :host-context(.dark-theme) #viewIdentity {
+    color: #54c0e8;
+    border: 1px solid #54c0e8; /* Light blue */
+    background-color: #1e1e1e; /* Dark surface */
+  }
+
+  :host-context(.dark-theme) #viewIdentity:hover {
+    background-color: #54c0e8;
+    color: #ffffff;
+    border: 1px solid #54c0e8;
+  }
+}

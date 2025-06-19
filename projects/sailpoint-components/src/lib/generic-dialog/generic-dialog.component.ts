@@ -1,5 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -15,20 +19,31 @@ export interface DialogData {
 
 @Component({
   selector: 'app-generic-dialog',
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatProgressSpinnerModule, MatIconModule],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+  ],
   template: `
     <h1 mat-dialog-title>
-      <mat-icon *ngIf="data.showSpinner" class="title-icon">{{ getTitleIcon() }}</mat-icon>
+      <mat-icon *ngIf="data.showSpinner" class="title-icon">{{
+        getTitleIcon()
+      }}</mat-icon>
       {{ data.title || 'Notification' }}
     </h1>
     <div mat-dialog-content class="dialog-content">
       <div *ngIf="data.showSpinner" class="spinner-container">
         <mat-spinner diameter="40"></mat-spinner>
       </div>
-      <p class="dialog-message">{{ data.message }}</p>
+      <pre class="dialog-message" [ngClass]="{ json: isJsonMessage }">{{
+        formattedMessage
+      }}</pre>
       <p *ngIf="data.showSpinner && isOAuthFlow()" class="oauth-instruction">
         <mat-icon class="info-icon">info</mat-icon>
-        Please complete the authentication in your browser window and return here.
+        Please complete the authentication in your browser window and return
+        here.
       </p>
     </div>
     <div mat-dialog-actions align="end">
@@ -37,56 +52,65 @@ export interface DialogData {
       </button>
     </div>
   `,
-  styles: [`
-    .dialog-content {
-      min-width: 300px;
-      padding: 20px 0;
-    }
-    
-    .spinner-container {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    
-    .dialog-message {
-      text-align: center;
-      margin: 16px 0;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-    
-    .oauth-instruction {
-      background-color: #e3f2fd;
-      padding: 12px;
-      border-radius: 4px;
-      border-left: 3px solid #2196F3;
-      margin: 16px 0 0 0;
-      font-size: 13px;
-      color: #1976d2;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .info-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      color: #2196F3;
-    }
-    
-    .title-icon {
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    
-    h1[mat-dialog-title] {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0;
-    }
-  `]
+  styles: [
+    `
+      .dialog-content {
+        min-width: 300px;
+        padding: 20px 0;
+      }
+
+      .spinner-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .dialog-message {
+        text-align: center;
+        margin: 16px 0;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .dialog-message.json {
+        text-align: left;
+        margin: 16px 0;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .oauth-instruction {
+        background-color: #e3f2fd;
+        padding: 12px;
+        border-radius: 4px;
+        border-left: 3px solid #2196f3;
+        margin: 16px 0 0 0;
+        font-size: 13px;
+        color: #1976d2;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .info-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: #2196f3;
+      }
+
+      .title-icon {
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      h1[mat-dialog-title] {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+      }
+    `,
+  ],
 })
 export class GenericDialogComponent {
   constructor(
@@ -101,16 +125,38 @@ export class GenericDialogComponent {
   getTitleIcon(): string {
     if (this.data.title?.includes('Successful')) {
       return 'check_circle';
-    } else if (this.data.title?.includes('Failed') || this.data.title?.includes('Error')) {
+    } else if (
+      this.data.title?.includes('Failed') ||
+      this.data.title?.includes('Error')
+    ) {
       return 'error';
     } else {
       return 'login';
     }
   }
 
+  get formattedMessage(): string {
+    try {
+      return JSON.stringify(JSON.parse(this.data.message), null, 2);
+    } catch {
+      return this.data.message;
+    }
+  }
+
+  get isJsonMessage(): boolean {
+    try {
+      JSON.parse(this.data.message);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   isOAuthFlow(): boolean {
-    return this.data.title?.includes('OAuth') || 
-           this.data.message?.includes('OAuth') || 
-           this.data.message?.includes('browser');
+    return (
+      this.data.title?.includes('OAuth') ||
+      this.data.message?.includes('OAuth') ||
+      this.data.message?.includes('browser')
+    );
   }
 }
