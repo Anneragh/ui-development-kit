@@ -11,8 +11,8 @@ import { MatTableModule } from '@angular/material/table';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from 'sailpoint-components';
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
-import { SearchBarComponent } from '../search-bar/search-bar.component';
-import { ColumnCustomizerComponent } from '../column-customizer/column-customizer.component';
+import { SearchBarComponent } from 'projects/sailpoint-components/src/lib/search-bar/search-bar.component';
+import { ColumnCustomizerComponent } from 'projects/sailpoint-components/src/lib/column-customizer/column-customizer.component';
 
 @Component({
   selector: 'app-identities',
@@ -41,16 +41,13 @@ export class IdentitiesComponent implements OnInit {
   pageIndex = 0;
   totalCount = 0;
   sorters: string[] = [];
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   readonly sortableFields = ['name', 'alias', 'identityStatus'];
   readonly sortFieldMap: Record<string, string> = {
     identityStatus: 'cloudStatus',
   };
 
-  isSorted(column: string): boolean {
-    const apiField = this.sortFieldMap[column] || column;
-    return this.sorters.some((s) => s === apiField || s === `-${apiField}`);
-  }
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private dialog: MatDialog,
@@ -60,24 +57,6 @@ export class IdentitiesComponent implements OnInit {
 
   ngOnInit() {
     void this.loadIdentities();
-  }
-
-  onPageChange(event: PageEvent) {
-    console.log('Page change event:', event);
-    console.log('Previous state:', {
-      pageIndex: this.pageIndex,
-      pageSize: this.pageSize,
-    });
-
-    this.pageSize = event.pageSize;
-    this.pageIndex = event.pageIndex;
-
-    console.log('New state:', {
-      pageIndex: this.pageIndex,
-      pageSize: this.pageSize,
-    });
-
-    this.loadIdentities();
   }
 
   async loadIdentities() {
@@ -95,6 +74,7 @@ export class IdentitiesComponent implements OnInit {
         count: true,
         sorters: sortersParam || undefined,
       };
+
       const response = await this.sdk.listIdentities(request);
       this.identities = response.data ?? [];
 
@@ -121,12 +101,10 @@ export class IdentitiesComponent implements OnInit {
         if (!this.displayedColumns.includes('viewAction')) {
           this.displayedColumns.push('viewAction');
         }
-        this.columnWidths['viewAction'] = '100px'; // Optional fixed width
+        this.columnWidths['viewAction'] = '100px';
       }
 
-      // ✅ always update for current page
       this.filteredIdentities = [...this.identities];
-
       this.hasDataLoaded = true;
       this.cdr.detectChanges();
     } catch (error) {
@@ -139,6 +117,12 @@ export class IdentitiesComponent implements OnInit {
     }
   }
 
+  onPageChange(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    this.loadIdentities();
+  }
+
   toggleSort(displayColumn: string): void {
     if (!this.sortableFields.includes(displayColumn)) return;
 
@@ -149,11 +133,8 @@ export class IdentitiesComponent implements OnInit {
 
     if (existingIndex > -1) {
       const isAsc = !this.sorters[existingIndex].startsWith('-');
-      if (isAsc) {
-        this.sorters[existingIndex] = `-${apiField}`;
-      } else {
-        this.sorters.splice(existingIndex, 1);
-      }
+      this.sorters[existingIndex] = isAsc ? `-${apiField}` : '';
+      if (!this.sorters[existingIndex]) this.sorters.splice(existingIndex, 1);
     } else {
       this.sorters.push(apiField);
     }
@@ -179,26 +160,6 @@ export class IdentitiesComponent implements OnInit {
     return item;
   }
 
-  async onView(identity: IdentityV2025): Promise<void> {
-    try {
-      if (!identity.id) {
-        this.openMessageDialog('Identity ID is missing.', 'Error');
-        return;
-      }
-      const response = await this.sdk.getIdentity({ id: identity.id });
-      const details = JSON.stringify(response, null, 2); // pretty print
-      this.openMessageDialog(
-        details,
-        `Identity Details: ${identity.name || identity.id}`
-      );
-    } catch (error) {
-      this.openMessageDialog(
-        `Failed to load identity details: ${String(error)}`,
-        'Error'
-      );
-    }
-  }
-
   startResize(event: MouseEvent, column: string): void {
     event.preventDefault();
     const startX = event.pageX;
@@ -208,8 +169,6 @@ export class IdentitiesComponent implements OnInit {
       const delta = moveEvent.pageX - startX;
       const newWidth = startWidth + delta;
       this.columnWidths[column] = `${newWidth}px`;
-
-      // Force view update
       this.cdr.detectChanges();
     };
 
@@ -220,6 +179,26 @@ export class IdentitiesComponent implements OnInit {
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
+  }
+
+  async onView(identity: IdentityV2025): Promise<void> {
+    try {
+      if (!identity.id) {
+        this.openMessageDialog('Identity ID is missing.', 'Error');
+        return;
+      }
+      const response = await this.sdk.getIdentity({ id: identity.id });
+      const details = JSON.stringify(response, null, 2);
+      this.openMessageDialog(
+        details,
+        `Identity Details: ${identity.name || identity.id}`
+      );
+    } catch (error) {
+      this.openMessageDialog(
+        `Failed to load identity details: ${String(error)}`,
+        'Error'
+      );
+    }
   }
 
   getIdentityById(id: string): Promise<IdentityV2025> {
