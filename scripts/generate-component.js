@@ -79,7 +79,7 @@ updatePublicApi();
 
 console.log(`🎉 Component '${componentNameKebab}' generated successfully!`);
 console.log(`📝 Next steps:`);
-console.log(`   1. Build the library: npm run build:components`);
+console.log(`   1. Build the project: npm run start`);
 console.log(`   2. Enable the component in the component selector`);
 console.log(`   3. Implement your component logic in: ${componentDir}`);
 
