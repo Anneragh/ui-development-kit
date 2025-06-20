@@ -8,6 +8,9 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import * as Prism from 'prismjs';
+import 'prismjs/components/prism-json';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export interface DialogData {
   title?: string;
@@ -25,6 +28,7 @@ export interface DialogData {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatTooltipModule,
   ],
   template: `
     <h1 mat-dialog-title>
@@ -37,9 +41,23 @@ export interface DialogData {
       <div *ngIf="data.showSpinner" class="spinner-container">
         <mat-spinner diameter="40"></mat-spinner>
       </div>
-      <pre class="dialog-message" [ngClass]="{ json: isJsonMessage }">{{
-        formattedMessage
-      }}</pre>
+      <div class="copy-container" *ngIf="isJsonMessage">
+        <button
+          mat-icon-button
+          (click)="copyToClipboard()"
+          matTooltip="Copy to clipboard"
+        >
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <pre class="dialog-message" *ngIf="isJsonMessage">
+        <code class="language-json" [innerHTML]="highlightedJson"></code>
+      </pre>
+
+      <pre class="dialog-message" *ngIf="!isJsonMessage">
+        {{ formattedMessage }}
+      </pre
+      >
       <p *ngIf="data.showSpinner && isOAuthFlow()" class="oauth-instruction">
         <mat-icon class="info-icon">info</mat-icon>
         Please complete the authentication in your browser window and return
@@ -65,11 +83,28 @@ export interface DialogData {
         margin: 20px 0;
       }
 
+      .copy-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 4px;
+        margin-right: 20px;
+      }
+
       .dialog-message {
-        text-align: center;
-        margin: 16px 0;
-        font-size: 14px;
-        line-height: 1.4;
+        overflow-x: auto;
+        border-radius: 4px;
+        font-family: 'Fira Code', monospace;
+        color: #f8f8f2;
+      }
+
+      .dialog-message {
+        padding: 0;
+        overflow-x: auto;
+      }
+
+      .dialog-message code {
+        display: block;
+        padding: 16px;
       }
 
       .dialog-message.json {
@@ -150,6 +185,23 @@ export class GenericDialogComponent {
     } catch {
       return false;
     }
+  }
+
+  get highlightedJson(): string {
+    try {
+      const json = JSON.stringify(JSON.parse(this.data.message), null, 2);
+      return Prism.highlight(json, Prism.languages.json, 'json');
+    } catch {
+      return this.data.message;
+    }
+  }
+
+  copyToClipboard(): void {
+    const textToCopy = this.formattedMessage;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      // Optional: show some feedback
+      console.log('Copied to clipboard');
+    });
   }
 
   isOAuthFlow(): boolean {

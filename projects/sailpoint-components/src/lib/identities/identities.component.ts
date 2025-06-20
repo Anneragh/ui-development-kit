@@ -45,6 +45,14 @@ export class IdentitiesComponent implements OnInit {
   readonly sortFieldMap: Record<string, string> = {
     identityStatus: 'cloudStatus',
   };
+  readonly columnDisplayNames: Record<string, string> = {
+    alias: 'Username',
+    emailAddress: 'Email',
+    lifecycleState: 'Lifecycle State',
+    name: 'Name',
+    viewAction: 'Action',
+    // Add more as needed
+  };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -96,16 +104,19 @@ export class IdentitiesComponent implements OnInit {
       if (this.allColumns.length === 0 && this.identities.length > 0) {
         this.allColumns = Object.keys(this.identities[0]);
 
-       
-
         this.columnOrder = [...this.allColumns];
 
         if (!this.columnOrder.includes('viewAction')) {
           this.columnOrder.push('viewAction');
         }
 
-
-        this.displayedColumns = [...this.allColumns];
+        this.displayedColumns = [
+          'alias',
+          'emailAddress',
+          'name',
+          'lifecycleState',
+        ];
+        // this.displayedColumns = [...this.allColumns];
         if (!this.displayedColumns.includes('viewAction')) {
           this.displayedColumns.push('viewAction');
         }
@@ -179,7 +190,7 @@ export class IdentitiesComponent implements OnInit {
         return;
       }
       const response = await this.sdk.getIdentity({ id: identity.id });
-      const details = JSON.stringify(response, null, 2);
+      const details = JSON.stringify(response.data, null, 2);
       this.openMessageDialog(
         details,
         `Identity Details: ${identity.name || identity.id}`
@@ -198,10 +209,41 @@ export class IdentitiesComponent implements OnInit {
 
   openMessageDialog(errorMessage: string, title: string): void {
     this.dialog.open(GenericDialogComponent, {
+      minWidth: '800px',
       data: {
         title: title,
         message: errorMessage,
       },
     });
+  }
+
+  onViewAttributes(identity: IdentityV2025): void {
+    const attributes = identity.attributes ?? {};
+    const formatted = JSON.stringify(attributes, null, 2);
+    this.openMessageDialog(
+      formatted,
+      `Attributes: ${identity.name || identity.id}`
+    );
+  }
+
+  formatValue(column: string, value: any): string {
+    if (column === 'lifecycleState') {
+      if (!value) return '–';
+
+      const state = value.stateName ?? '';
+      const manual = value.manuallyUpdated ? ' (manual)' : '';
+      return `${this.capitalize(state)}${manual}`;
+    }
+
+    // Default case: return as-is or JSON stringify for objects
+    if (typeof value === 'object' && value !== null) {
+      return JSON.stringify(value);
+    }
+
+    return value ?? '–';
+  }
+
+  private capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 }

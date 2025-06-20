@@ -31,7 +31,7 @@
       (click)="sortableFields.includes(column) && toggleSort(column)"
     >
       <div class="header-content">
-        <span>{{ column }}</span>
+        <span>{{ columnDisplayNames[column] || column }}</span>
         <ng-container *ngIf="sortableFields.includes(column)">
           <span class="sort-icon" [class.active]="isSorted(column)">
             <ng-container
@@ -46,7 +46,21 @@
     </th>
 
     <td mat-cell *matCellDef="let identity">
-      {{ identity[column] }}
+      <ng-container [ngSwitch]="column">
+        <ng-container *ngSwitchCase="'attributes'">
+          <button
+            id="attibuteDetails"
+            mat-button
+            color="accent"
+            (click)="onViewAttributes(identity)"
+          >
+            Attribute Details
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchDefault>
+          {{ formatValue(column, identity[column]) }}
+        </ng-container>
+      </ng-container>
     </td>
   </ng-container>
 
