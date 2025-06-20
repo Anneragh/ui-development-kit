@@ -750,7 +750,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.showSuccess(`Switched to PAT authentication for ${this.actualTenant.name} (OAuth endpoint not reachable)`);
           return;
         }
-      } catch (error) {
+      } catch (_error) {
         // If OAuth endpoint test fails and we have PAT credentials, switch to PAT
         if (hasPATCredentials) {
           console.log('OAuth endpoint test failed but PAT credentials available, switching to PAT');
