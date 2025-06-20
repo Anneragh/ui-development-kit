@@ -428,15 +428,23 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     canInsertStep: (step, targetSequence, targetIndex) => {
   const stepType = step.type;
   
-  // Check if trying to insert after accountAttribute or identityAttribute
+  // Check if trying to insert after a single task type step
   if (targetIndex > 0) {
     const previousStep = targetSequence[targetIndex - 1];
-    if (previousStep.type === 'accountAttribute' || previousStep.type === 'identityAttribute') {
+    if (previousStep.componentType === 'task') {
+      this.openMessageDialog(
+        `Cannot insert step of type "${stepType}" directly after a transform that does not take user input.`,
+        'Cannot insert step',
+      )
       return false; // Cannot insert after these step types
     }
     
     // Existing logic: Check for same type directly above
     if (previousStep.type === stepType) {
+      this.openMessageDialog(
+        `Cannot insert step of type "${stepType}" directly after another step of the same type.`,
+        'Cannot insert step Above',
+      )
       return false; // Same type directly above
       
     }
@@ -446,10 +454,9 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   if (targetIndex < targetSequence.length) {
     const nextStep = targetSequence[targetIndex];
     if (nextStep.type === stepType) {
-      console.log(`Cannot insert step of type "${stepType}" directly after another step of the same type.`);
       this.openMessageDialog(
         `Cannot insert step of type "${stepType}" directly after another step of the same type.`,
-        'Cannot insert step',
+        'Cannot insert step Below',
       )
       return false; // Same type directly below
     }
@@ -465,6 +472,7 @@ canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
   if (targetIndex > 0) {
     const previousStep = targetSequence[targetIndex - 1];
     if (previousStep.type === 'accountAttribute' || previousStep.type === 'identityAttribute') {
+      console.log(`Cannot move step of type "${stepType}" directly after accountAttribute or identityAttribute.`);
       return false; // Cannot move after these step types
     }
   }
@@ -1138,6 +1146,17 @@ private async loadAccountAttributesForSource(sourceName: string): Promise<void> 
     this.loadingStates.clear();
   }
 
+  showBranch(step: Step, branchName: string): boolean {
+    if (branchName === 'input') {
+      return false;
+    } else if (isConditionalStep(step) && (branchName === 'positiveCondition' || branchName === 'negativeCondition')) {
+      return false;
+    } else if (isDateCompareStep(step) && (branchName === 'positiveCondition' || branchName === 'negativeCondition' || branchName === 'firstDate' || branchName === 'secondDate')) {
+      return false;
+    }
+    return true;
+  }
+
   isRequired(stepName: string, key: string): boolean {
     if (!this.definitionModel) return false;
 
@@ -1217,6 +1236,159 @@ private async loadAccountAttributesForSource(sourceName: string): Promise<void> 
     console.error('Download failed:', error);
     this.snackBar.open('Failed to download transform', 'Close', { duration: 3000 });
   }
+}
+
+// Add these methods to your TransformBuilderComponent class
+
+/**
+ * Get example output for a date format pattern
+ */
+public getDateFormatExample(pattern: string): string {
+  // const examples: Record<string, string> = {
+  //   'yyyy-MM-dd': '2024-03-15',
+  //   'MM/dd/yyyy': '03/15/2024', 
+  //   'dd/MM/yyyy': '15/03/2024',
+  //   'yyyy-MM-dd HH:mm:ss': '2024-03-15 14:30:45',
+  //   'MMM dd, yyyy': 'Mar 15, 2024',
+  //   'EEEE, MMMM dd, yyyy': 'Friday, March 15, 2024',
+  //   'HH:mm:ss': '14:30:45',
+  //   'yyyy-DDD': '2024-075',
+  //   'yy/MM/dd': '24/03/15',
+  //   'dd-MMM-yyyy': '15-Mar-2024',
+  //   'MMMM yyyy': 'March 2024',
+  //   'EEE, dd MMM yyyy': 'Fri, 15 Mar 2024',
+  // };
+
+  if (!pattern || pattern.trim() === '') {
+    return 'Enter a pattern to see example';
+  }
+
+  return `Example: ${this.generateExampleFromPattern(pattern)}`;
+}
+
+/**
+ * Generate a basic example from a custom pattern
+ */
+private generateExampleFromPattern(pattern: string): string {
+  try {
+    // Simple pattern replacement for common elements
+    let example = pattern
+      .replace(/yyyy/g, '2024')
+      .replace(/yy/g, '24')
+      .replace(/MMMM/g, 'March')
+      .replace(/MMM/g, 'Mar')
+      .replace(/MM/g, '03')
+      .replace(/M/g, '3')
+      .replace(/dd/g, '15')
+      .replace(/d/g, '15')
+      .replace(/HH/g, '14')
+      .replace(/H/g, '14')
+      .replace(/hh/g, '02')
+      .replace(/h/g, '2')
+      .replace(/mm/g, '30')
+      .replace(/m/g, '30')
+      .replace(/ss/g, '45')
+      .replace(/s/g, '45')
+      .replace(/EEEE/g, 'Friday')
+      .replace(/EEE/g, 'Fri')
+      .replace(/EE/g, 'Fr')
+      .replace(/E/g, 'F')
+      .replace(/a/g, 'PM')
+      .replace(/DDD/g, '075')
+      .replace(/DD/g, '75')
+      .replace(/D/g, '75');
+
+    return example;
+  } catch (error) {
+    return '2024-03-15';
+  }
+}
+
+/**
+ * Validate a SimpleDateFormat pattern
+ */
+public validateDateFormatPattern(pattern: string): { isValid: boolean; error?: string } {
+  if (!pattern || pattern.trim() === '') {
+    return { isValid: false, error: 'Pattern cannot be empty' };
+  }
+
+  // Basic validation for common SimpleDateFormat patterns
+  const validPatterns = /^[yMdHhmsaEGwWDFkKzZSX\s\-\/\.\:\,\'\"]*$/;
+  if (!validPatterns.test(pattern)) {
+    return { isValid: false, error: 'Invalid characters in date pattern' };
+  }
+
+  // Check for balanced quotes
+  const quoteCount = (pattern.match(/'/g) || []).length;
+  if (quoteCount % 2 !== 0) {
+    return { isValid: false, error: 'Unmatched quote in pattern' };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Enhanced property update for date format fields
+ */
+public updateDateFormatProperty(
+  properties: Properties,
+  name: string,
+  event: Event | MatSlideToggleChange,
+  context: RootEditorContext | StepEditorContext
+) {
+  if (event instanceof MatSlideToggleChange) {
+    properties[name] = event.checked;
+  } else if (event instanceof Event) {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
+    
+    properties[name] = value;
+    
+    // Validate custom date format patterns
+    if ((name === 'customInputFormat' || name === 'customOutputFormat') && value) {
+      const validation = this.validateDateFormatPattern(value);
+      if (!validation.isValid) {
+        // You could show a validation error here
+        console.warn(`Invalid date format pattern: ${validation.error}`);
+      }
+    }
+  }
+  
+  context.notifyPropertiesChanged();
+}
+
+/**
+ * Check if a date format step should show custom input field
+ */
+public shouldShowCustomInput(step: any): boolean {
+  return step.type === 'dateFormat' && step.properties.inputFormat === 'CUSTOM';
+}
+
+/**
+ * Check if a date format step should show custom output field  
+ */
+public shouldShowCustomOutput(step: any): boolean {
+  return step.type === 'dateFormat' && step.properties.outputFormat === 'CUSTOM';
+}
+
+/**
+ * Get the effective input format (custom or selected)
+ */
+public getEffectiveInputFormat(step: any): string {
+  if (step.properties.inputFormat === 'CUSTOM') {
+    return step.properties.customInputFormat || '';
+  }
+  return step.properties.inputFormat || '';
+}
+
+/**
+ * Get the effective output format (custom or selected)
+ */
+public getEffectiveOutputFormat(step: any): string {
+  if (step.properties.outputFormat === 'CUSTOM') {
+    return step.properties.customOutputFormat || '';
+  }
+  return step.properties.outputFormat || '';
 }
   
 }

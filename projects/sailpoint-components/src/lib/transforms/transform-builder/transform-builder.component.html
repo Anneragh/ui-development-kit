@@ -187,8 +187,105 @@
             </mat-form-field>
           </ng-container>
 
+          <ng-container *ngIf="key === 'inputFormat' && editor.step.type === 'dateFormat'">
+              <!-- Help section with common patterns -->
+              
+                <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
+                  <mat-label>{{ key }}</mat-label>
+                  <mat-select [(ngModel)]="editor.step.properties[key]" 
+                            [disabled]="editor.isReadonly" 
+                            [required]="isRequired(editor.step.type, key)" 
+                            name="{{ key }}"
+                            (selectionChange)="updateProperty(editor.step.properties, key, $event.value, editor.context)">
+                    <mat-option *ngFor="let choice of getChoicesForProperty(editor.step.type, key)" [value]="choice">
+                      {{ getChoiceLabel(editor.step.type, choice) }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="editor.step.properties[key] === ''">
+                    {{ key }} is required
+                  </mat-error>
+                </mat-form-field>
+                
+                <!-- Custom Input Format Field -->
+                <div *ngIf="editor.step.properties['inputFormat'] === 'CUSTOM'" style="margin-top: 0.5rem;">
+                  <mat-form-field appearance="fill" style="width: 100%;">
+                    <mat-label>Custom Input Format</mat-label>
+                    <input matInput 
+                          [(ngModel)]="editor.step.properties['customInputFormat']"
+                          [readonly]="editor.isReadonly"
+                          [required]="true"
+                          placeholder="e.g., yyyy-MM-dd HH:mm:ss"
+                          (input)="updateProperty(editor.step.properties, 'customInputFormat', $event, editor.context)">
+                    <mat-error *ngIf="editor.step.properties['customInputFormat'] === ''">
+                      Custom input format is required when using CUSTOM
+                    </mat-error>
+                  </mat-form-field>
+                  
+                  <!-- Preview for custom input format -->
+                  <div *ngIf="editor.step.properties['customInputFormat']" 
+                      style="margin-top: 0.5rem; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; font-size: 0.875rem;">
+                    {{ getDateFormatExample(editor.step.properties['customInputFormat']) }}
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Output Format handling -->
+              <ng-container *ngIf="key === 'outputFormat' && editor.step.type === 'dateFormat'">
+                <!-- Check if it's a choice field first -->
+                <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
+                  <mat-label>{{ key }}</mat-label>
+                  <mat-select [(ngModel)]="editor.step.properties[key]" 
+                            [disabled]="editor.isReadonly" 
+                            [required]="isRequired(editor.step.type, key)" 
+                            name="{{ key }}"
+                            (selectionChange)="updateProperty(editor.step.properties, key, $event.value, editor.context)">
+                    <mat-option *ngFor="let choice of getChoicesForProperty(editor.step.type, key)" [value]="choice">
+                      {{ getChoiceLabel(editor.step.type, choice) }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="editor.step.properties[key] === ''">
+                    {{ key }} is required
+                  </mat-error>
+                </mat-form-field>
+                
+                <!-- Custom Output Format Field -->
+                <div *ngIf="editor.step.properties['outputFormat'] === 'CUSTOM'" style="margin-top: 0.5rem;">
+                  <mat-form-field appearance="fill" style="width: 100%;">
+                    <mat-label>Custom Output Format</mat-label>
+                    <input matInput 
+                          [(ngModel)]="editor.step.properties['customOutputFormat']"
+                          [readonly]="editor.isReadonly"
+                          [required]="true"
+                          placeholder="e.g., dd/MM/yyyy HH:mm"
+                          (input)="updateProperty(editor.step.properties, 'customOutputFormat', $event, editor.context)">
+                    <mat-hint>Use Java SimpleDateFormat pattern (e.g., dd/MM/yyyy, MMM dd, yyyy)</mat-hint>
+                    <mat-error *ngIf="editor.step.properties['customOutputFormat'] === ''">
+                      Custom output format is required when using CUSTOM
+                    </mat-error>
+                  </mat-form-field>
+                  
+                  <!-- Preview for custom output format -->
+                  <div *ngIf="editor.step.properties['customOutputFormat']" 
+                      style="margin-top: 0.5rem; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; font-size: 0.875rem;">
+                    <strong>Example:</strong> {{ getDateFormatExample(editor.step.properties['customOutputFormat']) }}
+                  </div>
+                </div>
+                <div *ngIf="(editor.step.properties['inputFormat'] === 'CUSTOM' || editor.step.properties['outputFormat'] === 'CUSTOM')" 
+                    style="margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 4px; border-left: 4px solid #2196f3;">
+                  <h4 style="margin: 0 0 0.5rem 0; color: #1976d2; font-size: 0.875rem;">Common Date Format Patterns</h4>
+                  <div style="font-size: 0.75rem; color: #424242;">
+                    <div><code>yyyy-MM-dd</code> → 2024-03-15</div>
+                    <div><code>MM/dd/yyyy</code> → 03/15/2024</div>
+                    <div><code>dd/MM/yyyy</code> → 15/03/2024</div>
+                    <div><code>MMM dd, yyyy</code> → Mar 15, 2024</div>
+                    <div><code>yyyy-MM-dd HH:mm:ss</code> → 2024-03-15 14:30:45</div>
+                    <div><code>HH:mm:ss</code> → 14:30:45</div>
+                  </div>
+                </div>
+              </ng-container>
+
             <!-- Default handling for other properties -->
-            <ng-container *ngIf="key !== 'sourceName' && key !== 'attributeName'">
+            <ng-container *ngIf="key !== 'sourceName' && key !== 'attributeName' && key !== 'inputFormat' && key !== 'outputFormat' && key !== 'customInputFormat' && key !== 'customOutputFormat'">
               <ng-container *ngIf="getChoicesForProperty(editor.step.type, key) as choices; else defaultInput">
                 <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
                   <mat-label>{{ key }}</mat-label>
@@ -201,18 +298,6 @@
                   </mat-error>
                 </mat-form-field>
               </ng-container>
-
-              <div *ngIf="key === 'inputFormat' && editor.step.properties[key] === 'CUSTOM'">
-                <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
-                  <mat-label>Custom Input Format</mat-label>
-                  <input matInput [(ngModel)]="customInputDate"
-                         [readonly]="editor.isReadonly"
-                         [required]="true">
-                         </mat-form-field>
-                         <div class="preview" *ngIf="preview">
-                          <strong>Preview:</strong> {{ preview }}
-                        </div>
-              </div>
           
               <ng-template #defaultInput>
                 <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
@@ -232,7 +317,7 @@
         
           <div *ngIf="editor?.step?.branches">
             <div *ngFor="let branchName of getBranchNames(editor.step.branches); let i = index" class="branch-row">
-              <div *ngIf="branchName !== 'input'">
+              <div *ngIf="showBranch(editor?.step, branchName)">
               <mat-form-field appearance="outline" class="branch-field">
                 <input matInput [value]="branchName" [readonly]="editor.isReadonly" placeholder="Branch Name" (change)="renameBranchAtIndex(editor.step.branches, branchName, $any($event.target).value, editor.context)"/>
               </mat-form-field>
