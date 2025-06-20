@@ -10,7 +10,6 @@
   (filtered)="filteredIdentities = $event"
 ></app-search-bar>
 
-<!-- Spinner -->
 <div *ngIf="loading" class="spinner-container">
   <mat-spinner diameter="75"></mat-spinner>
 </div>
@@ -28,15 +27,11 @@
     <th
       mat-header-cell
       *matHeaderCellDef
-      class="resizable-header"
       [ngClass]="{ sortable: sortableFields.includes(column) }"
-      [style.width]="columnWidths[column] || 'auto'"
       (click)="sortableFields.includes(column) && toggleSort(column)"
     >
       <div class="header-content">
         <span>{{ column }}</span>
-
-        <!-- ✅ Only show sort icon if sortable -->
         <ng-container *ngIf="sortableFields.includes(column)">
           <span class="sort-icon" [class.active]="isSorted(column)">
             <ng-container
@@ -47,37 +42,28 @@
             <ng-template #idleIcon>⇅</ng-template>
           </span>
         </ng-container>
-
-        <!-- Resize handle -->
-        <span
-          class="resize-handle"
-          (mousedown)="startResize($event, column)"
-          (click)="$event.stopPropagation()"
-        ></span>
       </div>
     </th>
 
-    <td
-      mat-cell
-      *matCellDef="let identity"
-      [style.width]="columnWidths[column] || 'auto'"
-    >
+    <td mat-cell *matCellDef="let identity">
       {{ identity[column] }}
     </td>
   </ng-container>
-  <!-- View Action Column -->
+
   <ng-container matColumnDef="viewAction">
-    <th mat-header-cell *matHeaderCellDef class="resizable-header">
-      <div class="header-content">Action</div>
-    </th>
+    <th mat-header-cell *matHeaderCellDef>Action</th>
     <td mat-cell *matCellDef="let identity">
-      <button id="viewIdentity" mat-button color="primary" (click)="onView(identity)">
+      <button
+        id="viewIdentity"
+        mat-button
+        color="primary"
+        (click)="onView(identity)"
+      >
         View
       </button>
     </td>
   </ng-container>
 
-  <!-- Table structure still uses displayedColumns -->
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 </table>
@@ -90,10 +76,8 @@
   [pageSizeOptions]="[10, 25, 50, 100]"
   (page)="onPageChange($event)"
   showFirstLastButtons
->
-</mat-paginator>
+></mat-paginator>
 
-<!-- Empty State -->
 <div
   *ngIf="!loading && hasDataLoaded && identities.length === 0"
   class="empty-message"

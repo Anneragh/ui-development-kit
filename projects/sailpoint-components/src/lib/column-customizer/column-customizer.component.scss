@@ -58,4 +58,11 @@
     color: #ffffff;
     border: 1px solid #54c0e8;
   }
+  :host-context(.dark-theme) .dropdown-panel {
+    background-color: #1e1e1e;
+  }
+
+  :host-context(.dark-theme) .column-option {
+    background: #2c2c2c;
+  }
 }

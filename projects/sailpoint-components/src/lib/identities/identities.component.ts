@@ -34,7 +34,6 @@ export class IdentitiesComponent implements OnInit {
   columnOrder: string[] = [];
   displayedColumns: string[] = [];
   allColumns: string[] = [];
-  columnWidths: Record<string, string> = {};
   loading = false;
   hasDataLoaded = false;
   pageSize = 10;
@@ -110,7 +109,6 @@ export class IdentitiesComponent implements OnInit {
         if (!this.displayedColumns.includes('viewAction')) {
           this.displayedColumns.push('viewAction');
         }
-        this.columnWidths['viewAction'] = '100px';
       }
 
       this.filteredIdentities = [...this.identities];
@@ -172,27 +170,6 @@ export class IdentitiesComponent implements OnInit {
 
   trackByFn(index: number, item: string): string {
     return item;
-  }
-
-  startResize(event: MouseEvent, column: string): void {
-    event.preventDefault();
-    const startX = event.pageX;
-    const startWidth = (event.target as HTMLElement).parentElement!.offsetWidth;
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      const delta = moveEvent.pageX - startX;
-      const newWidth = startWidth + delta;
-      this.columnWidths[column] = `${newWidth}px`;
-      this.cdr.detectChanges();
-    };
-
-    const onMouseUp = () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
   }
 
   async onView(identity: IdentityV2025): Promise<void> {

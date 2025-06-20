@@ -1,3 +1,19 @@
+:host {
+  :host-context(.dark-theme) #new-transform-button,
+  :host-context(.dark-theme) #edit-transform-button {
+    color: #54c0e8;
+    border: 1px solid #54c0e8; /* Light blue */
+    background-color: #1e1e1e; /* Dark surface */
+  }
+
+  :host-context(.dark-theme) #new-transform-button:hover,
+  :host-context(.dark-theme) #edit-transform-button:hover {
+    background-color: #54c0e8;
+    color: #ffffff;
+    border: 1px solid #54c0e8;
+  }
+}
+
 #new-transform-button,
 #edit-transform-button {
   padding-left: 25px;
@@ -14,23 +30,6 @@
   background-color: #0033a1;
   color: #ffffff;
   border: 1px solid #0033a1;
-}
-
-:host {
-  /* Dark mode overrides */
-  :host-context(.dark-theme) #new-transform-button,
-  #edit-transform-button {
-    color: #54c0e8;
-    border: 1px solid #54c0e8; /* Light blue */
-    background-color: #1e1e1e; /* Dark surface */
-  }
-
-  :host-context(.dark-theme) #new-transform-button:hover,
-  #edit-transform-button:hover {
-    background-color: #54c0e8;
-    color: #ffffff;
-    border: 1px solid #54c0e8;
-  }
 }
 
 #edit-transform-button {

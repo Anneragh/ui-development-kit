@@ -10,31 +10,10 @@
   height: 75vh; // takes full viewport height (adjust as needed)
 }
 
-.resizable-header {
-  position: relative;
-  user-select: none;
-  padding-right: 8px;
-}
-
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.resize-handle {
-  width: 2px;
-  cursor: col-resize;
-  height: 100%;
-  background: transparent;
-  position: absolute;
-  right: 0;
-  top: 0;
-  background-color: rgba(0, 0, 0, 0.459);
-}
-
-.resize-handle:hover {
-  background-color: #0071ce;
 }
 
 .sortable {
@@ -95,5 +74,21 @@ th.mat-header-cell:last-child {
     background-color: #54c0e8;
     color: #ffffff;
     border: 1px solid #54c0e8;
+  }
+
+  :host-context(.dark-theme) .sortable:hover {
+    background-color: #2c2c2c; /* Darker hover background */
+  }
+
+  :host-context(.dark-theme) .sort-icon {
+    margin-left: 6px;
+    font-size: 0.95rem;
+    color: #ffffff;
+
+    // Highlight active sort
+    &.active {
+      color: #ffffff;
+      font-weight: bold;
+    }
   }
 }
