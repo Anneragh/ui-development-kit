@@ -1,56 +1,58 @@
-#new-transform-button, #edit-transform-button {
-    padding-left: 25px;
-    margin-left: 25px;
-    border-radius: .5rem;
-    margin-bottom: 10px;
-    color: #0033a1;
-    border: 1px solid #0033a1;
-    background-color: #ffffff;
+#new-transform-button,
+#edit-transform-button {
+  padding-left: 25px;
+  margin-left: 25px;
+  border-radius: 0.5rem;
+  margin-bottom: 10px;
+  color: #0033a1;
+  border: 1px solid #0033a1;
+  background-color: #ffffff;
 }
 
-#new-transform-button:hover, #edit-transform-button:hover {
-    background-color: #0033a1;
-    color: #ffffff;
-    border: 1px solid #0033a1;
+#new-transform-button:hover,
+#edit-transform-button:hover {
+  background-color: #0033a1;
+  color: #ffffff;
+  border: 1px solid #0033a1;
 }
 
 #edit-transform-button {
-    margin-bottom: 0px;
+  margin-bottom: 0px;
 }
 
 #delete-transform-button {
-    margin-left: 25px;
-    border-radius: .5rem;
-    color: #ff0000;
-    border: 1px solid #ff0000;
-    background-color: #ffffff;
+  margin-left: 25px;
+  border-radius: 0.5rem;
+  color: #ff0000;
+  border: 1px solid #ff0000;
+  background-color: #ffffff;
 }
 
 #delete-transform-button:hover {
-    background-color: #ff0000;
-    color: #ffffff;
-    border: 1px solid #ff0000;
+  background-color: #ff0000;
+  color: #ffffff;
+  border: 1px solid #ff0000;
 }
 
 .transform-builder-container {
-    position: relative;
-  }
-  
-  .back-button {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    z-index: 1000; 
-    color:#0071ce;
-    background: #ffffff; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-    border-radius: .5rem;
-    font-weight: normal;
-    font-family: 'Poppins' !important;
-  }
+  position: relative;
+}
 
-  .back-button:hover {
-    background-color: #0071ce;
-    color: #ffffff;
-    border: 1px solid #0071ce;
-  }
+.back-button {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 1000;
+  color: #0071ce;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  font-weight: normal;
+  font-family: "Poppins" !important;
+}
+
+.back-button:hover {
+  background-color: #0071ce;
+  color: #ffffff;
+  border: 1px solid #0071ce;
+}
