@@ -61,9 +61,10 @@ export class AppComponent {
       console.log('Run in browser');
     }
 
-    // this.connectionService.isConnected$.subscribe(connection => {
-    //   this.isConnected = connection.connected;
-    // });
+    // Subscribe to connection state changes
+    this.connectionService.isConnected$.subscribe(connection => {
+      this.isConnected = connection.connected;
+    });
 
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {
