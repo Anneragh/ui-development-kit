@@ -106,6 +106,7 @@
     <div style="padding: 1rem;">
         <h3>{{editor.step.name}}</h3>
     
+        <ng-container *ngIf="editor.step.type !== 'dateMath'">
         <p>Attributes</p>
         <ng-container *ngFor="let key of objectKeys(editor.step.properties)">
           <div *ngIf="isBoolean(editor.step.properties[key]); else numberCheck" style="display: block; margin-top: 1rem;">
@@ -312,8 +313,172 @@
                 </mat-form-field>
               </ng-template>
             </ng-container>
+
+            <!-- Enhanced Date Math Section for stepEditorProvider template -->
+            <!-- This should be added to handle dateMath steps specifically -->
           </ng-template>
         </ng-container>
+        </ng-container>
+        <ng-container *ngIf="editor.step.type === 'dateMath'">
+              <!-- Toggle between builder and manual input -->
+              <div style="margin-top: 1rem;">
+                <mat-slide-toggle 
+                  [(ngModel)]="editor.step.properties.useBuilder"
+                  [disabled]="editor.isReadonly"
+                  (change)="onDateMathBuilderToggle(editor.step.properties, $event.checked, editor.context)">
+                  Use Visual Expression Builder
+                </mat-slide-toggle>
+              </div>
+
+              <!-- Visual Builder Mode -->
+              <div *ngIf="editor.step.properties.useBuilder" style="margin-top: 1rem;">
+                
+                <!-- Base Date Selection -->
+                <mat-form-field appearance="fill" style="display: block; margin-top: 1rem;">
+                  <mat-label>Base Date</mat-label>
+                  <mat-select [(ngModel)]="editor.step.properties.baseDate"
+                            [disabled]="editor.isReadonly"
+                            (selectionChange)="updateDateMathExpression(editor.step.properties, editor.context)">
+                    <mat-option value="input">Use Input Date</mat-option>
+                    <mat-option value="now">Use Current Date/Time</mat-option>
+                  </mat-select>
+                  <mat-hint>
+                    <ng-container *ngIf="editor.step.properties.baseDate === 'input'">
+                      Start with the date provided as input to this transform
+                    </ng-container>
+                    <ng-container *ngIf="editor.step.properties.baseDate === 'now'">
+                      Start with the current date and time
+                    </ng-container>
+                  </mat-hint>
+                </mat-form-field>
+
+                <!-- Operations Builder -->
+                <div style="margin-top: 1rem;">
+                  <h4 style="margin: 0.5rem 0; color: #424242;">Date/Time Operations</h4>
+                  
+                  <!-- Existing Operations -->
+                  <div *ngFor="let operation of getDateMathOperations(editor.step.properties); let i = index" 
+                      style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    
+                    <!-- Operation Type -->
+                    <mat-form-field appearance="outline" style="flex: 0 0 120px;">
+                      <mat-label>Operation</mat-label>
+                      <mat-select [(ngModel)]="operation.operation"
+                                [disabled]="editor.isReadonly"
+                                (selectionChange)="updateDateMathOperationAt(editor.step.properties, i, 'operation', $event.value, editor.context)">
+                        <mat-option value="+">Add</mat-option>
+                        <mat-option value="-">Subtract</mat-option>
+                        <mat-option value="/">Round to</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Value (only for + and -) -->
+                    <mat-form-field appearance="outline" style="flex: 0 0 80px;" *ngIf="operation.operation !== '/'">
+                      <mat-label>Value</mat-label>
+                      <input matInput 
+                            type="number" 
+                            min="1"
+                            [(ngModel)]="operation.value"
+                            [readonly]="editor.isReadonly"
+                            (input)="updateDateMathOperationAt(editor.step.properties, i, 'value', $event, editor.context)">
+                    </mat-form-field>
+
+                    <!-- Unit -->
+                    <mat-form-field appearance="outline" style="flex: 0 0 120px;">
+                      <mat-label>Unit</mat-label>
+                      <mat-select [(ngModel)]="operation.unit"
+                                [disabled]="editor.isReadonly"
+                                (selectionChange)="updateDateMathOperationAt(editor.step.properties, i, 'unit', $event.value, editor.context)">
+                        <mat-option value="y">Years</mat-option>
+                        <mat-option value="M">Months</mat-option>
+                        <mat-option value="w">Weeks</mat-option>
+                        <mat-option value="d">Days</mat-option>
+                        <mat-option value="h">Hours</mat-option>
+                        <mat-option value="m">Minutes</mat-option>
+                        <mat-option value="s">Seconds</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Remove Operation -->
+                    <button mat-icon-button 
+                            color="warn" 
+                            [disabled]="editor.isReadonly"
+                            (click)="removeDateMathOperation(editor.step.properties, i, editor.context)"
+                            matTooltip="Remove operation">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+
+                  <!-- Add Operation Button -->
+                  <button mat-stroked-button 
+                          color="primary" 
+                          [disabled]="editor.isReadonly"
+                          (click)="addDateMathOperation(editor.step.properties, editor.context)"
+                          style="margin-top: 0.5rem;">
+                    <mat-icon>add</mat-icon>
+                    Add Operation
+                  </button>
+                </div>
+
+                <!-- Generated Expression Preview -->
+                <div style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px; border-left: 4px solid #4caf50;">
+                  <h4 style="margin: 0 0 0.5rem 0; color: #2e7d32;">Generated Expression</h4>
+                  <code style="font-size: 1rem; color: #1565c0;">{{ getGeneratedExpression(editor.step.properties) }}</code>
+                  <div style="margin-top: 0.5rem; font-size: 0.875rem; color: #666;">
+                    {{ getExpressionDescription(editor.step.properties) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Manual Expression Mode -->
+              <div *ngIf="!editor.step.properties.useBuilder" style="margin-top: 1rem;">
+                <mat-form-field appearance="fill" style="display: block; width: 100%;">
+                  <mat-label>Date Math Expression</mat-label>
+                  <input matInput 
+                        [(ngModel)]="editor.step.properties.expression"
+                        [readonly]="editor.isReadonly"
+                        [required]="true"
+                        placeholder="e.g., now+1w, +3M, now/d"
+                        (input)="updateProperty(editor.step.properties, 'expression', $event, editor.context)">
+                  <mat-hint>Enter a date math expression manually</mat-hint>
+                  <mat-error *ngIf="editor.step.properties.expression === ''">
+                    Expression is required
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Examples and Help -->
+                <div style="margin-top: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 4px; border-left: 4px solid #2196f3;">
+                  <h4 style="margin: 0 0 0.5rem 0; color: #1976d2;">Expression Examples</h4>
+                  <div style="font-size: 0.875rem; color: #424242;">
+                    <div style="margin-bottom: 0.25rem;"><code>now</code> - Current date and time</div>
+                    <div style="margin-bottom: 0.25rem;"><code>now/h</code> - Current time rounded to the hour</div>
+                    <div style="margin-bottom: 0.25rem;"><code>now+1w</code> - One week from now</div>
+                    <div style="margin-bottom: 0.25rem;"><code>+3M</code> - Add 3 months to input date</div>
+                    <div style="margin-bottom: 0.25rem;"><code>-1d</code> - Subtract 1 day from input date</div>
+                    <div style="margin-bottom: 0.25rem;"><code>/d</code> - Round input date to start of day</div>
+                    <div><code>now+1y+1M+2d-4h/s</code> - Complex calculation</div>
+                  </div>
+                  
+                  <div style="margin-top: 1rem; font-size: 0.75rem; color: #666;">
+                    <strong>Units:</strong> y=years, M=months, w=weeks, d=days, h=hours, m=minutes, s=seconds<br>
+                    <strong>Operations:</strong> +=add, -=subtract, /=round to
+                  </div>
+                </div>
+              </div>
+
+              <!-- Round Up Option -->
+              <div style="margin-top: 1rem;">
+                <mat-slide-toggle 
+                  [(ngModel)]="editor.step.properties.roundUp"
+                  [disabled]="editor.isReadonly"
+                  (change)="updateProperty(editor.step.properties, 'roundUp', $event, editor.context)">
+                  Round Up
+                </mat-slide-toggle>
+                <div style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
+                  When rounding, round up instead of down
+                </div>
+              </div>
+            </ng-container>
         
           <div *ngIf="editor?.step?.branches">
             <div *ngFor="let branchName of getBranchNames(editor.step.branches); let i = index" class="branch-row">
@@ -333,4 +498,4 @@
             </button>
         </div>
       </div>
-  </ng-template>
+</ng-template>

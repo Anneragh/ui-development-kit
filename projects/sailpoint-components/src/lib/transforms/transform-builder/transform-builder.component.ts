@@ -1004,9 +1004,11 @@ public renameBranchAtIndex<T>(
   public getChoicesForProperty(stepType: string, key: string): string[] | null {
     if (!this.definitionModel) return null;
 
+    console.log('getChoicesForProperty', stepType, key);
     const stepDef = this.definitionModel.steps[stepType];
     if (!stepDef?.properties) return null;  
     const propDef = stepDef.properties.find(p => p.path.parts[p.path.parts.length - 1] === key);
+    if (!propDef || !propDef.value || !propDef.value.configuration) return null;
     return (propDef?.value?.configuration as ChoiceValueModelConfiguration).choices
   }
 
@@ -1389,6 +1391,247 @@ public getEffectiveOutputFormat(step: any): string {
     return step.properties.customOutputFormat || '';
   }
   return step.properties.outputFormat || '';
+}
+
+// Add these methods to your TransformBuilderComponent class for Date Math support
+
+/**
+ * Toggle between visual builder and manual expression input
+ */
+public onDateMathBuilderToggle(properties: any, useBuilder: boolean, context: any): void {
+  properties.useBuilder = useBuilder;
+  
+  if (useBuilder) {
+    // Parse existing expression into operations
+    if (properties.expression) {
+      const parsed = this.parseDateMathExpression(properties.expression);
+      properties.baseDate = parsed.baseDate;
+      properties.operations = parsed.operations;
+    } else {
+      // Initialize with defaults
+      properties.baseDate = 'input';
+      properties.operations = [];
+    }
+  } else {
+    // Build expression from current operations
+    this.updateDateMathExpression(properties, context);
+  }
+  
+  context.notifyPropertiesChanged();
+}
+
+/**
+ * Get operations array for the date math step
+ */
+public getDateMathOperations(properties: any): any[] {
+  if (!properties.operations) {
+    properties.operations = [];
+  }
+  return properties.operations;
+}
+
+/**
+ * Add a new operation to the date math step
+ */
+public addDateMathOperation(properties: any, context: any): void {
+  if (!properties.operations) {
+    properties.operations = [];
+  }
+  
+  properties.operations.push({
+    operation: '+',
+    value: 1,
+    unit: 'd'
+  });
+  
+  this.updateDateMathExpression(properties, context);
+}
+
+/**
+ * Remove an operation from the date math step
+ */
+public removeDateMathOperation(properties: any, index: number, context: any): void {
+  if (properties.operations && properties.operations.length > index) {
+    properties.operations.splice(index, 1);
+    this.updateDateMathExpression(properties, context);
+  }
+}
+
+/**
+ * Update a specific operation property
+ */
+public updateDateMathOperationAt(properties: any, index: number, field: string, value: any, context: any): void {
+  if (!properties.operations || !properties.operations[index]) {
+    return;
+  }
+  
+  const operation = properties.operations[index];
+  
+  if (field === 'value' && value instanceof Event) {
+    const target = value.target as HTMLInputElement;
+    operation[field] = parseInt(target.value, 10) || 1;
+  } else {
+    operation[field] = value;
+  }
+  
+  // If operation is changed to '/', set value to 1 (rounding doesn't need a value)
+  if (field === 'operation' && value === '/') {
+    operation.value = 1;
+  }
+  
+  this.updateDateMathExpression(properties, context);
+}
+
+/**
+ * Update the expression based on current builder state
+ */
+public updateDateMathExpression(properties: any, context: any): void {
+  if (!properties.useBuilder) {
+    context.notifyPropertiesChanged();
+    return;
+  }
+  
+  let expression = properties.baseDate === 'now' ? 'now' : '';
+  
+  if (properties.operations && properties.operations.length > 0) {
+    for (const op of properties.operations) {
+      if (op.operation === '/') {
+        expression += `/${op.unit}`;
+      } else {
+        expression += `${op.operation}${op.value || 1}${op.unit}`;
+      }
+    }
+  }
+  
+  properties.expression = expression || (properties.baseDate === 'now' ? 'now' : '');
+  context.notifyPropertiesChanged();
+}
+
+/**
+ * Get the generated expression for display
+ */
+public getGeneratedExpression(properties: any): string {
+  if (!properties.useBuilder) {
+    return properties.expression || '';
+  }
+  
+  let expression = properties.baseDate === 'now' ? 'now' : '';
+  
+  if (properties.operations && properties.operations.length > 0) {
+    for (const op of properties.operations) {
+      if (op.operation === '/') {
+        expression += `/${op.unit}`;
+      } else {
+        expression += `${op.operation}${op.value || 1}${op.unit}`;
+      }
+    }
+  }
+  
+  return expression || (properties.baseDate === 'now' ? 'now' : '(no operations)');
+}
+
+/**
+ * Get a human-readable description of the expression
+ */
+public getExpressionDescription(properties: any): string {
+  if (!properties.useBuilder || !properties.operations || properties.operations.length === 0) {
+    if (properties.baseDate === 'now') {
+      return 'Returns the current date and time';
+    }
+    return 'Returns the input date unchanged';
+  }
+  
+  const baseDescription = properties.baseDate === 'now' 
+    ? 'Starting from current date/time' 
+    : 'Starting from input date';
+  
+  const operationDescriptions = properties.operations.map((op: any) => {
+    const unitNames: Record<string, string> = {
+      'y': 'year(s)', 'M': 'month(s)', 'w': 'week(s)', 'd': 'day(s)',
+      'h': 'hour(s)', 'm': 'minute(s)', 's': 'second(s)'
+    };
+    
+    if (op.operation === '/') {
+      return `round to ${unitNames[op.unit] || op.unit}`;
+    } else if (op.operation === '+') {
+      return `add ${op.value} ${unitNames[op.unit] || op.unit}`;
+    } else {
+      return `subtract ${op.value} ${unitNames[op.unit] || op.unit}`;
+    }
+  });
+  
+  return `${baseDescription}, then ${operationDescriptions.join(', ')}`;
+}
+
+/**
+ * Parse an existing expression into base date and operations
+ */
+public parseDateMathExpression(expression: string): { baseDate: 'input' | 'now', operations: any[] } {
+  if (!expression) {
+    return { baseDate: 'input', operations: [] };
+  }
+
+  const baseDate = expression.startsWith('now') ? 'now' : 'input';
+  const operations: any[] = [];
+  
+  // Remove 'now' from beginning if present
+  let remaining = expression.startsWith('now') ? expression.substring(3) : expression;
+  
+  // Parse operations using regex
+  const operationRegex = /([+\-\/])(\d*)([yMwdhms])/g;
+  let match;
+  
+  while ((match = operationRegex.exec(remaining)) !== null) {
+    const [, operation, value, unit] = match;
+    operations.push({
+      operation: operation as '+' | '-' | '/',
+      value: operation === '/' ? 1 : (parseInt(value, 10) || 1),
+      unit: unit as 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's'
+    });
+  }
+  
+  return { baseDate, operations };
+}
+
+/**
+ * Validate a date math expression
+ */
+public validateDateMathExpression(expression: string): { isValid: boolean; error?: string } {
+  if (!expression || expression.trim() === '') {
+    return { isValid: false, error: 'Expression cannot be empty' };
+  }
+
+  // Basic validation
+  const validPattern = /^(now)?([+\-\/]\d*[yMwdhms])*$/;
+  if (!validPattern.test(expression)) {
+    return { isValid: false, error: 'Invalid expression format' };
+  }
+
+  // Check for valid units
+  const validUnits = ['y', 'M', 'w', 'd', 'h', 'm', 's'];
+  const unitMatches = expression.match(/[yMwdhms]/g) || [];
+  for (const unit of unitMatches) {
+    if (!validUnits.includes(unit)) {
+      return { isValid: false, error: `Invalid unit: ${unit}` };
+    }
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Get example expressions for date math
+ */
+public getDateMathExamples(): { expression: string; description: string }[] {
+  return [
+    { expression: 'now', description: 'Current date and time' },
+    { expression: 'now/h', description: 'Current time rounded to the hour' },
+    { expression: 'now+1w', description: 'One week from now' },
+    { expression: 'now+1y+1M+2d-4h+1m-3s/s', description: 'Complex calculation rounded to seconds' },
+    { expression: '+3M', description: 'Add 3 months to input date' },
+    { expression: '-1d', description: 'Subtract 1 day from input date' },
+    { expression: '/d', description: 'Round input date to start of day' }
+  ];
 }
   
 }
