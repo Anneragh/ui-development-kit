@@ -42,7 +42,11 @@ export class ComponentSelectorService {
     enabledComponents$ = this.enabledComponentsSubject.asObservable();
 
     constructor() {
-        this.loadEnabledComponents();
+        this.loadEnabledComponents().then(() => {
+            console.log('Components Loaded');
+        }).catch(error => {
+            console.error('Failed to load enabled components:', error);
+        });
     }
 
     getEnabledComponents(): ComponentInfo[] {
