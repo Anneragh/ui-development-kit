@@ -130,6 +130,32 @@ To build the SailPoint SDK, download the openapi-generator-cli.jar file (current
  - run the pre-script: `node .\mustache_templates\prescript.js api-specs/idn/v2025/paths`
  - run the open api generator: `java -jar openapi-generator-cli.jar generate -i api-specs/idn/sailpoint-api.v2025.yaml -g typescript-axios -o . --global-property skipFormModel=false --config generator-config.yaml --api-name-suffix V2025Api --model-name-suffix V2025`
 
+### Creating a new component
+
+To create a new component in the SailPoint components library, use the generate:component script:
+
+```bash
+npm run generate:component <component-name>
+```
+
+For example, to create a user-management component:
+
+```bash
+npm run generate:component user-management
+```
+
+This will:
+1. Create component files in `projects/sailpoint-components/src/lib/<component-name>/`
+2. Add the component to the component selector service
+3. Update app routes to include the new component
+4. Add a navigation link in the app component
+5. Export the component in the public API
+
+After generating the component, you need to:
+1. Build the project: `npm run start`
+2. Enable the component in the component selector
+3. Implement your component logic
+
 ### Build the application from source
 
 To build the application from source, first [install dependencies](#installing-dependencies). Then run the `build` script matching your OS platform, using your package manager of choice:
