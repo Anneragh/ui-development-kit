@@ -11,8 +11,9 @@ import { MatTableModule } from '@angular/material/table';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
-import { SearchBarComponent } from '../search-bar/search-bar.component';
-import { ColumnCustomizerComponent } from '../column-customizer/column-customizer.component';
+import { SearchBarComponent } from './utils/search-bar/search-bar.component';
+import { ColumnCustomizerComponent } from './utils/column-customizer/column-customizer.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-identities',
