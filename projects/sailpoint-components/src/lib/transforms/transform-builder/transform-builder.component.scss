@@ -311,7 +311,8 @@ html {
 
 .transform-name {
   color: #415364 !important;
-  margin-left: 25%;
+  margin-left: calc(13vw - 10px);
+
 }
 
 .autosave-controls {
