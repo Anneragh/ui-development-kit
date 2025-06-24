@@ -152,7 +152,7 @@ npm run ng:serve
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Building the SailPoint SDK
+<!-- ## Building the SailPoint SDK
 
 To build the SailPoint SDK with the latest API specifications:
 
@@ -183,7 +183,7 @@ To build the SailPoint SDK with the latest API specifications:
      --model-name-suffix V2025
    ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 ## Building the Application
 
