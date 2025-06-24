@@ -4,10 +4,17 @@
   (displayedColumnsChange)="displayedColumns = $event"
 />
 
+<!-- <app-search-bar
+  [data]="identities"
+  placeholder="Search identities..."
+  (filtered)="filteredIdentities = $event"
+></app-search-bar> -->
+
 <app-search-bar
   [data]="identities"
   placeholder="Search identities..."
   (filtered)="filteredIdentities = $event"
+  (searchApi)="onRemoteSearch($event)"
 ></app-search-bar>
 
 <div *ngIf="loading" class="spinner-container">
@@ -56,6 +63,19 @@
           >
             Attribute Details
           </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'managerRef'">
+          <ng-container *ngIf="identity.managerRef; else noManager">
+            <button
+              id="managerDetails"
+              mat-button
+              color="accent"
+              (click)="onViewManager(identity)"
+            >
+              Manager Details
+            </button>
+          </ng-container>
+          <ng-template #noManager>–</ng-template>
         </ng-container>
         <ng-container *ngSwitchDefault>
           {{ formatValue(column, identity[column]) }}

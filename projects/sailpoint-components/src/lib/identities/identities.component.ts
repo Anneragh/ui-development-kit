@@ -8,12 +8,14 @@ import {
 } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { IdentityV2025 } from 'sailpoint-api-client';
+import {
+  IdentityV2025,
+  SearchV2025ApiSearchPostRequest,
+} from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
 import { SearchBarComponent } from './utils/search-bar/search-bar.component';
 import { ColumnCustomizerComponent } from './utils/column-customizer/column-customizer.component';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-identities',
@@ -41,6 +43,7 @@ export class IdentitiesComponent implements OnInit {
   pageIndex = 0;
   totalCount = 0;
   sorters: string[] = [];
+  profileId = '';
 
   readonly sortableFields = ['name', 'alias', 'identityStatus'];
   readonly sortFieldMap: Record<string, string> = {
@@ -52,7 +55,6 @@ export class IdentitiesComponent implements OnInit {
     lifecycleState: 'Lifecycle State',
     name: 'Name',
     viewAction: 'Action',
-    // Add more as needed
   };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -131,6 +133,53 @@ export class IdentitiesComponent implements OnInit {
         'Error loading identities: ' + String(error),
         'Error'
       );
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async onRemoteSearch(query: string): Promise<void> {
+    if (!query || query.length < 3) return;
+
+    this.loading = true;
+
+    try {
+      let queryString = ``; // base query (can be scoped further if needed)
+
+      if (query.trim()) {
+        const escaped = query.replace(/"/g, '\\"'); // escape double quotes
+        queryString += `(name:*${escaped}*) OR (alias:*${escaped}*) OR (emailAddress:*${escaped}*) OR (lifecycleState:*${escaped}*)`;
+      }
+
+      const request: SearchV2025ApiSearchPostRequest = {
+        searchV2025: {
+          indices: ['identities'],
+          query: { query: queryString },
+          sort: ['name'],
+        },
+        limit: 250,
+      };
+
+      const { data: identities } = await this.sdk.searchPost(request);
+
+      this.filteredIdentities = (identities ?? []).map((identity: any) => ({
+        ...identity,
+        alias: identity.attributes?.uid ?? '–',
+        emailAddress: identity.attributes?.email ?? identity.email ?? '–',
+        lifecycleState: {
+          stateName:
+            identity.attributes?.identityState ??
+            identity.attributes?.cloudStatus ??
+            'Unknown',
+          manuallyUpdated: false, // set as needed if applicable
+        },
+        created: identity.created ?? undefined,
+      })) as IdentityV2025[];
+
+      this.totalCount = this.filteredIdentities.length;
+      this.pageIndex = 0;
+    } catch (err) {
+      this.openMessageDialog(`Search failed: ${String(err)}`, 'Search Error');
     } finally {
       this.loading = false;
     }
@@ -216,6 +265,24 @@ export class IdentitiesComponent implements OnInit {
         message: errorMessage,
       },
     });
+  }
+
+  onViewManager(identity: IdentityV2025): void {
+    const manager = identity.managerRef;
+
+    if (!manager) {
+      this.openMessageDialog(
+        'No manager information available.',
+        'Manager Info'
+      );
+      return;
+    }
+
+    const formatted = JSON.stringify(manager, null, 2);
+    this.openMessageDialog(
+      formatted,
+      `Manager: ${manager.type || manager.name || identity.id}`
+    );
   }
 
   onViewAttributes(identity: IdentityV2025): void {

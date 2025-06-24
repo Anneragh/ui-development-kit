@@ -50,7 +50,7 @@ th.mat-header-cell:last-child {
   text-align: center;
 }
 
-#viewIdentity, #attibuteDetails {
+#viewIdentity, #attibuteDetails, #managerDetails {
   padding: 8px;
   border-radius: 0.5rem;
   margin-bottom: 10px;
@@ -61,11 +61,11 @@ th.mat-header-cell:last-child {
   width: 55px;
 }
 
-#attibuteDetails {
+#attibuteDetails, #managerDetails {
   width: 125px;
 }
 
-#viewIdentity:hover, #attibuteDetails:hover {
+#viewIdentity:hover, #attibuteDetails:hover, #managerDetails:hover {
   background-color: #0033a1;
   color: #ffffff;
   border: 1px solid #0033a1;
@@ -73,13 +73,13 @@ th.mat-header-cell:last-child {
 
 :host {
   /* Dark mode overrides */
-  :host-context(.dark-theme) #viewIdentity, :host-context(.dark-theme) #attibuteDetails {
+  :host-context(.dark-theme) #viewIdentity, :host-context(.dark-theme) #attibuteDetails, :host-context(.dark-theme) #managerDetails {
     color: #54c0e8;
     border: 1px solid #54c0e8; /* Light blue */
     background-color: #1e1e1e; /* Dark surface */
   }
 
-  :host-context(.dark-theme) #viewIdentity:hover, :host-context(.dark-theme) #attibuteDetails:hover {
+  :host-context(.dark-theme) #viewIdentity:hover, :host-context(.dark-theme) #attibuteDetails:hover, :host-context(.dark-theme) #managerDetails:hover {
     background-color: #54c0e8;
     color: #ffffff;
     border: 1px solid #54c0e8;

@@ -14,6 +14,7 @@ export class SearchBarComponent {
   @Input() data: any[] = [];
   @Input() placeholder = 'Search...';
   @Output() filtered = new EventEmitter<any[]>();
+  @Output() searchApi = new EventEmitter<string>();
 
   searchQuery = '';
 
@@ -26,6 +27,13 @@ export class SearchBarComponent {
       return;
     }
 
+    // Emit API search if query meets length threshold
+    if (lowerQuery.length >= 3) {
+      this.searchApi.emit(lowerQuery);
+      return;
+    }
+
+    // Fallback to local filtering
     const result = this.data.filter((item) =>
       Object.values(item).some((val) =>
         val?.toString().toLowerCase().includes(lowerQuery)
