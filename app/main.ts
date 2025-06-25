@@ -2,12 +2,27 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import {connectToISC, connectToISCWithOAuth, disconnectFromISC, getTenants, harborPilotTransformChat, OAuthLogin, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType} from './api';
+import { connectToISC, connectToISCWithOAuth, disconnectFromISC, getTenants, harborPilotTransformChat, OAuthLogin, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType } from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 
 let win: BrowserWindow | null = null;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
+
+function getConfigPath(): string {
+  const userDataPath = app.getPath('userData');
+  const configPath = path.join(userDataPath, 'config.json');
+  return configPath;
+}
+
+function ensureConfigDir(): void {
+  const configPath = getConfigPath();
+  const configDir = path.dirname(configPath);
+
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+}
 
 function createWindow(): BrowserWindow {
 
@@ -25,8 +40,8 @@ function createWindow(): BrowserWindow {
       preload: path.join(__dirname, 'preload.js'),
       allowRunningInsecureContent: (serve),
       contextIsolation: true,
-      
-      
+
+
       //enableRemoteModule: false,
     },
   });
@@ -43,18 +58,18 @@ function createWindow(): BrowserWindow {
   } else {
     // Path when running electron executable
     let pathIndex = './index.html';
-  
+
     if (fs.existsSync(path.join(__dirname, '../dist/index.html'))) {
       // Path when running electron in local folder
       pathIndex = '../dist/index.html';
     }
-  
+
     const indexPath = url.format({
       pathname: path.join(__dirname, pathIndex),
       protocol: 'file:',
       slashes: true,
     });
-  
+
     win.loadURL(indexPath);
   }
 
@@ -97,7 +112,7 @@ try {
     if (!tenant || !baseAPIUrl) {
       throw new Error('Tenant and baseAPIUrl are required');
     }
-    return await OAuthLogin({tenant, baseAPIUrl});
+    return await OAuthLogin({ tenant, baseAPIUrl });
   });
 
   // Handle fetching users via IPC
@@ -111,7 +126,7 @@ try {
       const base64 = clientSecret.split("go-keyring-base64:")[1];
       clientSecret = atob(base64);
     }
-    
+
     return await connectToISC(apiUrl, baseUrl, clientId, clientSecret);
   });
 
@@ -128,7 +143,7 @@ try {
   });
 
   setupSailPointSDKHandlers();
-  
+
   ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
     return await harborPilotTransformChat(chat);
   });
@@ -147,6 +162,42 @@ try {
 
   ipcMain.handle('get-global-auth-type', async () => {
     return await getGlobalAuthType();
+  });
+
+  ipcMain.handle('read-config', async () => {
+    try {
+      const configPath = getConfigPath();
+      if (fs.existsSync(configPath)) {
+        const configData = fs.readFileSync(configPath, 'utf-8');
+        return JSON.parse(configData);
+      } else {
+        const defaultConfig = {
+          "components": {
+            "enabled": []
+          },
+          "version": "1.0.0"
+        }
+
+        ensureConfigDir();
+        fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
+        return defaultConfig;
+      }
+    } catch (error) {
+      console.error('Error reading config file:', error);
+      throw new Error('Failed to read config file');
+    }
+  });
+
+  ipcMain.handle('write-config', async (event, config) => {
+    try {
+      const configPath = getConfigPath();
+      ensureConfigDir();
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+      return { success: true };
+    } catch (error) {
+      console.error('Error writing config file:', error);
+      throw new Error('Failed to write config file');
+    }
   });
 
 } catch (e) {
