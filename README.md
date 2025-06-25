@@ -161,7 +161,30 @@ To build the SailPoint SDK with the latest API specifications:
    wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.11.0/openapi-generator-cli-7.11.0.jar
    ```
 
-<<<<<<< feature/component-selector
+2. Clone the API specifications:
+   ```bash
+   git clone https://github.com/sailpoint-oss/api-specs.git
+   ```
+
+3. Run the pre-script to prepare the specifications:
+   ```bash
+   node ./mustache_templates/prescript.js api-specs/idn/v2025/paths
+   ```
+
+4. Generate the SDK:
+   ```bash
+   java -jar openapi-generator-cli-7.11.0.jar generate \
+     -i api-specs/idn/sailpoint-api.v2025.yaml \
+     -g typescript-axios \
+     -o ./app/sailpoint-sdk \
+     --global-property skipFormModel=false \
+     --config generator-config.yaml \
+     --api-name-suffix V2025Api \
+     --model-name-suffix V2025
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+
 ### Creating a new component
 
 To create a new component in the SailPoint components library, use the generate:component script:
@@ -187,33 +210,6 @@ After generating the component, you need to:
 1. Build the project: `npm run start`
 2. Enable the component in the component selector
 3. Implement your component logic
-
-### Build the application from source
-=======
-2. Clone the API specifications:
-   ```bash
-   git clone https://github.com/sailpoint-oss/api-specs.git
-   ```
->>>>>>> main
-
-3. Run the pre-script to prepare the specifications:
-   ```bash
-   node ./mustache_templates/prescript.js api-specs/idn/v2025/paths
-   ```
-
-4. Generate the SDK:
-   ```bash
-   java -jar openapi-generator-cli-7.11.0.jar generate \
-     -i api-specs/idn/sailpoint-api.v2025.yaml \
-     -g typescript-axios \
-     -o ./app/sailpoint-sdk \
-     --global-property skipFormModel=false \
-     --config generator-config.yaml \
-     --api-name-suffix V2025Api \
-     --model-name-suffix V2025
-   ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 ## Building the Application
 
