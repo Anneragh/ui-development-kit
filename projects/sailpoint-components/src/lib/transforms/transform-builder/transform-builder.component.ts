@@ -1100,6 +1100,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   }
 
   isNumber(value: any): boolean {
+    if (value === '' || value === null || value === undefined) return true;
     return (
       typeof value === 'number' || (!isNaN(value) && !isNaN(parseFloat(value)))
     );

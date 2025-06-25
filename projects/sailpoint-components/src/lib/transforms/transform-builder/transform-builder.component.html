@@ -18,7 +18,7 @@
     Disable Editing
   </button>
 
-   <button
+  <button
     class="action-buttons"
     mat-raised-button
     color="primary"
@@ -28,10 +28,7 @@
   </button>
 
   <!-- Sync controls -->
-  <div
-    class="sync-controls"
-    style="display: flex; gap: 1rem"
-  >
+  <div class="sync-controls" style="display: flex; gap: 1rem">
     <button
       class="action-buttons"
       mat-stroked-button
@@ -304,6 +301,39 @@
               >
                 Please select a source name first
               </mat-hint>
+              <mat-error *ngIf="editor.step.properties[key] === ''">
+                {{ key }} is required
+              </mat-error>
+            </mat-form-field>
+          </ng-container>
+
+          <!-- For getReferenceIdentityAttribute: text input -->
+          <ng-container
+            *ngIf="
+              key === 'attributeName' &&
+              editor.step.type === 'getReferenceIdentityAttribute'
+            "
+          >
+            <mat-form-field
+              appearance="fill"
+              style="display: block; margin-top: 1rem"
+            >
+              <mat-label>{{ key }}</mat-label>
+              <input
+                matInput
+                [(ngModel)]="editor.step.properties[key]"
+                [readonly]="editor.isReadonly"
+                [required]="isRequired(editor.step.type, key)"
+                name="{{ key }}"
+                (input)="
+                  updateProperty(
+                    editor.step.properties,
+                    key,
+                    $event,
+                    editor.context
+                  )
+                "
+              />
               <mat-error *ngIf="editor.step.properties[key] === ''">
                 {{ key }} is required
               </mat-error>
