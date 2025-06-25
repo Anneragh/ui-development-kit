@@ -1,6 +1,7 @@
 // auto-save.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { isEqual, cloneDeep } from 'lodash-es';
 
 export interface SavedTransform {
   id?: string;
@@ -12,12 +13,12 @@ export interface SavedTransform {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AutoSaveService {
   private readonly STORAGE_KEY = 'sailpoint_transforms_autosave';
   private readonly UNSAVED_CHANGES_KEY = 'sailpoint_transforms_unsaved';
-  
+
   private unsavedChangesSubject = new BehaviorSubject<Set<string>>(new Set());
   public unsavedChanges$ = this.unsavedChangesSubject.asObservable();
 
@@ -28,32 +29,41 @@ export class AutoSaveService {
   /**
    * Auto-save a transform locally
    */
-  autoSave(transformId: string, name: string, definition: any, isNew: boolean = false, cloudVersion?: any): void {
+  autoSave(
+    transformId: string,
+    name: string,
+    definition: any,
+    isNew: boolean = false,
+    cloudVersion?: any
+  ): void {
     const savedTransform: SavedTransform = {
       id: isNew ? undefined : transformId,
       name,
       definition,
       lastModified: Date.now(),
       isNew,
-      cloudVersion
+      cloudVersion,
     };
 
     const key = this.getStorageKey(transformId, isNew);
     localStorage.setItem(key, JSON.stringify(savedTransform));
-    
+
     // Mark as having unsaved changes
     this.markAsUnsaved(transformId);
-    
+
     console.log(`Auto-saved transform: ${name}`);
   }
 
   /**
    * Get locally saved transform
    */
-  getLocalSave(transformId: string, isNew: boolean = false): SavedTransform | null {
+  getLocalSave(
+    transformId: string,
+    isNew: boolean = false
+  ): SavedTransform | null {
     const key = this.getStorageKey(transformId, isNew);
     const saved = localStorage.getItem(key);
-    
+
     if (!saved) {
       return null;
     }
@@ -72,10 +82,10 @@ export class AutoSaveService {
   clearLocalSave(transformId: string, isNew: boolean = false): void {
     const key = this.getStorageKey(transformId, isNew);
     localStorage.removeItem(key);
-    
+
     // Remove from unsaved changes
     this.markAsSaved(transformId);
-    
+
     console.log(`Cleared local save for transform: ${transformId}`);
   }
 
@@ -84,7 +94,7 @@ export class AutoSaveService {
    */
   getAllLocalSaves(): SavedTransform[] {
     const saves: SavedTransform[] = [];
-    
+
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key?.startsWith(this.STORAGE_KEY)) {
@@ -98,7 +108,7 @@ export class AutoSaveService {
         }
       }
     }
-    
+
     return saves.sort((a, b) => b.lastModified - a.lastModified);
   }
 
@@ -112,20 +122,77 @@ export class AutoSaveService {
   /**
    * Check if transform definition differs from cloud version
    */
-  hasUnsavedChanges(transformId: string, currentCloudVersion: any): boolean {
+  hasUnsavedChanges(transformId: string, currentDefinition: any): boolean {
     const localSave = this.getLocalSave(transformId);
-    if (!localSave) {
+    const cloudVersion = localSave?.cloudVersion;
+
+    if (!cloudVersion) {
+      console.warn(
+        '[AutoSave] No cloud version found for transform:',
+        transformId
+      );
       return false;
     }
 
-    // Simple deep comparison - you might want to use a more sophisticated comparison
-    return JSON.stringify(localSave.definition) !== JSON.stringify(currentCloudVersion);
+    const normalizedCloud = this.normalizeDefinition(cloudVersion);
+    const normalizedCurrent = this.normalizeDefinition(currentDefinition);
+
+    const isDifferent = !isEqual(normalizedCloud, normalizedCurrent);
+
+    return isDifferent;
+  }
+
+  private normalizeDefinition(def: any): any {
+    const clone = cloneDeep(def);
+
+    if (typeof clone !== 'object' || clone === null) {
+      return clone;
+    }
+
+    // Remove irrelevant top-level fields
+    delete clone.id;
+
+    // Normalize top-level name (Static (X) → X, Concatenate (X) → X)
+    if (typeof clone.name === 'string') {
+      const match = clone.name.match(/^(Static|Concatenate) \((.+)\)$/);
+      if (match) {
+        clone.name = match[2].trim();
+      }
+    }
+
+    // Normalize or remove internal
+    if (
+      'internal' in clone &&
+      (clone.internal === false || clone.internal === undefined)
+    ) {
+      delete clone.internal;
+    }
+
+    // Recursively clean nested "name" fields
+    function deepCleanNames(obj: any): void {
+      if (Array.isArray(obj)) {
+        obj.forEach(deepCleanNames);
+      } else if (typeof obj === 'object' && obj !== null) {
+        delete obj.name;
+        Object.values(obj).forEach(deepCleanNames);
+      }
+    }
+
+    // Apply deep clean to attributes
+    if (typeof clone.attributes === 'object' && clone.attributes !== null) {
+      deepCleanNames(clone.attributes);
+    }
+
+    return clone;
   }
 
   /**
    * Get time since last auto-save
    */
-  getTimeSinceLastSave(transformId: string, isNew: boolean = false): string | null {
+  getTimeSinceLastSave(
+    transformId: string,
+    isNew: boolean = false
+  ): string | null {
     const localSave = this.getLocalSave(transformId, isNew);
     if (!localSave) {
       return null;
@@ -166,7 +233,10 @@ export class AutoSaveService {
   }
 
   private saveUnsavedChanges(changes: Set<string>): void {
-    localStorage.setItem(this.UNSAVED_CHANGES_KEY, JSON.stringify(Array.from(changes)));
+    localStorage.setItem(
+      this.UNSAVED_CHANGES_KEY,
+      JSON.stringify(Array.from(changes))
+    );
   }
 
   private loadUnsavedChanges(): void {
@@ -186,19 +256,19 @@ export class AutoSaveService {
    */
   clearAllLocalSaves(): void {
     const keysToRemove: string[] = [];
-    
+
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key?.startsWith(this.STORAGE_KEY)) {
         keysToRemove.push(key);
       }
     }
-    
-    keysToRemove.forEach(key => localStorage.removeItem(key));
+
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
     localStorage.removeItem(this.UNSAVED_CHANGES_KEY);
-    
+
     this.unsavedChangesSubject.next(new Set());
-    
+
     console.log('Cleared all local saves');
   }
 }

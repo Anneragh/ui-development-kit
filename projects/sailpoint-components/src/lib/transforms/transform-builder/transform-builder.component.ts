@@ -841,33 +841,33 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     })();
   }
 
-  private loadFromLocalSaveIfExists(): void {
-    if (!this.transform) return;
+  // private loadFromLocalSaveIfExists(): void {
+  //   if (!this.transform) return;
 
-    const localSave = this.autoSaveService.getLocalSave(this.transform.id!);
-    if (localSave) {
-      // Ask user if they want to restore
-      const shouldRestore = confirm(
-        `Found local changes from ${this.autoSaveService.getTimeSinceLastSave(
-          this.transform.id!
-        )}. ` + 'Would you like to restore these changes?'
-      );
+  //   const localSave = this.autoSaveService.getLocalSave(this.transform.id!);
+  //   if (localSave) {
+  //     // Ask user if they want to restore
+  //     const shouldRestore = confirm(
+  //       `Found local changes from ${this.autoSaveService.getTimeSinceLastSave(
+  //         this.transform.id!
+  //       )}. ` + 'Would you like to restore these changes?'
+  //     );
 
-      if (shouldRestore) {
-        this.definition = {
-          properties: { name: localSave.name },
-          sequence: [deserializeToStep(localSave.definition)],
-        };
-        this.hasUnsavedChanges = true;
-        this.snackBar.open('Restored local changes', 'Close', {
-          duration: 3000,
-        });
-      } else {
-        // Clear the local save since user doesn't want it
-        this.autoSaveService.clearLocalSave(this.transform.id!);
-      }
-    }
-  }
+  //     if (shouldRestore) {
+  //       this.definition = {
+  //         properties: { name: localSave.name },
+  //         sequence: [deserializeToStep(localSave.definition)],
+  //       };
+  //       this.hasUnsavedChanges = true;
+  //       this.snackBar.open('Restored local changes', 'Close', {
+  //         duration: 3000,
+  //       });
+  //     } else {
+  //       // Clear the local save since user doesn't want it
+  //       this.autoSaveService.clearLocalSave(this.transform.id!);
+  //     }
+  //   }
+  // }
 
   private performAutoSave(definition: Definition): void {
     if (!definition?.sequence?.[0]) return;
@@ -983,9 +983,16 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     if (this.isNewTransform) {
       return this.hasUnsavedChanges;
     }
-    return this.transform?.id
-      ? this.autoSaveService.hasLocalChanges(this.transform.id)
-      : false;
+
+    const id = this.transform?.id;
+    if (!id) return false;
+
+    const localSave = this.autoSaveService.getLocalSave(id);
+    if (!localSave) return false;
+
+    // Compare definitions to avoid false positive
+    const parsedDef = JSON.parse(this.definitionJSON ?? '{}');
+    return this.autoSaveService.hasUnsavedChanges(id, parsedDef);
   }
 
   public restoreFromCloud(): void {
@@ -1043,8 +1050,19 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     this.definition = definition;
     this.updateDefinitionJSON();
 
-    // Trigger auto-save
-    this.hasUnsavedChanges = true;
+    if (this.transform?.id) {
+      const parsedDef = JSON.parse(this.definitionJSON ?? '{}');
+
+      const hasChanges = this.autoSaveService.hasUnsavedChanges(
+        this.transform.id,
+        parsedDef
+      );
+
+      this.hasUnsavedChanges = hasChanges;
+    } else {
+      this.hasUnsavedChanges = false;
+    }
+
     this.autoSaveSubject.next(definition);
   }
 
