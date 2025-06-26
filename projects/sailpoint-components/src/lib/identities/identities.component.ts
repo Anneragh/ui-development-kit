@@ -1,3 +1,4 @@
+// Angular and Angular Material imports
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,11 +9,15 @@ import {
 } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+
+// SailPoint types and services
 import {
   IdentityV2025,
   SearchV2025ApiSearchPostRequest,
 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
+
+// Local components
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
 import { SearchBarComponent } from './utils/search-bar/search-bar.component';
 import { ColumnCustomizerComponent } from './utils/column-customizer/column-customizer.component';
@@ -32,19 +37,29 @@ import { ColumnCustomizerComponent } from './utils/column-customizer/column-cust
   styleUrl: './identities.component.scss',
 })
 export class IdentitiesComponent implements OnInit {
+  // Table and search state
   identities: IdentityV2025[] = [];
   filteredIdentities: IdentityV2025[] = [];
+
+  // Column state
   columnOrder: string[] = [];
   displayedColumns: string[] = [];
   allColumns: string[] = [];
+
+  // Pagination and loading state
   loading = false;
   hasDataLoaded = false;
   pageSize = 10;
   pageIndex = 0;
   totalCount = 0;
+
+  // Sorting state
   sorters: string[] = [];
+
+  // Optional for user context
   profileId = '';
 
+  // Define sortable fields and column display name mapping
   readonly sortableFields = ['name', 'alias', 'identityStatus'];
   readonly sortFieldMap: Record<string, string> = {
     identityStatus: 'cloudStatus',
@@ -57,6 +72,7 @@ export class IdentitiesComponent implements OnInit {
     viewAction: 'Action',
   };
 
+  // Access paginator component
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
@@ -66,6 +82,7 @@ export class IdentitiesComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Load initial data
     void this.loadIdentities();
   }
 
@@ -74,6 +91,7 @@ export class IdentitiesComponent implements OnInit {
     this.hasDataLoaded = false;
 
     try {
+      // Setup request for paged identity results
       const offset = this.pageIndex * this.pageSize;
       const limit = this.pageSize;
       const sortersParam = this.sorters.join(',');
@@ -85,9 +103,11 @@ export class IdentitiesComponent implements OnInit {
         sorters: sortersParam || undefined,
       };
 
+      // Fetch data
       const response = await this.sdk.listIdentities(request);
       this.identities = response.data ?? [];
 
+      // Extract total count from headers (if present)
       let count: number | undefined;
       if (
         response.headers &&
@@ -104,9 +124,9 @@ export class IdentitiesComponent implements OnInit {
 
       this.totalCount = count ?? 500;
 
+      // Initialize columns if first load
       if (this.allColumns.length === 0 && this.identities.length > 0) {
         this.allColumns = Object.keys(this.identities[0]);
-
         this.columnOrder = [...this.allColumns];
 
         if (!this.columnOrder.includes('viewAction')) {
@@ -119,7 +139,6 @@ export class IdentitiesComponent implements OnInit {
           'name',
           'lifecycleState',
         ];
-        // this.displayedColumns = [...this.allColumns];
         if (!this.displayedColumns.includes('viewAction')) {
           this.displayedColumns.push('viewAction');
         }
@@ -138,16 +157,17 @@ export class IdentitiesComponent implements OnInit {
     }
   }
 
+  // Remote API search
   async onRemoteSearch(query: string): Promise<void> {
     if (!query || query.length < 3) return;
 
     this.loading = true;
 
     try {
-      let queryString = ``; // base query (can be scoped further if needed)
-
+      // Build search query
+      let queryString = ``;
       if (query.trim()) {
-        const escaped = query.replace(/"/g, '\\"'); // escape double quotes
+        const escaped = query.replace(/"/g, '\\"');
         queryString += `(name:*${escaped}*) OR (alias:*${escaped}*) OR (emailAddress:*${escaped}*) OR (lifecycleState:*${escaped}*)`;
       }
 
@@ -160,8 +180,10 @@ export class IdentitiesComponent implements OnInit {
         limit: 250,
       };
 
+      // Call search endpoint
       const { data: identities } = await this.sdk.searchPost(request);
 
+      // Transform search results
       this.filteredIdentities = (identities ?? []).map((identity: any) => ({
         ...identity,
         alias: identity.attributes?.uid ?? '–',
@@ -171,7 +193,7 @@ export class IdentitiesComponent implements OnInit {
             identity.attributes?.identityState ??
             identity.attributes?.cloudStatus ??
             'Unknown',
-          manuallyUpdated: false, // set as needed if applicable
+          manuallyUpdated: false,
         },
         created: identity.created ?? undefined,
       })) as IdentityV2025[];
@@ -185,12 +207,14 @@ export class IdentitiesComponent implements OnInit {
     }
   }
 
+  // Handle paginator page change
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.pageIndex = event.pageIndex;
     this.loadIdentities();
   }
 
+  // Toggle sorting on a column
   toggleSort(displayColumn: string): void {
     if (!this.sortableFields.includes(displayColumn)) return;
 
@@ -210,11 +234,13 @@ export class IdentitiesComponent implements OnInit {
     this.loadIdentities();
   }
 
+  // Check if column is sorted
   isSorted(column: string): boolean {
     const apiField = this.sortFieldMap[column] || column;
     return this.sorters.some((s) => s === apiField || s === `-${apiField}`);
   }
 
+  // Get sort symbol (▲/▼)
   getSortSymbol(displayColumn: string): string | null {
     const apiField = this.sortFieldMap[displayColumn] || displayColumn;
     const match = this.sorters.find(
@@ -224,15 +250,18 @@ export class IdentitiesComponent implements OnInit {
     return match.startsWith('-') ? '▼' : '▲';
   }
 
+  // Clear all sorting
   clearSort(): void {
     this.sorters = [];
     this.loadIdentities();
   }
 
+  // For *ngFor trackBy
   trackByFn(index: number, item: string): string {
     return item;
   }
 
+  // View identity details in dialog
   async onView(identity: IdentityV2025): Promise<void> {
     try {
       if (!identity.id) {
@@ -253,10 +282,12 @@ export class IdentitiesComponent implements OnInit {
     }
   }
 
+  // Fetch a single identity
   getIdentityById(id: string): Promise<IdentityV2025> {
     return this.sdk.getIdentity({ id }).then((res) => res.data);
   }
 
+  // Show dialog with title + message
   openMessageDialog(errorMessage: string, title: string): void {
     this.dialog.open(GenericDialogComponent, {
       minWidth: '800px',
@@ -267,6 +298,7 @@ export class IdentitiesComponent implements OnInit {
     });
   }
 
+  // Show manager details
   onViewManager(identity: IdentityV2025): void {
     const manager = identity.managerRef;
 
@@ -285,6 +317,7 @@ export class IdentitiesComponent implements OnInit {
     );
   }
 
+  // Show identity attribute details
   onViewAttributes(identity: IdentityV2025): void {
     const attributes = identity.attributes ?? {};
     const formatted = JSON.stringify(attributes, null, 2);
@@ -294,6 +327,7 @@ export class IdentitiesComponent implements OnInit {
     );
   }
 
+  // Format column values (especially lifecycleState)
   formatValue(column: string, value: any): string {
     if (column === 'lifecycleState') {
       if (!value) return '–';
@@ -303,7 +337,7 @@ export class IdentitiesComponent implements OnInit {
       return `${this.capitalize(state)}${manual}`;
     }
 
-    // Default case: return as-is or JSON stringify for objects
+    // For objects, stringify; else return raw value or dash
     if (typeof value === 'object' && value !== null) {
       return JSON.stringify(value);
     }
@@ -311,6 +345,7 @@ export class IdentitiesComponent implements OnInit {
     return value ?? '–';
   }
 
+  // Capitalize helper
   private capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
