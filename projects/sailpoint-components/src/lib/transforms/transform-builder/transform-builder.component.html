@@ -1,17 +1,16 @@
-<div *ngIf="isReady" class="autosave-controls">
+<div
+  *ngIf="isReady"
+  id="autosaveControls"
+  class="autosave-controls"
+  [class.dark-theme]="isDarkMode"
+>
   <h4 class="transform-name">{{ definition?.properties?.name }}</h4>
 
-  <button
-    class="action-buttons"
-    mat-raised-button
-    color="primary"
-    (click)="togglePreview()"
-  >
+  <button class="action-buttons" color="primary" (click)="togglePreview()">
     Preview Transform
   </button>
   <button
     class="action-buttons"
-    mat-raised-button
     color="primary"
     (click)="toggleReadonlyClicked()"
   >
@@ -20,7 +19,6 @@
 
   <button
     class="action-buttons"
-    mat-raised-button
     color="primary"
     (click)="viewTransformDefinition()"
   >
@@ -28,10 +26,9 @@
   </button>
 
   <!-- Sync controls -->
-  <div class="sync-controls" style="display: flex; gap: 1rem">
+  <div class="sync-controls">
     <button
       class="action-buttons"
-      mat-stroked-button
       color="warn"
       (click)="discardLocalChanges()"
       [disabled]="!hasLocalChanges() || isSyncing"
@@ -43,7 +40,6 @@
 
     <button
       class="action-buttons"
-      mat-raised-button
       color="accent"
       (click)="downloadTransform()"
       [disabled]="!definition?.sequence?.[0]"
@@ -55,7 +51,6 @@
 
     <button
       class="action-buttons"
-      mat-raised-button
       color="primary"
       (click)="saveToCloud()"
       [matBadge]="hasLocalChanges() ? '!' : null"

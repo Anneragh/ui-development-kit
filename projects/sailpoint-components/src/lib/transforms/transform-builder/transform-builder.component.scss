@@ -2,6 +2,35 @@
 @import "sequential-workflow-designer/css/designer-light.css";
 @import "sequential-workflow-designer/css/designer-dark.css";
 
+.dark-theme .action-buttons {
+  background-color: #1e1e1e;
+  color: #54c0e8;
+  border: 1px solid #54c0e8;
+}
+
+.dark-theme .action-buttons:hover {
+  background-color: #54c0e8;
+  color: #ffffff;
+  border: 1px solid #54c0e8;
+}
+
+.action-buttons {
+  color: #0071ce;
+  border-radius: 0.5rem;
+  font-family: "Poppins";
+  padding: 12px;
+  border: 1px solid #0071ce;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-buttons:hover {
+  background-color: #0071ce;
+  color: #ffffff;
+  border: 1px solid #0071ce;
+}
+
 .section-title {
   color: #0033a1 !important;
 }
@@ -190,10 +219,9 @@ html {
   height: 92vh;
 }
 
-.sqd-smart-editor-toggle{
-    height: 62px !important;
+.sqd-smart-editor-toggle {
+  height: 62px !important;
 }
-
 
 .sqd-layout-desktop .sqd-smart-editor-toggle {
   right: 435px;
@@ -221,20 +249,6 @@ html {
   background-color: #ffffff; /* Optional: background color */
   width: 100% !important;
   font-family: "Poppins" !important;
-}
-
-.action-buttons { 
-  color: #0071ce !important;
-  background: #ffffff !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-  border-radius: 0.5rem !important;
-  font-family: "Poppins" !important;
-}
-
-.action-buttons:hover {
-  background-color: #0071ce !important;
-  color: #ffffff !important;
-  border: 1px solid #0071ce !important;
 }
 
 .mdc-text-field {
@@ -305,17 +319,18 @@ html {
   border-bottom: none !important;
 }
 
-.sqd-workspace, .sqd-smart-editor-toggle, .sqd-smart-editor {
+.sqd-workspace,
+.sqd-smart-editor-toggle,
+.sqd-smart-editor {
   margin-top: 65px;
 }
 
 .transform-name {
   color: #415364 !important;
   margin-left: calc(13vw - 10px);
-
 }
 
-.autosave-controls {
+#autosaveControls {
   position: absolute;
   top: 2px;
   left: 11px;
@@ -330,7 +345,6 @@ html {
   padding: 15px;
   margin-bottom: 1rem;
 
-  background: #ffffff;
   color: #0071ce;
   font-family: "Poppins", sans-serif;
 
@@ -338,6 +352,11 @@ html {
   border-radius: 4px;
 }
 
+.sync-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
 .autosave-status {
   display: flex;

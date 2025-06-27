@@ -69,6 +69,6 @@
 </div>
 
 <div *ngIf="editing" class="transform-builder-container">
-  <button mat-button class="back-button" (click)="confirmBack()">Back</button>
+  <button id="backButton" mat-button (click)="confirmBack()">Back</button>
   <app-transform-builder [transform]="transform"></app-transform-builder>
 </div>
