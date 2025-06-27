@@ -14,6 +14,58 @@
   border: 1px solid #54c0e8;
 }
 
+.sqd-theme-dark.sqd-designer {
+  background-color: black;
+}
+
+.dark-theme .sqd-workspace {
+  background-color: black;
+}
+
+.dark-theme #autosaveControls {
+  background-color: black;
+}
+
+.dark-theme .transform-name {
+  color: #ffffff !important;
+}
+
+.dark-theme .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .mdc-text-field {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+}
+
+.dark-theme
+  .sqd-theme-dark
+  .sqd-step-switch
+  > .sqd-label-primary
+  > .sqd-label-rect {
+  fill: #0033a1 !important;
+  color: #ffffff !important;
+}
+
+.dark-theme
+  .sqd-theme-dark
+  .sqd-step-switch
+  > .sqd-label-secondary
+  > .sqd-label-rect {
+  fill: #54c0e8 !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .sqd-theme-dark .sqd-step-task .sqd-step-task-rect {
+  fill: #1e1e1e !important;
+}
+
+.dark-theme .sqd-theme-dark .sqd-step-task .sqd-step-task-text {
+  fill: #ffffff !important;
+}
+
 .action-buttons {
   color: #0071ce;
   border-radius: 0.5rem;
