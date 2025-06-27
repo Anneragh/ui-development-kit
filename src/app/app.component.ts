@@ -1,4 +1,8 @@
-import { BreakpointObserver, Breakpoints, LayoutModule } from '@angular/cdk/layout';
+import {
+  BreakpointObserver,
+  Breakpoints,
+  LayoutModule,
+} from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Renderer2 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +16,7 @@ import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import { ConnectionService } from './shared/connection.service';
 import { Router } from '@angular/router';
+import { ThemeService } from './core/services/theme.service';
 
 declare const window: any;
 
@@ -32,7 +37,7 @@ declare const window: any;
   ],
 })
 export class AppComponent {
-  isSmallScreen: boolean = false;
+  isSmallScreen = false;
   sidenavOpened = true;
   isConnected = true;
   isDarkTheme = false;
@@ -43,17 +48,22 @@ export class AppComponent {
     private connectionService: ConnectionService,
     private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
-    private router: Router
+    private router: Router,
+    private themeService: ThemeService // ✅ Inject ThemeService
   ) {
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
-    this.breakpointObserver.observe([Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall]).subscribe((result) => {
-      this.isSmallScreen = result.matches;
-      this.sidenavOpened = !this.isSmallScreen;
-    });
 
+    // Layout responsiveness
+    this.breakpointObserver
+      .observe([Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall])
+      .subscribe((result) => {
+        this.isSmallScreen = result.matches;
+        this.sidenavOpened = !this.isSmallScreen;
+      });
+
+    // Platform context
     if (electronService.isElectron) {
-      console.log(process.env);
       console.log('Run in electron');
       console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
       console.log('NodeJS childProcess', this.electronService.childProcess);
@@ -61,38 +71,29 @@ export class AppComponent {
       console.log('Run in browser');
     }
 
-    // this.connectionService.isConnected$.subscribe(connection => {
-    //   this.isConnected = connection.connected;
-    // });
-
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark') {
-      this.isDarkTheme = true;
-      this.renderer.addClass(document.body, 'dark-theme');
-    }
+    // ✅ Theme subscription
+    this.themeService.isDark$.subscribe((isDark) => {
+      this.isDarkTheme = isDark;
+      if (isDark) {
+        this.renderer.addClass(document.body, 'dark-theme');
+      } else {
+        this.renderer.removeClass(document.body, 'dark-theme');
+      }
+    });
   }
 
   toggleTheme(): void {
-    this.isDarkTheme = !this.isDarkTheme;
-    if (this.isDarkTheme) {
-      console.log('Dark theme enabled');
-      this.renderer.addClass(document.body, 'dark-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      console.log('Dark theme disabled');
-      this.renderer.removeClass(document.body, 'dark-theme');
-      localStorage.setItem('theme', 'light');
-    }
+    this.themeService.setDark(!this.isDarkTheme); // ✅ Use service setter
   }
 
-  toggleSidenav() {
+  toggleSidenav(): void {
     this.sidenavOpened = !this.sidenavOpened;
   }
 
   async disconnectFromISC() {
     await window.electronAPI.disconnectFromISC();
     this.connectionService.setConnectionState(false);
-    this.router.navigate(['/home']).catch((error: any) => {
+    this.router.navigate(['/home']).catch((error) => {
       console.error('Navigation error:', error);
     });
   }

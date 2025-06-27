@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectorRef,
   Component,
   Input,
   OnDestroy,
@@ -324,6 +325,12 @@ import {
 } from './models/uuid';
 import { MapEditorDialogComponent } from './utils/map-editor-dialog.component';
 import { TransformPreviewComponent } from './utils/transform-preview.component';
+import { ThemeService } from 'src/app/core/services/theme.service';
+import { Subscription } from 'rxjs';
+
+interface ThemedDesigner extends Designer {
+  setTheme: (theme: 'dark' | 'light') => void;
+}
 
 interface StepDefinition {
   id: string;
@@ -598,13 +605,23 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   public hasUnsavedChanges = false;
   public isNewTransform = false;
 
+  private themeSub!: Subscription;
+  public isDarkTheme = false;
+  public showDesigner = true;
+
   constructor(
     private router: Router,
     private dialog: MatDialog,
     private sdk: SailPointSDKService,
     private autoSaveService: AutoSaveService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private theme: ThemeService,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  get designerTheme(): 'dark' | 'light' {
+    return this.isDarkTheme ? 'dark' : 'light';
+  }
 
   getDefaultFallbackIcon(): string {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -776,11 +793,22 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   };
 
   public ngOnDestroy(): void {
+    this.themeSub.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   public ngOnInit(): void {
+   this.themeSub = this.theme.isDark$.subscribe(dark => {
+      this.isDarkTheme = dark;
+      this.showDesigner = false;
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.showDesigner = true;
+        this.cdr.detectChanges();
+      });
+    });
+
     if (!this.transform) {
       this.definition = createDefinition();
       this.isNewTransform = true;
@@ -1044,6 +1072,9 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   public onDesignerReady(designer: Designer) {
     this.designer = designer;
     this.updateIsValid();
+
+    // Safely apply initial theme
+    (designer as ThemedDesigner).setTheme(this.isDarkTheme ? 'dark' : 'light');
   }
 
   public onDefinitionChanged(definition: Definition) {

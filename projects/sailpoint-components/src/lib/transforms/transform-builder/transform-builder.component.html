@@ -94,25 +94,27 @@
   <mat-spinner diameter="75"></mat-spinner>
 </div>
 
-<sqd-designer
-  *ngIf="isReady"
-  theme="light"
-  [definition]="definition"
-  [toolboxConfiguration]="toolboxConfiguration"
-  [stepsConfiguration]="stepsConfiguration"
-  [validatorConfiguration]="validatorConfiguration"
-  [controlBar]="true"
-  [isReadonly]="isReadonly"
-  [areEditorsHidden]="false"
-  [rootEditor]="rootEditorProvider"
-  [stepEditor]="stepEditorProvider"
-  [isToolboxCollapsed]="isToolboxCollapsed"
-  [isEditorCollapsed]="isEditorCollapsed"
-  [undoStackSize]="5"
-  (onReady)="onDesignerReady($event)"
-  (onDefinitionChanged)="onDefinitionChanged($event)"
->
-</sqd-designer>
+<ng-container *ngIf="showDesigner">
+  <sqd-designer
+    *ngIf="isReady"
+    [theme]="designerTheme"
+    [definition]="definition"
+    [toolboxConfiguration]="toolboxConfiguration"
+    [stepsConfiguration]="stepsConfiguration"
+    [validatorConfiguration]="validatorConfiguration"
+    [controlBar]="true"
+    [isReadonly]="isReadonly"
+    [areEditorsHidden]="false"
+    [rootEditor]="rootEditorProvider"
+    [stepEditor]="stepEditorProvider"
+    [isToolboxCollapsed]="isToolboxCollapsed"
+    [isEditorCollapsed]="isEditorCollapsed"
+    [undoStackSize]="5"
+    (onReady)="onDesignerReady($event)"
+    (onDefinitionChanged)="onDefinitionChanged($event)"
+  >
+  </sqd-designer>
+</ng-container>
 
 <ng-template #rootEditorProvider let-editor>
   <h3>Transform</h3>
