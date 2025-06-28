@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -46,7 +46,8 @@ import { IdentityService } from './identity-service';
         CommonModule,
         ReactiveFormsModule
   ],
-  standalone: true
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
 })
 export class IdentitySearchComponent implements OnInit, OnChanges, OnDestroy {
   @Input() profileId: string | null = null;

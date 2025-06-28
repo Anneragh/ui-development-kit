@@ -1,4 +1,4 @@
-<div class="identity-search-container">
+<div class="identity-search-container" [class.dark-theme]="isDarkMode">
     <mat-card>
       <mat-card-header>
         <mat-card-title>Search Identities</mat-card-title>
@@ -7,7 +7,7 @@
       <mat-card-content>
         <div class="search-field">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Search Identities</mat-label>
+            <mat-label class="serach-identities-label">Search Identities</mat-label>
             <input 
               matInput 
               [formControl]="searchControl" 
