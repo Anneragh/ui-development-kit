@@ -2,6 +2,24 @@
 @import "sequential-workflow-designer/css/designer-light.css";
 @import "sequential-workflow-designer/css/designer-dark.css";
 
+.dark-theme .mdc-switch--unselected .mdc-switch__icon {
+  fill: #1e1e1e !important;
+}
+
+.dark-theme .mdc-switch--selected .mdc-switch__icon {
+  fill: #1e1e1e !important;
+}
+
+.dark-theme .mdc-switch--unselected .mdc-switch__track::before,
+.dark-theme .mdc-switch--unselected .mdc-switch__track::after {
+  background-color: #1e1e1e !important;
+}
+
+.dark-theme .mdc-switch--selected .mdc-switch__track::before,
+.dark-theme .mdc-switch--selected .mdc-switch__track::after {
+  background-color: #54c0e8 !important;
+}
+
 .dark-theme .action-buttons {
   background-color: #1e1e1e;
   color: #54c0e8;
