@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewEncapsulation } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogRef,
@@ -77,15 +77,44 @@ export interface DialogData {
           {{ data.confirmText || 'Confirm' }}
         </button>
       </ng-container>
-      
+
       <!-- Standard Dialog Button -->
-      <button mat-button (click)="onClose()" *ngIf="!data.isConfirmation && data.showCancel !== false">
+      <button
+        id="closeButton"
+        mat-button
+        (click)="onClose()"
+        *ngIf="!data.isConfirmation && data.showCancel !== false"
+      >
         {{ data.showSpinner ? 'Cancel' : 'Close' }}
       </button>
     </div>
   `,
   styles: [
     `
+      .dark-theme #closeButton {
+        color: #54c0e8 !important;
+        background-color: #1e1e1e !important;
+        border-radius: 0.5rem;
+        border: 1px solid #54c0e8;
+      }
+
+      .dark-theme #closeButton:hover {
+        background-color: #54c0e8 !important;
+        color: #ffffff;
+        border: 1px solid #54c0e8 !important;
+      }
+
+      #closeButton {
+        color: #0033a1 !important;
+        background-color: #ffffff !important;
+        border-radius: 0.5rem;
+        border: 1px solid #0033a1;
+      }
+
+      #closeButton:hover {
+        background-color: #0033a1 !important;
+        color: #ffffff !important;
+      }
       .dialog-content {
         min-width: 300px;
         padding: 20px 0;
@@ -160,6 +189,7 @@ export interface DialogData {
       }
     `,
   ],
+  encapsulation: ViewEncapsulation.None,
 })
 export class GenericDialogComponent {
   constructor(
