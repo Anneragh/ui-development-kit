@@ -48,8 +48,18 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Environment Name</mat-label>
-              <input matInput [(ngModel)]="config.tenantName" name="tenantName" 
-                     (input)="onTenantNameChange()" [disabled]="selectedTenant !== 'new'" required>
+              <input matInput [(ngModel)]="config.environmentName" name="environmentName" 
+                     placeholder="My Development Environment" [disabled]="selectedTenant !== 'new'" required>
+              <mat-hint>A friendly name for this environment configuration</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" *ngIf="selectedTenant === 'new'">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tenant Name (for URL generation)</mat-label>
+              <input matInput [(ngModel)]="config.tempTenantName" name="tempTenantName" 
+                     (input)="onTenantNameChange()" placeholder="your-tenant-name" required>
+              <mat-hint>Your SailPoint tenant identifier - used only to auto-generate URLs below</mat-hint>
             </mat-form-field>
           </div>
 

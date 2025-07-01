@@ -18,6 +18,9 @@ export interface DialogData {
   showSpinner?: boolean;
   showCancel?: boolean;
   disableClose?: boolean;
+  confirmText?: string;
+  cancelText?: string;
+  isConfirmation?: boolean;
 }
 
 @Component({
@@ -69,7 +72,18 @@ export interface DialogData {
     </div>
 
     <div mat-dialog-actions align="end">
-      <button mat-button (click)="onClose()" *ngIf="data.showCancel !== false">
+      <!-- Confirmation Dialog Buttons -->
+      <ng-container *ngIf="data.isConfirmation">
+        <button mat-button (click)="onCancel()">
+          {{ data.cancelText || 'Cancel' }}
+        </button>
+        <button mat-raised-button color="warn" (click)="onConfirm()">
+          {{ data.confirmText || 'Confirm' }}
+        </button>
+      </ng-container>
+      
+      <!-- Standard Dialog Button -->
+      <button mat-button (click)="onClose()" *ngIf="!data.isConfirmation && data.showCancel !== false">
         {{ data.showSpinner ? 'Cancel' : 'Close' }}
       </button>
 
@@ -178,6 +192,14 @@ export class GenericDialogComponent {
   }
   onClose(): void {
     this.dialogRef.close();
+  }
+
+  onCancel(): void {
+    this.dialogRef.close(false);
+  }
+
+  onConfirm(): void {
+    this.dialogRef.close(true);
   }
 
   getTitleIcon(): string {

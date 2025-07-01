@@ -4,7 +4,7 @@ import {
   LayoutModule,
 } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -15,6 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import { ThemeService } from './core/services/theme.service';
+import { ComponentInfo, ComponentSelectorService } from './services/component-selector.service';
 import { ConnectionService } from './shared/connection.service';
 
 declare const window: any;
@@ -35,11 +36,12 @@ declare const window: any;
     MatButtonModule,
   ],
 })
-export class AppComponent {
-  isSmallScreen = false;
+export class AppComponent implements OnInit {
+  isSmallScreen: boolean = false;
   sidenavOpened = true;
   isConnected = true;
   isDarkTheme = false;
+  enabledComponents: ComponentInfo[] = [];
 
   constructor(
     private electronService: ElectronService,
@@ -48,7 +50,8 @@ export class AppComponent {
     private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private themeService: ThemeService // ✅ Inject ThemeService
+    private themeService: ThemeService,
+    private componentSelectorService: ComponentSelectorService
   ) {
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
@@ -70,6 +73,7 @@ export class AppComponent {
       console.log('Run in browser');
     }
 
+    // Subscribe to connection state changes
     this.connectionService.isConnected$.subscribe(connection => {
       this.isConnected = connection.connected;
     });
@@ -83,6 +87,16 @@ export class AppComponent {
         this.renderer.removeClass(document.body, 'dark-theme');
       }
     });
+  }
+
+  ngOnInit(): void {
+      this.componentSelectorService.enabledComponents$.subscribe(components => {
+        this.enabledComponents = components;
+    });
+  }
+
+  isComponentEnabled(componentName: string): boolean {
+    return this.enabledComponents.some(component => component.name === componentName && component.enabled);
   }
 
   toggleTheme(): void {
