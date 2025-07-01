@@ -5,7 +5,7 @@ import { deserializeToStep, serializeStep } from "../transform-builder.component
 
 export interface DateMathOperation {
   operation: '+' | '-' | '/';
-  value: number;
+  value?: number;
   unit: 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's';
 }
 
@@ -87,7 +87,12 @@ export function serializeDateMath(step: DateMathStep) {
       let expression = step.properties.baseDate === 'now' ? 'now' : '';
       
       for (const op of step.properties.operations) {
-        expression += `${op.operation}${op.value}${op.unit}`;
+        // For rounding operations, there's no value
+        if (op.operation === '/') {
+          expression += `${op.operation}${op.unit}`;
+        } else {
+          expression += `${op.operation}${op.value}${op.unit}`;
+        }
       }
       
       attributes.expression = expression || (step.properties.baseDate === 'now' ? 'now' : '');
@@ -111,6 +116,7 @@ export function serializeDateMath(step: DateMathStep) {
   }
 
 export function deserializeDateMath(data: any): DateMathStep {
+    console.log('Deserializing Date Math step:', data);
     const step: DateMathStep = {
       id: Uid.next(),
       componentType: 'switch',
@@ -153,17 +159,27 @@ export function parseExpressionToOperations(expression: string): { baseDate: 'in
   // Remove 'now' from beginning if present
   let remaining = expression.startsWith('now') ? expression.substring(3) : expression;
   
-  // Parse operations using regex
-  const operationRegex = /([+\-\/])(\d+)([yMwdhms])/g;
+  // Parse operations using regex - make the value group optional for rounding operations
+  const operationRegex = /([+\-\/])(\d*)([yMwdhms])/g;
   let match;
-  
   while ((match = operationRegex.exec(remaining)) !== null) {
     const [, operation, value, unit] = match;
-    operations.push({
-      operation: operation as '+' | '-' | '/',
-      value: parseInt(value, 10),
-      unit: unit as 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's'
-    });
+    console.log(`Found operation: ${operation}, value: ${value}, unit: ${unit}`);
+    
+    // For rounding operations (/), there's no value
+    if (operation === '/') {
+      operations.push({
+        operation: operation as '+' | '-' | '/',
+        unit: unit as 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's'
+      });
+    } else {
+      // For add/subtract operations, parse the value
+      operations.push({
+        operation: operation as '+' | '-' | '/',
+        value: parseInt(value, 10),
+        unit: unit as 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's'
+      });
+    }
   }
   
   return { baseDate, operations };

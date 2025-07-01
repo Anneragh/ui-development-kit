@@ -1130,11 +1130,23 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     return typeof value === 'boolean';
   }
 
-  isNumber(value: any): boolean {
-    if (value === '' || value === null || value === undefined) return true;
-    return (
-      typeof value === 'number' || (!isNaN(value) && !isNaN(parseFloat(value)))
+  isNumber(value: any, key: string, stepType: string): boolean {
+
+    if (!this.definitionModel) return false;
+
+    const stepDef = this.definitionModel.steps[stepType];
+    if (!stepDef?.properties) return false;
+    const propDef = stepDef.properties.find(
+      (p) => p.path.parts[p.path.parts.length - 1] === key
     );
+
+    if (propDef?.value.id === 'number') return true;
+
+    return false;
+    // if (value === '' || value === null || value === undefined) return true;
+    // return (
+    //   typeof value === 'number' || (!isNaN(value) && !isNaN(parseFloat(value)))
+    // );
   }
 
   isMap(value: unknown): value is Record<string, unknown> {
@@ -1314,11 +1326,23 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     event: Event | MatSlideToggleChange,
     context: RootEditorContext | StepEditorContext
   ) {
-    console.log(event);
     if (event instanceof MatSlideToggleChange) {
       properties[name] = event.checked;
     } else if (event instanceof InputEvent) {
       properties[name] = (event.target as HTMLInputElement).value;
+    }
+    context.notifyPropertiesChanged();
+  }
+
+  public updateNumericProperty(
+    properties: Properties,
+    name: string,
+    event: Event | MatSlideToggleChange,
+    context: RootEditorContext | StepEditorContext
+  ) {
+    console.log(event);
+    if (event instanceof InputEvent) {
+      properties[name] = parseFloat((event.target as HTMLInputElement).value);
     }
     context.notifyPropertiesChanged();
   }
@@ -1371,7 +1395,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   public getChoicesForProperty(stepType: string, key: string): string[] | null {
     if (!this.definitionModel) return null;
 
-    console.log('getChoicesForProperty', stepType, key);
     const stepDef = this.definitionModel.steps[stepType];
     if (!stepDef?.properties) return null;
     const propDef = stepDef.properties.find(

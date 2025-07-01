@@ -14,7 +14,7 @@
     color="primary"
     (click)="toggleReadonlyClicked()"
   >
-    Disable Editing
+  {{isReadonly ? "Enable" : "Disable"}} Editing
   </button>
 
   <button
@@ -136,6 +136,7 @@
   <div style="padding: 1rem">
     <h3>{{ editor.step.name }}</h3>
 
+    <p>{{editor.step.description}}</p>
     <ng-container *ngIf="editor.step.type !== 'dateMath'">
       <p>Attributes</p>
       <ng-container *ngFor="let key of objectKeys(editor.step.properties)">
@@ -163,7 +164,7 @@
         <!-- Number handling -->
         <ng-template #numberCheck>
           <div
-            *ngIf="isNumber(editor.step.properties[key]); else fieldCheck"
+            *ngIf="isNumber(editor.step.properties[key], key, editor.step.type); else fieldCheck"
             style="display: block; margin-top: 1rem"
           >
             <mat-form-field appearance="fill">
@@ -176,7 +177,7 @@
                 [readonly]="editor.isReadonly"
                 [required]="isRequired(editor.step.type, key)"
                 (input)="
-                  updateProperty(
+                  updateNumericProperty(
                     editor.step.properties,
                     key,
                     $event,

@@ -10,13 +10,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
-import { ConnectionService } from './shared/connection.service';
-import { Router } from '@angular/router';
 import { ThemeService } from './core/services/theme.service';
+import { ConnectionService } from './shared/connection.service';
 
 declare const window: any;
 
@@ -70,6 +69,10 @@ export class AppComponent {
     } else {
       console.log('Run in browser');
     }
+
+    this.connectionService.isConnected$.subscribe(connection => {
+      this.isConnected = connection.connected;
+    });
 
     // ✅ Theme subscription
     this.themeService.isDark$.subscribe((isDark) => {
