@@ -15,7 +15,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import { ThemeService } from './core/services/theme.service';
-import { ComponentInfo, ComponentSelectorService } from './services/component-selector.service';
+import {
+  ComponentInfo,
+  ComponentSelectorService,
+} from './services/component-selector.service';
 import { ConnectionService } from './shared/connection.service';
 
 declare const window: any;
@@ -74,7 +77,7 @@ export class AppComponent implements OnInit {
     }
 
     // Subscribe to connection state changes
-    this.connectionService.isConnected$.subscribe(connection => {
+    this.connectionService.isConnected$.subscribe((connection) => {
       this.isConnected = connection.connected;
     });
 
@@ -90,13 +93,15 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-      this.componentSelectorService.enabledComponents$.subscribe(components => {
-        this.enabledComponents = components;
+    this.componentSelectorService.enabledComponents$.subscribe((components) => {
+      this.enabledComponents = components;
     });
   }
 
   isComponentEnabled(componentName: string): boolean {
-    return this.enabledComponents.some(component => component.name === componentName && component.enabled);
+    return this.enabledComponents.some(
+      (component) => component.name === componentName && component.enabled
+    );
   }
 
   toggleTheme(): void {
