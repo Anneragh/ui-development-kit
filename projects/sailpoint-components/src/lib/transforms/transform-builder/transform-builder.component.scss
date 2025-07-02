@@ -239,8 +239,8 @@ html {
 }
 
 .transform-name {
-  position: absolute;
-  padding: 10px;
+  position: absolute !important;
+  padding: 0px;
   top: 16px;
   left: 40%;
   width: fit-content;
@@ -250,6 +250,15 @@ html {
   border-radius: .5rem;
   font-family: 'Poppins' !important;
   color:#415364 !important;
+  font-size: large !important;
+}
+
+.mat-mdc-card-content:last-child {
+  padding-bottom: 10px !important;
+}
+
+.mat-mdc-card-content:first-child {
+  padding-top: 10px !important;
 }
 
 .mdc-text-field {
@@ -315,10 +324,4 @@ html {
 
 .mdc-line-ripple::before, .mdc-line-ripple::after {
   border-bottom: none !important;
-}
-
-
-
-.mat-mdc-card {
-  position: absolute !important;
 }
