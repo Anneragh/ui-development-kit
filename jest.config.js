@@ -14,5 +14,8 @@ module.exports = {
   },
   forceExit: true,
   detectOpenHandles: true,
-  maxWorkers: 1
+  maxWorkers: 1,
+  moduleNameMapper: {
+    '^sailpoint-components$': '<rootDir>/../projects/sailpoint-components/src/public-api'
+  }
 };
