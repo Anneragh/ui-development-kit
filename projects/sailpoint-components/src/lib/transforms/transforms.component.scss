@@ -1,16 +1,34 @@
 :host {
   :host-context(.dark-theme) #new-transform-button,
-  :host-context(.dark-theme) #edit-transform-button {
+  :host-context(.dark-theme) #edit-transform-button,
+  :host-context(.dark-theme) #previewTransform,
+  :host-context(.dark-theme) #backButton {
     color: #54c0e8;
     border: 1px solid #54c0e8; /* Light blue */
     background-color: #1e1e1e; /* Dark surface */
   }
 
   :host-context(.dark-theme) #new-transform-button:hover,
-  :host-context(.dark-theme) #edit-transform-button:hover {
+  :host-context(.dark-theme) #edit-transform-button:hover,
+  :host-context(.dark-theme) #previewTransform:hover,
+  :host-context(.dark-theme) #backButton:hover {
     background-color: #54c0e8;
     color: #ffffff;
     border: 1px solid #54c0e8;
+  }
+
+  :host-context(.dark-theme) #delete-transform-button {
+    margin-left: 25px;
+    border-radius: 0.5rem;
+    color: #ff0000;
+    border: 1px solid #ff0000;
+    background-color: #1e1e1e;
+  }
+
+  :host-context(.dark-theme) #delete-transform-button:hover {
+    background-color: #ff0000;
+    color: #ffffff;
+    border: 1px solid #ff0000;
   }
 }
 
@@ -36,14 +54,28 @@
   margin-bottom: 0px;
 }
 
+#delete-transform-button {
+  margin-left: 25px;
+  border-radius: 0.5rem;
+  color: #ff0000;
+  border: 1px solid #ff0000;
+  background-color: #ffffff;
+}
+
+#delete-transform-button:hover {
+  background-color: #ff0000;
+  color: #ffffff;
+  border: 1px solid #ff0000;
+}
+
 .transform-builder-container {
   position: relative;
 }
 
-.back-button {
+#backButton {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 14px;
+  left: 18px;
   z-index: 1000;
   color: #0071ce;
   background: #ffffff;
@@ -53,7 +85,7 @@
   font-family: "Poppins" !important;
 }
 
-.back-button:hover {
+#backButton:hover {
   background-color: #0071ce;
   color: #ffffff;
   border: 1px solid #0071ce;

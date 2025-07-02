@@ -35,7 +35,7 @@ export const FirstValidModel = createStepModel<FirstValidStep>('firstValid', 'sw
     .property('ignoreErrors')
     .value(
       createBooleanValueModel({
-        defaultValue: true,
+        defaultValue: false,
       })
     )
     .hint('This true or false value indicates whether to proceed to the next option if an error (like an NPE) occurs. Default is false.')
@@ -51,6 +51,7 @@ export function serializeFirstValid(step: FirstValidStep): {
       [key: string]: any;
     };
   } {
+
     const attributes: { [key: string]: any } = {};
 
     if (step.properties.ignoreErrors === true) {
@@ -80,6 +81,8 @@ export function serializeFirstValid(step: FirstValidStep): {
 
     if (attributes.ignoreErrors !== undefined) {
         attributes.ignoreErrors = attributes.ignoreErrors === 'true';
+    } else {
+        attributes.ignoreErrors = false;
     }
 
     data.attributes.values.forEach((element: any, index: number) => {
@@ -94,7 +97,7 @@ export function serializeFirstValid(step: FirstValidStep): {
     componentType: 'switch',
     type: 'firstValid',
     name: data.attributes.label ?? 'First Valid',
-    properties: { ignoreErrors: data.attributes.ignoreErrors},
+    properties: { ignoreErrors: attributes.ignoreErrors },
     branches: branches,
   };
 }

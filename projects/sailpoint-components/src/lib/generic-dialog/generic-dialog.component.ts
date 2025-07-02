@@ -1,16 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, ViewEncapsulation } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
-  MatDialogRef,
   MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import * as Prism from 'prismjs';
 import 'prismjs/components/prism-json';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 export interface DialogData {
   title?: string;
@@ -40,6 +40,7 @@ export interface DialogData {
       }}</mat-icon>
       {{ data.title || 'Notification' }}
     </h1>
+
     <div mat-dialog-content class="dialog-content">
       <div *ngIf="data.showSpinner" class="spinner-container">
         <mat-spinner diameter="40"></mat-spinner>
@@ -53,20 +54,23 @@ export interface DialogData {
           <mat-icon>content_copy</mat-icon>
         </button>
       </div>
-      <pre class="dialog-message" *ngIf="isJsonMessage">
+      <ng-container *ngIf="!isUnsavedChangesPrompt">
+        <pre class="dialog-message" *ngIf="isJsonMessage">
         <code class="language-json" [innerHTML]="highlightedJson"></code>
       </pre>
 
-      <pre class="dialog-message" *ngIf="!isJsonMessage">
+        <pre class="dialog-message" *ngIf="!isJsonMessage">
         {{ formattedMessage }}
       </pre
-      >
+        >
+      </ng-container>
       <p *ngIf="data.showSpinner && isOAuthFlow()" class="oauth-instruction">
         <mat-icon class="info-icon">info</mat-icon>
         Please complete the authentication in your browser window and return
         here.
       </p>
     </div>
+
     <div mat-dialog-actions align="end">
       <!-- Confirmation Dialog Buttons -->
       <ng-container *ngIf="data.isConfirmation">
@@ -87,6 +91,11 @@ export interface DialogData {
       >
         {{ data.showSpinner ? 'Cancel' : 'Close' }}
       </button>
+
+      <ng-container *ngIf="isUnsavedChangesPrompt">
+        <button mat-button color="warn" (click)="onDiscard()">Discard</button>
+        <button mat-button color="primary" (click)="onSave()">Save</button>
+      </ng-container>
     </div>
   `,
   styles: [
@@ -197,6 +206,20 @@ export class GenericDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {}
 
+  get isUnsavedChangesPrompt(): boolean {
+    return (
+      this.data.message?.trim() ===
+      'You have unsaved changes. Do you want to save them before leaving?'
+    );
+  }
+
+  onSave() {
+    this.dialogRef.close('confirm');
+  }
+
+  onDiscard() {
+    this.dialogRef.close('discard');
+  }
   onClose(): void {
     this.dialogRef.close();
   }

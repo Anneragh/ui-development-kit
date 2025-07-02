@@ -1,11 +1,11 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import {
-    createNumberValueModel,
-    createStepModel,
+  createNumberValueModel,
+  createStepModel,
 } from 'sequential-workflow-editor-model';
 import {
-    deserializeToStep,
-    serializeStep,
+  deserializeToStep,
+  serializeStep,
 } from '../transform-builder.component';
 
 export function createSubString(): SubStringStep {
@@ -16,9 +16,9 @@ export function createSubString(): SubStringStep {
     type: 'substring',
     properties: {
       begin: 0,
-      beginOffset: -1,
-      end: -1,
-      endOffset: -1,
+      beginOffset: 0,
+      end: 1,
+      endOffset: 1,
     },
     branches: {
       input: [],

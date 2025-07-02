@@ -38,7 +38,7 @@
     "src/**/*.css",
     "src/**/*.scss",
     "src/**/*.json"
-  ],
+, "projects/sailpoint-components/src/lib/theme/theme.service.ts"  ],
   "exclude": [
     "node_modules"
   ],
