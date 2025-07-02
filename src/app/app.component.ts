@@ -12,9 +12,9 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ThemeService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
-import { ThemeService } from './core/services/theme.service';
 import {
   ComponentInfo,
   ComponentSelectorService,

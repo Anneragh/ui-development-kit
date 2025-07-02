@@ -75,7 +75,7 @@ import {
 } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, Subject, takeUntil } from 'rxjs';
+import { debounceTime, Subject, Subscription, takeUntil } from 'rxjs';
 import {
   TransformReadV2025,
   TransformsV2025ApiCreateTransformRequest,
@@ -83,6 +83,7 @@ import {
 } from 'sailpoint-api-client';
 import { GenericDialogComponent } from '../../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
+import { ThemeService } from '../../theme/theme.service';
 import { AutoSaveService } from '../transform-builder/utils/autosave.service'; // Adjust path as needed
 import {
   ConditionalModel,
@@ -325,8 +326,6 @@ import {
 } from './models/uuid';
 import { MapEditorDialogComponent } from './utils/map-editor-dialog.component';
 import { TransformPreviewComponent } from './utils/transform-preview.component';
-import { ThemeService } from 'src/app/core/services/theme.service';
-import { Subscription } from 'rxjs';
 
 interface ThemedDesigner extends Designer {
   setTheme: (theme: 'dark' | 'light') => void;

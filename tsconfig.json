@@ -37,7 +37,7 @@
     "src/**/*.html",
     "src/**/*.css",
     "src/**/*.scss",
-    "src/**/*.json"
+    "src/**/*.json",
   ],
   "exclude": [
     "node_modules"
