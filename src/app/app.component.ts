@@ -79,6 +79,11 @@ export class AppComponent implements OnInit {
     // Subscribe to connection state changes
     this.connectionService.isConnected$.subscribe((connection) => {
       this.isConnected = connection.connected;
+      if (!connection.connected) {
+        this.router.navigate(['/home']).catch((error) => {
+          console.error('Navigation error:', error);
+        });
+      }
     });
 
     // ✅ Theme subscription
