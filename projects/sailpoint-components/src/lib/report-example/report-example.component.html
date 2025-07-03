@@ -1,31 +1,73 @@
 <div class="report-example-container">
   <mat-toolbar color="primary">
-    <mat-icon>dashboard</mat-icon>
+    <mat-icon>insert_chart</mat-icon>
     <span class="toolbar-title">{{ title }}</span>
+    
+    <div class="spacer"></div>
+    
+    <button mat-icon-button (click)="refresh()" aria-label="Refresh data">
+      <mat-icon>refresh</mat-icon>
+    </button>
   </mat-toolbar>
 
   <div class="content">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ title }} Management</mat-card-title>
-        <mat-card-subtitle>Manage your report example</mat-card-subtitle>
-      </mat-card-header>
-      
-      <mat-card-content>
-        <p>Welcome to the Report Example component!</p>
-        <p>This is a generated component. You can customize it according to your needs.</p>
-      </mat-card-content>
-      
-      <mat-card-actions>
-        <button mat-raised-button color="primary">
-          <mat-icon>add</mat-icon>
-          Add Report Example
-        </button>
-        <button mat-button>
-          <mat-icon>refresh</mat-icon>
-          Refresh
-        </button>
-      </mat-card-actions>
-    </mat-card>
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading identity data...</p>
+    </div>
+
+    <div *ngIf="hasError" class="error-container">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ errorMessage }}</p>
+      <button mat-raised-button color="primary" (click)="refresh()">
+        Try Again
+      </button>
+    </div>
+
+    <div *ngIf="!loading && !hasError" class="charts-container">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Identity Data Visualization</mat-card-title>
+          <mat-card-subtitle>Visual analytics based on identity data</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div *ngIf="identities.length === 0" class="no-data">
+            <mat-icon>info</mat-icon>
+            <p>No identity data available</p>
+          </div>
+
+          <div *ngIf="identities.length > 0" class="charts-content">
+            <div class="chart-section">
+              <h3>Status Distribution</h3>
+              <mat-divider></mat-divider>
+              <div class="chart-container">
+                <div #barChart class="chart"></div>
+              </div>
+            </div>
+
+            <div class="chart-section">
+              <h3>Manager Distribution</h3>
+              <mat-divider></mat-divider>
+              <div class="chart-container">
+                <div #pieChart class="chart"></div>
+              </div>
+            </div>
+
+            <div class="chart-section">
+              <h3>Lifecycle States</h3>
+              <mat-divider></mat-divider>
+              <div class="chart-container">
+                <div #lifecycleChart class="chart"></div>
+              </div>
+            </div>
+            
+            <div class="data-summary">
+              <p><strong>Total Identities:</strong> {{ identities.length }}</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
 </div>

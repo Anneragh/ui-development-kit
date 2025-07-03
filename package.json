@@ -90,6 +90,7 @@
     "@ngx-translate/core": "16.0.4",
     "@ngx-translate/http-loader": "16.0.1",
     "@playwright/test": "1.52.0",
+    "@types/d3": "7.4.3",
     "@types/jest": "29.5.14",
     "@types/js-yaml": "4.0.9",
     "@types/lodash-es": "4.17.12",

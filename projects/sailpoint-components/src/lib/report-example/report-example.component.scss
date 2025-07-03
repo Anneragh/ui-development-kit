@@ -8,6 +8,10 @@
   margin-left: 16px;
 }
 
+.spacer {
+  flex: 1 1 auto;
+}
+
 .content {
   padding: 24px;
   flex: 1;
@@ -15,18 +19,76 @@
 }
 
 mat-card {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-mat-card-actions {
+.loading-container,
+.error-container,
+.no-data {
   display: flex;
-  gap: 8px;
-  padding: 16px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+  text-align: center;
 }
 
-mat-card-actions button {
+.error-container mat-icon,
+.no-data mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  margin-bottom: 16px;
+}
+
+.error-container mat-icon {
+  color: #f44336;
+}
+
+.charts-container {
+  width: 100%;
+}
+
+.charts-content {
+  margin-top: 16px;
+}
+
+.chart-section {
+  margin-bottom: 48px;
+}
+
+.chart-section h3 {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.chart-container {
+  padding: 16px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  justify-content: center;
+}
+
+.chart {
+  width: 100%;
+  min-height: 400px;
+}
+
+.data-summary {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+/* Custom styling for d3 charts */
+::ng-deep .label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+::ng-deep .axis-label {
+  font-size: 14px;
+  font-weight: 500;
 }
