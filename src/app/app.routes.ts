@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { campaignsComponent } from './campaigns/campaigns.component';
-import { IdentitiesComponent } from 'sailpoint-components';
+import { IdentitiesComponent , ReportExampleComponent } from 'sailpoint-components';
 import { PageNotFoundComponent } from './shared/components';
 import { TransformBuilderComponent } from 'sailpoint-components';
 import { TransformsComponent } from 'sailpoint-components';
@@ -41,6 +41,11 @@ export const appRoutes: Routes = [
   {
     path: 'component-selector',
     loadComponent: () => import('./component-selector/component-selector.component').then(m => m.ComponentSelectorComponent)
+  },
+
+  {
+    path: 'report-example',
+    component: ReportExampleComponent
   },
 
   {

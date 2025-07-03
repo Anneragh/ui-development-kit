@@ -11,7 +11,8 @@
     "sequential-workflow-designer-angular": "0.29.0",
     "sequential-workflow-editor": "0.14.8",
     "sequential-workflow-editor-model": "0.14.8",
-    "sequential-workflow-model": "0.2.0"
+    "sequential-workflow-model": "0.2.0",
+    "d3": "7.9.0"
   },
   "sideEffects": false
 }

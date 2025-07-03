@@ -35,6 +35,14 @@ export class ComponentSelectorService {
             icon: 'transform',
             description: 'Manage data transformations for SailPoint.',
             enabled: true
+        },
+        {
+            name: 'report-example',
+            displayName: 'Report Example',
+            route: '/report-example',
+            icon: 'dashboard',
+            description: 'Manage report example in SailPoint.',
+            enabled: false
         }
     ];
 
