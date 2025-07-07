@@ -2,6 +2,11 @@
 @import "sequential-workflow-designer/css/designer-light.css";
 @import "sequential-workflow-designer/css/designer-dark.css";
 
+.dark-theme .sqd-toolbox-item-text, .dark-theme .sqd-toolbox-group-title, .dark-theme .mdc-text-field--filled:not(.mdc-text-field--disabled), .dark-theme .mdc-text-field {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+}
+
 .dark-theme .mdc-switch--unselected .mdc-switch__icon {
   fill: #1e1e1e !important;
 }
@@ -48,16 +53,6 @@
   color: #ffffff !important;
 }
 
-.dark-theme .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-  background-color: #1e1e1e !important;
-  color: #ffffff !important;
-}
-
-.dark-theme .mdc-text-field {
-  background-color: #1e1e1e !important;
-  color: #ffffff !important;
-}
-
 .dark-theme
   .sqd-theme-dark
   .sqd-step-switch
@@ -89,7 +84,8 @@
 }
 
 .dark-theme .sqd-theme-dark .sqd-toolbox-filter-input {
-  color: black !important;
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
 }
 
 .action-buttons {
@@ -116,6 +112,10 @@
 .mat-mdc-card-title {
   font-family: "Poppins" !important;
   color: #415364 !important;
+}
+
+.sqd-toolbox-item-icon {
+  z-index: 999;
 }
 
 html {
