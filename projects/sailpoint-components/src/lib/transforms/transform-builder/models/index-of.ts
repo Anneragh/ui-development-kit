@@ -1,9 +1,11 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import {
-    createStepModel,
-    createStringValueModel
+  createStepModel,
+  createStringValueModel
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
+
+let description = 'Use the index of transform to get the location of a specific substring within an incoming value. This transform is often useful in conjunction with the substring transform for getting parts of strings that can be dynamic in length or composition. If the substring you are searching for does not occur within the data, the transform returns -1.'
 
 export function createIndexOf(): IndexOfStep {
   return {
@@ -11,6 +13,7 @@ export function createIndexOf(): IndexOfStep {
     componentType: 'switch',
     name: 'Index Of',
     type: 'indexOf',
+    description: description,
     properties: {
         substring: '',
     },
@@ -23,6 +26,7 @@ export function createIndexOf(): IndexOfStep {
 export interface IndexOfStep extends BranchedStep {
   type: 'indexOf';
   componentType: 'switch';
+  description?: string;
   properties: {
     substring: string;
   };
@@ -68,6 +72,7 @@ export function deserializeIndexOf(data: any): IndexOfStep {
     componentType: 'switch',
     name: data.name ?? 'Index Of',
     type: 'indexOf',
+    description: description,
     properties: {
         substring: data.attributes.substring,
     },

@@ -1,12 +1,14 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import {
-    createStepModel,
-    createStringValueModel,
+  createStepModel,
+  createStringValueModel,
 } from 'sequential-workflow-editor-model';
 import {
-    deserializeToStep,
-    serializeStep,
+  deserializeToStep,
+  serializeStep,
 } from '../transform-builder.component';
+
+let description = 'Use the replace transform to find a given pattern of characters within incoming data and replace all instances of that pattern with alternate values. The transform recognizes standard regex syntax.'
 
 export function createReplace(): ReplaceStep {
   return {
@@ -14,6 +16,7 @@ export function createReplace(): ReplaceStep {
     componentType: 'switch',
     name: 'Replace',
     type: 'replace',
+    description: description,
     properties: {
       regex: '',
       replacement: '',
@@ -27,6 +30,7 @@ export function createReplace(): ReplaceStep {
 export interface ReplaceStep extends BranchedStep {
   type: 'replace';
   componentType: 'switch';
+  description?: string;
   properties: {
     regex: string;
     replacement: string;
@@ -84,6 +88,7 @@ export function deserializeReplace(data: any): ReplaceStep {
     componentType: 'switch',
     name: data.name ?? 'Replace',
     type: 'replace',
+    description: description,
     properties: {
       regex: data.attributes.regex,
       replacement: data.attributes.replacement,

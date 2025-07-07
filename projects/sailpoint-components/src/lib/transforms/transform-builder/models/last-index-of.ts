@@ -1,9 +1,11 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import {
-    createStepModel,
-    createStringValueModel
+  createStepModel,
+  createStringValueModel
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
+
+let description = 'Use the last index of transform to get the last location of a specific substring within an incoming value. This transform is often useful in conjunction with the substring transform for getting parts of strings that can be dynamic in length or composition. If the substring you are searching for does not occur within the data, the transform returns -1.'
 
 export function createLastIndexOf(): LastIndexOfStep {
   return {
@@ -11,6 +13,7 @@ export function createLastIndexOf(): LastIndexOfStep {
     componentType: 'switch',
     name: 'Last Index Of',
     type: 'lastIndexOf',
+    description: description,
     properties: {
         substring: '',
     },
@@ -23,6 +26,7 @@ export function createLastIndexOf(): LastIndexOfStep {
 export interface LastIndexOfStep extends BranchedStep {
   type: 'lastIndexOf';
   componentType: 'switch';
+  description?: string;
   properties: {
     substring: string;
   };
@@ -68,6 +72,7 @@ export function deserializeLastIndexOf(data: any): LastIndexOfStep {
     componentType: 'switch',
     name: data.name ?? 'Last Index Of',
     type: 'lastIndexOf',
+    description: description,
     properties: {
         substring: data.attributes.substring,
     },

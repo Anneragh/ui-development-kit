@@ -6,12 +6,15 @@ import {
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the date format transform to convert datetime strings from one format to another. This is often useful when you are syncing data from one system to another, where each application uses a different format for date and time data.'
+
 export function createDateFormat(): DateFormatStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'Date Format',
     type: 'dateFormat',
+    description: description,
     properties: {
       inputFormat: 'ISO8601',
       outputFormat: 'MM/dd/yyyy',
@@ -27,6 +30,7 @@ export function createDateFormat(): DateFormatStep {
 export interface DateFormatStep extends BranchedStep {
   type: 'dateFormat';
   componentType: 'switch';
+  description?: string;
   properties: {
     inputFormat: string;
     outputFormat: string;
@@ -134,6 +138,7 @@ export function deserializeDateFormat(data: any): DateFormatStep {
     componentType: 'switch',
     name: data.name ?? 'Date Format',
     type: 'dateFormat',
+    description: description,
     properties: {
       inputFormat: 'ISO8601',
       outputFormat: 'MM/dd/yyyy',
