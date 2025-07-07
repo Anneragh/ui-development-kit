@@ -11,6 +11,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import * as d3 from 'd3';
+import { PieArcDatum } from 'd3';
+
+// Define interface for chart data
+interface ChartDataPoint {
+  label: string;
+  value: number;
+}
 
 @Component({
   selector: 'app-report-example',
@@ -51,7 +58,7 @@ export class ReportExampleComponent implements OnInit {
   constructor(private sdk: SailPointSDKService) {}
   
   ngOnInit() {
-    this.loadIdentities();
+    void this.loadIdentities();
   }
   
   async loadIdentities() {
@@ -191,7 +198,7 @@ export class ReportExampleComponent implements OnInit {
       .domain(data.map(d => d.label))
       .range(['#4CAF50', '#F44336']);
     
-    const pie = d3.pie<any>()
+    const pie = d3.pie<ChartDataPoint>()
       .value(d => d.value);
     
     const arc = d3.arc()
@@ -209,7 +216,10 @@ export class ReportExampleComponent implements OnInit {
       .attr('class', 'arc');
     
     arcs.append('path')
-      .attr('d', arc as any)
+      .attr('d', d => {
+        // Cast to any to bypass type checking for D3's complex types
+        return arc(d as any) || '';
+      })
       .attr('fill', d => color(d.data.label) as string);
     
     // Add title
@@ -224,10 +234,11 @@ export class ReportExampleComponent implements OnInit {
     // Add labels with lines
     arcs.append('text')
       .attr('transform', d => {
-        const pos = outerArc.centroid(d as any);
+        // Cast to any to bypass type checking for D3's complex types
+        const pos = outerArc.centroid(d as any) || [0, 0];
         const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
         pos[0] = radius * 0.99 * (midAngle < Math.PI ? 1 : -1);
-        return `translate(${pos})`;
+        return `translate(${pos[0]},${pos[1]})`;
       })
       .attr('dy', '.35em')
       .attr('text-anchor', d => {
@@ -239,10 +250,14 @@ export class ReportExampleComponent implements OnInit {
     // Add polylines
     arcs.append('polyline')
       .attr('points', d => {
-        const pos = outerArc.centroid(d as any);
+        // Cast to any to bypass type checking for D3's complex types
+        const pos = outerArc.centroid(d as any) || [0, 0];
         const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
         pos[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1);
-        return [arc.centroid(d as any), outerArc.centroid(d as any), pos].join(',');
+        // Cast to any to bypass type checking for D3's complex types
+        const arcCentroid = arc.centroid(d as any) || [0, 0];
+        const outerArcCentroid = outerArc.centroid(d as any) || [0, 0];
+        return `${arcCentroid[0]},${arcCentroid[1]},${outerArcCentroid[0]},${outerArcCentroid[1]},${pos[0]},${pos[1]}`;
       })
       .style('fill', 'none')
       .style('stroke', 'gray')
@@ -265,8 +280,8 @@ export class ReportExampleComponent implements OnInit {
       
       if (identity.lifecycleState && identity.lifecycleState.stateName) {
         state = identity.lifecycleState.stateName;
-      } else if (identity.attributes && (identity.attributes as any).cloudLifecycleState) {
-        state = (identity.attributes as any).cloudLifecycleState;
+      } else if (identity.attributes && 'cloudLifecycleState' in identity.attributes) {
+        state = identity.attributes.cloudLifecycleState as string;
       }
       
       lifecycleCounts[state] = (lifecycleCounts[state] || 0) + 1;
@@ -358,6 +373,6 @@ export class ReportExampleComponent implements OnInit {
   }
   
   refresh() {
-    this.loadIdentities();
+    void this.loadIdentities();
   }
 }

@@ -192,6 +192,12 @@
             "tsConfig": "projects/sailpoint-components/tsconfig.spec.json",
             "polyfills": ["zone.js", "zone.js/testing"]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/sailpoint-components/src/**/*.ts", "projects/sailpoint-components/src/**/*.html"]
+          }
         }
       }
     }
