@@ -41,25 +41,19 @@
             <div class="chart-section">
               <h3>Status Distribution</h3>
               <mat-divider></mat-divider>
-              <div class="chart-container">
-                <div #barChart class="chart"></div>
-              </div>
+              <app-identity-status-chart [identities]="identities"></app-identity-status-chart>
             </div>
 
             <div class="chart-section">
               <h3>Manager Distribution</h3>
               <mat-divider></mat-divider>
-              <div class="chart-container">
-                <div #pieChart class="chart"></div>
-              </div>
+              <app-manager-distribution-chart [identities]="identities"></app-manager-distribution-chart>
             </div>
 
             <div class="chart-section">
               <h3>Lifecycle States</h3>
               <mat-divider></mat-divider>
-              <div class="chart-container">
-                <div #lifecycleChart class="chart"></div>
-              </div>
+              <app-lifecycle-state-chart [identities]="identities"></app-lifecycle-state-chart>
             </div>
             
             <div class="data-summary">
