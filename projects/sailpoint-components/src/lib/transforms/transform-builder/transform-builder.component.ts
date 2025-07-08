@@ -686,7 +686,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         if (previousStep.type === stepType) {
           this.openMessageDialog(
             `Cannot insert step of type "${stepType}" directly after another step of the same type.`,
-            'Cannot insert step Above'
+            'Cannot insert step Below'
           );
           return false; // Same type directly above
         }
@@ -694,11 +694,21 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
       // Check the step that would be directly below (next)
       if (targetIndex < targetSequence.length) {
+
         const nextStep = targetSequence[targetIndex];
+
+        if ((nextStep.componentType === 'task' || nextStep.componentType === 'switch') && step.componentType === 'task') {
+          this.openMessageDialog(
+            `Cannot insert transform of type "${stepType}" directly before another transform, as it does not take user input.`,
+            'Cannot insert transform'
+          );
+          return false; // Cannot insert after these step types
+        }
+
         if (nextStep.type === stepType) {
           this.openMessageDialog(
             `Cannot insert step of type "${stepType}" directly after another step of the same type.`,
-            'Cannot insert step Below'
+            'Cannot insert step Above'
           );
           return false; // Same type directly below
         }
@@ -710,36 +720,53 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
       const stepType = step.type;
 
-      // Check if trying to move after accountAttribute or identityAttribute
+
+      console.log(`Checking if we can move step of type "${stepType}" at index ${targetIndex}`);
+
+      // Check if trying to insert after a single task type step
       if (targetIndex > 0) {
         const previousStep = targetSequence[targetIndex - 1];
-        if (
-          previousStep.type === 'accountAttribute' ||
-          previousStep.type === 'identityAttribute'
-        ) {
-          console.log(
-            `Cannot move step of type "${stepType}" directly after accountAttribute or identityAttribute.`
+        if (previousStep.componentType === 'task') {
+          this.openMessageDialog(
+            `Cannot move step of type "${stepType}" directly after a transform that does not take user input.`,
+            'Cannot move step'
           );
-          return false; // Cannot move after these step types
+          return false; // Cannot insert after these step types
+        }
+
+        // Existing logic: Check for same type directly above
+        if (previousStep.type === stepType) {
+          this.openMessageDialog(
+            `Cannot move step of type "${stepType}" directly after another step of the same type.`,
+            'Cannot move step Below'
+          );
+          return false; // Same type directly above
         }
       }
 
-      // Check adjacent positions in target sequence
-      const previousStep =
-        targetIndex > 0 ? targetSequence[targetIndex - 1] : null;
-      const nextStep =
-        targetIndex < targetSequence.length
-          ? targetSequence[targetIndex]
-          : null;
+      // Check the step that would be directly below (next)
+      if (targetIndex < targetSequence.length) {
 
-      if (
-        (previousStep && previousStep.type === stepType) ||
-        (nextStep && nextStep.type === stepType)
-      ) {
-        return false;
+        const nextStep = targetSequence[targetIndex];
+
+        if ((nextStep.componentType === 'task' || nextStep.componentType === 'switch') && step.componentType === 'task') {
+          this.openMessageDialog(
+            `Cannot move transform of type "${stepType}" directly before another transform, as it does not take user input.`,
+            'Cannot move transform'
+          );
+          return false; // Cannot insert after these step types
+        }
+
+        if (nextStep.type === stepType) {
+          this.openMessageDialog(
+            `Cannot move step of type "${stepType}" directly after another step of the same type.`,
+            'Cannot move step Above'
+          );
+          return false; // Same type directly below
+        }
       }
 
-      return true;
+      return true; // Allow insertion
     },
   };
 

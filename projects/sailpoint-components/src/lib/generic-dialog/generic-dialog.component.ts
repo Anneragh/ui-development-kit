@@ -55,14 +55,8 @@ export interface DialogData {
         </button>
       </div>
       <ng-container *ngIf="!isUnsavedChangesPrompt">
-        <pre class="dialog-message" *ngIf="isJsonMessage">
-        <code class="language-json" [innerHTML]="highlightedJson"></code>
-      </pre>
-
-        <pre class="dialog-message" *ngIf="!isJsonMessage">
-        {{ formattedMessage }}
-      </pre
-        >
+        <pre class="dialog-message json-message" *ngIf="isJsonMessage"><code class="language-json" [innerHTML]="highlightedJson"></code></pre>
+        <pre class="dialog-message text-message" *ngIf="!isJsonMessage">{{ formattedMessage }}</pre>
       </ng-container>
       <p *ngIf="data.showSpinner && isOAuthFlow()" class="oauth-instruction">
         <mat-icon class="info-icon">info</mat-icon>
@@ -100,6 +94,15 @@ export interface DialogData {
   `,
   styles: [
     `
+      :host {
+        display: block;
+      }
+      
+      .mat-mdc-dialog-content {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
       .dark-theme #closeButton {
         color: #54c0e8 !important;
         background-color: #1e1e1e !important;
@@ -124,9 +127,12 @@ export interface DialogData {
         background-color: #0033a1 !important;
         color: #ffffff !important;
       }
+      
       .dialog-content {
         min-width: 300px;
         padding: 20px 0;
+        position: relative;
+        box-sizing: border-box;
       }
 
       .spinner-container {
@@ -143,25 +149,54 @@ export interface DialogData {
       }
 
       .dialog-message {
+        margin: 0;
+        padding: 16px;
         overflow-x: auto;
         border-radius: 4px;
         font-family: 'Fira Code', monospace;
-        color: #f8f8f2;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
-      .dialog-message {
-        padding: 0;
-        overflow-x: auto;
+      /* Light theme styles */
+      .dialog-message.json-message {
+        background-color: #f8f8f2;
+        color: #282c34;
+        border: 1px solid #e0e0e0;
+      }
+
+      .dialog-message.text-message {
+        background: none;
+        color: #333;
+        border: none;
+      }
+
+      /* Dark theme styles */
+      .dark-theme .dialog-message.json-message {
+        background-color: #282c34;
+        color: #f8f8f2;
+        border: 1px solid #444;
+      }
+
+      .dark-theme .dialog-message.text-message {
+        background: none;
+        color: #f0f0f0;
+        border: none;
+      }
+
+      .dark-theme .oauth-instruction {
+        background-color: #1a237e;
+        color: #90caf9;
+        border-left-color: #2196f3;
       }
 
       .dialog-message code {
         display: block;
-        padding: 16px;
-      }
-
-      .dialog-message.json {
-        text-align: left;
-        margin: 16px 0;
+        padding: 0;
+        background: none;
+        font-family: inherit;
         font-size: 14px;
         line-height: 1.4;
       }
