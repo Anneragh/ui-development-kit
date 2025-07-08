@@ -174,7 +174,8 @@ export class AutoSaveService {
         obj.forEach(deepCleanNames);
       } else if (typeof obj === 'object' && obj !== null) {
         delete obj.name;
-        Object.values(obj).forEach(deepCleanNames);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-argument
+      Object.entries(obj).forEach(([_unusedKey, val]) => deepCleanNames(val));
       }
     }
 

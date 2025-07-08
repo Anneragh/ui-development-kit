@@ -13,13 +13,13 @@ import { FormsModule } from '@angular/forms';
 })
 export class SearchBarComponent {
   // Input: full dataset to locally filter against
-  @Input() data: any[] = [];
+  @Input() data: Record<string, unknown>[] = [];
 
   // Input: placeholder text for the search input
   @Input() placeholder = 'Search...';
 
   // Output: emits filtered results if local filtering is performed
-  @Output() filtered = new EventEmitter<any[]>();
+  @Output() filtered = new EventEmitter<Record<string, unknown>[]>();
 
   // Output: emits a search string if API-based search is triggered
   @Output() searchApi = new EventEmitter<string>();

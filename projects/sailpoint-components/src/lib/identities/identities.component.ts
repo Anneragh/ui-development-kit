@@ -13,6 +13,7 @@ import { MatTableModule } from '@angular/material/table';
 // SailPoint types and services
 import {
   IdentityV2025,
+  SearchDocumentsV2025,
   SearchV2025ApiSearchPostRequest,
 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
@@ -184,19 +185,25 @@ export class IdentitiesComponent implements OnInit {
       const { data: identities } = await this.sdk.searchPost(request);
 
       // Transform search results
-      this.filteredIdentities = (identities ?? []).map((identity: any) => ({
-        ...identity,
-        alias: identity.attributes?.uid ?? '–',
-        emailAddress: identity.attributes?.email ?? identity.email ?? '–',
-        lifecycleState: {
-          stateName:
-            identity.attributes?.identityState ??
-            identity.attributes?.cloudStatus ??
-            'Unknown',
-          manuallyUpdated: false,
-        },
-        created: identity.created ?? undefined,
-      })) as IdentityV2025[];
+      this.filteredIdentities = (identities ?? []).map((identity: SearchDocumentsV2025) => {
+        // Need to use any here because SearchDocumentsV2025 is a union type
+        // and TypeScript can't determine if attributes exists at compile time
+        const docWithAttrs = identity as any;
+        const attrs = docWithAttrs.attributes as Record<string, unknown> | undefined;
+        return {
+          ...identity,
+          alias: attrs?.uid as string ?? '–',
+          emailAddress: attrs?.email as string ?? docWithAttrs.email ?? '–',
+          lifecycleState: {
+            stateName:
+              attrs?.identityState as string ??
+              attrs?.cloudStatus as string ??
+              'Unknown',
+            manuallyUpdated: false,
+          },
+          created: docWithAttrs.created ?? undefined,
+        };
+      }) as IdentityV2025[];
 
       this.totalCount = this.filteredIdentities.length;
       this.pageIndex = 0;
@@ -211,7 +218,7 @@ export class IdentitiesComponent implements OnInit {
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.pageIndex = event.pageIndex;
-    this.loadIdentities();
+    void this.loadIdentities();
   }
 
   // Toggle sorting on a column
@@ -231,7 +238,7 @@ export class IdentitiesComponent implements OnInit {
       this.sorters.push(apiField);
     }
 
-    this.loadIdentities();
+    void this.loadIdentities();
   }
 
   // Check if column is sorted
@@ -253,7 +260,7 @@ export class IdentitiesComponent implements OnInit {
   // Clear all sorting
   clearSort(): void {
     this.sorters = [];
-    this.loadIdentities();
+    void this.loadIdentities();
   }
 
   // For *ngFor trackBy
@@ -334,7 +341,7 @@ export class IdentitiesComponent implements OnInit {
 
       const state = value.stateName ?? '';
       const manual = value.manuallyUpdated ? ' (manual)' : '';
-      return `${this.capitalize(state)}${manual}`;
+      return `${this.capitalize(state as string)}${manual}`;
     }
 
     // For objects, stringify; else return raw value or dash
@@ -342,7 +349,7 @@ export class IdentitiesComponent implements OnInit {
       return JSON.stringify(value);
     }
 
-    return value ?? '–';
+    return value as string ?? '–';
   }
 
   // Capitalize helper

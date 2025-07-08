@@ -82,7 +82,7 @@ export default [
       parserOptions: {
         project: [
           './src/tsconfig.spec.json',
-          './projects/tsconfig.spec.json'
+          './projects/sailpoint-components/tsconfig.spec.json'
         ],
         createDefaultProgram: true
       }

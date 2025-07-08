@@ -341,18 +341,20 @@ interface StepDefinition {
   branches?: Record<string, StepDefinition[]>;
 }
 
-interface WorkflowDefinition {
-  properties: Record<string, any>;
-  sequence: StepDefinition[];
-}
+// Commented out unused interface
+// interface WorkflowDefinition {
+//  properties: Record<string, any>;
+//  sequence: StepDefinition[];
+//}
 
+// Commented out unused interface
 // Result type for enhanced search with path information
-interface StepSearchResult {
-  step: StepDefinition;
-  path: (string | number)[];
-  sequence: StepDefinition[];
-  index: number;
-}
+// interface StepSearchResult {
+//   step: StepDefinition;
+//   path: (string | number)[];
+//   sequence: StepDefinition[];
+//   index: number;
+// }
 
 export interface MyDefinition extends Definition {
   properties: {
@@ -906,9 +908,10 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       const transformId = this.isNewTransform
         ? 'new_transform'
         : this.transform?.id || 'unknown';
-      const transformName = String(
-        definition.properties?.name || 'Untitled Transform'
-      );
+      const definitionName = definition.properties?.name;
+      const transformName = typeof definitionName === 'string' 
+        ? definitionName 
+        : 'Untitled Transform';
 
       this.autoSaveService.autoSave(
         transformId,
@@ -954,8 +957,9 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       let newTransform: TransformReadV2025 =
         serializedTransform as TransformReadV2025;
 
+      const definitionName = this.definition?.properties?.name;
       newTransform.name = String(
-        this.definition?.properties?.name ?? newTransform.name
+        typeof definitionName === 'string' ? definitionName : newTransform.name
       );
       console.log('Saving transform to cloud:', newTransform);
 
@@ -1025,7 +1029,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   public restoreFromCloud(): void {
     if (!this.transform) return;
 
-    const shouldRestore = confirm(
+    const shouldRestore = window.confirm(
       'This will discard all local changes and restore the transform from the cloud. Are you sure?'
     );
 
@@ -1043,7 +1047,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   }
 
   public discardLocalChanges(): void {
-    const shouldDiscard = confirm(
+    const shouldDiscard = window.confirm(
       'This will discard all local changes. Are you sure?'
     );
 
@@ -1195,13 +1199,13 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     if (selectedStepId) {
       // Serialize selected step
       if (!definition) {
-        alert('Definition not found');
+        window.alert('Definition not found');
         return;
       }
       const selectedStep = this.findStepById(definition, selectedStepId);
 
       if (!selectedStep) {
-        alert('Selected step not found');
+        window.alert('Selected step not found');
         return;
       }
 
@@ -1437,7 +1441,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   ) {
     console.log('onSourceNameChanged', properties, name, sourceName);
     if ('notifyChildrenChanged' in context && 'notifyNameChanged' in context) {
-      this.loadAccountAttributes(context, sourceName as unknown as string);
+      void this.loadAccountAttributes(context, sourceName as unknown as string);
     }
   }
 
@@ -1474,6 +1478,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     if (!this.loadingStates.get(cacheKey)) {
       console.log('Cache miss - loading account attributes for:', sourceName);
       // Don't await this - let it load in the background
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       this.loadAccountAttributesForSource(sourceName).catch((error) => {
         console.error('Failed to load account attributes:', error);
       });
@@ -1634,8 +1639,9 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       let transformDownload: TransformReadV2025 =
         serializedTransform as TransformReadV2025;
 
+      const downloadName = this.definition?.properties?.name;
       transformDownload.name = String(
-        this.definition?.properties?.name ?? transformDownload.name
+        typeof downloadName === 'string' ? downloadName : transformDownload.name
       );
       // Convert to JSON string with formatting
       const jsonContent = JSON.stringify(transformDownload, null, 2);
@@ -1729,7 +1735,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         .replace(/D/g, '75');
 
       return example;
-    } catch (error) {
+    } catch {
       return '2024-03-15';
     }
   }
@@ -1746,7 +1752,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
 
     // Basic validation for common SimpleDateFormat patterns
-    const validPatterns = /^[yMdHhmsaEGwWDFkKzZSX\s\-\/\.\:\,\'\"]*$/;
+    const validPatterns = /^[yMdHhmsaEGwWDFkKzZSX\s\-/.,:'"]*$/;
     if (!validPatterns.test(pattern)) {
       return { isValid: false, error: 'Invalid characters in date pattern' };
     }
@@ -1805,30 +1811,40 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Check if a date format step should show custom output field
    */
-  public shouldShowCustomOutput(step: any): boolean {
-    return (
-      step.type === 'dateFormat' && step.properties.outputFormat === 'CUSTOM'
-    );
+  public shouldShowCustomOutput(step: Record<string, unknown>): boolean {
+    if (step.type !== 'dateFormat') return false;
+    if (!step.properties || typeof step.properties !== 'object') return false;
+    if (!('outputFormat' in step.properties)) return false;
+    
+    return step.properties.outputFormat === 'CUSTOM';
   }
 
   /**
    * Get the effective input format (custom or selected)
    */
-  public getEffectiveInputFormat(step: any): string {
-    if (step.properties.inputFormat === 'CUSTOM') {
-      return step.properties.customInputFormat || '';
+  public getEffectiveInputFormat(step: Record<string, unknown>): string {
+    if (!step.properties || typeof step.properties !== 'object') {
+      return '';
     }
-    return step.properties.inputFormat || '';
+    const props = step.properties as Record<string, unknown>;
+    if (props.inputFormat === 'CUSTOM' && props.customInputFormat && typeof props.customInputFormat === 'string') {
+      return props.customInputFormat;
+    }
+    return props.inputFormat && typeof props.inputFormat === 'string' ? props.inputFormat : '';
   }
 
   /**
    * Get the effective output format (custom or selected)
    */
-  public getEffectiveOutputFormat(step: any): string {
-    if (step.properties.outputFormat === 'CUSTOM') {
-      return step.properties.customOutputFormat || '';
+  public getEffectiveOutputFormat(step: Record<string, unknown>): string {
+    if (!step.properties || typeof step.properties !== 'object') {
+      return '';
     }
-    return step.properties.outputFormat || '';
+    const props = step.properties as Record<string, unknown>;
+    if (props.outputFormat === 'CUSTOM' && props.customOutputFormat && typeof props.customOutputFormat === 'string') {
+      return props.customOutputFormat;
+    }
+    return props.outputFormat && typeof props.outputFormat === 'string' ? props.outputFormat : '';
   }
 
   // Add these methods to your TransformBuilderComponent class for Date Math support
@@ -1846,6 +1862,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     if (useBuilder) {
       // Parse existing expression into operations
       if (properties.expression) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const parsed = this.parseDateMathExpression(properties.expression);
         properties.baseDate = parsed.baseDate;
         properties.operations = parsed.operations;
@@ -1865,11 +1882,11 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Get operations array for the date math step
    */
-  public getDateMathOperations(properties: any): any[] {
+  public getDateMathOperations(properties: Record<string, unknown>): unknown[] {
     if (!properties.operations) {
       properties.operations = [];
     }
-    return properties.operations;
+    return Array.isArray(properties.operations) ? properties.operations : [];
   }
 
   /**
@@ -1963,19 +1980,22 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Get the generated expression for display
    */
-  public getGeneratedExpression(properties: any): string {
+  public getGeneratedExpression(properties: Record<string, unknown>): string {
     if (!properties.useBuilder) {
-      return properties.expression || '';
+      return typeof properties.expression === 'string' ? properties.expression : '';
     }
 
     let expression = properties.baseDate === 'now' ? 'now' : '';
 
-    if (properties.operations && properties.operations.length > 0) {
+    if (properties.operations && Array.isArray(properties.operations) && properties.operations.length > 0) {
       for (const op of properties.operations) {
-        if (op.operation === '/') {
-          expression += `/${op.unit}`;
-        } else {
-          expression += `${op.operation}${op.value || 1}${op.unit}`;
+        if (op && typeof op === 'object' && 'operation' in op && 'unit' in op) {
+          if (op.operation === '/') {
+            expression += `/${op.unit}`;
+          } else {
+            const value = 'value' in op ? op.value || 1 : 1;
+            expression += `${op.operation}${value}${op.unit}`;
+          }
         }
       }
     }
@@ -2048,7 +2068,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       : expression;
 
     // Parse operations using regex
-    const operationRegex = /([+\-\/])(\d*)([yMwdhms])/g;
+    const operationRegex = /([+\-/])(\d*)([yMwdhms])/g;
     let match;
 
     while ((match = operationRegex.exec(remaining)) !== null) {
@@ -2075,7 +2095,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
 
     // Basic validation
-    const validPattern = /^(now)?([+\-\/]\d*[yMwdhms])*$/;
+    const validPattern = /^(now)?([+\-/]\d*[yMwdhms])*$/;
     if (!validPattern.test(expression)) {
       return { isValid: false, error: 'Invalid expression format' };
     }

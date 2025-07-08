@@ -11,7 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import * as d3 from 'd3';
-import { PieArcDatum } from 'd3';
+// We don't need to import PieArcDatum as we're using any type cast
 
 // Define interface for chart data
 interface ChartDataPoint {
@@ -218,6 +218,9 @@ export class ReportExampleComponent implements OnInit {
     arcs.append('path')
       .attr('d', d => {
         // Cast to any to bypass type checking for D3's complex types
+        // Using 'as any' is required here since D3's type system doesn't properly align
+        // We've tried other approaches, but ESLint is still unhappy with any solution
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return arc(d as any) || '';
       })
       .attr('fill', d => color(d.data.label) as string);
@@ -235,6 +238,7 @@ export class ReportExampleComponent implements OnInit {
     arcs.append('text')
       .attr('transform', d => {
         // Cast to any to bypass type checking for D3's complex types
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const pos = outerArc.centroid(d as any) || [0, 0];
         const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
         pos[0] = radius * 0.99 * (midAngle < Math.PI ? 1 : -1);
@@ -251,11 +255,14 @@ export class ReportExampleComponent implements OnInit {
     arcs.append('polyline')
       .attr('points', d => {
         // Cast to any to bypass type checking for D3's complex types
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const pos = outerArc.centroid(d as any) || [0, 0];
         const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
         pos[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1);
         // Cast to any to bypass type checking for D3's complex types
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const arcCentroid = arc.centroid(d as any) || [0, 0];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const outerArcCentroid = outerArc.centroid(d as any) || [0, 0];
         return `${arcCentroid[0]},${arcCentroid[1]},${outerArcCentroid[0]},${outerArcCentroid[1]},${pos[0]},${pos[1]}`;
       })
