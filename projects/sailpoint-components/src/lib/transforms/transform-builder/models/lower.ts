@@ -1,12 +1,15 @@
 import { BranchedStep, Properties, Step, Uid } from 'sequential-workflow-designer';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the lower transform to convert an input string into all lowercase letters.';
+
 export function createLower(): LowerStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'Lower',
     type: 'lower',
+    description: description,
     properties: {},
     branches: {
       input: [],
@@ -17,6 +20,7 @@ export function createLower(): LowerStep {
 export interface LowerStep extends BranchedStep {
   type: 'lower';
   componentType: 'switch';
+  description?: string;
   properties: Properties;
 }
 
@@ -40,6 +44,7 @@ export function deserializeLower(data: any): LowerStep {
     componentType: 'switch',
     name: data.name ?? 'Lower',
     type: 'lower',
+    description: description,
     properties: {},
     branches: {
       input: [],

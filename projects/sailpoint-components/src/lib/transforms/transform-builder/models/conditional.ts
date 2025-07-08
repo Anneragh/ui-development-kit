@@ -10,12 +10,15 @@ import {
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the conditional transform to output different values depending on simple conditional logic. This is a convenient transform - the same capability can be implemented with a "static" transform, but this transform has greater simplicity and null-safe error checking.'
+
 export function createConditional(): ConditionalStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'Conditional',
     type: 'conditional',
+    description: description,
     properties: {
       expression: '',
     },
@@ -29,6 +32,7 @@ export function createConditional(): ConditionalStep {
 export interface ConditionalStep extends BranchedStep {
   type: 'conditional';
   componentType: 'switch';
+  description?: string;
   properties: {
     expression: string;
   };
@@ -96,6 +100,7 @@ export function deserializeConditional(data: any): ConditionalStep {
     componentType: 'switch',
     type: 'conditional',
     name: data.name ?? 'Conditional',
+    description: description,
     properties: { expression: data.attributes.expression},
     branches: branches,
   };

@@ -9,12 +9,15 @@ export interface DateMathOperation {
   unit: 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's';
 }
 
+let description = 'Use the date math transform to add, subtract, and round components of a timestamp\'s incoming value. It also allows you to work with a referential value of "now" to run operations against the current date and time instead of a fixed value.'
+
 export function createDateMath(): DateMathStep {
     return {
       id: Uid.next(),
       componentType: 'switch',
       name: 'Date Math',
       type: 'dateMath',
+      description: description,
       properties: {
         expression: '',
         roundUp: false,
@@ -31,6 +34,7 @@ export function createDateMath(): DateMathStep {
 export interface DateMathStep extends BranchedStep {
     type: 'dateMath';
     componentType: 'switch';
+    description: string;
     properties: {
       expression: string;
       roundUp: boolean;
@@ -76,6 +80,16 @@ export const DateMathModel = createStepModel<DateMathStep>(
           'A string value of the date and time components to operate on, along with the math operations to execute. Multiple operations on multiple components are supported. See <a href="https://developer.sailpoint.com/docs/extensibility/transforms/operations/date-math#transform-structure" target="_blank">Date Math Expression</a> for more details'
         )
         .label('Expression');
+
+      step
+        .property('roundUp')
+        .value(
+            createBooleanValueModel({
+                defaultValue: false,
+              })
+        )
+        .hint('This true or false value indicates whether the transform rounds up or down when the expression defines a rounding ("/") operation. If this value is not provided, the transform defaults to false.')
+        .label('Round Up');
     }
   );
 
@@ -122,6 +136,7 @@ export function deserializeDateMath(data: any): DateMathStep {
       componentType: 'switch',
       name: data.name ?? 'Date Math',
       type: 'dateMath',
+      description: description,
       properties: {
         expression: data.attributes.expression || '',
         roundUp: data.attributes.roundUp ?? false,

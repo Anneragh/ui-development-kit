@@ -7,12 +7,15 @@ import {
 import { createStepModel, createStringValueModel } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the static transform to return a fixed string value, or more commonly, to evaluate Velocity Template Language. The latter implementation is often useful when you are using if/then/else logic or iterating through a for loop. The static transform can also take other dynamically provided variables as inputs into the value attribute.';
+
 export function createStatic(): StaticStep  {
     return {
       id: Uid.next(),
       componentType: 'switch',
       name: 'Static',
       type: 'static',
+      description: description,
       properties: {
         value: ''
       },
@@ -23,6 +26,7 @@ export function createStatic(): StaticStep  {
   export interface StaticStep extends BranchedStep {
     type: 'static';
     componentType: 'switch';
+    description?: string;
     properties: {
         value: string;
     };
@@ -82,6 +86,7 @@ export function serializeStatic(step: StaticStep): {
     componentType: 'switch',
     type: 'static',
     name: data.name ? `Static (${data.name})` : 'Static',
+    description: description,
     properties: { value: data.attributes.value},
     branches: branches,
   };

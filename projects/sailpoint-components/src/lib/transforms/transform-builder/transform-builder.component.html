@@ -5,7 +5,8 @@
 >
   <h4 class="transform-name">{{ definition?.properties?.name }}</h4>
 
-  <button class="action-buttons" color="primary" (click)="togglePreview()">
+  <button class="action-buttons" color="primary" (click)="togglePreview()" matTooltip="Test your transform with live identity data"
+>
     Preview Transform
   </button>
   <button
@@ -116,6 +117,7 @@
   <mat-form-field class="full-width">
     <input
       matInput
+      name="Transform Name"
       [(ngModel)]="editor.definition.properties.name"
       [value]="editor.definition.properties.name"
       [readonly]="editor.isReadonly"
@@ -129,13 +131,31 @@
       "
     />
   </mat-form-field>
+    <!-- <mat-form-field class="full-width">
+    <mat-label>Description</mat-label>
+    <textarea
+      matInput
+      name="Description"
+      [(ngModel)]="editor.definition.properties.description"
+      [value]="editor.definition.properties.description"
+      [readonly]="editor.isReadonly"
+      (input)="
+        updateProperty(
+          editor.definition.properties,
+          'description',
+          $event,
+          editor.context
+        )
+      "
+    ></textarea>
+  </mat-form-field> -->
 </ng-template>
 
 <ng-template #stepEditorProvider let-editor>
   <div style="padding: 1rem">
     <h3>{{ editor.step.name }}</h3>
 
-    <p>{{editor.step.description}}</p>
+    <p class="transform-description">{{editor.step.description}}</p>
     <ng-container *ngIf="editor.step.type !== 'dateMath'">
       <p>Attributes</p>
       <ng-container *ngFor="let key of objectKeys(editor.step.properties)">
@@ -145,6 +165,7 @@
         >
           <mat-slide-toggle
             [(ngModel)]="editor.step.properties[key]"
+            matTooltip="{{getHintForProperty(editor.step.type, key)}}"
             name="{{ key }}"
             [disabled]="editor.isReadonly"
             (change)="
@@ -156,7 +177,7 @@
               )
             "
           >
-            {{ key }}
+            {{ getLabelForProperty(editor.step.type, key) }}
           </mat-slide-toggle>
         </div>
 
@@ -167,10 +188,11 @@
             style="display: block; margin-top: 1rem"
           >
             <mat-form-field appearance="fill">
-              <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
               <input
                 matInput
                 type="number"
+                matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                 [(ngModel)]="editor.step.properties[key]"
                 name="{{ key }}"
                 [readonly]="editor.isReadonly"
@@ -222,8 +244,9 @@
               appearance="fill"
               style="display: block; margin-top: 1rem"
             >
-              <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
               <mat-select
+                matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                 [(ngModel)]="editor.step.properties[key]"
                 [disabled]="editor.isReadonly"
                 [required]="isRequired(editor.step.type, key)"
@@ -262,9 +285,10 @@
               appearance="fill"
               style="display: block; margin-top: 1rem"
             >
-              <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
               <mat-select
                 [(ngModel)]="editor.step.properties[key]"
+                matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                 [disabled]="
                   editor.isReadonly || isAccountAttributeDisabled(editor)
                 "
@@ -315,9 +339,10 @@
               appearance="fill"
               style="display: block; margin-top: 1rem"
             >
-              <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
               <input
                 matInput
+                matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                 [(ngModel)]="editor.step.properties[key]"
                 [readonly]="editor.isReadonly"
                 [required]="isRequired(editor.step.type, key)"
@@ -346,8 +371,9 @@
               appearance="fill"
               style="display: block; margin-top: 1rem"
             >
-              <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
               <mat-select
+                matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                 [(ngModel)]="editor.step.properties[key]"
                 [disabled]="editor.isReadonly"
                 [required]="isRequired(editor.step.type, key)"
@@ -433,8 +459,9 @@
               appearance="fill"
               style="display: block; margin-top: 1rem"
             >
-              <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
               <mat-select
+                matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                 [(ngModel)]="editor.step.properties[key]"
                 [disabled]="editor.isReadonly"
                 [required]="isRequired(editor.step.type, key)"
@@ -471,6 +498,7 @@
                 <mat-label>Custom Output Format</mat-label>
                 <input
                   matInput
+                  matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                   [(ngModel)]="editor.step.properties['customOutputFormat']"
                   [readonly]="editor.isReadonly"
                   [required]="true"
@@ -571,8 +599,9 @@
                 appearance="fill"
                 style="display: block; margin-top: 1rem"
               >
-                <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
                 <mat-select
+                  matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                   [(ngModel)]="editor.step.properties[key]"
                   [disabled]="editor.isReadonly"
                   [required]="isRequired(editor.step.type, key)"
@@ -601,9 +630,10 @@
                 appearance="fill"
                 style="display: block; margin-top: 1rem"
               >
-                <mat-label>{{ key }}</mat-label>
+              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
                 <input
                   matInput
+                  matTooltip="{{getHintForProperty(editor.step.type, key)}}"
                   [(ngModel)]="editor.step.properties[key]"
                   name="{{ key }}"
                   [readonly]="editor.isReadonly"
@@ -894,6 +924,7 @@
       <!-- Round Up Option -->
       <div style="margin-top: 1rem">
         <mat-slide-toggle
+            matTooltip="{{getHintForProperty(editor.step.type, 'roundUp')}}"
           [(ngModel)]="editor.step.properties.roundUp"
           [disabled]="editor.isReadonly"
           (change)="
@@ -907,9 +938,6 @@
         >
           Round Up
         </mat-slide-toggle>
-        <div style="font-size: 0.875rem; color: #666; margin-top: 0.25rem">
-          When rounding, round up instead of down
-        </div>
       </div>
     </ng-container>
 

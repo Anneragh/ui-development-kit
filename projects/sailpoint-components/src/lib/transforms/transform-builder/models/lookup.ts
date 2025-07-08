@@ -1,12 +1,15 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the lookup transform to take in an incoming string value and compare it to a list of key-value pairs to determine which output to return. If the incoming data matches a key, the transform returns the corresponding value. If the incoming key does not match a key, the transform returns the table\'s optional default value.'
+
 export function createLookup(): LookupStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'Lookup',
     type: 'lookup',
+    description: description,
     properties: {
         table: new Map<string, string>([['default', 'defaultReturnValue']]),
     },
@@ -19,6 +22,7 @@ export function createLookup(): LookupStep {
 export interface LookupStep extends BranchedStep {
   type: 'lookup';
   componentType: 'switch';
+  description?: string;
   properties: {
     table: Map<string, string>;
   };
@@ -54,6 +58,7 @@ export function deserializeLookup(data: any): LookupStep {
     componentType: 'switch',
     name: data.name ?? 'Lookup',
     type: 'lookup',
+    description: description,
     properties: {
         table: table,
     },

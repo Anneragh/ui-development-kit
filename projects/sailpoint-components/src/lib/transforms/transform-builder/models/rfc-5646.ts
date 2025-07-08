@@ -4,12 +4,15 @@ import {
   serializeStep,
 } from '../transform-builder.component';
 
+let description = 'Use the RFC5646 transform to convert an incoming string into an RFC 5646 language tag value. The incoming data must be either a recognized language name or a three-letter abbreviation of locale\'s language.'
+
 export function createRFC5646(): RFC5646Step {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'RFC 5646',
     type: 'rfc5646',
+    description: description,
     properties: {},
     branches: {
       input: [],
@@ -20,6 +23,7 @@ export function createRFC5646(): RFC5646Step {
 export interface RFC5646Step extends BranchedStep {
   type: 'rfc5646';
   componentType: 'switch';
+  description?: string;
   properties: Properties;
 }
 
@@ -43,6 +47,7 @@ export function deserializeRFC5646(data: any): RFC5646Step {
     componentType: 'switch',
     name: data.name ?? 'RFC5646',
     type: 'rfc5646',
+    description: description,
     properties: {},
     branches: {
       input: [],

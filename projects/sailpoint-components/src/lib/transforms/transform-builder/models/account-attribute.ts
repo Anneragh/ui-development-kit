@@ -9,12 +9,16 @@ import {
 } from 'sequential-workflow-editor-model';
 import { SailPointSDKService } from '../../../sailpoint-sdk.service';
 
+let description = 'Use the account attribute transform to look up an account for a particular source on an identity and return a specific attribute value from that account.';
+
+
 export function createAccountAttribute(): AccountAttributeStep {
   return {
     id: Uid.next(),
     componentType: 'task',
     name: 'Account Attribute',
     type: 'accountAttribute',
+    description: description,
     properties: {
       attributeName: '',
       sourceName: '',
@@ -30,6 +34,7 @@ export function createAccountAttribute(): AccountAttributeStep {
 export interface AccountAttributeStep extends Step {
   type: 'accountAttribute';
   componentType: 'task';
+  description: string;
   properties: {
     attributeName: string;
     sourceName: string;
@@ -53,12 +58,14 @@ return createStepModel<AccountAttributeStep>(
           minLength: 1,
         })
       )
+      .hint("The name of the account attribute to retrieve.")
       .label('Account Attribute Name');
 
     step
       .property('sourceName')
       .value(createChoiceValueModel({ choices: sources })
       )
+      .hint("The source from which to retrieve the account attribute.")
       .label('Source Name');
 
     step
@@ -69,6 +76,7 @@ return createStepModel<AccountAttributeStep>(
           isRequired: false
         })
       )
+      .hint("This configuration's value is a string name of the attribute to use when determining the ordering of returned accounts when there are multiple entries.")
       .label('Account Sort Attribute');
 
     step
@@ -78,6 +86,7 @@ return createStepModel<AccountAttributeStep>(
           defaultValue: true,
         })
       )
+      .hint("This configuration's value is a boolean (true/false). It controls the sort order when there are multiple accounts.")
       .label('Sort Descending');
 
     step
@@ -87,6 +96,7 @@ return createStepModel<AccountAttributeStep>(
           defaultValue: true,
         })
       )
+      .hint("This configuration's value is a boolean (true/false). It controls which account to source a value from for an attribute. If this flag is set to true, the transform returns the value from the first account in the list, even if it is null. If this flag is set to false, the transform returns the first non-null value.")
       .label('Return First Link');
 
     step
@@ -97,6 +107,7 @@ return createStepModel<AccountAttributeStep>(
           isRequired: false
         })
       )
+      .hint("This expression queries the database to narrow search results. This configuration's value is a sailpoint.object.Filter expression for searching against the database. The default filter always includes the source and identity, and any subsequent expressions are combined in an AND operation with the existing search criteria.")
       .label('Account Filter');
 
     step
@@ -107,6 +118,7 @@ return createStepModel<AccountAttributeStep>(
           isRequired: false
         })
       )
+      .hint("Use this expression to search and filter accounts in memory. This configuration's value is a sailpoint.object.Filter expression for searching against the returned result set.")
       .label('Account Property Filter');
   }
 );
@@ -171,6 +183,7 @@ export function deserializeAccountAttribute(data: any): AccountAttributeStep {
       componentType: 'task',
       type: 'accountAttribute',
       name: data.name ?? 'Account Attribute',
+      description: description,
       properties: {
         attributeName: data.attributes.attributeName ?? '',
         sourceName: data.attributes.sourceName ?? '',

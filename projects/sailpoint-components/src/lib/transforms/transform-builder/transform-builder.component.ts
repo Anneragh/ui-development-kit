@@ -74,6 +74,7 @@ import {
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { debounceTime, Subject, Subscription, takeUntil } from 'rxjs';
 import {
@@ -359,6 +360,7 @@ interface StepDefinition {
 export interface MyDefinition extends Definition {
   properties: {
     name: string;
+    description: string;
   };
 }
 
@@ -497,6 +499,7 @@ export function createDefinitionFromTransform(data: any): Definition {
   return {
     properties: {
       name: data.name,
+      description: data.attributes.description || '',
     },
     sequence: [deserializeToStep(data)],
   };
@@ -571,6 +574,7 @@ export function deserializeToStep(data: any): Step {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatBadgeModule,
+    MatTooltipModule
   ],
   templateUrl: './transform-builder.component.html',
   styleUrl: './transform-builder.component.scss',
@@ -961,6 +965,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       newTransform.name = String(
         typeof definitionName === 'string' ? definitionName : newTransform.name
       );
+
       console.log('Saving transform to cloud:', newTransform);
 
       // If the transform already exists, update it
@@ -1150,6 +1155,31 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     // return (
     //   typeof value === 'number' || (!isNaN(value) && !isNaN(parseFloat(value)))
     // );
+  }
+
+  getHintForProperty(stepType: string, key: string): string | undefined {
+
+    if (!this.definitionModel) return undefined;
+
+    const stepDef = this.definitionModel.steps[stepType];
+    if (!stepDef?.properties) return undefined;
+    const propDef = stepDef.properties.find(
+      (p) => p.path.parts[p.path.parts.length - 1] === key
+    );
+
+    return propDef?.hint;
+  }
+
+  getLabelForProperty(stepType: string, key: string): string | undefined {
+    if (!this.definitionModel) return undefined;
+
+    const stepDef = this.definitionModel.steps[stepType];
+    if (!stepDef?.properties) return undefined;
+    const propDef = stepDef.properties.find(
+      (p) => p.path.parts[p.path.parts.length - 1] === key
+    );
+
+    return propDef?.label;
   }
 
   isMap(value: unknown): value is Record<string, unknown> {

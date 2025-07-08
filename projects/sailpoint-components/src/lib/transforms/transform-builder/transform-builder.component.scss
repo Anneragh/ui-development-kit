@@ -2,6 +2,27 @@
 @import "sequential-workflow-designer/css/designer-light.css";
 @import "sequential-workflow-designer/css/designer-dark.css";
 
+.dark-theme .sqd-toolbox-item-text,
+.dark-theme .mdc-text-field--filled:not(.mdc-text-field--disabled),
+.dark-theme .mdc-text-field {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .sqd-toolbox-group-title {
+  background-color: #3f3f3f !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .sqd-toolbox-item-text {
+  border-radius: 5px;
+  border: 1px solid #415364 !important;
+}
+
+.sqd-theme-dark .sqd-toolbox-item  {
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.35) !important;
+}
+
 .dark-theme .mdc-switch--unselected .mdc-switch__icon {
   fill: #1e1e1e !important;
 }
@@ -48,16 +69,6 @@
   color: #ffffff !important;
 }
 
-.dark-theme .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-  background-color: #1e1e1e !important;
-  color: #ffffff !important;
-}
-
-.dark-theme .mdc-text-field {
-  background-color: #1e1e1e !important;
-  color: #ffffff !important;
-}
-
 .dark-theme
   .sqd-theme-dark
   .sqd-step-switch
@@ -89,7 +100,8 @@
 }
 
 .dark-theme .sqd-theme-dark .sqd-toolbox-filter-input {
-  color: black !important;
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
 }
 
 .action-buttons {
@@ -116,6 +128,10 @@
 .mat-mdc-card-title {
   font-family: "Poppins" !important;
   color: #415364 !important;
+}
+
+.sqd-toolbox-item-icon {
+  z-index: 999;
 }
 
 html {
@@ -440,4 +456,8 @@ html {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.transform-description {
+  line-height: 18px;
 }
