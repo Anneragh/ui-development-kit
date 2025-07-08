@@ -1,12 +1,15 @@
 import { BranchedStep, Properties, Step, Uid } from 'sequential-workflow-designer';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the upper transform to convert an input string into all uppercase letters.'
+
 export function createUpper(): UpperStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'Upper',
     type: 'upper',
+    description: description,
     properties: {},
     branches: {
       input: [],
@@ -17,6 +20,7 @@ export function createUpper(): UpperStep {
 export interface UpperStep extends BranchedStep {
   type: 'upper';
   componentType: 'switch';
+  description?: string;
   properties: Properties;
 }
 
@@ -40,6 +44,7 @@ export function deserializeUpper(data: any): UpperStep {
     componentType: 'switch',
     name: data.name ?? 'Upper',
     type: 'upper',
+    description: description,
     properties: {},
     branches: {
       input: [],
