@@ -24,3 +24,14 @@
   stroke: #e0e0e0;
   stroke-width: 0.5;
 }
+
+/* Hover effect for clickable elements */
+:host ::ng-deep rect:hover {
+  opacity: 0.8;
+  stroke: #333;
+  stroke-width: 1px;
+}
+
+:host ::ng-deep .label:hover {
+  font-weight: bold;
+}

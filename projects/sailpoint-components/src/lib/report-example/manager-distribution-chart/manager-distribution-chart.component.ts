@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import * as d3 from 'd3';
 
@@ -19,6 +20,7 @@ interface ChartDataPoint {
   styleUrl: './manager-distribution-chart.component.scss'
 })
 export class ManagerDistributionChartComponent implements OnChanges {
+  constructor(private router: Router) {}
   @Input() identities: IdentityV2025[] = [];
   @ViewChild('pieChart', { static: true }) private pieChartContainer!: ElementRef;
 
@@ -84,7 +86,17 @@ export class ManagerDistributionChartComponent implements OnChanges {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return arc(d as any) || '';
       })
-      .attr('fill', d => color(d.data.label) as string);
+      .attr('fill', d => color(d.data.label) as string)
+      .style('cursor', 'pointer') // Add pointer cursor
+      .on('click', (event, d) => {
+        // Navigate to details view with manager filter
+        this.router.navigate(['/report-example/details'], { 
+          queryParams: { 
+            category: 'manager',
+            value: d.data.label
+          }
+        });
+      });
     
     // Add title
     svg.append('text')
@@ -110,7 +122,18 @@ export class ManagerDistributionChartComponent implements OnChanges {
         const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
         return midAngle < Math.PI ? 'start' : 'end';
       })
-      .text(d => `${d.data.label}: ${d.data.value} (${Math.round(d.data.value / this.identities.length * 100)}%)`);
+      .attr('class', 'pie-label')
+      .style('cursor', 'pointer')
+      .text(d => `${d.data.label}: ${d.data.value} (${Math.round(d.data.value / this.identities.length * 100)}%)`)
+      .on('click', (event, d) => {
+        // Navigate to details view with manager filter
+        this.router.navigate(['/report-example/details'], { 
+          queryParams: { 
+            category: 'manager',
+            value: d.data.label
+          }
+        });
+      });
     
     // Add polylines
     arcs.append('polyline')

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import * as d3 from 'd3';
 
@@ -13,6 +14,7 @@ import * as d3 from 'd3';
   styleUrl: './lifecycle-state-chart.component.scss'
 })
 export class LifecycleStateChartComponent implements OnChanges {
+  constructor(private router: Router) {}
   @Input() identities: IdentityV2025[] = [];
   @ViewChild('lifecycleChart', { static: true }) private lifecycleChartContainer!: ElementRef;
 
@@ -99,7 +101,7 @@ export class LifecycleStateChartComponent implements OnChanges {
       .attr('stroke', '#e0e0e0')
       .attr('stroke-width', 0.5);
     
-    // Add bars
+    // Add clickable bars
     svg.selectAll('rect')
       .data(data)
       .enter()
@@ -110,7 +112,17 @@ export class LifecycleStateChartComponent implements OnChanges {
       .attr('height', d => this.height - this.margin.top - this.margin.bottom - y(d.count))
       .attr('fill', d => color(d.state) as string)
       .attr('rx', 4)
-      .attr('ry', 4);
+      .attr('ry', 4)
+      .style('cursor', 'pointer')
+      .on('click', (event, d) => {
+        // Navigate to details view with lifecycle state filter
+        this.router.navigate(['/report-example/details'], { 
+          queryParams: { 
+            category: 'lifecycle',
+            value: d.state
+          }
+        });
+      });
       
     // Add title
     svg.append('text')
@@ -121,7 +133,7 @@ export class LifecycleStateChartComponent implements OnChanges {
       .style('font-weight', 'bold')
       .text('Identities by Lifecycle State');
       
-    // Add labels
+    // Add clickable labels
     svg.selectAll('.label')
       .data(data)
       .enter()
@@ -130,6 +142,16 @@ export class LifecycleStateChartComponent implements OnChanges {
       .attr('x', d => (x(d.state) || 0) + x.bandwidth() / 2)
       .attr('y', d => y(d.count) - 5)
       .attr('text-anchor', 'middle')
-      .text(d => d.count);
+      .style('cursor', 'pointer')
+      .text(d => d.count)
+      .on('click', (event, d) => {
+        // Navigate to details view with lifecycle state filter
+        this.router.navigate(['/report-example/details'], { 
+          queryParams: { 
+            category: 'lifecycle',
+            value: d.state
+          }
+        });
+      });
   }
 }

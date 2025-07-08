@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import * as d3 from 'd3';
 
@@ -13,6 +14,7 @@ import * as d3 from 'd3';
   styleUrl: './identity-status-chart.component.scss'
 })
 export class IdentityStatusChartComponent implements OnChanges {
+  constructor(private router: Router) {}
   @Input() identities: IdentityV2025[] = [];
   @ViewChild('barChart', { static: true }) private barChartContainer!: ElementRef;
 
@@ -76,7 +78,7 @@ export class IdentityStatusChartComponent implements OnChanges {
       .domain(data.map(d => d.status))
       .range(d3.schemeCategory10);
     
-    // Add bars
+    // Add bars with click events
     svg.selectAll('rect')
       .data(data)
       .enter()
@@ -87,7 +89,17 @@ export class IdentityStatusChartComponent implements OnChanges {
       .attr('height', d => this.height - this.margin.top - this.margin.bottom - y(d.count))
       .attr('fill', d => color(d.status) as string)
       .attr('rx', 4)
-      .attr('ry', 4);
+      .attr('ry', 4)
+      .style('cursor', 'pointer') // Add pointer cursor to indicate clickable
+      .on('click', (event, d) => {
+        // Navigate to details view with status filter
+        this.router.navigate(['/report-example/details'], { 
+          queryParams: { 
+            category: 'status',
+            value: d.status
+          }
+        });
+      });
       
     // Add title
     svg.append('text')
@@ -98,7 +110,7 @@ export class IdentityStatusChartComponent implements OnChanges {
       .style('font-weight', 'bold')
       .text('Identities by Status');
       
-    // Add labels
+    // Add clickable labels
     svg.selectAll('.label')
       .data(data)
       .enter()
@@ -107,6 +119,16 @@ export class IdentityStatusChartComponent implements OnChanges {
       .attr('x', d => (x(d.status) || 0) + x.bandwidth() / 2)
       .attr('y', d => y(d.count) - 5)
       .attr('text-anchor', 'middle')
-      .text(d => d.count);
+      .style('cursor', 'pointer') // Add pointer cursor
+      .text(d => d.count)
+      .on('click', (event, d) => {
+        // Navigate to details view with status filter
+        this.router.navigate(['/report-example/details'], { 
+          queryParams: { 
+            category: 'status',
+            value: d.status
+          }
+        });
+      });
   }
 }

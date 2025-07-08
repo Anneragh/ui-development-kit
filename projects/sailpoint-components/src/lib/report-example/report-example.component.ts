@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
+import { ReportDataService } from './report-data.service';
 
 // Import chart components
 import { IdentityStatusChartComponent } from './identity-status-chart/identity-status-chart.component';
@@ -21,6 +23,7 @@ import { LifecycleStateChartComponent } from './lifecycle-state-chart/lifecycle-
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
@@ -49,7 +52,7 @@ export class ReportExampleComponent implements OnInit {
   errorMessage = '';
   totalLoaded = 0;
 
-  constructor(private sdk: SailPointSDKService) {}
+  constructor(private sdk: SailPointSDKService, private dataService: ReportDataService) {}
   
   ngOnInit() {
     void this.loadIdentities();
@@ -109,7 +112,11 @@ export class ReportExampleComponent implements OnInit {
       }
       
       this.loadingMessage = 'Loading identity data...'; // Reset the message for next time
-
+      
+      // Store identities in the shared service
+      this.dataService.setIdentities(this.identities);
+      
+    
     } catch (error) {
       this.hasError = true;
       this.errorMessage = `Error loading identities: ${String(error)}`;

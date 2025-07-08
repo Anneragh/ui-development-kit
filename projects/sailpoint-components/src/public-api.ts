@@ -12,3 +12,6 @@ export * from './lib/transforms/transforms.component';
 
 
 export * from './lib/report-example/report-example.component';
+export * from './lib/report-example/report-example-routes';
+export * from './lib/report-example/identity-detail-view/identity-detail-view.component';
+export * from './lib/report-example/report-data.service';
