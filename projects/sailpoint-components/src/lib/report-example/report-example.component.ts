@@ -55,7 +55,16 @@ export class ReportExampleComponent implements OnInit {
   constructor(private sdk: SailPointSDKService, private dataService: ReportDataService) {}
   
   ngOnInit() {
-    void this.loadIdentities();
+    // Check if data is already loaded in the service
+    if (this.dataService.hasLoadedData()) {
+      console.log('Using cached identity data');
+      this.identities = this.dataService.getIdentities();
+      this.totalLoaded = this.identities.length;
+      this.isLoadingComplete = this.dataService.isDataComplete();
+    } else {
+      // No cached data, load from API
+      void this.loadIdentities();
+    }
   }
   
   cancelLoading() {
@@ -113,8 +122,8 @@ export class ReportExampleComponent implements OnInit {
       
       this.loadingMessage = 'Loading identity data...'; // Reset the message for next time
       
-      // Store identities in the shared service
-      this.dataService.setIdentities(this.identities);
+      // Store identities in the shared service with completion state
+      this.dataService.setIdentities(this.identities, this.isLoadingComplete);
       
     
     } catch (error) {
@@ -127,6 +136,9 @@ export class ReportExampleComponent implements OnInit {
   
   
   refresh() {
+    // Force reload from API, ignoring cache
+    this.isCancelled = false;
+    this.isLoadingComplete = false;
     void this.loadIdentities();
   }
 }
