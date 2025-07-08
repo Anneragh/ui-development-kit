@@ -2,9 +2,21 @@
 @import "sequential-workflow-designer/css/designer-light.css";
 @import "sequential-workflow-designer/css/designer-dark.css";
 
-.dark-theme .sqd-toolbox-item-text, .dark-theme .sqd-toolbox-group-title, .dark-theme .mdc-text-field--filled:not(.mdc-text-field--disabled), .dark-theme .mdc-text-field {
+.dark-theme .sqd-toolbox-item-text,
+.dark-theme .mdc-text-field--filled:not(.mdc-text-field--disabled),
+.dark-theme .mdc-text-field {
   background-color: #1e1e1e !important;
   color: #ffffff !important;
+}
+
+.dark-theme .sqd-toolbox-group-title {
+  background-color: #3f3f3f !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .sqd-toolbox-item-text {
+  border-radius: 5px;
+  border: 1px solid #415364 !important;
 }
 
 .dark-theme .mdc-switch--unselected .mdc-switch__icon {

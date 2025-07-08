@@ -19,10 +19,12 @@ body.dark-theme {
     --mdc-protected-button-label-text-weight: 500;
     --mdc-protected-button-container-height: 40px;
     --mdc-protected-button-container-shape: 9999px;
+    --mdc-circular-progress-active-indicator-color: #54c0e8 !important;
 }
 
 body {
   --mdc-protected-button-label-text-color: #0071ce!important;
+  --mdc-circular-progress-active-indicator-color: #0071ce !important;
   --mdc-protected-button-hover-container-elevation-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
 }
 
