@@ -82,6 +82,33 @@ mat-card {
   border-radius: 4px;
 }
 
+.cancel-button {
+  margin-top: 16px;
+}
+
+.partial-data-badge {
+  display: inline-block;
+  background-color: #ff9800;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.partial-data-note {
+  color: #ff9800;
+  font-style: italic;
+  margin-left: 6px;
+}
+
+.complete-data-note {
+  color: #4CAF50;
+  font-style: italic;
+  margin-left: 6px;
+}
+
 /* Custom styling for d3 charts */
 ::ng-deep .label {
   font-size: 12px;

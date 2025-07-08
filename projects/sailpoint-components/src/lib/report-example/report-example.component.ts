@@ -38,12 +38,16 @@ import { LifecycleStateChartComponent } from './lifecycle-state-chart/lifecycle-
 })
 export class ReportExampleComponent implements OnInit {
   title = 'Identity Analytics';
+  loadingMessage = 'Loading identity data...';
+  isCancelled = false;
+  isLoadingComplete = false;
   
   // Data properties
   identities: IdentityV2025[] = [];
   loading = false;
   hasError = false;
   errorMessage = '';
+  totalLoaded = 0;
   
   // No longer need chart ViewChild references or dimensions as they are now handled by the child components
   
@@ -53,14 +57,61 @@ export class ReportExampleComponent implements OnInit {
     void this.loadIdentities();
   }
   
+  cancelLoading() {
+    this.isCancelled = true;
+    console.log('Loading cancelled by user');
+    this.loadingMessage = 'Loading cancelled. Displaying partial results...';
+  }
+
   async loadIdentities() {
     this.loading = true;
     this.hasError = false;
+    this.identities = [];
+    this.isCancelled = false;
+    this.isLoadingComplete = false;
+    
+    const BATCH_SIZE = 250; // API max limit
+    let offset = 0;
+    let hasMoreData = true;
+    this.totalLoaded = 0;
     
     try {
-      const response = await this.sdk.listIdentities({ limit: 250 });
-      this.identities = response.data || [];
-      this.renderCharts();
+      // Continue fetching until there's no more data or user cancels
+      while (hasMoreData && !this.isCancelled) {
+        // Update loading message with current progress
+        this.loadingMessage = `Loading identities... (${this.totalLoaded} loaded so far)`;
+        
+        const response = await this.sdk.listIdentities({ 
+          limit: BATCH_SIZE, 
+          offset: offset,
+          count: true // Request total count in headers
+        });
+        
+        const batchData = response.data || [];
+        
+        // Add the batch to our collected identities
+        this.identities = [...this.identities, ...batchData];
+        this.totalLoaded = this.identities.length;
+        
+        // Check if we've reached the end of the data
+        if (batchData.length < BATCH_SIZE) {
+          hasMoreData = false;
+          this.isLoadingComplete = true;
+        } else {
+          // Increase offset for next batch
+          offset += BATCH_SIZE;
+        }
+      }
+      
+      if (this.isCancelled) {
+        console.log(`Loading cancelled. Loaded ${this.identities.length} identities so far.`);
+      } else {
+        console.log(`Completed loading ${this.identities.length} total identities`);
+        this.isLoadingComplete = true;
+      }
+      
+      this.loadingMessage = 'Loading identity data...'; // Reset the message for next time
+      this.renderCharts(); // Render charts with whatever data we have
     } catch (error) {
       this.hasError = true;
       this.errorMessage = `Error loading identities: ${String(error)}`;

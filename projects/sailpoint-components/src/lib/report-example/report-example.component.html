@@ -13,7 +13,10 @@
   <div class="content">
     <div *ngIf="loading" class="loading-container">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading identity data...</p>
+      <p>{{ loadingMessage }}</p>
+      <button mat-raised-button color="warn" (click)="cancelLoading()" class="cancel-button">
+        Cancel & View Partial Results
+      </button>
     </div>
 
     <div *ngIf="hasError" class="error-container">
@@ -28,7 +31,12 @@
       <mat-card>
         <mat-card-header>
           <mat-card-title>Identity Data Visualization</mat-card-title>
-          <mat-card-subtitle>Visual analytics based on identity data</mat-card-subtitle>
+          <mat-card-subtitle>
+            Visual analytics based on identity data
+            <span *ngIf="!isLoadingComplete && totalLoaded > 0" class="partial-data-badge">
+              Partial Data ({{ totalLoaded }} identities)
+            </span>
+          </mat-card-subtitle>
         </mat-card-header>
         
         <mat-card-content>
@@ -57,7 +65,15 @@
             </div>
             
             <div class="data-summary">
-              <p><strong>Total Identities:</strong> {{ identities.length }}</p>
+              <p>
+                <strong>Total Identities:</strong> {{ identities.length }}
+                <span *ngIf="!isLoadingComplete && identities.length > 0" class="partial-data-note">
+                  (Partial data - loading was cancelled)
+                </span>
+                <span *ngIf="isLoadingComplete" class="complete-data-note">
+                  (Complete dataset)
+                </span>
+              </p>
             </div>
           </div>
         </mat-card-content>
