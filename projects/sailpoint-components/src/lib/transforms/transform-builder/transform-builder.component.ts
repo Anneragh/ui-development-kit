@@ -86,6 +86,8 @@ import { GenericDialogComponent } from '../../generic-dialog/generic-dialog.comp
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
 import { ThemeService } from '../../theme/theme.service';
 import { AutoSaveService } from '../transform-builder/utils/autosave.service'; // Adjust path as needed
+import { createBase64Decode, deserializeBase64Decode, getBase64DecodeIcon, isBase64DecodeStep, serializeBase64Decode } from './models/base-64-decode';
+import { createBase64Encode, deserializeBase64Encode, getBase64EncodeIcon, isBase64EncodeStep, serializeBase64Encode } from './models/base-64-encode';
 import {
   ConditionalModel,
   createConditional,
@@ -341,20 +343,6 @@ interface StepDefinition {
   sequence?: StepDefinition[];
   branches?: Record<string, StepDefinition[]>;
 }
-
-interface WorkflowDefinition {
-  properties: Record<string, any>;
-  sequence: StepDefinition[];
-}
-
-// Result type for enhanced search with path information
-interface StepSearchResult {
-  step: StepDefinition;
-  path: (string | number)[];
-  sequence: StepDefinition[];
-  index: number;
-}
-
 export interface MyDefinition extends Definition {
   properties: {
     name: string;
@@ -489,6 +477,10 @@ export const serializeStep = (step: Step) => {
     return serializeUpper(step);
   } else if (isUUIDStep(step)) {
     return serializeUUID(step);
+  } else if (isBase64EncodeStep(step)) {
+    return serializeBase64Encode(step);
+  } else if (isBase64DecodeStep(step)) {
+    return serializeBase64Decode(step);
   }
   throw new Error(`Unsupported step type: ${step.type}`);
 };
@@ -540,6 +532,8 @@ const deserializers: Record<string, Deserializer> = {
   trim: deserializeTrim,
   upper: deserializeUpper,
   uuid: deserializeUUID,
+  base64Encode: deserializeBase64Encode,
+  base64Decode: deserializeBase64Decode,
 };
 
 export function deserializeToStep(data: any): Step {
@@ -662,6 +656,8 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         upper: getUpperIcon,
         uuid: getUUIDIcon,
         string: getStringIcon,
+        base64Encode: getBase64EncodeIcon,
+        base64Decode: getBase64DecodeIcon
       };
 
       const iconFn = iconMap[type];
@@ -753,6 +749,8 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         name: 'Transforms',
         steps: [
           createAccountAttribute(),
+          createBase64Encode(),
+          createBase64Decode(),
           createConcat(),
           createConditional(),
           createDateCompare(),
