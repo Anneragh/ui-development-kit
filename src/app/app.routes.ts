@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { campaignsComponent } from './campaigns/campaigns.component';
-import { IdentitiesComponent, ReportExampleComponent, REPORT_EXAMPLE_ROUTES } from 'sailpoint-components';
+import { IdentitiesComponent, REPORT_EXAMPLE_ROUTES } from 'sailpoint-components';
 import { PageNotFoundComponent } from './shared/components';
 import { TransformBuilderComponent } from 'sailpoint-components';
 import { TransformsComponent } from 'sailpoint-components';

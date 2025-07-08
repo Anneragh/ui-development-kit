@@ -157,10 +157,11 @@ export class IdentityDetailViewComponent implements OnInit {
           return this.compare(a.emailAddress || '', b.emailAddress || '', isAsc);
         case 'identityStatus': 
           return this.compare(a.identityStatus || '', b.identityStatus || '', isAsc);
-        case 'lifecycleState': 
+        case 'lifecycleState': {
           const aState = a.lifecycleState?.stateName || '';
           const bState = b.lifecycleState?.stateName || '';
           return this.compare(aState, bState, isAsc);
+        }
         default: 
           return 0;
       }
@@ -174,7 +175,7 @@ export class IdentityDetailViewComponent implements OnInit {
   }
 
   navigateBack() {
-    this.router.navigate(['/report-example']);
+    void this.router.navigate(['/report-example']);
   }
 
   formatLifecycleState(identity: IdentityV2025): string {

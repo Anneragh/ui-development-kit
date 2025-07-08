@@ -93,7 +93,7 @@ export class IdentityStatusChartComponent implements OnChanges {
       .style('cursor', 'pointer') // Add pointer cursor to indicate clickable
       .on('click', (event, d) => {
         // Navigate to details view with status filter
-        this.router.navigate(['/report-example/details'], { 
+        void this.router.navigate(['/report-example/details'], { 
           queryParams: { 
             category: 'status',
             value: d.status
@@ -123,7 +123,7 @@ export class IdentityStatusChartComponent implements OnChanges {
       .text(d => d.count)
       .on('click', (event, d) => {
         // Navigate to details view with status filter
-        this.router.navigate(['/report-example/details'], { 
+        void this.router.navigate(['/report-example/details'], { 
           queryParams: { 
             category: 'status',
             value: d.status

@@ -90,7 +90,7 @@ export class ManagerDistributionChartComponent implements OnChanges {
       .style('cursor', 'pointer') // Add pointer cursor
       .on('click', (event, d) => {
         // Navigate to details view with manager filter
-        this.router.navigate(['/report-example/details'], { 
+        void this.router.navigate(['/report-example/details'], { 
           queryParams: { 
             category: 'manager',
             value: d.data.label
@@ -127,7 +127,7 @@ export class ManagerDistributionChartComponent implements OnChanges {
       .text(d => `${d.data.label}: ${d.data.value} (${Math.round(d.data.value / this.identities.length * 100)}%)`)
       .on('click', (event, d) => {
         // Navigate to details view with manager filter
-        this.router.navigate(['/report-example/details'], { 
+        void this.router.navigate(['/report-example/details'], { 
           queryParams: { 
             category: 'manager',
             value: d.data.label

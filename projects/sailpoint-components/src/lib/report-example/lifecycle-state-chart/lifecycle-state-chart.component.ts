@@ -116,7 +116,7 @@ export class LifecycleStateChartComponent implements OnChanges {
       .style('cursor', 'pointer')
       .on('click', (event, d) => {
         // Navigate to details view with lifecycle state filter
-        this.router.navigate(['/report-example/details'], { 
+        void this.router.navigate(['/report-example/details'], { 
           queryParams: { 
             category: 'lifecycle',
             value: d.state
@@ -146,7 +146,7 @@ export class LifecycleStateChartComponent implements OnChanges {
       .text(d => d.count)
       .on('click', (event, d) => {
         // Navigate to details view with lifecycle state filter
-        this.router.navigate(['/report-example/details'], { 
+        void this.router.navigate(['/report-example/details'], { 
           queryParams: { 
             category: 'lifecycle',
             value: d.state
