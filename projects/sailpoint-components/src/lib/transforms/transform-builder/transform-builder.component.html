@@ -155,7 +155,7 @@
   <div style="padding: 1rem">
     <h3>{{ editor.step.name }}</h3>
 
-    <p>{{editor.step.description}}</p>
+    <p class="transform-description">{{editor.step.description}}</p>
     <ng-container *ngIf="editor.step.type !== 'dateMath'">
       <p>Attributes</p>
       <ng-container *ngFor="let key of objectKeys(editor.step.properties)">
