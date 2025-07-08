@@ -48,9 +48,7 @@ export class ReportExampleComponent implements OnInit {
   hasError = false;
   errorMessage = '';
   totalLoaded = 0;
-  
-  // No longer need chart ViewChild references or dimensions as they are now handled by the child components
-  
+
   constructor(private sdk: SailPointSDKService) {}
   
   ngOnInit() {
@@ -111,7 +109,7 @@ export class ReportExampleComponent implements OnInit {
       }
       
       this.loadingMessage = 'Loading identity data...'; // Reset the message for next time
-      this.renderCharts(); // Render charts with whatever data we have
+
     } catch (error) {
       this.hasError = true;
       this.errorMessage = `Error loading identities: ${String(error)}`;
@@ -120,15 +118,6 @@ export class ReportExampleComponent implements OnInit {
     }
   }
   
-  renderCharts() {
-    // No longer need to explicitly render charts as this is now handled by the child components
-  }
-  
-  // Chart rendering methods are now in their respective components
-  
-  // Moved to ManagerDistributionChartComponent
-  
-  // Moved to LifecycleStateChartComponent
   
   refresh() {
     void this.loadIdentities();
