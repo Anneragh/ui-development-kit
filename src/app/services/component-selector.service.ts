@@ -6,6 +6,7 @@ declare global {
         electronAPI: {
             readConfig: () => Promise<any>;
             writeConfig: (config: any) => Promise<any>;
+            writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
         };
     }
 }

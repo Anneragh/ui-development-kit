@@ -49,7 +49,7 @@
 
   mat-toolbar {
     --mat-toolbar-standard-height: 80px; /* Set your desired height */
-    color: #0033a1;
+    color: var(--theme-secondary) !important;
     background: #ffffff;
     box-shadow: 0 4px 6px -1px #415364;
   }
@@ -173,5 +173,9 @@ mat-sidenav {
 
 :host-context(.dark-theme) .nav-divider {
   border-top-color: #333;
+}
+
+#disconnectButton {
+  margin-right: 8px;
 }
 

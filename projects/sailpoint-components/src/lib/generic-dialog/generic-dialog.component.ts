@@ -101,16 +101,16 @@ export interface DialogData {
   styles: [
     `
       .dark-theme #closeButton {
-        color: #54c0e8 !important;
+        color: var(--theme-primary) !important;;
         background-color: #1e1e1e !important;
         border-radius: 0.5rem;
-        border: 1px solid #54c0e8;
+        border: 1px solid var(--theme-primary) !important;
       }
 
       .dark-theme #closeButton:hover {
-        background-color: #54c0e8 !important;
+        background-color: var(--theme-primary) !important;;
         color: #ffffff;
-        border: 1px solid #54c0e8 !important;
+        border: 1px solid var(--theme-primary) !important;;
       }
 
       #closeButton {

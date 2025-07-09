@@ -2,12 +2,23 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import { connectToISC, connectToISCWithOAuth, disconnectFromISC, getTenants, harborPilotTransformChat, OAuthLogin, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType } from './api';
+import {
+  connectToISC,
+  connectToISCWithOAuth,
+  disconnectFromISC,
+  getTenants,
+  harborPilotTransformChat,
+  OAuthLogin,
+  createOrUpdateEnvironment,
+  deleteEnvironment,
+  setActiveEnvironment,
+  getGlobalAuthType,
+} from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 
 let win: BrowserWindow | null = null;
 const args = process.argv.slice(1),
-  serve = args.some(val => val === '--serve');
+  serve = args.some((val) => val === '--serve');
 
 function getConfigPath(): string {
   const userDataPath = app.getPath('userData');
@@ -25,7 +36,6 @@ function ensureConfigDir(): void {
 }
 
 function createWindow(): BrowserWindow {
-
   const size = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
@@ -38,9 +48,8 @@ function createWindow(): BrowserWindow {
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
-      allowRunningInsecureContent: (serve),
+      allowRunningInsecureContent: serve,
       contextIsolation: true,
-
 
       //enableRemoteModule: false,
     },
@@ -108,31 +117,46 @@ try {
     }
   });
 
-  ipcMain.handle('oauth-login', async (event, tenant?: string, baseAPIUrl?: string) => {
-    if (!tenant || !baseAPIUrl) {
-      throw new Error('Tenant and baseAPIUrl are required');
+  ipcMain.handle(
+    'oauth-login',
+    async (event, tenant?: string, baseAPIUrl?: string) => {
+      if (!tenant || !baseAPIUrl) {
+        throw new Error('Tenant and baseAPIUrl are required');
+      }
+      return await OAuthLogin({ tenant, baseAPIUrl });
     }
-    return await OAuthLogin({ tenant, baseAPIUrl });
-  });
+  );
 
   // Handle fetching users via IPC
-  ipcMain.handle('connect-to-isc', async (event, apiUrl: string, baseUrl: string, clientId: string, clientSecret: string) => {
-    if (clientId.startsWith("go-keyring-base64:")) {
-      const base64 = clientId.split("go-keyring-base64:")[1];
-      clientId = atob(base64);
+  ipcMain.handle(
+    'connect-to-isc',
+    async (
+      event,
+      apiUrl: string,
+      baseUrl: string,
+      clientId: string,
+      clientSecret: string
+    ) => {
+      if (clientId.startsWith('go-keyring-base64:')) {
+        const base64 = clientId.split('go-keyring-base64:')[1];
+        clientId = atob(base64);
+      }
+
+      if (clientSecret.startsWith('go-keyring-base64:')) {
+        const base64 = clientSecret.split('go-keyring-base64:')[1];
+        clientSecret = atob(base64);
+      }
+
+      return await connectToISC(apiUrl, baseUrl, clientId, clientSecret);
     }
+  );
 
-    if (clientSecret.startsWith("go-keyring-base64:")) {
-      const base64 = clientSecret.split("go-keyring-base64:")[1];
-      clientSecret = atob(base64);
+  ipcMain.handle(
+    'connect-to-isc-oauth',
+    async (event, apiUrl: string, baseUrl: string, accessToken: string) => {
+      return await connectToISCWithOAuth(apiUrl, baseUrl, accessToken);
     }
-
-    return await connectToISC(apiUrl, baseUrl, clientId, clientSecret);
-  });
-
-  ipcMain.handle('connect-to-isc-oauth', async (event, apiUrl: string, baseUrl: string, accessToken: string) => {
-    return await connectToISCWithOAuth(apiUrl, baseUrl, accessToken);
-  });
+  );
 
   ipcMain.handle('disconnect-from-isc', async () => {
     return await disconnectFromISC();
@@ -152,13 +176,19 @@ try {
     return await createOrUpdateEnvironment(config);
   });
 
-  ipcMain.handle('delete-environment', async (event, environmentName: string) => {
-    return await deleteEnvironment(environmentName);
-  });
+  ipcMain.handle(
+    'delete-environment',
+    async (event, environmentName: string) => {
+      return await deleteEnvironment(environmentName);
+    }
+  );
 
-  ipcMain.handle('set-active-environment', async (event, environmentName: string) => {
-    return await setActiveEnvironment(environmentName);
-  });
+  ipcMain.handle(
+    'set-active-environment',
+    async (event, environmentName: string) => {
+      return await setActiveEnvironment(environmentName);
+    }
+  );
 
   ipcMain.handle('get-global-auth-type', async () => {
     return await getGlobalAuthType();
@@ -172,11 +202,11 @@ try {
         return JSON.parse(configData);
       } else {
         const defaultConfig = {
-          "components": {
-            "enabled": []
+          components: {
+            enabled: [],
           },
-          "version": "1.0.0"
-        }
+          version: '1.0.0',
+        };
 
         ensureConfigDir();
         fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
@@ -200,6 +230,10 @@ try {
     }
   });
 
+  ipcMain.handle('write-logo-file', async (event, buffer, fileName) => {
+    const dest = path.join(__dirname, 'assets', 'icons', fileName);
+    await fs.promises.writeFile(dest, buffer);
+  });
 } catch (e) {
   console.error('Error during app initialization', e);
 }

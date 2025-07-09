@@ -9,4 +9,5 @@ export * from './lib/sailpoint-sdk.service';
 export * from './lib/theme/theme.service';
 export * from './lib/transforms/transform-builder/transform-builder.component';
 export * from './lib/transforms/transforms.component';
+export * from './lib/theme/theme-picker.component';
 

@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
   isConnected = true;
   isDarkTheme = false;
   enabledComponents: ComponentInfo[] = [];
-
+  logoPath = '';
   constructor(
     private electronService: ElectronService,
     private translate: TranslateService,
@@ -86,18 +86,31 @@ export class AppComponent implements OnInit {
       }
     });
 
-    // ✅ Theme subscription
     this.themeService.isDark$.subscribe((isDark) => {
       this.isDarkTheme = isDark;
+
       if (isDark) {
         this.renderer.addClass(document.body, 'dark-theme');
       } else {
         this.renderer.removeClass(document.body, 'dark-theme');
       }
+
+      const currentTheme = this.themeService['themeSubject'].value;
+
+      this.logoPath =
+        currentTheme?.logo ||
+        (isDark
+          ? 'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png'
+          : 'assets/icons/SailPoint-Developer-Community-Lockup.png');
     });
   }
 
   ngOnInit(): void {
+    const currentTheme = this.themeService['themeSubject'].value;
+    if (currentTheme?.logo) {
+      this.logoPath = currentTheme.logo;
+    }
+
     this.componentSelectorService.enabledComponents$.subscribe((components) => {
       this.enabledComponents = components;
     });
@@ -110,7 +123,23 @@ export class AppComponent implements OnInit {
   }
 
   toggleTheme(): void {
-    this.themeService.setDark(!this.isDarkTheme); // ✅ Use service setter
+    const current = this.themeService['themeSubject'].value;
+
+    if (!current) return;
+
+    const isCurrentlyDark = current.background.toLowerCase() !== '#ffffff';
+    const isDark = !isCurrentlyDark;
+    const mode: 'light' | 'dark' = isDark ? 'dark' : 'light';
+
+    const updatedTheme = {
+      ...current,
+      background: isDark ? '#151316' : '#ffffff',
+      primaryText: isDark ? '#ffffff' : '#415364',
+      secondaryText: isDark ? '#cccccc' : '#415364',
+      hoverText: isDark ? '#54c0e8' : '#ffffff',
+    };
+
+    this.themeService.saveTheme(updatedTheme, mode); // ✅ pass mode
   }
 
   toggleSidenav(): void {
