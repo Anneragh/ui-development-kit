@@ -40,6 +40,11 @@
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
       </a>
+      <a *ngIf="isComponentEnabled('velocity-editor-dialog')" mat-list-item class="sidebar-link" routerLink="/velocity-editor-dialog" routerLinkActive="active-link"
+        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Velocity Editor Dialog
+      </a>
       <a mat-list-item class="sidebar-link" routerLink="/identities" routerLinkActive="active-link"
         [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
         <mat-icon class="card-icon">home</mat-icon>

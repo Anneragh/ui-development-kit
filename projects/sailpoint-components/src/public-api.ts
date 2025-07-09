@@ -10,3 +10,5 @@ export * from './lib/theme/theme.service';
 export * from './lib/transforms/transform-builder/transform-builder.component';
 export * from './lib/transforms/transforms.component';
 
+
+export * from './lib/velocity-editor-dialog/velocity-editor-dialog.component';

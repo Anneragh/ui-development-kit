@@ -35,6 +35,14 @@ export class ComponentSelectorService {
             icon: 'transform',
             description: 'Manage data transformations for SailPoint.',
             enabled: true
+        },
+        {
+            name: 'velocity-editor-dialog',
+            displayName: 'Velocity Editor Dialog',
+            route: '/velocity-editor-dialog',
+            icon: 'dashboard',
+            description: 'Manage velocity editor dialog in SailPoint.',
+            enabled: false
         }
     ];
 

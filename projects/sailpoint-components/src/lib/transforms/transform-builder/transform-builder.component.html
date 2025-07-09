@@ -651,6 +651,17 @@
                   {{ key }} is required
                 </mat-error>
               </mat-form-field>
+              <!-- Add Operation Button -->
+              <button
+                  mat-stroked-button
+                  color="primary"
+                  [disabled]="editor.isReadonly"
+                  (click)="openVelocityEditor(editor.step.properties, key, $event, editor.context)"
+                  style="margin-top: 0.5rem"
+                >
+                  <mat-icon>edit</mat-icon>
+                  Editor 
+                </button>
             </ng-template>
           </ng-container>
 

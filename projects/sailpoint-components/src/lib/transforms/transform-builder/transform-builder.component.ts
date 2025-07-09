@@ -82,6 +82,7 @@ import {
   TransformsV2025ApiCreateTransformRequest,
   TransformsV2025ApiUpdateTransformRequest,
 } from 'sailpoint-api-client';
+import { VelocityEditorDialogComponent } from 'sailpoint-components';
 import { GenericDialogComponent } from '../../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
 import { ThemeService } from '../../theme/theme.service';
@@ -1345,6 +1346,32 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
   getBranchNames(branches: Record<string, any[]>): string[] {
     return Object.keys(branches || {});
+  }
+
+  public openVelocityEditor(properties: Properties, name: string, event: Event, context: StepEditorContext) {
+    console.log('openVelocityEditor', properties, name, event);
+    const currentValue = properties[name] || '';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const dialogRef = this.dialog.open(VelocityEditorDialogComponent, {
+      width: '90vw',
+      maxWidth: '1000px',
+      height: '80vh',
+      maxHeight: '800px',
+      data: {
+        code: currentValue,
+        title: 'Edit Velocity Code',
+        readonly: false
+      },
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Velocity editor closed with result:', result);
+      if (result !== undefined) {
+        properties[name] = result.code;
+        context.notifyPropertiesChanged();
+      }
+    });
   }
 
   public updateProperty(
