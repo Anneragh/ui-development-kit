@@ -64,7 +64,7 @@
               <app-lifecycle-state-chart [identities]="identities"></app-lifecycle-state-chart>
             </div>
             
-            <div class="data-summary">
+            <div class="data-summary" [ngStyle]="{'--background-color': isDark ? '#333333' : '#f5f5f5', '--text-color': isDark ? '#ffffff' : 'inherit'}">
               <p>
                 <strong>Total Identities:</strong> {{ identities.length }}
                 <span *ngIf="!isLoadingComplete && identities.length > 0" class="partial-data-note">

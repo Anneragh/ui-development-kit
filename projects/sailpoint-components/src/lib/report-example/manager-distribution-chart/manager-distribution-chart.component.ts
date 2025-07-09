@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import * as d3 from 'd3';
+import { ThemeService } from '../../theme/theme.service';
+import { Subject, takeUntil } from 'rxjs';
 
 // Define interface for chart data
 interface ChartDataPoint {
@@ -19,8 +21,23 @@ interface ChartDataPoint {
   templateUrl: './manager-distribution-chart.component.html',
   styleUrl: './manager-distribution-chart.component.scss'
 })
-export class ManagerDistributionChartComponent implements OnChanges {
-  constructor(private router: Router) {}
+export class ManagerDistributionChartComponent implements OnChanges, OnDestroy {
+  private destroy$ = new Subject<void>();
+  isDark = false;
+
+  constructor(
+    private router: Router,
+    private themeService: ThemeService
+  ) {
+    this.themeService.isDark$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isDark => {
+        this.isDark = isDark;
+        if (this.identities.length > 0) {
+          this.renderManagerDistributionChart();
+        }
+      });
+  }
   @Input() identities: IdentityV2025[] = [];
   @ViewChild('pieChart', { static: true }) private pieChartContainer!: ElementRef;
 
@@ -98,13 +115,14 @@ export class ManagerDistributionChartComponent implements OnChanges {
         });
       });
     
-    // Add title
+    // Add title with theme-aware color
     svg.append('text')
       .attr('x', 0)
       .attr('y', -radius - 20)
       .attr('text-anchor', 'middle')
       .style('font-size', '16px')
       .style('font-weight', 'bold')
+      .style('fill', this.isDark ? '#ffffff' : '#000000')
       .text('Manager Distribution');
     
     // Add labels with lines
@@ -124,6 +142,7 @@ export class ManagerDistributionChartComponent implements OnChanges {
       })
       .attr('class', 'pie-label')
       .style('cursor', 'pointer')
+      .style('fill', this.isDark ? '#ffffff' : '#000000')
       .text(d => `${d.data.label}: ${d.data.value} (${Math.round(d.data.value / this.identities.length * 100)}%)`)
       .on('click', (event, d) => {
         // Navigate to details view with manager filter
@@ -153,5 +172,10 @@ export class ManagerDistributionChartComponent implements OnChanges {
       .style('fill', 'none')
       .style('stroke', 'gray')
       .style('stroke-width', 1);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +12,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { ReportDataService } from './report-data.service';
+import { ThemeService } from '../theme/theme.service';
+import { Subject, takeUntil } from 'rxjs';
 
 // Import chart components
 import { IdentityStatusChartComponent } from './identity-status-chart/identity-status-chart.component';
@@ -39,11 +41,13 @@ import { LifecycleStateChartComponent } from './lifecycle-state-chart/lifecycle-
   templateUrl: './report-example.component.html',
   styleUrl: './report-example.component.scss'
 })
-export class ReportExampleComponent implements OnInit {
+export class ReportExampleComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   title = 'Identity Analytics';
   loadingMessage = 'Loading identity data...';
   isCancelled = false;
   isLoadingComplete = false;
+  isDark = false;
   
   // Data properties
   identities: IdentityV2025[] = [];
@@ -52,7 +56,17 @@ export class ReportExampleComponent implements OnInit {
   errorMessage = '';
   totalLoaded = 0;
 
-  constructor(private sdk: SailPointSDKService, private dataService: ReportDataService) {}
+  constructor(
+    private sdk: SailPointSDKService, 
+    private dataService: ReportDataService,
+    private themeService: ThemeService
+  ) {
+    this.themeService.isDark$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isDark => {
+        this.isDark = isDark;
+      });
+  }
   
   ngOnInit() {
     // Check if data is already loaded in the service
@@ -140,5 +154,10 @@ export class ReportExampleComponent implements OnInit {
     this.isCancelled = false;
     this.isLoadingComplete = false;
     void this.loadIdentities();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

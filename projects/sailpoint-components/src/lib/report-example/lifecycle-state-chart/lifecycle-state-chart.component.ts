@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import * as d3 from 'd3';
+import { ThemeService } from '../../theme/theme.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-lifecycle-state-chart',
@@ -13,8 +15,23 @@ import * as d3 from 'd3';
   templateUrl: './lifecycle-state-chart.component.html',
   styleUrl: './lifecycle-state-chart.component.scss'
 })
-export class LifecycleStateChartComponent implements OnChanges {
-  constructor(private router: Router) {}
+export class LifecycleStateChartComponent implements OnChanges, OnDestroy {
+  private destroy$ = new Subject<void>();
+  isDark = false;
+
+  constructor(
+    private router: Router,
+    private themeService: ThemeService
+  ) {
+    this.themeService.isDark$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isDark => {
+        this.isDark = isDark;
+        if (this.identities.length > 0) {
+          this.renderLifecycleStateChart();
+        }
+      });
+  }
   @Input() identities: IdentityV2025[] = [];
   @ViewChild('lifecycleChart', { static: true }) private lifecycleChartContainer!: ElementRef;
 
@@ -124,13 +141,14 @@ export class LifecycleStateChartComponent implements OnChanges {
         });
       });
       
-    // Add title
+    // Add title with theme-aware color
     svg.append('text')
       .attr('x', (this.width - this.margin.left - this.margin.right) / 2)
       .attr('y', -5)
       .attr('text-anchor', 'middle')
       .style('font-size', '16px')
       .style('font-weight', 'bold')
+      .style('fill', this.isDark ? '#ffffff' : '#000000')
       .text('Identities by Lifecycle State');
       
     // Add clickable labels
@@ -153,5 +171,10 @@ export class LifecycleStateChartComponent implements OnChanges {
           }
         });
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

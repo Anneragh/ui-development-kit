@@ -78,7 +78,8 @@ mat-card {
 .data-summary {
   margin-top: 24px;
   padding: 16px;
-  background-color: #f5f5f5;
+  background-color: var(--background-color, #f5f5f5);
+  color: var(--text-color, inherit);
   border-radius: 4px;
 }
 
