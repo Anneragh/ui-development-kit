@@ -13,13 +13,13 @@ import { FormsModule } from '@angular/forms';
 })
 export class SearchBarComponent {
   // Input: full dataset to locally filter against
-  @Input() data: Record<string, unknown>[] = [];
+  @Input() data: any[] = [];
 
   // Input: placeholder text for the search input
   @Input() placeholder = 'Search...';
 
   // Output: emits filtered results if local filtering is performed
-  @Output() filtered = new EventEmitter<Record<string, unknown>[]>();
+  @Output() filtered = new EventEmitter<any[]>();
 
   // Output: emits a search string if API-based search is triggered
   @Output() searchApi = new EventEmitter<string>();
@@ -45,11 +45,16 @@ export class SearchBarComponent {
     }
 
     // Fallback: perform basic local filtering on all item values
-    const result = this.data.filter((item) =>
-      Object.values(item).some((val) =>
-        val?.toString().toLowerCase().includes(lowerQuery)
-      )
-    );
+    const result = this.data.filter((item) => {
+      // Ensure item is a valid object before calling Object.values
+      if (item && typeof item === 'object' && item !== null) {
+        // Type assertion to Record<string, unknown> for type safety
+        return Object.values(item as Record<string, unknown>).some((val) =>
+          val !== null && val !== undefined && val?.toString().toLowerCase().includes(lowerQuery)
+        );
+      }
+      return false;
+    });
 
     this.filtered.emit(result);
   }

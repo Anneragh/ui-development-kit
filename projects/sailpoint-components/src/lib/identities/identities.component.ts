@@ -39,8 +39,8 @@ import { ColumnCustomizerComponent } from './utils/column-customizer/column-cust
 })
 export class IdentitiesComponent implements OnInit {
   // Table and search state
-  identities: IdentityV2025[] = [];
-  filteredIdentities: IdentityV2025[] = [];
+  identities: IdentityV2025[] & Record<string, unknown>[] = [];
+  filteredIdentities: IdentityV2025[] & Record<string, unknown>[] = [];
 
   // Column state
   columnOrder: string[] = [];
@@ -106,7 +106,7 @@ export class IdentitiesComponent implements OnInit {
 
       // Fetch data
       const response = await this.sdk.listIdentities(request);
-      this.identities = response.data ?? [];
+      this.identities = (response.data ?? []) as IdentityV2025[] & Record<string, unknown>[];
 
       // Extract total count from headers (if present)
       let count: number | undefined;
@@ -203,7 +203,7 @@ export class IdentitiesComponent implements OnInit {
           },
           created: docWithAttrs.created ?? undefined,
         };
-      }) as IdentityV2025[];
+      }) as IdentityV2025[] & Record<string, unknown>[];
 
       this.totalCount = this.filteredIdentities.length;
       this.pageIndex = 0;

@@ -6,7 +6,7 @@ import {
   OnDestroy,
   OnInit,
   ViewEncapsulation,
-} from '@angular/core';
+  } from '@angular/core';
 import {
   Designer,
   RootEditorContext,
@@ -1206,7 +1206,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     return propDef?.label;
   }
 
-  isMap(value: unknown): value is Record<string, unknown> {
+  isMap(value: any): value is Record<string, any> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
   }
 
@@ -1235,7 +1235,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     });
   }
 
-  isStringRecord(value: unknown): value is Record<string, string> {
+  isStringRecord(value: any): value is Record<string, string> {
     return (
       typeof value === 'object' &&
       value !== null &&
@@ -1865,7 +1865,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Check if a date format step should show custom output field
    */
-  public shouldShowCustomOutput(step: Record<string, unknown>): boolean {
+  public shouldShowCustomOutput(step: Record<string, any>): boolean {
     if (step.type !== 'dateFormat') return false;
     if (!step.properties || typeof step.properties !== 'object') return false;
     if (!('outputFormat' in step.properties)) return false;
@@ -1876,11 +1876,11 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Get the effective input format (custom or selected)
    */
-  public getEffectiveInputFormat(step: Record<string, unknown>): string {
+  public getEffectiveInputFormat(step: Record<string, any>): string {
     if (!step.properties || typeof step.properties !== 'object') {
       return '';
     }
-    const props = step.properties as Record<string, unknown>;
+    const props = step.properties as Record<string, any>;
     if (props.inputFormat === 'CUSTOM' && props.customInputFormat && typeof props.customInputFormat === 'string') {
       return props.customInputFormat;
     }
@@ -1890,11 +1890,11 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Get the effective output format (custom or selected)
    */
-  public getEffectiveOutputFormat(step: Record<string, unknown>): string {
+  public getEffectiveOutputFormat(step: Record<string, any>): string {
     if (!step.properties || typeof step.properties !== 'object') {
       return '';
     }
-    const props = step.properties as Record<string, unknown>;
+    const props = step.properties as Record<string, any>;
     if (props.outputFormat === 'CUSTOM' && props.customOutputFormat && typeof props.customOutputFormat === 'string') {
       return props.customOutputFormat;
     }
@@ -1936,7 +1936,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Get operations array for the date math step
    */
-  public getDateMathOperations(properties: Record<string, unknown>): unknown[] {
+  public getDateMathOperations(properties: Record<string, any>): any[] {
     if (!properties.operations) {
       properties.operations = [];
     }
@@ -2034,7 +2034,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   /**
    * Get the generated expression for display
    */
-  public getGeneratedExpression(properties: Record<string, unknown>): string {
+  public getGeneratedExpression(properties: Record<string, any>): string {
     if (!properties.useBuilder) {
       return typeof properties.expression === 'string' ? properties.expression : '';
     }
