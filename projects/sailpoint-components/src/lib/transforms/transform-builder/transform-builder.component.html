@@ -625,43 +625,45 @@
               </mat-form-field>
             </ng-container>
 
+            
             <ng-template #defaultInput>
-              <mat-form-field
-                appearance="fill"
-                style="display: block; margin-top: 1rem"
-              >
-              <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
-                <input
-                  matInput
-                  matTooltip="{{getHintForProperty(editor.step.type, key)}}"
-                  [(ngModel)]="editor.step.properties[key]"
-                  name="{{ key }}"
-                  [readonly]="editor.isReadonly"
-                  [required]="isRequired(editor.step.type, key)"
-                  (input)="
-                    updateProperty(
-                      editor.step.properties,
-                      key,
-                      $event,
-                      editor.context
-                    )
-                  "
-                />
-                <mat-error *ngIf="editor.step.properties[key] === ''">
-                  {{ key }} is required
-                </mat-error>
-              </mat-form-field>
-              <!-- Add Operation Button -->
-              <button
-                  mat-stroked-button
+              <div class="input-with-editor-container">
+                <mat-form-field
+                  appearance="outline"
+                  class="input-field">
+                  <mat-label>{{ getLabelForProperty(editor.step.type, key) }}</mat-label>
+                  <input
+                    matInput
+                    matTooltip="{{getHintForProperty(editor.step.type, key)}}"
+                    [(ngModel)]="editor.step.properties[key]"
+                    name="{{ key }}"
+                    [readonly]="editor.isReadonly"
+                    [required]="isRequired(editor.step.type, key)"
+                    (input)="
+                      updateProperty(
+                        editor.step.properties,
+                        key,
+                        $event,
+                        editor.context
+                      )
+                    "
+                  />
+                  <mat-error *ngIf="editor.step.properties[key] === ''">
+                    {{ key }} is required
+                  </mat-error>
+                </mat-form-field>
+                
+                <button
+                  mat-icon-button
                   color="primary"
+                  class="editor-button"
                   [disabled]="editor.isReadonly"
                   (click)="openVelocityEditor(editor.step.properties, key, $event, editor.context)"
-                  style="margin-top: 0.5rem"
+                  matTooltip="Open Code Editor"
                 >
-                  <mat-icon>edit</mat-icon>
-                  Editor 
+                  <mat-icon>code</mat-icon>
                 </button>
+              </div>
             </ng-template>
           </ng-container>
 

@@ -7,13 +7,7 @@
             <div class="toolbar-left">
               <button 
                 mat-icon-button 
-                type="button" 
-                (click)="toggleTheme()"
-                [title]="currentTheme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme'">
-                <mat-icon>{{ currentTheme === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
-              </button>
-              <button 
-                mat-icon-button 
+                matTooltip="Format Code"
                 type="button" 
                 (click)="formatCode()"
                 title="Format Code">

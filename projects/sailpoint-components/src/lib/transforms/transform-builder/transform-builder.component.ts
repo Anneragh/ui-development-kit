@@ -1367,8 +1367,9 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       console.log('Velocity editor closed with result:', result);
-      if (result !== undefined) {
+      if (result !== undefined && result.saved) {
         properties[name] = result.code;
+        console.log('Updated properties:', properties);
         context.notifyPropertiesChanged();
       }
     });

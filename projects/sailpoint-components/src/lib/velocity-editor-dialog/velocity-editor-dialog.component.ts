@@ -20,7 +20,8 @@ import { keymap } from '@codemirror/view';
 import { EditorView, basicSetup } from 'codemirror';
 import { smoothy } from 'thememirror';
 
-import { ThemeService } from '../theme/theme.service';
+import { Subject, takeUntil } from 'rxjs';
+import { ThemeService } from 'sailpoint-components';
 
 
 export interface VelocityEditorData {
@@ -47,7 +48,8 @@ export interface VelocityEditorData {
 })
 export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editorContainer', { static: true }) editorContainer!: ElementRef<HTMLDivElement>;
-  
+  private destroy$ = new Subject<void>();
+  isDark = false;
   editorForm: FormGroup;
   editorView!: EditorView;
   originalCode: string;
@@ -55,12 +57,13 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
   editorStats: any = null;
   currentTheme: 'light' | 'dark' = 'light';
   wordWrapEnabled: boolean = true;
+  identities: any;
 
   constructor(
     private dialogRef: MatDialogRef<VelocityEditorDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VelocityEditorData,
     private fb: FormBuilder,
-    private theme: ThemeService,
+    private themeService: ThemeService
   ) {
     this.originalCode = data.code || '';
     this.currentTheme = data.theme || 'light';
@@ -75,6 +78,17 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     this.dialogRef.backdropClick().subscribe(() => {
       this.onCancel();
     });
+
+    this.themeService.isDark$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isDark => {
+        this.isDark = isDark;
+        this.recreateEditor();
+      });
+  }
+  
+  renderIdentityStatusChart() {
+    throw new Error('Method not implemented.');
   }
 
   ngAfterViewInit(): void {
@@ -166,7 +180,7 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     }
 
     // Add theme
-    if (this.currentTheme === 'dark') {
+    if (this.isDark === true) {
       extensions.push(oneDark);
     } else {
       extensions.push(smoothy);
@@ -188,11 +202,6 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
       selection: selection.empty ? 0 : selection.to - selection.from,
       cursor: `${doc.lineAt(selection.head).number}:${selection.head - doc.lineAt(selection.head).from + 1}`
     };
-  }
-
-  toggleTheme(): void {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    this.recreateEditor();
   }
 
   toggleWordWrap(): void {
@@ -583,6 +592,110 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     return result;
   }
 
+  private compressVelocityCode(code: string): string {
+    // Split into lines and process each one
+    const lines = code.split('\n');
+    const compressedParts: string[] = [];
+    
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      
+      // Skip empty lines
+      if (!trimmed) {
+        return;
+      }
+      
+      // Skip comments (but preserve inline comments that might be important)
+      if (trimmed.startsWith('##') && !trimmed.includes('#end')) {
+        return;
+      }
+      
+      compressedParts.push(trimmed);
+    });
+    
+    // Join all parts together
+    let compressed = compressedParts.join('');
+    
+    // Only do minimal cleanup - don't over-process
+    compressed = this.minimalCleanupCompressed(compressed);
+    
+    return compressed;
+  }
+  
+  private minimalCleanupCompressed(code: string): string {
+    let cleaned = code;
+    
+    // Only clean up obvious extra spaces while preserving string content
+    cleaned = this.preserveStringsWhileProcessing(cleaned, (content) => {
+      // Only remove spaces around commas and parentheses - be conservative
+      content = content.replace(/\s*,\s*/g, ',');
+      content = content.replace(/\(\s+/g, '(');
+      content = content.replace(/\s+\)/g, ')');
+      
+      // Clean up multiple spaces
+      content = content.replace(/\s+/g, ' ');
+      
+      return content;
+    });
+    
+    return cleaned;
+  }
+  
+  private preserveStringsWhileProcessing(code: string, processor: (content: string) => string): string {
+    const stringMarkers: Array<{start: number, end: number, content: string}> = [];
+    let inString = false;
+    let stringChar = '';
+    let stringStart = 0;
+    
+    // Find all string literals
+    for (let i = 0; i < code.length; i++) {
+      const char = code[i];
+      const prevChar = code[i - 1];
+      
+      if (!inString && (char === '"' || char === "'")) {
+        if (prevChar !== '\\') {
+          inString = true;
+          stringChar = char;
+          stringStart = i;
+        }
+      } else if (inString && char === stringChar) {
+        if (prevChar !== '\\') {
+          stringMarkers.push({
+            start: stringStart,
+            end: i + 1,
+            content: code.substring(stringStart, i + 1)
+          });
+          inString = false;
+          stringChar = '';
+        }
+      }
+    }
+    
+    // Replace strings with placeholders
+    let processableCode = code;
+    const placeholders: string[] = [];
+    
+    stringMarkers.reverse().forEach((marker, index) => {
+      const placeholder = `__STRING_PLACEHOLDER_${index}__`;
+      placeholders.unshift(marker.content);
+      processableCode = processableCode.substring(0, marker.start) + 
+                       placeholder + 
+                       processableCode.substring(marker.end);
+    });
+    
+    // Process the code without strings
+    const processedCode = processor(processableCode);
+    
+    // Restore strings
+    let result = processedCode;
+    placeholders.forEach((stringContent, index) => {
+      const placeholder = `__STRING_PLACEHOLDER_${index}__`;
+      result = result.replace(placeholder, stringContent);
+    });
+    
+    return result;
+  }
+
   private recreateEditor(): void {
     if (!this.editorView) return;
 
@@ -624,8 +737,10 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
   onSave(): void {
     if (this.editorForm.valid && this.editorView) {
       const code = this.editorView.state.doc.toString();
+      const compressedCode = this.compressVelocityCode(code);
+
       this.dialogRef.close({
-        code: code,
+        code: compressedCode,
         saved: true
       });
     }
