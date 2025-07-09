@@ -138,6 +138,7 @@ export class IdentityStatusChartComponent implements OnChanges, OnDestroy {
       .attr('y', d => y(d.count) - 5)
       .attr('text-anchor', 'middle')
       .style('cursor', 'pointer') // Add pointer cursor
+      .style('fill', this.isDark ? '#ffffff' : '#000000')
       .text(d => d.count)
       .on('click', (event, d) => {
         // Navigate to details view with status filter

@@ -13,7 +13,7 @@ import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { ReportDataService } from './report-data.service';
 import { ThemeService } from '../theme/theme.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, lastValueFrom, from } from 'rxjs';
 
 // Import chart components
 import { IdentityStatusChartComponent } from './identity-status-chart/identity-status-chart.component';
@@ -95,35 +95,85 @@ export class ReportExampleComponent implements OnInit, OnDestroy {
     this.isLoadingComplete = false;
     
     const BATCH_SIZE = 250; // API max limit
+    const MAX_PARALLEL_REQUESTS = 8; // Number of parallel fetch threads
     let offset = 0;
-    let hasMoreData = true;
     this.totalLoaded = 0;
     
     try {
-      // Continue fetching until there's no more data or user cancels
-      while (hasMoreData && !this.isCancelled) {
-        // Update loading message with current progress
+      // First, make one request to get an idea of the total count
+      const initialResponse = await this.sdk.listIdentities({
+        limit: BATCH_SIZE,
+        offset: 0,
+        count: true
+      });
+      
+      const initialBatch = initialResponse.data || [];
+      this.identities = [...initialBatch];
+      this.totalLoaded = initialBatch.length;
+      
+      // If the first batch is less than BATCH_SIZE, we already have all the data
+      if (initialBatch.length < BATCH_SIZE) {
+        this.isLoadingComplete = true;
+        console.log(`Completed loading ${this.identities.length} total identities`);
+        this.dataService.setIdentities(this.identities, this.isLoadingComplete);
+        this.loading = false;
+        return;
+      }
+      
+      // Start with offset after the first batch
+      offset = BATCH_SIZE;
+      
+      // Continue fetching batches in parallel until cancelled or no more data
+      while (!this.isCancelled) {
         this.loadingMessage = `Loading identities... (${this.totalLoaded} loaded so far)`;
         
-        const response = await this.sdk.listIdentities({ 
-          limit: BATCH_SIZE, 
-          offset: offset,
-          count: true // Request total count in headers
-        });
+        // Create an array of promises for parallel requests
+        const batchPromises = [];
         
-        const batchData = response.data || [];
+        for (let i = 0; i < MAX_PARALLEL_REQUESTS && !this.isCancelled; i++) {
+          const currentOffset = offset + (i * BATCH_SIZE);
+          
+          // Create a promise for each batch request
+          const batchPromise = this.sdk.listIdentities({
+            limit: BATCH_SIZE,
+            offset: currentOffset,
+            count: true
+          });
+          
+          batchPromises.push(batchPromise);
+        }
         
-        // Add the batch to our collected identities
-        this.identities = [...this.identities, ...batchData];
+        if (batchPromises.length === 0) {
+          break; // Exit if no promises were created (cancelled)
+        }
+        
+        // Wait for all parallel requests to complete
+        const batchResponses = await Promise.all(batchPromises);
+        
+        // Process all responses
+        let hasMoreData = false;
+        
+        for (const response of batchResponses) {
+          const batchData = response.data || [];
+          
+          // Add the batch to our collected identities
+          this.identities = [...this.identities, ...batchData];
+          
+          // Check if this batch indicates more data available
+          if (batchData.length === BATCH_SIZE) {
+            hasMoreData = true;
+          }
+        }
+        
         this.totalLoaded = this.identities.length;
         
-        // Check if we've reached the end of the data
-        if (batchData.length < BATCH_SIZE) {
-          hasMoreData = false;
+        // Update offset for next parallel batch
+        offset += (BATCH_SIZE * MAX_PARALLEL_REQUESTS);
+        
+        // If no batch was full size, we've reached the end
+        if (!hasMoreData) {
           this.isLoadingComplete = true;
-        } else {
-          // Increase offset for next batch
-          offset += BATCH_SIZE;
+          break;
         }
       }
       
@@ -138,8 +188,6 @@ export class ReportExampleComponent implements OnInit, OnDestroy {
       
       // Store identities in the shared service with completion state
       this.dataService.setIdentities(this.identities, this.isLoadingComplete);
-      
-    
     } catch (error) {
       this.hasError = true;
       this.errorMessage = `Error loading identities: ${String(error)}`;

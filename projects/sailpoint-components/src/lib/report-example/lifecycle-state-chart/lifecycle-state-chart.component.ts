@@ -161,6 +161,7 @@ export class LifecycleStateChartComponent implements OnChanges, OnDestroy {
       .attr('y', d => y(d.count) - 5)
       .attr('text-anchor', 'middle')
       .style('cursor', 'pointer')
+      .style('fill', this.isDark ? '#ffffff' : '#000000')
       .text(d => d.count)
       .on('click', (event, d) => {
         // Navigate to details view with lifecycle state filter
