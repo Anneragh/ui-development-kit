@@ -13,7 +13,7 @@ import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { ReportDataService } from './report-data.service';
 import { ThemeService } from '../theme/theme.service';
-import { Subject, takeUntil, lastValueFrom, from } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
 // Import chart components
 import { IdentityStatusChartComponent } from './identity-status-chart/identity-status-chart.component';
