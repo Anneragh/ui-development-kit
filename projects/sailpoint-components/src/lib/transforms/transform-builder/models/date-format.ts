@@ -154,20 +154,20 @@ export function deserializeDateFormat(data: any): DateFormatStep {
   const knownFormats = ['ISO8601', 'LDAP', 'PEOPLE_SOFT', 'EPOCH_TIME_JAVA', 'EPOCH_TIME_WIN32'];
   
   if (data.attributes.inputFormat) {
-    if (knownFormats.includes(data.attributes.inputFormat)) {
-      step.properties.inputFormat = data.attributes.inputFormat;
+    if (data.attributes.inputFormat && knownFormats.includes(data.attributes.inputFormat as string)) {
+      step.properties.inputFormat = data.attributes.inputFormat as string;
     } else {
       step.properties.inputFormat = 'CUSTOM';
-      step.properties.customInputFormat = data.attributes.inputFormat;
+      step.properties.customInputFormat = data.attributes.inputFormat ? String(data.attributes.inputFormat) : '';
     }
   }
 
   if (data.attributes.outputFormat) {
-    if (knownFormats.includes(data.attributes.outputFormat)) {
-      step.properties.outputFormat = data.attributes.outputFormat;
+    if (data.attributes.outputFormat && knownFormats.includes(data.attributes.outputFormat as string)) {
+      step.properties.outputFormat = data.attributes.outputFormat as string;
     } else {
       step.properties.outputFormat = 'CUSTOM';
-      step.properties.customOutputFormat = data.attributes.outputFormat;
+      step.properties.customOutputFormat = data.attributes.outputFormat ? String(data.attributes.outputFormat) : '';
     }
   }
 
@@ -208,7 +208,7 @@ export function validateDateFormatPattern(pattern: string): { isValid: boolean; 
   }
 
   // Basic validation for common SimpleDateFormat patterns
-  const validPatterns = /^[yMdHhmsaEGwWDFkKzZSX\s\-\/\.\:\,\'\"]*$/;
+  const validPatterns = /^[yMdHhmsaEGwWDFkKzZSX\s\-/.,:'"]*$/;
   if (!validPatterns.test(pattern)) {
     return { isValid: false, error: 'Invalid characters in date pattern' };
   }

@@ -45,6 +45,14 @@ export class ComponentSelectorService {
       description: 'Manage theme picker in SailPoint.',
       enabled: false,
     },
+    {
+      name: 'report-example',
+      displayName: 'Report Example',
+      route: '/report-example',
+      icon: 'dashboard',
+      description: 'Manage report example in SailPoint.',
+      enabled: false,
+    },
   ];
 
   private enabledComponentsSubject = new BehaviorSubject<ComponentInfo[]>([]);
