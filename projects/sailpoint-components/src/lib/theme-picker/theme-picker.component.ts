@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
+  OnInit,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -31,7 +32,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './theme-picker.component.html',
   styleUrl: './theme-picker.component.scss',
 })
-export class ThemePickerComponent {
+export class ThemePickerComponent implements OnInit {
   title = 'Theme Picker';
 
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
@@ -66,9 +67,9 @@ export class ThemePickerComponent {
     });
   }
 
-  onModeChange() {
+ async onModeChange() {
     localStorage.setItem('themeMode', this.mode); // persist dropdown selection
-    this.themeService.loadTheme(this.mode).then(() => {
+   await this.themeService.loadTheme(this.mode).then(() => {
       const saved = this.themeService['themeSubject'].value;
       if (saved) {
         this.colors = { ...saved }; // ⬅️ this is the key to updating the UI immediately
@@ -84,8 +85,8 @@ export class ThemePickerComponent {
     this.selectedLogoFile = input.files[0];
   }
 
-  loadThemeForMode() {
-    this.themeService.loadTheme(this.mode).then(() => {
+   async loadThemeForMode() {
+    await this.themeService.loadTheme(this.mode).then(() => {
       const raw = this.themeService.getRawConfig(); // Add this method
       if (raw && raw[`theme-${this.mode}`]) {
         this.colors = structuredClone(raw[`theme-${this.mode}`]);
