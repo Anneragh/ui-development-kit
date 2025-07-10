@@ -16,6 +16,8 @@ import { ThemeConfig } from '../theme/theme.service';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+declare function structuredClone<T>(value: T): T;
+
 @Component({
   selector: 'app-theme-picker',
   standalone: true,
@@ -51,12 +53,12 @@ export class ThemePickerComponent implements OnInit {
     logoDark: '',
   };
 
-  ngOnInit() {
+  async ngOnInit() {
     const storedMode =
       (localStorage.getItem('themeMode') as 'light' | 'dark') ?? 'light';
     this.mode = storedMode;
 
-    this.loadThemeForMode();
+    await this.loadThemeForMode();
 
     // Move this below mode load
     this.themeService.theme$.subscribe((theme) => {
@@ -67,9 +69,9 @@ export class ThemePickerComponent implements OnInit {
     });
   }
 
- async onModeChange() {
+  async onModeChange() {
     localStorage.setItem('themeMode', this.mode); // persist dropdown selection
-   await this.themeService.loadTheme(this.mode).then(() => {
+    await this.themeService.loadTheme(this.mode).then(() => {
       const saved = this.themeService['themeSubject'].value;
       if (saved) {
         this.colors = { ...saved }; // ⬅️ this is the key to updating the UI immediately
@@ -85,7 +87,7 @@ export class ThemePickerComponent implements OnInit {
     this.selectedLogoFile = input.files[0];
   }
 
-   async loadThemeForMode() {
+  async loadThemeForMode() {
     await this.themeService.loadTheme(this.mode).then(() => {
       const raw = this.themeService.getRawConfig(); // Add this method
       if (raw && raw[`theme-${this.mode}`]) {

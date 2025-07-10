@@ -14,6 +14,9 @@ export interface ThemeConfig {
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 
+declare function structuredClone<T>(value: T): T;
+
+
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private isElectron = typeof window !== 'undefined' && !!window.electronAPI;
@@ -42,7 +45,7 @@ export class ThemeService {
 
     let config: ThemeConfig;
     if (this.isElectron) {
-      const raw = await window.electronAPI!.readConfig();
+      const raw = await window.electronAPI.readConfig();
       this.lastRawConfig = raw;
       config =
         raw[`theme-${currentMode}`] ??
@@ -63,10 +66,10 @@ export class ThemeService {
     const themeToSave = structuredClone(config);
 
     if (this.isElectron) {
-      const raw = await window.electronAPI!.readConfig();
+      const raw = await window.electronAPI.readConfig();
       raw[`theme-${mode}`] = themeToSave;
       this.lastRawConfig = raw; // ✅ Also update after saving
-      await window.electronAPI!.writeConfig(raw);
+      await window.electronAPI.writeConfig(raw);
     } else {
       localStorage.setItem(`theme-${mode}`, JSON.stringify(themeToSave));
     }
