@@ -131,9 +131,8 @@ export class AppComponent implements OnInit {
     );
   }
 
-  toggleTheme(): void {
+  async toggleTheme(): Promise<void> {
     const current = this.themeService['themeSubject'].value;
-
     if (!current) return;
 
     const isCurrentlyDark = current.background.toLowerCase() !== '#ffffff';
@@ -148,7 +147,7 @@ export class AppComponent implements OnInit {
       hoverText: isDark ? '#54c0e8' : '#ffffff',
     };
 
-    this.themeService.saveTheme(updatedTheme, mode); // ✅ pass mode
+    await this.themeService.saveTheme(updatedTheme, mode);
   }
 
   useFallbackLogo() {

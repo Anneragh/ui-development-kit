@@ -68,7 +68,19 @@ function createWindow(): BrowserWindow {
           '*'
         );
         console.log('Ignoring reload on:', ignoredPath);
-        require('electron-reloader')(module, {});
+        require('electron-reloader')(module, {
+          ignore: [
+            path.join(__dirname, '..', 'src', 'assets', 'icons', 'logo.png'),
+            path.join(
+              __dirname,
+              '..',
+              'src',
+              'assets',
+              'icons',
+              'logo-dark.png'
+            ),
+          ],
+        });
       } catch (err) {
         console.error('Failed to enable reloader:', err);
       }
