@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 
 declare global {
   interface Window {
-    electronAPI?: {
+    electronAPI: {
       readConfig: () => Promise<any>;
       writeConfig: (config: any) => Promise<any>;
       writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
@@ -98,9 +98,9 @@ export class ComponentSelectorService {
         .filter((component) => component.enabled)
         .map((component) => component.name);
       if (this.isElectron) {
-        const config = await window.electronAPI?.readConfig();
+        const config = await window.electronAPI.readConfig();
         config.components = { enabled: enabledNames };
-        await window.electronAPI?.writeConfig(config);
+        await window.electronAPI.writeConfig(config);
       } else {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(enabledNames));
       }
@@ -113,7 +113,7 @@ export class ComponentSelectorService {
     try {
       let enabledNames: string[] = [];
       if (this.isElectron) {
-        const config = await window.electronAPI?.readConfig();
+        const config = await window.electronAPI.readConfig();
         enabledNames = config.components?.enabled || [];
       } else {
         const stored = localStorage.getItem(this.STORAGE_KEY);

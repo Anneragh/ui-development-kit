@@ -107,7 +107,7 @@ export class ThemeService {
     let logoDark =
       'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png';
 
-    if (this.isElectron && window.electronAPI?.checkLogoExists) {
+    if (this.isElectron && window.electronAPI.checkLogoExists) {
       const lightExists = await window.electronAPI.checkLogoExists('logo.png');
       const darkExists = await window.electronAPI.checkLogoExists(
         'logo-dark.png'
