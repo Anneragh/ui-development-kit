@@ -9,12 +9,15 @@ import { createBooleanValueModel, createStepModel } from 'sequential-workflow-ed
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 import { appendPropertyTitle } from '../utils/utils';
 
+let description = 'Use the first valid transform to perform if/then/else operations on multiple different data points to return the first piece of data that is not null.'
+
 export function createFirstValid(): FirstValidStep  {
     return {
       id: Uid.next(),
       componentType: 'switch',
       name: 'First Valid',
       type: 'firstValid',
+      description: description,
       properties: {
         ignoreErrors: false
       },
@@ -25,6 +28,7 @@ export function createFirstValid(): FirstValidStep  {
   export interface FirstValidStep extends BranchedStep {
     type: 'firstValid';
     componentType: 'switch';
+    description?: string;
     properties: {
         ignoreErrors: boolean;
     };
@@ -39,7 +43,7 @@ export const FirstValidModel = createStepModel<FirstValidStep>('firstValid', 'sw
       })
     )
     .hint('This true or false value indicates whether to proceed to the next option if an error (like an NPE) occurs. Default is false.')
-    .label('Return First Link');
+    .label('Ignore Errors');
   });
 
 
@@ -97,6 +101,7 @@ export function serializeFirstValid(step: FirstValidStep): {
     componentType: 'switch',
     type: 'firstValid',
     name: data.attributes.label ?? 'First Valid',
+    description: description,
     properties: { ignoreErrors: attributes.ignoreErrors },
     branches: branches,
   };

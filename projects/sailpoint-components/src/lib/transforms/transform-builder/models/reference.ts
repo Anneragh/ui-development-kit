@@ -5,6 +5,7 @@ import {
 } from 'sequential-workflow-editor-model';
 import { SailPointSDKService } from '../../../sailpoint-sdk.service';
 
+let description = 'Use the reference transform to reuse a transform that has already been written within another transform. This transform is often useful when you want to repeat the same logic multiple times within other transforms. This transform allows you to maintain only one transform and have it propagate through to other implementations of that logic.'
 
 export function createReference(): ReferenceStep {
   return {
@@ -12,6 +13,7 @@ export function createReference(): ReferenceStep {
     componentType: 'task',
     name: 'Reference',
     type: 'reference',
+    description: description,
     properties: {
         id: '',
     },
@@ -21,6 +23,7 @@ export function createReference(): ReferenceStep {
 export interface ReferenceStep extends Step {
   type: 'reference';
   componentType: 'task';
+  description?: string;
   properties: {
     id: string;
   };
@@ -33,7 +36,8 @@ export function createReferenceStepModel(transforms: string[]) {
             choices: transforms,
         })
       )
-      .label('Name of the Transform to Reference');
+      .hint('This specifies the name of the pre-existing transform you want to use within your current transform.')
+      .label('Transform to Reference');
   });
 }
 
@@ -58,6 +62,7 @@ export function deserializeReference(data: any): ReferenceStep {
         componentType: 'task',
         name: 'Reference',
         type: 'reference',
+        description: description,
         properties: {
             id: data.attributes.id,
         },

@@ -1,8 +1,10 @@
 import { Step, Uid } from 'sequential-workflow-designer';
 import {
-    createNumberValueModel,
-    createStepModel
+  createNumberValueModel,
+  createStepModel
 } from 'sequential-workflow-editor-model';
+
+let description = 'Use the random numeric transform to generate a random number of any length.'
 
 export function createRandomNumeric(): RandomNumericStep {
   return {
@@ -10,6 +12,7 @@ export function createRandomNumeric(): RandomNumericStep {
     componentType: 'task',
     name: 'Random Numeric',
     type: 'randomNumeric',
+    description: description,
     properties: {
         length: 10,
     },
@@ -19,6 +22,7 @@ export function createRandomNumeric(): RandomNumericStep {
 export interface RandomNumericStep extends Step {
   type: 'randomNumeric';
   componentType: 'task';
+  description?: string;
   properties: {
     length: number;
   };
@@ -32,6 +36,7 @@ export const RandomNumericModel = createStepModel<RandomNumericStep>('randomNume
             max: 450
         })
       )
+      .hint('The length of the random numeric string to generate. The maximum length is 450 characters. If no length is specified, the default is 10 characters.')
       .label('String Length');
   });
 
@@ -51,6 +56,7 @@ export function deserializeRandomNumeric(data: any): RandomNumericStep {
         componentType: 'task',
         name: 'Random Numeric',
         type: 'randomNumeric',
+        description: description,
         properties: {
             length: data.attributes.length,
         },

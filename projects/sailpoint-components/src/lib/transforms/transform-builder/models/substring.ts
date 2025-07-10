@@ -8,12 +8,15 @@ import {
   serializeStep,
 } from '../transform-builder.component';
 
+let description = 'Use the substring transform to get the inner portion of a string passed into the transform. You can use the substring transform to get the first n characters or get a set number of characters within the middle of a string.'
+
 export function createSubString(): SubStringStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'Sub String',
     type: 'substring',
+    description: description,
     properties: {
       begin: 0,
       beginOffset: 0,
@@ -29,6 +32,7 @@ export function createSubString(): SubStringStep {
 export interface SubStringStep extends BranchedStep {
   type: 'substring';
   componentType: 'switch';
+  description?: string;
   properties: {
     begin: number;
     beginOffset: number;
@@ -82,7 +86,7 @@ export const SubStringModel = createStepModel<SubStringStep>(
       .label('End');
 
     step
-      .property('end')
+      .property('endOffset')
       .value(
         createNumberValueModel({
           min: 0,
@@ -90,9 +94,9 @@ export const SubStringModel = createStepModel<SubStringStep>(
         })
       )
       .hint(
-        'This is the integer value for the location within the input data that no longer contains the substring you want to return.'
+        'This integer value is the number of characters to add to the end attribute when the transform returns a substring.'
       )
-      .label('End');
+      .label('End Offset');
   }
 );
 
@@ -130,6 +134,7 @@ export function deserializeSubString(data: any): SubStringStep {
     componentType: 'switch',
     name: data.name ?? 'Sub String',
     type: 'substring',
+    description: description,
     properties: {
         begin: data.attributes.delimiter,
         beginOffset: data.attributes.beginOffset ?? -1,

@@ -1,12 +1,16 @@
 import { BranchedStep, Properties, Step, Uid } from 'sequential-workflow-designer';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the trim transform to trim whitespaces from both the beginning and ending of input strings.'
+
+
 export function createTrim(): TrimStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
     name: 'Trim',
     type: 'trim',
+    description: description,
     properties: {},
     branches: {
       input: [],
@@ -17,6 +21,7 @@ export function createTrim(): TrimStep {
 export interface TrimStep extends BranchedStep {
   type: 'trim';
   componentType: 'switch';
+  description?: string;
   properties: Properties;
 }
 
@@ -40,6 +45,7 @@ export function deserializeTrim(data: any): TrimStep {
     componentType: 'switch',
     name: data.name ?? 'Trim',
     type: 'trim',
+    description: description,
     properties: {},
     branches: {
       input: [],

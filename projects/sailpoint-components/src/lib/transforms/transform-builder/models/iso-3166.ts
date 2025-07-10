@@ -3,12 +3,15 @@ import { createChoiceValueModel, createStepModel } from "sequential-workflow-edi
 import { BranchedStep, Step } from "sequential-workflow-model";
 import { deserializeToStep, serializeStep } from "../transform-builder.component";
 
+let description = 'Use the ISO3166 transform to convert an incoming string into an ISO 3166 country code value. The incoming data must be either a recognized country name or country code'
+
 export function createISO3166(): ISO3166Step {
     return {
       id: Uid.next(),
       componentType: 'switch',
       name: 'ISO 3166',
       type: 'iso3166',
+      description: description,
       properties: {
         format: 'alpha2',
       },
@@ -21,6 +24,7 @@ export function createISO3166(): ISO3166Step {
 export interface ISO3166Step extends BranchedStep {
     type: 'iso3166';
     componentType: 'switch';
+    description?: string;
     properties: {
         format: string;
     };
@@ -73,6 +77,7 @@ export function deserializeISO3166(data: any): ISO3166Step {
         componentType: 'switch',
         name: data.name ?? 'ISO 3166',
         type: 'iso3166',
+        description: description,
         properties: {
             format: data.attributes?.format ?? 'alpha2',
         },
