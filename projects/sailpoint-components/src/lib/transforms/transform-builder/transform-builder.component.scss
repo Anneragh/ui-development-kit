@@ -19,6 +19,10 @@
   border: 1px solid var(--theme-primary-text) !important;
 }
 
+.sqd-theme-dark .sqd-toolbox-item  {
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.35) !important;
+}
+
 .dark-theme .mdc-switch--unselected .mdc-switch__icon {
   fill: var(--theme-background) !important;
 }
@@ -309,4 +313,8 @@
 
 .sqd-root-start-stop-circle {
   fill: var(--theme-secondary) !important;
+}
+
+.transform-description {
+  line-height: 18px;
 }

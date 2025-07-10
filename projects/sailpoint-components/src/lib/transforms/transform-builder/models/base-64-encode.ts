@@ -1,14 +1,14 @@
 import { BranchedStep, Properties, Step, Uid } from 'sequential-workflow-designer';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
-let description = 'Use the upper transform to convert an input string into all uppercase letters.'
+let description = 'The base64 encode transform allows you to take incoming data and encode it using a Base64-based text encoding scheme. The output of the transform is a string comprising 64 basic ASCII characters.';
 
-export function createUpper(): UpperStep {
+export function createBase64Encode(): Base64EncodeStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
-    name: 'Upper',
-    type: 'upper',
+    name: 'Base64 Encode',
+    type: 'base64Encode',
     description: description,
     properties: {},
     branches: {
@@ -17,14 +17,14 @@ export function createUpper(): UpperStep {
   };
 }
 
-export interface UpperStep extends BranchedStep {
-  type: 'upper';
+export interface Base64EncodeStep extends BranchedStep {
+  type: 'base64Encode';
   componentType: 'switch';
   description?: string;
   properties: Properties;
 }
 
-export function serializeUpper(step: UpperStep) {
+export function serializeBase64Encode(step: Base64EncodeStep) {
   const attributes: Record<string, any> = {};
 
   if (step.branches.input.length > 0) {
@@ -38,12 +38,12 @@ export function serializeUpper(step: UpperStep) {
   };
 }
 
-export function deserializeUpper(data: any): UpperStep {
-  const step: UpperStep = {
+export function deserializeBase64Encode(data: any): Base64EncodeStep {
+  const step: Base64EncodeStep = {
     id: Uid.next(),
     componentType: 'switch',
-    name: data.name ?? 'Upper',
-    type: 'upper',
+    name: data.name ?? 'Base64 Encode',
+    type: 'base64Encode',
     description: description,
     properties: {},
     branches: {
@@ -59,14 +59,14 @@ export function deserializeUpper(data: any): UpperStep {
 }
 
 
-export function isUpperStep(step: Step): step is UpperStep {
-  return step.type === 'upper';
+export function isBase64EncodeStep(step: Step): step is Base64EncodeStep {
+  return step.type === 'base64Encode';
 }
 
-export function getUpperIcon(): string {
+
+export function getBase64EncodeIcon(): string {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path fill="gray" d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></svg>`;
+    <path d="M0 0h24v24H0z" fill="none"/><path fill="grey" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>`;
     const encoded = encodeURIComponent(svg.trim());
     return `data:image/svg+xml,${encoded}`;
   }

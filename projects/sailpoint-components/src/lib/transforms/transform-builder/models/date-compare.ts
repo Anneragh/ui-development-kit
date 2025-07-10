@@ -9,6 +9,8 @@ import {
   createStepModel
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
+
+let description = 'Use the date compare transform to compare two dates and, depending on the comparison result, return one value if one date is after the other or return a different value if it is before the other.';
   
   export function createDateCompare(): DateCompareStep {
     return {
@@ -16,6 +18,7 @@ import { deserializeToStep, serializeStep } from '../transform-builder.component
       componentType: 'switch',
       name: 'Date Compare',
       type: 'dateCompare',
+      description: description,
       properties: {
         operator: '',
       },
@@ -31,6 +34,7 @@ import { deserializeToStep, serializeStep } from '../transform-builder.component
   export interface DateCompareStep extends BranchedStep {
     type: 'dateCompare';
     componentType: 'switch';
+    description?: string;
     properties: {
       operator: string;
     };
@@ -101,6 +105,7 @@ import { deserializeToStep, serializeStep } from '../transform-builder.component
       componentType: 'switch',
       type: 'dateCompare',
       name: data.name ?? `Date Compare`,
+      description: description,
       properties: { operator: data.attributes.operator},
       branches: branches,
     };

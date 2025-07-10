@@ -1,10 +1,12 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import {
-    createNumberValueModel,
-    createStepModel,
-    createStringValueModel
+  createNumberValueModel,
+  createStepModel,
+  createStringValueModel
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
+
+let description = 'Use the left pad transform to pad an incoming string with a user-supplied character out to a specific number of characters. This transform is often useful for data normalization situations in which data such as employee IDs are not uniform in length but need to be for downstream systems.'
 
 export function createLeftPad(): LeftPadStep {
   return {
@@ -12,6 +14,7 @@ export function createLeftPad(): LeftPadStep {
     componentType: 'switch',
     name: 'Left Pad',
     type: 'leftPad',
+    description: description,
     properties: {
         padding: '',
         length: 0
@@ -25,6 +28,7 @@ export function createLeftPad(): LeftPadStep {
 export interface LeftPadStep extends BranchedStep {
   type: 'leftPad';
   componentType: 'switch';
+  description?: string;
   properties: {
     padding: string;
     length: number;
@@ -85,6 +89,7 @@ export function deserializeLeftPad(data: any): LeftPadStep {
     componentType: 'switch',
     name: data.name ?? 'Left Pad',
     type: 'leftPad',
+    description: description,
     properties: {
         padding: data.attributes.padding,
         length: data.attributes.length
