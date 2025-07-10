@@ -1235,14 +1235,14 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     });
   }
 
-  isStringRecord(value: any): value is Record<string, string> {
+  isStringRecord(value: unknown): value is Record<string, string> {
     return (
       typeof value === 'object' &&
       value !== null &&
       !Array.isArray(value) &&
       Object.values(value).every((v) => typeof v === 'string')
     );
-  }
+}
 
   togglePreview(): void {
     const selectedStepId = this.designer?.getSelectedStepId();
