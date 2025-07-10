@@ -53,14 +53,13 @@ export class ThemePickerComponent implements OnInit {
     logoDark: '',
   };
 
-  async ngOnInit() {
+  ngOnInit(): void {
     const storedMode =
       (localStorage.getItem('themeMode') as 'light' | 'dark') ?? 'light';
     this.mode = storedMode;
 
-    await this.loadThemeForMode();
+    void this.loadThemeForMode();
 
-    // Move this below mode load
     this.themeService.theme$.subscribe((theme) => {
       const expectedMode = localStorage.getItem('themeMode');
       if (theme && expectedMode === this.mode) {

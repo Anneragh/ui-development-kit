@@ -28,7 +28,7 @@ export class ThemeService {
   theme$ = this.themeSubject.asObservable();
 
   constructor() {
-    this.loadTheme();
+   void this.loadTheme();
   }
 
   private lastRawConfig: any = {};
