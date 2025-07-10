@@ -104,18 +104,14 @@ export class AppComponent implements OnInit {
 
       this.logoPath = isDark
         ? theme?.logoDark ||
-          'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png'
+          'assets/icons/logo-dark.png'
         : theme?.logoLight ||
-          'assets/icons/SailPoint-Developer-Community-Lockup.png';
+          'assets/icons/logo.png';
 
       const logo = this.logoImageRef?.nativeElement;
       if (logo) {
         const baseSrc = logo.src.split('?')[0];
-
-        logo.onload = () => {
-          this.themeService.logoUpdated$.next();
-        };
-
+        logo.onload = () => this.themeService.logoUpdated$.next();
         logo.src = `${baseSrc}?t=${Date.now()}`;
       }
     });
@@ -132,22 +128,17 @@ export class AppComponent implements OnInit {
   }
 
   async toggleTheme(): Promise<void> {
-    const current = this.themeService['themeSubject'].value;
-    if (!current) return;
+    const mode = this.isDarkTheme ? 'light' : 'dark';
 
-    const isCurrentlyDark = current.background.toLowerCase() !== '#ffffff';
-    const isDark = !isCurrentlyDark;
-    const mode: 'light' | 'dark' = isDark ? 'dark' : 'light';
+    // 🔍 Always fetch the full intended theme (light or dark)
+    const raw = this.themeService.getRawConfig();
+    let targetTheme = raw?.[`theme-${mode}`];
 
-    const updatedTheme = {
-      ...current,
-      background: isDark ? '#151316' : '#ffffff',
-      primaryText: isDark ? '#ffffff' : '#415364',
-      secondaryText: isDark ? '#cccccc' : '#415364',
-      hoverText: isDark ? '#54c0e8' : '#ffffff',
-    };
+    if (!targetTheme) {
+      targetTheme = await this.themeService['getDefaultTheme'](mode); // Make getDefaultTheme public if needed
+    }
 
-    await this.themeService.saveTheme(updatedTheme, mode);
+    await this.themeService.saveTheme(targetTheme, mode);
   }
 
   useFallbackLogo() {

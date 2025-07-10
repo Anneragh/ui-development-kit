@@ -42,41 +42,61 @@ export class ThemePickerComponent implements OnInit {
   mode: 'light' | 'dark' = this.themeService.getCurrentMode();
   loading = false;
 
-  colors: ThemeConfig = {
-    primary: '',
-    secondary: '',
-    primaryText: '',
-    secondaryText: '',
-    hoverText: '',
-    background: '',
-    logoLight: '',
-    logoDark: '',
-  };
+  emptyTheme(): ThemeConfig {
+    return {
+      primary: '',
+      secondary: '',
+      primaryText: '',
+      secondaryText: '',
+      hoverText: '',
+      background: '',
+      logoLight: '',
+      logoDark: '',
+    };
+  }
+
+  lightColors: ThemeConfig = { ...this.emptyTheme() };
+  darkColors: ThemeConfig = { ...this.emptyTheme() };
+
+  get colors(): ThemeConfig {
+    return this.mode === 'dark' ? this.darkColors : this.lightColors;
+  }
+
+  set colors(value: ThemeConfig) {
+    if (this.mode === 'dark') {
+      this.darkColors = structuredClone(value);
+    } else {
+      this.lightColors = structuredClone(value);
+    }
+  }
+
+  private ignoreNextDarkChange = false;
 
   ngOnInit(): void {
     const storedMode =
       (localStorage.getItem('themeMode') as 'light' | 'dark') ?? 'light';
     this.mode = storedMode;
 
-    void this.loadThemeForMode();
+    void this.loadThemeForMode().then(() => {
+      // ✅ Subscribe once, cleanly, and gate logic using an internal flag
+      this.themeService.isDark$.subscribe((isDark) => {
+        const newMode = isDark ? 'dark' : 'light';
+        if (newMode === this.mode) return; // 🔒 prevents recursion
 
-    this.themeService.theme$.subscribe((theme) => {
-      const expectedMode = localStorage.getItem('themeMode');
-      if (theme && expectedMode === this.mode) {
-        this.colors = { ...theme };
-      }
+        this.mode = newMode;
+        void this.loadThemeForMode(); // 🧠 keep visual state in sync
+      });
     });
   }
 
-  async onModeChange() {
-    localStorage.setItem('themeMode', this.mode); // persist dropdown selection
-    await this.themeService.loadTheme(this.mode).then(() => {
-      const saved = this.themeService['themeSubject'].value;
-      if (saved) {
-        this.colors = { ...saved }; // ⬅️ this is the key to updating the UI immediately
-      }
-    });
-  }
+async onModeChange() {
+  localStorage.setItem('themeMode', this.mode);
+
+  const loaded = await this.themeService.loadTheme(this.mode, false); // don't auto-apply
+  this.colors = structuredClone(loaded);
+
+  this.themeService['applyTheme'](this.colors, this.mode); // manually apply
+}
 
   selectedLogoFile?: File;
   onFileSelected(event: Event) {
@@ -86,27 +106,21 @@ export class ThemePickerComponent implements OnInit {
     this.selectedLogoFile = input.files[0];
   }
 
-  async loadThemeForMode() {
-    await this.themeService.loadTheme(this.mode).then(() => {
-      const raw = this.themeService.getRawConfig(); // Add this method
-      if (raw && raw[`theme-${this.mode}`]) {
-        this.colors = structuredClone(raw[`theme-${this.mode}`]);
-      } else {
-        this.colors = this.themeService['themeSubject'].value ?? this.colors;
-      }
-    });
+  async loadThemeForMode(): Promise<void> {
+    const raw = this.themeService.getRawConfig();
+
+    // fallback-safe calls for both modes
+    this.lightColors =
+      raw?.['theme-light'] ??
+      (await this.themeService.getDefaultTheme('light'));
+    this.darkColors =
+      raw?.['theme-dark'] ?? (await this.themeService.getDefaultTheme('dark'));
   }
 
   constructor(
     private themeService: ThemeService,
     private cdr: ChangeDetectorRef
-  ) {
-    this.themeService.theme$.subscribe((theme) => {
-      if (theme) {
-        this.colors = theme;
-      }
-    });
-  }
+  ) {}
 
   private readFileAsBuffer(file: File): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
@@ -130,25 +144,35 @@ export class ThemePickerComponent implements OnInit {
         const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
 
         await window.electronAPI?.writeLogo(buffer, fileName);
-
+        const updatedColors = structuredClone(this.colors);
         if (this.mode === 'dark') {
-          this.colors.logoDark = `assets/icons/${fileName}?${timestamp}`;
+          updatedColors.logoDark = `assets/icons/${fileName}?${timestamp}`;
         } else {
-          this.colors.logoLight = `assets/icons/${fileName}?${timestamp}`;
+          updatedColors.logoLight = `assets/icons/${fileName}?${timestamp}`;
         }
-
+        this.colors = updatedColors;
         this.selectedLogoFile = undefined;
       }
 
-      await this.themeService.saveTheme(this.colors, this.mode);
-      await this.themeService.loadTheme(this.mode);
+      await this.themeService.saveTheme(
+        this.mode === 'dark' ? this.darkColors : this.lightColors,
+        this.mode
+      );
 
-      await new Promise<void>((resolve) => {
-        const sub = this.themeService.logoUpdated$.subscribe(() => {
-          resolve();
-          sub.unsubscribe();
-        });
-      });
+      // ✅ Wait for changes
+      this.themeService['applyTheme'](this.colors, this.mode);
+      this.themeService.logoUpdated$.next(); // ✅ FIX: emit to resolve apply() wait
+
+      // ⬇️ Wait for the logo to update OR timeout to avoid infinite spinner
+      await Promise.race([
+        new Promise<void>((resolve) => {
+          const sub = this.themeService.logoUpdated$.subscribe(() => {
+            resolve();
+            sub.unsubscribe();
+          });
+        }),
+        new Promise((resolve) => setTimeout(resolve, 1000)), // Fallback if logoUpdated$ never fires
+      ]);
     } catch (err) {
       console.error('Failed to apply theme:', err);
     } finally {
@@ -156,6 +180,4 @@ export class ThemePickerComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
-
-  // Add your component logic here
 }
