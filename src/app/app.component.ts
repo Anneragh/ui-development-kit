@@ -18,7 +18,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ThemeService } from 'sailpoint-components';
+import { ThemeConfig, ThemeService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import {
@@ -132,7 +132,7 @@ export class AppComponent implements OnInit {
 
     // 🔍 Always fetch the full intended theme (light or dark)
     const raw = this.themeService.getRawConfig();
-    let targetTheme = raw?.[`theme-${mode}`];
+    let targetTheme = raw?.[`theme-${mode}`] as ThemeConfig | undefined;
 
     if (!targetTheme) {
       targetTheme = await this.themeService['getDefaultTheme'](mode); // Make getDefaultTheme public if needed
