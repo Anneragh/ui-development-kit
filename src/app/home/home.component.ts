@@ -20,11 +20,6 @@ import { SharedModule } from '../shared/shared.module';
 
 declare const window: any;
 
-interface Connection {
-  connected: boolean;
-  name: string;
-}
-
 interface Tenant {
   active: boolean;
   apiUrl: string;
@@ -44,14 +39,6 @@ interface EnvironmentConfig {
   authType: 'oauth' | 'pat';
   clientId?: string;
   clientSecret?: string;
-}
-
-interface SessionStatus {
-  isValid: boolean;
-  needsRefresh: boolean;
-  authType: string;
-  expiry?: Date;
-  lastChecked: Date;
 }
 
 @Component({
@@ -304,7 +291,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           };
           
           // Use combined method to set environment and connection state
-          this.connectionService.setConnectionWithEnvironment(environmentInfo, true, loginResult.name);
+          await this.connectionService.setConnectionWithEnvironment(environmentInfo, true, loginResult.name as string);
           
           this.isConnected = true;
           this.name = loginResult.name || this.actualTenant.name;
@@ -317,7 +304,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         } else {
           // Update dialog to show error
           dialogData.title = 'Connection Failed';
-          dialogData.message = loginResult.error || `Failed to connect using ${this.actualTenant.authType.toUpperCase()}`;
+          dialogData.message = (loginResult.error as string) || `Failed to connect using ${this.actualTenant.authType.toUpperCase()}`;
           dialogData.showSpinner = false;
           dialogData.showCancel = true;
         }

@@ -16,9 +16,7 @@ import { Subscription } from 'rxjs';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './shared/connection.service';
-import { Router } from '@angular/router';
 import { ThemeService } from 'sailpoint-components';
-import { ElectronService } from './core/services';
 import {
   ComponentInfo,
   ComponentSelectorService,
@@ -61,7 +59,9 @@ export class AppComponent implements OnDestroy, OnInit {
     private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private themeService: ThemeService,
+    private componentSelectorService: ComponentSelectorService
   ) {
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
@@ -70,9 +70,7 @@ export class AppComponent implements OnDestroy, OnInit {
       this.isSmallScreen = result.matches;
       this.sidenavOpened = !this.isSmallScreen;
     });
-    private themeService: ThemeService,
-    private componentSelectorService: ComponentSelectorService
-  ) {
+    
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
 

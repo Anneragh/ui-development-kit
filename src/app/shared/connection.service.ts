@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, interval, Subscription } from 'rxjs';
+import { BehaviorSubject, interval, Subscription } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
 
 export interface Connection {
@@ -86,7 +86,7 @@ export class ConnectionService implements OnDestroy {
   }
 
   // Combined method to set environment and connection state
-  setConnectionWithEnvironment(environment: EnvironmentInfo, isConnected: boolean, name?: string): void {
+  async setConnectionWithEnvironment(environment: EnvironmentInfo, isConnected: boolean, name?: string): Promise<void> {
     console.log('Setting connection with environment:', environment.name, 'connected:', isConnected);
     
     this.setCurrentEnvironment(environment);
@@ -98,7 +98,7 @@ export class ConnectionService implements OnDestroy {
       this.startSessionMonitoring();
       
       // Immediately validate the connection tokens
-      this.validateConnectionImmediately(environment.name);
+      await this.validateConnectionImmediately(environment.name);
     } else {
       // Stop session monitoring when disconnected
       this.stopSessionMonitoring();
@@ -381,7 +381,7 @@ export class ConnectionService implements OnDestroy {
       const loginResult = await (window as any).electronAPI.unifiedLogin(loginRequest);
       
       if (loginResult.success && loginResult.connected) {
-        this.setConnectionWithEnvironment(environment, true, loginResult.name || environment.name);
+        await this.setConnectionWithEnvironment(environment, true, (loginResult.name as string || environment.name));
         console.log('Successfully reconnected to the environment');
       } else {
         console.error('Failed to reconnect:', loginResult.error);
