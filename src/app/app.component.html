@@ -89,14 +89,6 @@
         <mat-icon class="card-icon">dashboard</mat-icon>
         Theme Picker
       </a>
-      <a
-        mat-list-item
-        class="sidebar-link"
-        routerLink="/identities"
-        routerLinkActive="active-link"
-        [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
-      >
       <a *ngIf="isComponentEnabled('report-example')" mat-list-item class="sidebar-link" routerLink="/report-example" routerLinkActive="active-link"
         [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
         <mat-icon class="card-icon">dashboard</mat-icon>
