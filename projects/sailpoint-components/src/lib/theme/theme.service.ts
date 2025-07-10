@@ -13,10 +13,6 @@ export interface ThemeConfig {
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import * as fs from 'fs';
-import * as path from 'path';
-
-
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
@@ -103,14 +99,28 @@ export class ThemeService {
   }
 
   private getDefaultTheme(mode: 'light' | 'dark'): ThemeConfig {
-    const iconDir = path.join(__dirname, '..', '..', 'src', 'assets', 'icons');
-    const logoLight = fs.existsSync(path.join(iconDir, 'logo.png'))
-      ? 'assets/icons/logo.png'
-      : 'assets/icons/SailPoint-Developer-Community-Lockup.png';
+    let logoLight = 'assets/icons/SailPoint-Developer-Community-Lockup.png';
+    let logoDark =
+      'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png';
 
-    const logoDark = fs.existsSync(path.join(iconDir, 'logo-dark.png'))
-      ? 'assets/icons/logo-dark.png'
-      : 'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png';
+    if (this.isElectron) {
+      const fs = window.require?.('fs');
+      const path = window.require?.('path');
+      if (fs && path) {
+       const iconDir = path.join(process.cwd(), 'src', 'assets', 'icons');
+
+        const logoLightPath = path.join(iconDir, 'logo.png');
+        const logoDarkPath = path.join(iconDir, 'logo-dark.png');
+
+        if (fs.existsSync(logoLightPath)) {
+          logoLight = 'assets/icons/logo.png';
+        }
+
+        if (fs.existsSync(logoDarkPath)) {
+          logoDark = 'assets/icons/logo-dark.png';
+        }
+      }
+    }
 
     return {
       primary: mode === 'dark' ? '#54c0e8' : '#0071ce',
@@ -119,8 +129,8 @@ export class ThemeService {
       secondaryText: mode === 'dark' ? '#cccccc' : '#415364',
       hoverText: mode === 'dark' ? '#54c0e8' : '#ffffff',
       background: mode === 'dark' ? '#151316' : '#ffffff',
-      logoLight: logoLight,
-      logoDark: logoDark
+      logoLight,
+      logoDark,
     };
   }
 }

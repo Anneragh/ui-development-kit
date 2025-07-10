@@ -143,7 +143,7 @@ export class ThemePickerComponent {
         const buffer = await this.readFileAsBuffer(this.selectedLogoFile);
         const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
 
-        await window.electronAPI.writeLogo(buffer, fileName);
+        await window.electronAPI?.writeLogo(buffer, fileName);
 
         if (this.mode === 'dark') {
           this.colors.logoDark = `assets/icons/${fileName}?${timestamp}`;
