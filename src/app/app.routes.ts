@@ -49,6 +49,11 @@ export const appRoutes: Routes = [
   },
 
   {
+    path: 'theme-picker',
+    component: ThemePickerComponent
+  },
+
+  {
     path: '**',
     component: PageNotFoundComponent
   }

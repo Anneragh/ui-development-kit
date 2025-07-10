@@ -17,6 +17,7 @@ import {
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 
 let win: BrowserWindow | null = null;
+const projectRoot = path.resolve(__dirname, '..', 'src'); // adjust if needed
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
 
@@ -58,7 +59,28 @@ function createWindow(): BrowserWindow {
   if (serve) {
     (async () => {
       try {
-        require('electron-reloader')(module);
+        const ignoredPath = path.join(
+          __dirname,
+          '..',
+          'src',
+          'assets',
+          'icons',
+          '*'
+        );
+        console.log('Ignoring reload on:', ignoredPath);
+        require('electron-reloader')(module, {
+          ignore: [
+            path.join(__dirname, '..', 'src', 'assets', 'icons', 'logo.png'),
+            path.join(
+              __dirname,
+              '..',
+              'src',
+              'assets',
+              'icons',
+              'logo-dark.png'
+            ),
+          ],
+        });
       } catch (err) {
         console.error('Failed to enable reloader:', err);
       }
@@ -230,9 +252,15 @@ try {
     }
   });
 
-  ipcMain.handle('write-logo-file', async (event, buffer, fileName) => {
-    const dest = path.join(__dirname, 'assets', 'icons', fileName);
-    await fs.promises.writeFile(dest, buffer);
+  ipcMain.handle('write-logo', async (event, buffer, fileName) => {
+    try {
+      const dest = path.join(projectRoot, 'assets', 'icons', fileName);
+      await fs.promises.writeFile(dest, buffer);
+      return { success: true };
+    } catch (error) {
+      console.error('Error writing logo file:', error);
+      throw new Error('Failed to write logo file');
+    }
   });
 } catch (e) {
   console.error('Error during app initialization', e);

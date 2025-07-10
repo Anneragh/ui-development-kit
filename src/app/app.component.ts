@@ -4,7 +4,13 @@ import {
   LayoutModule,
 } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Renderer2,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -20,6 +26,7 @@ import {
   ComponentSelectorService,
 } from './services/component-selector.service';
 import { ConnectionService } from './shared/connection.service';
+import { combineLatest } from 'rxjs';
 
 declare const window: any;
 
@@ -40,6 +47,7 @@ declare const window: any;
   ],
 })
 export class AppComponent implements OnInit {
+  @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
   isSmallScreen: boolean = false;
   sidenavOpened = true;
   isConnected = true;
@@ -85,31 +93,32 @@ export class AppComponent implements OnInit {
         });
       }
     });
-
-    this.themeService.isDark$.subscribe((isDark) => {
-      this.isDarkTheme = isDark;
-
-      if (isDark) {
-        this.renderer.addClass(document.body, 'dark-theme');
-      } else {
-        this.renderer.removeClass(document.body, 'dark-theme');
-      }
-
-      const currentTheme = this.themeService['themeSubject'].value;
-
-      this.logoPath =
-        currentTheme?.logo ||
-        (isDark
-          ? 'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png'
-          : 'assets/icons/SailPoint-Developer-Community-Lockup.png');
-    });
   }
 
   ngOnInit(): void {
-    const currentTheme = this.themeService['themeSubject'].value;
-    if (currentTheme?.logo) {
-      this.logoPath = currentTheme.logo;
-    }
+    combineLatest([
+      this.themeService.theme$,
+      this.themeService.isDark$,
+    ]).subscribe(([theme, isDark]) => {
+      this.isDarkTheme = isDark;
+
+      this.logoPath = isDark
+        ? theme?.logoDark ||
+          'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png'
+        : theme?.logoLight ||
+          'assets/icons/SailPoint-Developer-Community-Lockup.png';
+
+      const logo = this.logoImageRef?.nativeElement;
+      if (logo) {
+        const baseSrc = logo.src.split('?')[0];
+
+        logo.onload = () => {
+          this.themeService.logoUpdated$.next();
+        };
+
+        logo.src = `${baseSrc}?t=${Date.now()}`;
+      }
+    });
 
     this.componentSelectorService.enabledComponents$.subscribe((components) => {
       this.enabledComponents = components;
@@ -140,6 +149,12 @@ export class AppComponent implements OnInit {
     };
 
     this.themeService.saveTheme(updatedTheme, mode); // ✅ pass mode
+  }
+
+  useFallbackLogo() {
+    this.logoPath = this.isDarkTheme
+      ? 'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png'
+      : 'assets/icons/SailPoint-Developer-Community-Lockup.png';
   }
 
   toggleSidenav(): void {

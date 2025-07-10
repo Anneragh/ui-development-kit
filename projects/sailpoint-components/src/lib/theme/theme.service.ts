@@ -7,23 +7,35 @@ export interface ThemeConfig {
   secondaryText: string;
   hoverText: string;
   background: string;
-  logo: string;
+  logoLight?: string;
+  logoDark?: string;
 }
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import * as fs from 'fs';
+import * as path from 'path';
+
+
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private isElectron = typeof window !== 'undefined' && !!window.electronAPI;
   private isDarkSubject = new BehaviorSubject<boolean>(false);
   readonly isDark$ = this.isDarkSubject.asObservable();
+  logoUpdated$ = new Subject<void>();
 
   private themeSubject = new BehaviorSubject<ThemeConfig | null>(null);
   theme$ = this.themeSubject.asObservable();
 
   constructor() {
     this.loadTheme();
+  }
+
+  private lastRawConfig: any = {};
+
+  getRawConfig(): any {
+    return this.lastRawConfig;
   }
 
   async loadTheme(mode?: 'light' | 'dark'): Promise<void> {
@@ -35,27 +47,31 @@ export class ThemeService {
     let config: ThemeConfig;
     if (this.isElectron) {
       const raw = await window.electronAPI!.readConfig();
+      this.lastRawConfig = raw; // ✅ Store for later reference
       config = raw[`theme-${currentMode}`] || this.getDefaultTheme(currentMode);
     } else {
       const stored = localStorage.getItem(`theme-${currentMode}`);
       config = stored ? JSON.parse(stored) : this.getDefaultTheme(currentMode);
     }
 
-    this.applyTheme(config, currentMode); // pass currentMode here
+    this.applyTheme(config, currentMode);
   }
 
   async saveTheme(config: ThemeConfig, mode: 'light' | 'dark'): Promise<void> {
-    localStorage.setItem('themeMode', mode); // persist selected mode
+    localStorage.setItem('themeMode', mode);
+
+    const themeToSave = structuredClone(config);
 
     if (this.isElectron) {
       const raw = await window.electronAPI!.readConfig();
-      raw[`theme-${mode}`] = config;
+      raw[`theme-${mode}`] = themeToSave;
+      this.lastRawConfig = raw; // ✅ Also update after saving
       await window.electronAPI!.writeConfig(raw);
     } else {
-      localStorage.setItem(`theme-${mode}`, JSON.stringify(config));
+      localStorage.setItem(`theme-${mode}`, JSON.stringify(themeToSave));
     }
 
-    this.applyTheme(config, mode);
+    this.applyTheme(themeToSave, mode);
   }
 
   private applyTheme(config: ThemeConfig, mode: 'light' | 'dark') {
@@ -79,28 +95,32 @@ export class ThemeService {
     document.body.classList.add(`${mode}-theme`);
 
     this.isDarkSubject.next(mode === 'dark');
-    this.themeSubject.next(config);
+    this.themeSubject.next(structuredClone(config));
+  }
+
+  getCurrentMode(): 'light' | 'dark' {
+    return (localStorage.getItem('themeMode') as 'light' | 'dark') ?? 'light';
   }
 
   private getDefaultTheme(mode: 'light' | 'dark'): ThemeConfig {
-    return mode === 'dark'
-      ? {
-          primary: '#54c0e8',
-          secondary: '#f48fb1',
-          primaryText: '#ffffff',
-          secondaryText: '#cccccc',
-          hoverText: '#54c0e8',
-          background: '#151316',
-          logo: 'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png',
-        }
-      : {
-          primary: '#0071ce',
-          secondary: '#6c63ff',
-          primaryText: '#415364',
-          secondaryText: '#415364',
-          hoverText: '#ffffff',
-          background: '#ffffff',
-          logo: 'assets/icons/SailPoint-Developer-Community-Lockup.png',
-        };
+    const iconDir = path.join(__dirname, '..', '..', 'src', 'assets', 'icons');
+    const logoLight = fs.existsSync(path.join(iconDir, 'logo.png'))
+      ? 'assets/icons/logo.png'
+      : 'assets/icons/SailPoint-Developer-Community-Lockup.png';
+
+    const logoDark = fs.existsSync(path.join(iconDir, 'logo-dark.png'))
+      ? 'assets/icons/logo-dark.png'
+      : 'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png';
+
+    return {
+      primary: mode === 'dark' ? '#54c0e8' : '#0071ce',
+      secondary: mode === 'dark' ? '#f48fb1' : '#6c63ff',
+      primaryText: mode === 'dark' ? '#ffffff' : '#415364',
+      secondaryText: mode === 'dark' ? '#cccccc' : '#415364',
+      hoverText: mode === 'dark' ? '#54c0e8' : '#ffffff',
+      background: mode === 'dark' ? '#151316' : '#ffffff',
+      logoLight: logoLight,
+      logoDark: logoDark
+    };
   }
 }

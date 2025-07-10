@@ -36,6 +36,14 @@ export class ComponentSelectorService {
             icon: 'transform',
             description: 'Manage data transformations for SailPoint.',
             enabled: true
+        },
+        {
+            name: 'theme-picker',
+            displayName: 'Theme Picker',
+            route: '/theme-picker',
+            icon: 'dashboard',
+            description: 'Manage theme picker in SailPoint.',
+            enabled: false
         }
     ];
 

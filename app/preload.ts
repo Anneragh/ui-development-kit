@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   writeConfig: (config: any) => ipcMain.invoke('write-config', config),
 
   // Logo file management
-  writeLogo: (buffer, fileName) => ipcMain.invoke('write-logo-file', buffer, fileName),
+  writeLogo: (buffer, fileName) => ipcMain.invoke('write-logo', buffer, fileName),
 
   // SDK functions
   ...sdkPreloader
