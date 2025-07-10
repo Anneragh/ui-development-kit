@@ -169,15 +169,15 @@
             </mat-select>
           </mat-form-field>
           <!-- Connection Button -->
-        <div class="connection-action">
-          <button mat-raised-button 
-                  color="primary"
-                  (click)="connectToISC()" 
-                  class="connect-button">
-            <mat-icon>{{ globalAuthMethod === 'oauth' ? 'launch' : 'usb' }}</mat-icon>
-            {{ globalAuthMethod === 'oauth' ? 'Connect with OAuth' : 'Connect with PAT' }}
-          </button>
-        </div>
+          <div class="connection-action">
+            <button mat-raised-button 
+                    color="primary"
+                    (click)="connectToISC()" 
+                    class="connect-button">
+              <mat-icon>login</mat-icon>
+              Connect to Environment
+            </button>
+          </div>
         </div>
       </div>
 

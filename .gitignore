@@ -52,5 +52,5 @@ testem.log
 .DS_Store
 Thumbs.db
 
-openapi-generator-cli.jar
+openapi-generator-cli-*.jar
 /api-specs

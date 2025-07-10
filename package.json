@@ -61,7 +61,7 @@
     "js-yaml": "4.1.0",
     "keytar": "7.9.0",
     "rxjs": "7.8.2",
-    "sailpoint-api-client": "1.6.1",
+    "sailpoint-api-client": "1.6.4",
     "sequential-workflow-designer": "0.29.0",
     "sequential-workflow-designer-angular": "0.29.0",
     "sequential-workflow-editor": "0.14.8",

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ConnectionService } from '../shared/connection.service';
+import { ConnectionService, EnvironmentInfo } from '../shared/connection.service';
 import { Subscription } from 'rxjs';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GenericDialogComponent, DialogData } from '../../../projects/sailpoint-components/src/lib/generic-dialog/generic-dialog.component';
@@ -44,6 +44,14 @@ interface EnvironmentConfig {
   authType: 'oauth' | 'pat';
   clientId?: string;
   clientSecret?: string;
+}
+
+interface SessionStatus {
+  isValid: boolean;
+  needsRefresh: boolean;
+  authType: string;
+  expiry?: Date;
+  lastChecked: Date;
 }
 
 @Component({
@@ -102,6 +110,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.configConnectionSubscription = this.connectionService.isConnected$.subscribe(connection => {
       this.isConnected = connection.connected;
+      this.name = connection.name || '';
     });
     
     // Initialize environment data and global auth method
@@ -242,133 +251,90 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log('Authentication type:', this.actualTenant.authType);
     
     try {
-      // Check authentication method and handle accordingly
-      if (this.actualTenant.authType === 'oauth') {
-        // Perform OAuth authentication
-        await this.performOAuthConnection();
-      } else if (this.actualTenant.authType === 'pat') {
-        // Perform PAT authentication
-        await this.performPATConnection();
-      } else {
-        this.openErrorDialog('Invalid authentication method', 'Connection Error');
+      // Check if we have valid tokens first
+      const tokenStatus = await window.electronAPI.checkEnvironmentTokenStatus(this.actualTenant.name);
+      
+      // Use the unified login function for both OAuth and PAT
+      const loginRequest = {
+        environment: this.actualTenant.name,
+        apiUrl: this.actualTenant.apiUrl,
+        baseUrl: this.actualTenant.tenantUrl,
+        authType: this.actualTenant.authType as 'oauth' | 'pat',
+        clientId: this.actualTenant.clientId || undefined,
+        clientSecret: this.actualTenant.clientSecret || undefined,
+        tenant: this.actualTenant.name // For OAuth flow
+      };
+
+      // Show loading dialog with appropriate message based on token status
+      const dialogData: DialogData = {
+        title: `${this.actualTenant.authType.toUpperCase()} Authentication`,
+        message: tokenStatus.hasValidTokens 
+          ? 'Connecting with existing tokens...' 
+          : `Initiating ${this.actualTenant.authType} authentication...`,
+        showSpinner: true,
+        showCancel: false,
+        disableClose: true
+      };
+
+      const dialogRef = this.dialog.open(GenericDialogComponent, {
+        data: dialogData,
+        width: '400px',
+        disableClose: true
+      });
+
+      try {
+        // Perform unified login
+        const loginResult = await window.electronAPI.unifiedLogin(loginRequest);
+        
+        if (loginResult.success && loginResult.connected) {
+          // Update dialog to show success
+          dialogData.title = 'Connection Successful';
+          dialogData.message = `Successfully connected to ${loginResult.name} using ${this.actualTenant.authType.toUpperCase()}!`;
+          dialogData.showSpinner = false;
+          dialogData.showCancel = false;
+          
+          // Set current environment in connection service
+          const environmentInfo: EnvironmentInfo = {
+            name: this.actualTenant.name,
+            apiUrl: this.actualTenant.apiUrl,
+            baseUrl: this.actualTenant.tenantUrl,
+            authType: this.actualTenant.authType,
+            clientId: this.actualTenant.clientId || undefined,
+            clientSecret: this.actualTenant.clientSecret || undefined
+          };
+          
+          // Use combined method to set environment and connection state
+          this.connectionService.setConnectionWithEnvironment(environmentInfo, true, loginResult.name);
+          
+          this.isConnected = true;
+          this.name = loginResult.name || this.actualTenant.name;
+          
+          // Auto-close dialog after 1 second for existing tokens, 2 seconds for new auth
+          const closeDelay = tokenStatus.hasValidTokens ? 1000 : 2000;
+          setTimeout(() => {
+            dialogRef.close();
+          }, closeDelay);
+        } else {
+          // Update dialog to show error
+          dialogData.title = 'Connection Failed';
+          dialogData.message = loginResult.error || `Failed to connect using ${this.actualTenant.authType.toUpperCase()}`;
+          dialogData.showSpinner = false;
+          dialogData.showCancel = true;
+        }
+      } catch (error) {
+        console.error('Unified login failed:', error);
+        
+        // Update dialog to show error
+        dialogData.title = 'Authentication Error';
+        dialogData.message = `Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        dialogData.showSpinner = false;
+        dialogData.showCancel = true;
+        
+        throw error;
       }
     } catch (error) {
       console.error('Error connecting to ISC:', error);
       this.openErrorDialog('Failed to connect to the environment. Please check your configuration and try again.', 'Connection Failed');
-    }
-  }
-
-  private async performOAuthConnection() {
-    if (!this.actualTenant) return;
-
-    // Open OAuth modal dialog
-    const dialogData: DialogData = {
-      title: 'OAuth Authentication',
-      message: 'Initiating OAuth authentication...',
-      showSpinner: true,
-      showCancel: false,
-      disableClose: true
-    };
-
-    const dialogRef = this.dialog.open(GenericDialogComponent, {
-      data: dialogData,
-      width: '400px',
-      disableClose: true
-    });
-
-    try {
-      // Perform OAuth login first
-      console.log('Starting OAuth flow for:', this.actualTenant.name);
-      
-      // Update dialog message
-      dialogData.message = 'Opening authentication page in your browser...';
-      
-      const oauthResult = await window.electronAPI.oauthLogin(this.actualTenant.name, this.actualTenant.apiUrl);
-      
-      if (oauthResult && oauthResult.accessToken) {
-        // OAuth was successful, now connect using the obtained access token
-        console.log('OAuth successful, connecting with access token...');
-        dialogData.message = 'Authentication successful! Connecting to SailPoint...';
-        
-        const connected = <Connection>await window.electronAPI.connectToISCWithOAuth(
-          this.actualTenant.apiUrl,
-          this.actualTenant.tenantUrl,
-          oauthResult.accessToken
-        );
-        
-        console.log('Connected to ISC with OAuth:', connected);
-        this.connectionService.setConnectionState(Boolean(connected.connected));
-        this.isConnected = Boolean(connected.connected);
-        this.name = connected.name || this.actualTenant.name;
-        
-        if (connected.connected) {
-          // Update dialog to show success
-          dialogData.title = 'Connection Successful';
-          dialogData.message = `Successfully connected to ${connected.name} using OAuth!`;
-          dialogData.showSpinner = false;
-          dialogData.showCancel = false;
-          
-          // Auto-close dialog after 2 seconds
-          setTimeout(() => {
-            dialogRef.close();
-          }, 2000);
-        } else {
-          // Update dialog to show error
-          dialogData.title = 'Connection Failed';
-          dialogData.message = 'Failed to establish connection with OAuth token';
-          dialogData.showSpinner = false;
-          dialogData.showCancel = true;
-        }
-      } else {
-        // Update dialog to show authentication failure
-        dialogData.title = 'Authentication Failed';
-        dialogData.message = 'OAuth authentication did not return a valid access token';
-        dialogData.showSpinner = false;
-        dialogData.showCancel = true;
-      }
-    } catch (error) {
-      console.error('OAuth authentication failed:', error);
-      
-      // Update dialog to show error
-      dialogData.title = 'Authentication Error';
-      dialogData.message = 'OAuth authentication failed. Please try again.';
-      dialogData.showSpinner = false;
-      dialogData.showCancel = true;
-      
-      throw error;
-    }
-  }
-
-  private async performPATConnection() {
-    if (!this.actualTenant) return;
-
-    // Check for required PAT credentials
-    if (!this.actualTenant.clientId || !this.actualTenant.clientSecret) {
-      this.openErrorDialog('Client ID or Client Secret is missing for this environment. Please configure the environment.', 'Connection Error');
-      return;
-    }
-    
-    try {
-      const connected = <Connection>await window.electronAPI.connectToISC(
-        this.actualTenant.apiUrl, 
-        this.actualTenant.tenantUrl, 
-        this.actualTenant.clientId, 
-        this.actualTenant.clientSecret
-      );
-      
-              console.log('Connected to ISC:', connected);
-        this.connectionService.setConnectionState(Boolean(connected.connected));
-        this.isConnected = Boolean(connected.connected);
-        this.name = connected.name;
-      
-      if (connected.connected) {
-        this.openMessageDialog(`Successfully connected to ${connected.name}`, 'Connection Successful');
-      } else {
-        this.openErrorDialog('Failed to establish connection with PAT credentials', 'Connection Failed');
-      }
-    } catch (error) {
-      console.error('PAT authentication failed:', error);
-      throw error;
     }
   }
 

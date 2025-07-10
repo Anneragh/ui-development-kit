@@ -391,6 +391,16 @@ ipcMain.handle('submit-reassign-certs-async', async (event, request: sdk.Certifi
     return await sdkWrapper.submitReassignCertsAsync(request, apiConfig);
 });
 
+ipcMain.handle('delete-classify-machine-account-from-source', async (event, request: sdk.ClassifySourceV2025ApiDeleteClassifyMachineAccountFromSourceRequest) => {
+    return await sdkWrapper.deleteClassifyMachineAccountFromSource(request, apiConfig);
+});
+ipcMain.handle('get-classify-machine-account-from-source-status', async (event, request: sdk.ClassifySourceV2025ApiGetClassifyMachineAccountFromSourceStatusRequest) => {
+    return await sdkWrapper.getClassifyMachineAccountFromSourceStatus(request, apiConfig);
+});
+ipcMain.handle('send-classify-machine-account-from-source', async (event, request: sdk.ClassifySourceV2025ApiSendClassifyMachineAccountFromSourceRequest) => {
+    return await sdkWrapper.sendClassifyMachineAccountFromSource(request, apiConfig);
+});
+
 ipcMain.handle('create-deploy', async (event, request: sdk.ConfigurationHubV2025ApiCreateDeployRequest) => {
     return await sdkWrapper.createDeploy(request, apiConfig);
 });
@@ -1069,6 +1079,23 @@ ipcMain.handle('test-mfa-config', async (event, request: sdk.MFAConfigurationV20
     return await sdkWrapper.testMFAConfig(request, apiConfig);
 });
 
+ipcMain.handle('send-classify-machine-account', async (event, request: sdk.MachineAccountClassifyV2025ApiSendClassifyMachineAccountRequest) => {
+    return await sdkWrapper.sendClassifyMachineAccount(request, apiConfig);
+});
+
+ipcMain.handle('create-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiCreateMachineAccountMappingsRequest) => {
+    return await sdkWrapper.createMachineAccountMappings(request, apiConfig);
+});
+ipcMain.handle('delete-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiDeleteMachineAccountMappingsRequest) => {
+    return await sdkWrapper.deleteMachineAccountMappings(request, apiConfig);
+});
+ipcMain.handle('list-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiListMachineAccountMappingsRequest) => {
+    return await sdkWrapper.listMachineAccountMappings(request, apiConfig);
+});
+ipcMain.handle('set-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiSetMachineAccountMappingsRequest) => {
+    return await sdkWrapper.setMachineAccountMappings(request, apiConfig);
+});
+
 ipcMain.handle('get-machine-account', async (event, request: sdk.MachineAccountsV2025ApiGetMachineAccountRequest) => {
     return await sdkWrapper.getMachineAccount(request, apiConfig);
 });
@@ -1077,6 +1104,16 @@ ipcMain.handle('list-machine-accounts', async (event, request: sdk.MachineAccoun
 });
 ipcMain.handle('update-machine-account', async (event, request: sdk.MachineAccountsV2025ApiUpdateMachineAccountRequest) => {
     return await sdkWrapper.updateMachineAccount(request, apiConfig);
+});
+
+ipcMain.handle('delete-machine-classification-config', async (event, request: sdk.MachineClassificationConfigV2025ApiDeleteMachineClassificationConfigRequest) => {
+    return await sdkWrapper.deleteMachineClassificationConfig(request, apiConfig);
+});
+ipcMain.handle('get-machine-classification-config', async (event, request: sdk.MachineClassificationConfigV2025ApiGetMachineClassificationConfigRequest) => {
+    return await sdkWrapper.getMachineClassificationConfig(request, apiConfig);
+});
+ipcMain.handle('set-machine-classification-config', async (event, request: sdk.MachineClassificationConfigV2025ApiSetMachineClassificationConfigRequest) => {
+    return await sdkWrapper.setMachineClassificationConfig(request, apiConfig);
 });
 
 ipcMain.handle('create-machine-identity', async (event, request: sdk.MachineIdentitiesV2025ApiCreateMachineIdentityRequest) => {
@@ -1852,6 +1889,9 @@ ipcMain.handle('import-accounts-schema', async (event, request: sdk.SourcesV2025
 ipcMain.handle('import-connector-file', async (event, request: sdk.SourcesV2025ApiImportConnectorFileRequest) => {
     return await sdkWrapper.importConnectorFile(request, apiConfig);
 });
+ipcMain.handle('import-entitlements', async (event, request: sdk.SourcesV2025ApiImportEntitlementsRequest) => {
+    return await sdkWrapper.importEntitlements(request, apiConfig);
+});
 ipcMain.handle('import-entitlements-schema', async (event, request: sdk.SourcesV2025ApiImportEntitlementsSchemaRequest) => {
     return await sdkWrapper.importEntitlementsSchema(request, apiConfig);
 });
@@ -1922,8 +1962,8 @@ ipcMain.handle('update-source-schema', async (event, request: sdk.SourcesV2025Ap
 ipcMain.handle('get-sed-batch-stats', async (event, request: sdk.SuggestedEntitlementDescriptionV2025ApiGetSedBatchStatsRequest) => {
     return await sdkWrapper.getSedBatchStats(request, apiConfig);
 });
-ipcMain.handle('get-sed-batches', async (event, ) => {
-    return await sdkWrapper.getSedBatches(apiConfig);
+ipcMain.handle('get-sed-batches', async (event, request: sdk.SuggestedEntitlementDescriptionV2025ApiGetSedBatchesRequest = {}) => {
+    return await sdkWrapper.getSedBatches(request, apiConfig);
 });
 ipcMain.handle('list-seds', async (event, request: sdk.SuggestedEntitlementDescriptionV2025ApiListSedsRequest = {}) => {
     return await sdkWrapper.listSeds(request, apiConfig);

@@ -402,6 +402,16 @@ submitReassignCertsAsync(requestParameters: sdk.CertificationsV2025ApiSubmitReas
     return this.electronAPI.submitReassignCertsAsync(requestParameters) as Promise<AxiosResponse<sdk.CertificationTaskV2025, any>>;
 }
 
+deleteClassifyMachineAccountFromSource(requestParameters: sdk.ClassifySourceV2025ApiDeleteClassifyMachineAccountFromSourceRequest): Promise<AxiosResponse<void, any>> {
+    return this.electronAPI.deleteClassifyMachineAccountFromSource(requestParameters) as Promise<AxiosResponse<void, any>>;
+}
+getClassifyMachineAccountFromSourceStatus(requestParameters: sdk.ClassifySourceV2025ApiGetClassifyMachineAccountFromSourceStatusRequest): Promise<AxiosResponse<sdk.SourceClassificationStatusV2025, any>> {
+    return this.electronAPI.getClassifyMachineAccountFromSourceStatus(requestParameters) as Promise<AxiosResponse<sdk.SourceClassificationStatusV2025, any>>;
+}
+sendClassifyMachineAccountFromSource(requestParameters: sdk.ClassifySourceV2025ApiSendClassifyMachineAccountFromSourceRequest): Promise<AxiosResponse<sdk.SendClassifyMachineAccountFromSource200ResponseV2025, any>> {
+    return this.electronAPI.sendClassifyMachineAccountFromSource(requestParameters) as Promise<AxiosResponse<sdk.SendClassifyMachineAccountFromSource200ResponseV2025, any>>;
+}
+
 createDeploy(requestParameters: sdk.ConfigurationHubV2025ApiCreateDeployRequest): Promise<AxiosResponse<sdk.DeployResponseV2025, any>> {
     return this.electronAPI.createDeploy(requestParameters) as Promise<AxiosResponse<sdk.DeployResponseV2025, any>>;
 }
@@ -1080,6 +1090,23 @@ testMFAConfig(requestParameters: sdk.MFAConfigurationV2025ApiTestMFAConfigReques
     return this.electronAPI.testMFAConfig(requestParameters) as Promise<AxiosResponse<sdk.MfaConfigTestResponseV2025, any>>;
 }
 
+sendClassifyMachineAccount(requestParameters: sdk.MachineAccountClassifyV2025ApiSendClassifyMachineAccountRequest): Promise<AxiosResponse<sdk.SendClassifyMachineAccount200ResponseV2025, any>> {
+    return this.electronAPI.sendClassifyMachineAccount(requestParameters) as Promise<AxiosResponse<sdk.SendClassifyMachineAccount200ResponseV2025, any>>;
+}
+
+createMachineAccountMappings(requestParameters: sdk.MachineAccountMappingsV2025ApiCreateMachineAccountMappingsRequest): Promise<AxiosResponse<Array<sdk.AttributeMappingsV2025>, any>> {
+    return this.electronAPI.createMachineAccountMappings(requestParameters) as Promise<AxiosResponse<Array<sdk.AttributeMappingsV2025>, any>>;
+}
+deleteMachineAccountMappings(requestParameters: sdk.MachineAccountMappingsV2025ApiDeleteMachineAccountMappingsRequest): Promise<AxiosResponse<void, any>> {
+    return this.electronAPI.deleteMachineAccountMappings(requestParameters) as Promise<AxiosResponse<void, any>>;
+}
+listMachineAccountMappings(requestParameters: sdk.MachineAccountMappingsV2025ApiListMachineAccountMappingsRequest): Promise<AxiosResponse<Array<sdk.AttributeMappingsV2025>, any>> {
+    return this.electronAPI.listMachineAccountMappings(requestParameters) as Promise<AxiosResponse<Array<sdk.AttributeMappingsV2025>, any>>;
+}
+setMachineAccountMappings(requestParameters: sdk.MachineAccountMappingsV2025ApiSetMachineAccountMappingsRequest): Promise<AxiosResponse<Array<sdk.AttributeMappingsV2025>, any>> {
+    return this.electronAPI.setMachineAccountMappings(requestParameters) as Promise<AxiosResponse<Array<sdk.AttributeMappingsV2025>, any>>;
+}
+
 getMachineAccount(requestParameters: sdk.MachineAccountsV2025ApiGetMachineAccountRequest): Promise<AxiosResponse<sdk.MachineAccountV2025, any>> {
     return this.electronAPI.getMachineAccount(requestParameters) as Promise<AxiosResponse<sdk.MachineAccountV2025, any>>;
 }
@@ -1088,6 +1115,16 @@ listMachineAccounts(requestParameters: sdk.MachineAccountsV2025ApiListMachineAcc
 }
 updateMachineAccount(requestParameters: sdk.MachineAccountsV2025ApiUpdateMachineAccountRequest): Promise<AxiosResponse<sdk.MachineAccountV2025, any>> {
     return this.electronAPI.updateMachineAccount(requestParameters) as Promise<AxiosResponse<sdk.MachineAccountV2025, any>>;
+}
+
+deleteMachineClassificationConfig(requestParameters: sdk.MachineClassificationConfigV2025ApiDeleteMachineClassificationConfigRequest): Promise<AxiosResponse<void, any>> {
+    return this.electronAPI.deleteMachineClassificationConfig(requestParameters) as Promise<AxiosResponse<void, any>>;
+}
+getMachineClassificationConfig(requestParameters: sdk.MachineClassificationConfigV2025ApiGetMachineClassificationConfigRequest): Promise<AxiosResponse<sdk.MachineClassificationConfigV2025, any>> {
+    return this.electronAPI.getMachineClassificationConfig(requestParameters) as Promise<AxiosResponse<sdk.MachineClassificationConfigV2025, any>>;
+}
+setMachineClassificationConfig(requestParameters: sdk.MachineClassificationConfigV2025ApiSetMachineClassificationConfigRequest): Promise<AxiosResponse<sdk.MachineClassificationConfigV2025, any>> {
+    return this.electronAPI.setMachineClassificationConfig(requestParameters) as Promise<AxiosResponse<sdk.MachineClassificationConfigV2025, any>>;
 }
 
 createMachineIdentity(requestParameters: sdk.MachineIdentitiesV2025ApiCreateMachineIdentityRequest): Promise<AxiosResponse<sdk.MachineIdentityV2025, any>> {
@@ -1863,6 +1900,9 @@ importAccountsSchema(requestParameters: sdk.SourcesV2025ApiImportAccountsSchemaR
 importConnectorFile(requestParameters: sdk.SourcesV2025ApiImportConnectorFileRequest): Promise<AxiosResponse<sdk.SourceV2025, any>> {
     return this.electronAPI.importConnectorFile(requestParameters) as Promise<AxiosResponse<sdk.SourceV2025, any>>;
 }
+importEntitlements(requestParameters: sdk.SourcesV2025ApiImportEntitlementsRequest): Promise<AxiosResponse<sdk.LoadEntitlementTaskV2025, any>> {
+    return this.electronAPI.importEntitlements(requestParameters) as Promise<AxiosResponse<sdk.LoadEntitlementTaskV2025, any>>;
+}
 importEntitlementsSchema(requestParameters: sdk.SourcesV2025ApiImportEntitlementsSchemaRequest): Promise<AxiosResponse<sdk.SchemaV2025, any>> {
     return this.electronAPI.importEntitlementsSchema(requestParameters) as Promise<AxiosResponse<sdk.SchemaV2025, any>>;
 }
@@ -1933,8 +1973,8 @@ updateSourceSchema(requestParameters: sdk.SourcesV2025ApiUpdateSourceSchemaReque
 getSedBatchStats(requestParameters: sdk.SuggestedEntitlementDescriptionV2025ApiGetSedBatchStatsRequest): Promise<AxiosResponse<sdk.SedBatchStatsV2025, any>> {
     return this.electronAPI.getSedBatchStats(requestParameters) as Promise<AxiosResponse<sdk.SedBatchStatsV2025, any>>;
 }
-getSedBatches(): Promise<AxiosResponse<sdk.SedBatchStatusV2025, any>> {
-    return this.electronAPI.getSedBatches() as Promise<AxiosResponse<sdk.SedBatchStatusV2025, any>>;
+getSedBatches(requestParameters: sdk.SuggestedEntitlementDescriptionV2025ApiGetSedBatchesRequest = {}): Promise<AxiosResponse<Array<sdk.SedBatchRecordV2025>, any>> {
+    return this.electronAPI.getSedBatches(requestParameters) as Promise<AxiosResponse<Array<sdk.SedBatchRecordV2025>, any>>;
 }
 listSeds(requestParameters: sdk.SuggestedEntitlementDescriptionV2025ApiListSedsRequest = {}): Promise<AxiosResponse<Array<sdk.SedV2025>, any>> {
     return this.electronAPI.listSeds(requestParameters) as Promise<AxiosResponse<Array<sdk.SedV2025>, any>>;

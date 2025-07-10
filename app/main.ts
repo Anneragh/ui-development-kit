@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import {connectToISC, connectToISCWithOAuth, disconnectFromISC, getTenants, harborPilotTransformChat, OAuthLogin, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType} from './api';
+import {disconnectFromISC, getTenants, harborPilotTransformChat, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType, setGlobalAuthType, refreshOAuthToken, refreshPATToken, checkEnvironmentTokenStatus, unifiedLogin, getStoredOAuthTokens, validateConnectionTokens} from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 
 let win: BrowserWindow | null = null;
@@ -93,32 +93,6 @@ try {
     }
   });
 
-  ipcMain.handle('oauth-login', async (event, tenant?: string, baseAPIUrl?: string) => {
-    if (!tenant || !baseAPIUrl) {
-      throw new Error('Tenant and baseAPIUrl are required');
-    }
-    return await OAuthLogin({tenant, baseAPIUrl});
-  });
-
-  // Handle fetching users via IPC
-  ipcMain.handle('connect-to-isc', async (event, apiUrl: string, baseUrl: string, clientId: string, clientSecret: string) => {
-    if (clientId.startsWith("go-keyring-base64:")) {
-      const base64 = clientId.split("go-keyring-base64:")[1];
-      clientId = atob(base64);
-    }
-
-    if (clientSecret.startsWith("go-keyring-base64:")) {
-      const base64 = clientSecret.split("go-keyring-base64:")[1];
-      clientSecret = atob(base64);
-    }
-    
-    return await connectToISC(apiUrl, baseUrl, clientId, clientSecret);
-  });
-
-  ipcMain.handle('connect-to-isc-oauth', async (event, apiUrl: string, baseUrl: string, accessToken: string) => {
-    return await connectToISCWithOAuth(apiUrl, baseUrl, accessToken);
-  });
-
   ipcMain.handle('disconnect-from-isc', async () => {
     return await disconnectFromISC();
   });
@@ -147,6 +121,34 @@ try {
 
   ipcMain.handle('get-global-auth-type', async () => {
     return await getGlobalAuthType();
+  });
+
+  ipcMain.handle('set-global-auth-type', async (event, authType: string) => {
+    return await setGlobalAuthType(authType);
+  });
+
+  ipcMain.handle('refresh-oauth-token', async (event, environment: string, refreshToken: string) => {
+    return await refreshOAuthToken(environment, refreshToken);
+  });
+
+  ipcMain.handle('refresh-pat-token', async (event, environment: string) => {
+    return await refreshPATToken(environment);
+  });
+
+  ipcMain.handle('check-environment-token-status', async (event, environment: string) => {
+    return await checkEnvironmentTokenStatus(environment);
+  });
+
+  ipcMain.handle('unified-login', async (event, request) => {
+    return await unifiedLogin(request);
+  });
+
+  ipcMain.handle('get-stored-oauth-tokens', async (event, environment: string) => {
+    return await getStoredOAuthTokens(environment);
+  });
+
+  ipcMain.handle('validate-connection-tokens', async (event, connection: string) => {
+    return await validateConnectionTokens(connection);
   });
 
 } catch (e) {

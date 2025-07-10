@@ -1,6 +1,6 @@
 import { BreakpointObserver, Breakpoints, LayoutModule } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Renderer2 } from '@angular/core';
+import { Component, Renderer2, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -8,9 +8,10 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
-import { ConnectionService } from './shared/connection.service';
+import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './shared/connection.service';
 import { Router } from '@angular/router';
 
 declare const window: any;
@@ -31,11 +32,16 @@ declare const window: any;
     MatButtonModule,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   isSmallScreen: boolean = false;
   sidenavOpened = true;
-  isConnected = true;
+  isConnected = false;
   isDarkTheme = false;
+  connectionName: string = '';
+  sessionStatus: SessionStatus | null = null;
+  currentEnvironment: EnvironmentInfo | null = null;
+
+  private subscriptions = new Subscription();
 
   constructor(
     private electronService: ElectronService,
@@ -43,10 +49,12 @@ export class AppComponent {
     private connectionService: ConnectionService,
     private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
-    private router: Router
+    private router: Router,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
+    
     this.breakpointObserver.observe([Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall]).subscribe((result) => {
       this.isSmallScreen = result.matches;
       this.sidenavOpened = !this.isSmallScreen;
@@ -62,15 +70,42 @@ export class AppComponent {
     }
 
     // Subscribe to connection state changes
-    this.connectionService.isConnected$.subscribe(connection => {
-      this.isConnected = connection.connected;
-    });
+    this.subscriptions.add(
+      this.connectionService.isConnected$.subscribe((connection: Connection) => {
+        console.log('App component received connection state:', connection);
+        this.isConnected = connection.connected;
+        this.connectionName = connection.name || '';
+        this.changeDetectorRef.detectChanges();
+      })
+    );
+
+    // Subscribe to session status changes
+    this.subscriptions.add(
+      this.connectionService.sessionStatus$.subscribe((status: SessionStatus | null) => {
+        console.log('App component received session status:', status);
+        this.sessionStatus = status;
+        this.changeDetectorRef.detectChanges();
+      })
+    );
+
+    // Subscribe to current environment changes
+    this.subscriptions.add(
+      this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | null) => {
+        console.log('App component received environment:', environment);
+        this.currentEnvironment = environment;
+        this.changeDetectorRef.detectChanges();
+      })
+    );
 
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {
       this.isDarkTheme = true;
       this.renderer.addClass(document.body, 'dark-theme');
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   toggleTheme(): void {
@@ -96,5 +131,41 @@ export class AppComponent {
     this.router.navigate(['/home']).catch((error: any) => {
       console.error('Navigation error:', error);
     });
+  }
+
+  async manualRefreshSession() {
+    try {
+      console.log('Manual refresh session button clicked');
+      console.log('Current connection state:', this.isConnected);
+      console.log('Current environment:', this.currentEnvironment);
+      console.log('Current session status:', this.sessionStatus);
+      
+      await this.connectionService.manualRefreshSession();
+      console.log('Manual refresh completed successfully');
+    } catch (error) {
+      console.error('Manual refresh failed:', error);
+      // You could add a snackbar notification here if you want user feedback
+    }
+  }
+
+  // Getters for template
+  get isSessionValid(): boolean {
+    return this.connectionService.isSessionValid;
+  }
+
+  get sessionExpiryTime(): string | null {
+    return this.connectionService.sessionExpiryTime;
+  }
+
+  get timeUntilExpiry(): string | null {
+    return this.connectionService.timeUntilExpiry;
+  }
+
+  get sessionStatusDisplay(): string {
+    return this.connectionService.sessionStatusDisplay;
+  }
+
+  get isRefreshing(): boolean {
+    return this.connectionService.isRefreshing;
   }
 }

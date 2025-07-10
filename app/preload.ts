@@ -2,11 +2,15 @@ const { contextBridge, ipcRenderer: ipcMain } = require('electron');
 const sdkPreloader = require('./sailpoint-sdk/sdk-preload');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Authentication and connection
-  connectToISC: (apiUrl: any, baseUrl: any, clientId: any, clientSecret: any) => ipcMain.invoke('connect-to-isc', apiUrl, baseUrl, clientId, clientSecret),
-  connectToISCWithOAuth: (apiUrl: any, baseUrl: any, accessToken: any) => ipcMain.invoke('connect-to-isc-oauth', apiUrl, baseUrl, accessToken),
+  // Unified authentication and connection
+  unifiedLogin: (request: any) => ipcMain.invoke('unified-login', request),
   disconnectFromISC: () => ipcMain.invoke('disconnect-from-isc'),
-  oauthLogin: (tenant: any, baseAPIUrl: any) => ipcMain.invoke('oauth-login', tenant, baseAPIUrl),
+  
+  // Token management
+  refreshOAuthToken: (environment: any, refreshToken: any) => ipcMain.invoke('refresh-oauth-token', environment, refreshToken),
+  refreshPATToken: (environment: any) => ipcMain.invoke('refresh-pat-token', environment),
+  checkEnvironmentTokenStatus: (environment: any) => ipcMain.invoke('check-environment-token-status', environment),
+  getStoredOAuthTokens: (environment: any) => ipcMain.invoke('get-stored-oauth-tokens', environment),
   
   // Environment management
   getTenants: () => ipcMain.invoke('get-tenants'),
@@ -14,10 +18,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteEnvironment: (environmentName: any) => ipcMain.invoke('delete-environment', environmentName),
   setActiveEnvironment: (environmentName: any) => ipcMain.invoke('set-active-environment', environmentName),
   getGlobalAuthType: () => ipcMain.invoke('get-global-auth-type'),
+  setGlobalAuthType: (authType: any) => ipcMain.invoke('set-global-auth-type', authType),
   
   // Harbor Pilot
   harborPilotTransformChat: (chat: any) => ipcMain.invoke('harbor-pilot-transform-chat', chat),
   
   // SDK functions
-  ...sdkPreloader
+  ...sdkPreloader,
+  validateConnectionTokens: (environment: any) => ipcMain.invoke('validate-connection-tokens', environment),
 });
