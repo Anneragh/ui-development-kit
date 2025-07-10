@@ -7,6 +7,7 @@ declare global {
       readConfig: () => Promise<any>;
       writeConfig: (config: any) => Promise<any>;
       writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
+      checkLogoExists: (fileName: string) => Promise<boolean>;
     };
   }
 }

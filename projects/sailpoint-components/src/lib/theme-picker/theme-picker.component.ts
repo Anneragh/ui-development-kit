@@ -76,23 +76,7 @@ export class ThemePickerComponent {
     });
   }
 
-  // selectedLogoFile?: File;
-  // selectedLogoDarkFile?: File;
-  // onFileSelected(event: Event, fileName: 'logo' | 'logo-dark') {
-  //   const input = event.target as HTMLInputElement;
-  //   if (!input.files?.length) return;
-
-  //   const file = input.files[0];
-
-  //   if (fileName === 'logo') {
-  //     this.selectedLogoFile = file;
-  //   } else {
-  //     this.selectedLogoDarkFile = file;
-  //   }
-  // }
-
   selectedLogoFile?: File;
-
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;

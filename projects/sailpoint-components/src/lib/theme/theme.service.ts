@@ -43,11 +43,15 @@ export class ThemeService {
     let config: ThemeConfig;
     if (this.isElectron) {
       const raw = await window.electronAPI!.readConfig();
-      this.lastRawConfig = raw; // ✅ Store for later reference
-      config = raw[`theme-${currentMode}`] || this.getDefaultTheme(currentMode);
+      this.lastRawConfig = raw;
+      config =
+        raw[`theme-${currentMode}`] ??
+        (await this.getDefaultTheme(currentMode));
     } else {
       const stored = localStorage.getItem(`theme-${currentMode}`);
-      config = stored ? JSON.parse(stored) : this.getDefaultTheme(currentMode);
+      config = stored
+        ? JSON.parse(stored)
+        : await this.getDefaultTheme(currentMode);
     }
 
     this.applyTheme(config, currentMode);
@@ -98,28 +102,19 @@ export class ThemeService {
     return (localStorage.getItem('themeMode') as 'light' | 'dark') ?? 'light';
   }
 
-  private getDefaultTheme(mode: 'light' | 'dark'): ThemeConfig {
+  private async getDefaultTheme(mode: 'light' | 'dark'): Promise<ThemeConfig> {
     let logoLight = 'assets/icons/SailPoint-Developer-Community-Lockup.png';
     let logoDark =
       'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png';
 
-    if (this.isElectron) {
-      const fs = window.require?.('fs');
-      const path = window.require?.('path');
-      if (fs && path) {
-       const iconDir = path.join(process.cwd(), 'src', 'assets', 'icons');
+    if (this.isElectron && window.electronAPI?.checkLogoExists) {
+      const lightExists = await window.electronAPI.checkLogoExists('logo.png');
+      const darkExists = await window.electronAPI.checkLogoExists(
+        'logo-dark.png'
+      );
 
-        const logoLightPath = path.join(iconDir, 'logo.png');
-        const logoDarkPath = path.join(iconDir, 'logo-dark.png');
-
-        if (fs.existsSync(logoLightPath)) {
-          logoLight = 'assets/icons/logo.png';
-        }
-
-        if (fs.existsSync(logoDarkPath)) {
-          logoDark = 'assets/icons/logo-dark.png';
-        }
-      }
+      if (lightExists) logoLight = 'assets/icons/logo.png';
+      if (darkExists) logoDark = 'assets/icons/logo-dark.png';
     }
 
     return {

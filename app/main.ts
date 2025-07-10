@@ -262,6 +262,17 @@ try {
       throw new Error('Failed to write logo file');
     }
   });
+
+  ipcMain.handle('check-logo-exists', async (event, fileName: string) => {
+    const fullPath = path.join(
+      app.getAppPath(),
+      'src',
+      'assets',
+      'icons',
+      fileName
+    );
+    return fs.existsSync(fullPath);
+  });
 } catch (e) {
   console.error('Error during app initialization', e);
 }
