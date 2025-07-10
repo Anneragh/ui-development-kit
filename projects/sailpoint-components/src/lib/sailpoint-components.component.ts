@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-sailpoint-components',
+  selector: 'app-sailpoint-components',
   imports: [],
   template: `
     <p>

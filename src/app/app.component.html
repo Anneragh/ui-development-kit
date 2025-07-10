@@ -40,6 +40,11 @@
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
       </a>
+      <a *ngIf="isComponentEnabled('report-example')" mat-list-item class="sidebar-link" routerLink="/report-example" routerLinkActive="active-link"
+        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Report Example
+      </a>
       <a mat-list-item class="sidebar-link" routerLink="/identities" routerLinkActive="active-link"
         [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
         <mat-icon class="card-icon">home</mat-icon>
