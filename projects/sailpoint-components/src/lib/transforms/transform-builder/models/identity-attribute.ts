@@ -1,8 +1,10 @@
 import { Step, Uid } from 'sequential-workflow-designer';
 import {
-    createStepModel,
-    createStringValueModel
+  createStepModel,
+  createStringValueModel
 } from 'sequential-workflow-editor-model';
+
+let description = 'Use the identity attribute transform to get the value of a user\'s identity attribute. This transform is often useful within a source\'s account create or disable profile.'
 
 export function createIdentityAttribute(): IdentityAttributeStep {
   return {
@@ -10,6 +12,7 @@ export function createIdentityAttribute(): IdentityAttributeStep {
     componentType: 'task',
     name: 'Identity Attribute',
     type: 'identityAttribute',
+    description: description,
     properties: {
         name: '',
     },
@@ -19,6 +22,7 @@ export function createIdentityAttribute(): IdentityAttributeStep {
 export interface IdentityAttributeStep extends Step {
   type: 'identityAttribute';
   componentType: 'task';
+  description?: string;
   properties: {
     name: string;
   };
@@ -35,6 +39,7 @@ export const IdentityAttributeModel = createStepModel<IdentityAttributeStep>(
           minLength: 1,
         })
       )
+      .hint('The system (camel-cased) name of the identity attribute to bring in.')
       .label('Identity Attribute Name');
   }
 );
@@ -56,6 +61,7 @@ export function deserializeIdentityAttribute(data: any): IdentityAttributeStep {
       componentType: 'task',
       type: 'identityAttribute',
       name: data.name ?? 'Identity Attribute',
+      description: description,
       properties: {
         name: data.attributes.name,
       }

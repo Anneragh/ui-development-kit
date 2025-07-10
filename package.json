@@ -43,7 +43,8 @@
     "e2e": "npm run build:prod && playwright test -c e2e/playwright.config.ts e2e/",
     "e2e:show-trace": "playwright show-trace e2e/tracing/trace.zip",
     "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "generate:component": "node scripts/generate-component.js"
   },
   "dependencies": {
     "@angular/animations": "19.2.9",
@@ -60,6 +61,8 @@
     "axios": "1.9.0",
     "js-yaml": "4.1.0",
     "keytar": "7.9.0",
+    "lodash-es": "4.17.21",
+    "prismjs": "1.30.0",
     "rxjs": "7.8.2",
     "sailpoint-api-client": "1.6.4",
     "sequential-workflow-designer": "0.29.0",
@@ -88,7 +91,9 @@
     "@playwright/test": "1.52.0",
     "@types/jest": "29.5.14",
     "@types/js-yaml": "4.0.9",
+    "@types/lodash-es": "4.17.12",
     "@types/node": "22.15.3",
+    "@types/prismjs": "1.26.5",
     "@typescript-eslint/eslint-plugin": "8.31.1",
     "@typescript-eslint/parser": "8.31.1",
     "conventional-changelog-cli": "5.0.0",

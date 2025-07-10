@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -60,6 +60,7 @@ export type TransformResult = {
     IdentitySearchComponent,
     TransformResultsComponent
   ],
+  encapsulation: ViewEncapsulation.None,
 
 })
 export class TransformPreviewComponent implements OnInit {

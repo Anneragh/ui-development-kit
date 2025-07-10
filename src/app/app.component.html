@@ -59,9 +59,9 @@
         Home
       </a>
 
-      <a mat-list-item class="sidebar-link" routerLink="/transforms" routerLinkActive="active-link"
+      <a *ngIf="isComponentEnabled('transforms')" mat-list-item class="sidebar-link" routerLink="/transforms" routerLinkActive="active-link"
         [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
-        <mat-icon class="card-icon">home</mat-icon>
+        <mat-icon class="card-icon">transform</mat-icon>
         Transforms
       </a>
       <a mat-list-item class="sidebar-link" routerLink="/identities" routerLinkActive="active-link"
@@ -74,10 +74,10 @@
         <mat-icon class="card-icon">home</mat-icon>
         Campaigns
       </a>
-      <a mat-list-item class="sidebar-link" routerLink="/component" routerLinkActive="active-link" [class.disabled]="!isConnected"
+      <a mat-list-item class="sidebar-link" routerLink="/component-selector" routerLinkActive="active-link" [class.disabled]="!isConnected"
     (click)="!isConnected && $event.preventDefault()">
-    <mat-icon class="card-icon">home</mat-icon>
-    Component
+    <mat-icon class="card-icon">settings</mat-icon>
+    Component Selector
   </a>
 
   <a mat-list-item routerLink="/builder" routerLinkActive="active-link" [class.disabled]="!isConnected"

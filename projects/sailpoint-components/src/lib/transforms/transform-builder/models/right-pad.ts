@@ -1,10 +1,12 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import {
-    createNumberValueModel,
-    createStepModel,
-    createStringValueModel
+  createNumberValueModel,
+  createStepModel,
+  createStringValueModel
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
+
+let description = 'Use the right pad transform to pad an incoming string with a user-supplied character out to a specific number of characters.'
 
 export function createRightPad(): RightPadStep {
   return {
@@ -12,6 +14,7 @@ export function createRightPad(): RightPadStep {
     componentType: 'switch',
     name: 'Right Pad',
     type: 'rightPad',
+    description: description,
     properties: {
         padding: '',
         length: 0
@@ -25,6 +28,7 @@ export function createRightPad(): RightPadStep {
 export interface RightPadStep extends BranchedStep {
   type: 'rightPad';
   componentType: 'switch';
+  description?: string;
   properties: {
     padding: string;
     length: number;
@@ -52,7 +56,7 @@ export const RightPadModel = createStepModel<RightPadStep>(
         .value(
             createNumberValueModel({
                 min: 1,
-                max: 50000,
+                max: 450,
               })
         )
         .hint(
@@ -85,6 +89,7 @@ export function deserializeRightPad(data: any): RightPadStep {
     componentType: 'switch',
     name: data.name ?? 'Right Pad',
     type: 'rightPad',
+    description: description,
     properties: {
         padding: data.attributes.padding,
         length: data.attributes.length

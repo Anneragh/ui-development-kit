@@ -1,6 +1,8 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'The replace all transform works like the replace transform, except that it can perform multiple replace operations on the incoming data instead of just one pattern. Use the replace all transform to find multiple patterns of characters within incoming data and replace all instances of those patterns with alternate values. The transform recognizes standard regex syntax.'
+
 export function createReplaceAll(): ReplaceAllStep {
   return {
     id: Uid.next(),
@@ -19,41 +21,11 @@ export function createReplaceAll(): ReplaceAllStep {
 export interface ReplaceAllStep extends BranchedStep {
   type: 'replaceAll';
   componentType: 'switch';
+  description?: string;
   properties: {
     table: Map<string, string>;
   };
 }
-
-// export const ReplaceAllModel = createStepModel<ReplaceAllStep>(
-//     'leftPad',
-//     'switch',
-//     (step) => {
-//       step
-//         .property('padding')
-//         .value(
-//             createStringValueModel({
-//                 minLength: 1,
-//               })
-//         )
-//         .hint(
-//           'This string value represents the character the transform will pad the incoming data to to get to the desired length.'
-//         )
-//         .label('Padding Character');
-
-//     step
-//         .property('length')
-//         .value(
-//             createNumberValueModel({
-//                 min: 1,
-//                 max: 50000,
-//               })
-//         )
-//         .hint(
-//           "This is an integer value for the final output string's desired length."
-//         )
-//         .label('Total Length');
-//     }
-//   );
 
 export function serializeReplaceAll(step: ReplaceAllStep) {
   const attributes: Record<string, any> = {
@@ -85,6 +57,7 @@ export function deserializeReplaceAll(data: any): ReplaceAllStep {
     componentType: 'switch',
     name: data.name ?? 'ReplaceAll',
     type: 'replaceAll',
+    description: description,
     properties: {
         table: table,
     },
@@ -96,8 +69,6 @@ export function deserializeReplaceAll(data: any): ReplaceAllStep {
   if (data.attributes.input) {
     step.branches.input.push(deserializeToStep(data.attributes.input));
   }
-
-  console.log(step.properties.table)
 
   return step;
 }

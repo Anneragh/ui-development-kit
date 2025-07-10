@@ -1,11 +1,14 @@
 import { Properties, Step, Uid } from 'sequential-workflow-designer';
 
+let description = 'Use the UUID generator transform to create a universal unique ID (UUID) in the form of a 36-character string.'
+
 export function createUUID(): UUIDStep {
   return {
     id: Uid.next(),
     componentType: 'task',
     name: 'UUID Generator',
     type: 'uuid',
+    description: description,
     properties: {
     },
   };
@@ -14,6 +17,7 @@ export function createUUID(): UUIDStep {
 export interface UUIDStep extends Step {
   type: 'uuid';
   componentType: 'task';
+  description?: string;
   properties: Properties;
 }
 
@@ -31,6 +35,7 @@ export function deserializeUUID(data: any): UUIDStep {
         componentType: 'task',
         name: 'UUID Generator',
         type: 'uuid',
+        description: description,
         properties: {
             length: data.attributes.length,
         },

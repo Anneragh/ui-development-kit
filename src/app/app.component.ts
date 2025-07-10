@@ -1,18 +1,28 @@
-import { BreakpointObserver, Breakpoints, LayoutModule } from '@angular/cdk/layout';
+import {
+  BreakpointObserver,
+  Breakpoints,
+  LayoutModule,
+} from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Renderer2, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Renderer2, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './shared/connection.service';
 import { Router } from '@angular/router';
+import { ThemeService } from 'sailpoint-components';
+import { ElectronService } from './core/services';
+import {
+  ComponentInfo,
+  ComponentSelectorService,
+} from './services/component-selector.service';
 
 declare const window: any;
 
@@ -32,7 +42,7 @@ declare const window: any;
     MatButtonModule,
   ],
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnDestroy, OnInit {
   isSmallScreen: boolean = false;
   sidenavOpened = true;
   isConnected = false;
@@ -42,6 +52,7 @@ export class AppComponent implements OnDestroy {
   currentEnvironment: EnvironmentInfo | null = null;
 
   private subscriptions = new Subscription();
+  enabledComponents: ComponentInfo[] = [];
 
   constructor(
     private electronService: ElectronService,
@@ -59,9 +70,22 @@ export class AppComponent implements OnDestroy {
       this.isSmallScreen = result.matches;
       this.sidenavOpened = !this.isSmallScreen;
     });
+    private themeService: ThemeService,
+    private componentSelectorService: ComponentSelectorService
+  ) {
+    this.translate.setDefaultLang('en');
+    console.log('APP_CONFIG', APP_CONFIG);
 
+    // Layout responsiveness
+    this.breakpointObserver
+      .observe([Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall])
+      .subscribe((result) => {
+        this.isSmallScreen = result.matches;
+        this.sidenavOpened = !this.isSmallScreen;
+      });
+
+    // Platform context
     if (electronService.isElectron) {
-      console.log(process.env);
       console.log('Run in electron');
       console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
       console.log('NodeJS childProcess', this.electronService.childProcess);
@@ -96,12 +120,36 @@ export class AppComponent implements OnDestroy {
         this.changeDetectorRef.detectChanges();
       })
     );
+    this.connectionService.isConnected$.subscribe((connection) => {
+      this.isConnected = connection.connected;
+      if (!connection.connected) {
+        this.router.navigate(['/home']).catch((error) => {
+          console.error('Navigation error:', error);
+        });
+      }
+    });
 
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark') {
-      this.isDarkTheme = true;
-      this.renderer.addClass(document.body, 'dark-theme');
-    }
+    // ✅ Theme subscription
+    this.themeService.isDark$.subscribe((isDark) => {
+      this.isDarkTheme = isDark;
+      if (isDark) {
+        this.renderer.addClass(document.body, 'dark-theme');
+      } else {
+        this.renderer.removeClass(document.body, 'dark-theme');
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.componentSelectorService.enabledComponents$.subscribe((components) => {
+      this.enabledComponents = components;
+    });
+  }
+
+  isComponentEnabled(componentName: string): boolean {
+    return this.enabledComponents.some(
+      (component) => component.name === componentName && component.enabled
+    );
   }
 
   ngOnDestroy(): void {
@@ -109,26 +157,17 @@ export class AppComponent implements OnDestroy {
   }
 
   toggleTheme(): void {
-    this.isDarkTheme = !this.isDarkTheme;
-    if (this.isDarkTheme) {
-      console.log('Dark theme enabled');
-      this.renderer.addClass(document.body, 'dark-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      console.log('Dark theme disabled');
-      this.renderer.removeClass(document.body, 'dark-theme');
-      localStorage.setItem('theme', 'light');
-    }
+    this.themeService.setDark(!this.isDarkTheme); // ✅ Use service setter
   }
 
-  toggleSidenav() {
+  toggleSidenav(): void {
     this.sidenavOpened = !this.sidenavOpened;
   }
 
   async disconnectFromISC() {
     await window.electronAPI.disconnectFromISC();
     this.connectionService.setConnectionState(false);
-    this.router.navigate(['/home']).catch((error: any) => {
+    this.router.navigate(['/home']).catch((error) => {
       console.error('Navigation error:', error);
     });
   }

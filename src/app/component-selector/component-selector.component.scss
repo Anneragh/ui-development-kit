@@ -1,0 +1,44 @@
+.component-selector-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar-title {
+    margin-left: 16px;
+}
+
+.content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.description {
+    margin-bottom: 24px;
+    color: rgba (0, 0, 0, 0.6);
+    font-size: 16px;
+}
+
+.components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.component-card {
+    max-width: 400px;;
+}
+
+.component-card mat-card-header {
+    margin-bottom: 16px;
+}
+
+.component-card mat-card-content {
+    margin-bottom: 16px;
+}
+
+.component-card mat-card-actions {
+    padding-top: 8px;
+}
+

@@ -4,12 +4,15 @@ import {
 } from 'sequential-workflow-designer';
 import { createStepModel, createStringValueModel } from 'sequential-workflow-editor-model';
 
+let description = 'This transform allows you to get the identity attribute of another user from within a given identity\'s calculation. For your convenience, the transform allows you to use "manager" as a referential lookup to the target identity.'
+
 export function createGetReferenceIdentityAttribute(): GetReferenceIdentityAttributeStep  {
     return {
       id: Uid.next(),
       componentType: 'task',
       name: 'Get Reference Identity Attribute',
       type: 'getReferenceIdentityAttribute',
+      description: description,
       properties: {
         uid: '',
         attributeName: '',
@@ -20,6 +23,7 @@ export function createGetReferenceIdentityAttribute(): GetReferenceIdentityAttri
   export interface GetReferenceIdentityAttributeStep extends Step {
     type: 'getReferenceIdentityAttribute';
     componentType: 'task';
+    description?: string;
     properties: {
         uid: string;
         attributeName: string;
@@ -38,7 +42,8 @@ export function createGetReferenceIdentityAttribute(): GetReferenceIdentityAttri
             minLength: 1,
           })
         )
-        .label('Reference Identity UID');
+        .hint('This is the SailPoint User Name (uid) value of the identity whose attribute is desired. For your convenience, you can use the "manager" keyword to look up the user\'s manager and then get that manager\'s identity attribute.')
+        .label('SailPoint User Name (uid)');
 
       step
         .property('attributeName')
@@ -47,6 +52,7 @@ export function createGetReferenceIdentityAttribute(): GetReferenceIdentityAttri
             minLength: 1,
           })
         )
+        .hint('This is the name of the identity attribute to retrieve from the target identity. For example, you might use this to get the "department" attribute of a user\'s manager.')
         .label('Attribute Name');
     }
   );
@@ -72,6 +78,7 @@ export function createGetReferenceIdentityAttribute(): GetReferenceIdentityAttri
         componentType: 'task',
         type: 'getReferenceIdentityAttribute',
         name: data.name ?? 'Get Reference Identity Attribute',
+        description: description,
         properties: {
             uid: data.attributes.uid,
             attributeName: data.attributes.attributeName,

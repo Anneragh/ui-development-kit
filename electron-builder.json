@@ -9,6 +9,7 @@
     "!*.map",
     "!package.json",
     "!package-lock.json",
+    "config.json",
     {
       "from": "../dist",
       "filter": ["**/*"]

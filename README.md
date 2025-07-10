@@ -178,6 +178,32 @@ To build the SailPoint SDK with the latest API specifications:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Creating a new component
+
+To create a new component in the SailPoint components library, use the generate:component script:
+
+```bash
+npm run generate:component <component-name>
+```
+
+For example, to create a user-management component:
+
+```bash
+npm run generate:component user-management
+```
+
+This will:
+1. Create component files in `projects/sailpoint-components/src/lib/<component-name>/`
+2. Add the component to the component selector service
+3. Update app routes to include the new component
+4. Add a navigation link in the app component
+5. Export the component in the public API
+
+After generating the component, you need to:
+1. Build the project: `npm run start`
+2. Enable the component in the component selector
+3. Implement your component logic
+
 ## Building the Application
 
 To build the application for distribution:

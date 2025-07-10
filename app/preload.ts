@@ -23,6 +23,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Harbor Pilot
   harborPilotTransformChat: (chat: any) => ipcMain.invoke('harbor-pilot-transform-chat', chat),
   
+  // config file management
+  readConfig: () => ipcMain.invoke('read-config'),
+  writeConfig: (config: any) => ipcMain.invoke('write-config', config),
+
   // SDK functions
   ...sdkPreloader,
   validateConnectionTokens: (environment: any) => ipcMain.invoke('validate-connection-tokens', environment),

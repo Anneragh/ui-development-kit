@@ -2,7 +2,9 @@ import {
   Step,
   Uid
 } from 'sequential-workflow-designer';
-import { createNumberValueModel, createStepModel } from 'sequential-workflow-editor-model';
+import { createBooleanValueModel, createNumberValueModel, createStepModel } from 'sequential-workflow-editor-model';
+
+let description = 'This transform allows you to generate a random string up to 450 characters, using true/false flags to denote whether the string includes numbers and/or special characters.'
 
 export function createGenerateRandomString(): GenerateRandomStringStep  {
     return {
@@ -10,6 +12,7 @@ export function createGenerateRandomString(): GenerateRandomStringStep  {
       componentType: 'task',
       name: 'Generate Random String',
       type: 'generateRandomString',
+      description: description,
       properties: {
         includeNumbers: true,
         includeSpecialChars: true,
@@ -21,6 +24,7 @@ export function createGenerateRandomString(): GenerateRandomStringStep  {
   export interface GenerateRandomStringStep extends Step {
     type: 'generateRandomString';
     componentType: 'task';
+    description?: string;
     properties: {
         includeNumbers: boolean;
         includeSpecialChars: boolean;
@@ -32,10 +36,32 @@ export function createGenerateRandomString(): GenerateRandomStringStep  {
     'generateRandomString',
     'task',
     (step) => {
+
       step.property('length').value(createNumberValueModel({
         min: 1,
         max: 450
-      }))
+      })).label('String Length')
+      .hint('The length of the random string to generate. Must be between 1 and 450 characters.');
+
+      step
+      .property('includeNumbers')
+      .value(
+        createBooleanValueModel({
+          defaultValue: true,
+        })
+      )
+      .hint("This configuration's value is a boolean (true/false). It controls whether to include numbers in the generated string.")
+      .label('Include Numbers');
+
+      step
+      .property('includeSpecialChars')
+      .value(
+        createBooleanValueModel({
+          defaultValue: true,
+        })
+      )
+      .hint("This configuration's value is a boolean (true/false). It controls whether to include special characters in the generated string.")
+      .label('Include Special Characters');
     }
   );
 
@@ -60,6 +86,7 @@ export function createGenerateRandomString(): GenerateRandomStringStep  {
         componentType: 'task',
         type: 'generateRandomString',
         name: data.name ?? 'Generate Random String',
+        description: description,
         properties: {
           includeNumbers: data.attributes.includeNumbers,
           includeSpecialChars: data.attributes.includeSpecialChars,

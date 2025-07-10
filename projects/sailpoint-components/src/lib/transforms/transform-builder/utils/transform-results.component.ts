@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -37,7 +37,8 @@ import { TransformResult } from './transform-preview.component';
     MatTableModule,
     MatToolbarModule
   ],
-  standalone: true
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
 })
 export class TransformResultsComponent implements OnInit, OnChanges {
   @Input() results: TransformResult[] = [];

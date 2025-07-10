@@ -1,6 +1,64 @@
+.dark-theme .transform-preview-container {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+
+  .section-header {
+    color: #ffffff !important;
+  }
+
+  .mat-mdc-dialog-component-host,
+  .mat-mdc-card,
+  .mdc-card {
+    background-color: #1e1e1e !important;
+  }
+
+  .mat-mdc-card-title,
+  .mat-mdc-card-subtitle,
+  .mat-mdc-card-header {
+    background-color: #1e1e1e;
+    color: #ffffff !important;
+  }
+
+  .mdc-text-field--focused {
+    border: 1px solid #0071ce !important;
+  }
+}
+
+.dark-theme .transform-preview-container {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+
+  .mat-mdc-dialog-component-host,
+  .mat-mdc-card,
+  .mdc-card {
+    background-color: #1e1e1e !important;
+  }
+
+  .mat-mdc-card-title,
+  .mat-mdc-card-subtitle,
+  .mat-mdc-card-header {
+    color: #ffffff !important;
+  }
+
+  .mdc-text-field--focused {
+    border: 1px solid #0071ce !important;
+  }
+
+  .selected-identities-summary {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+  }
+}
+
 .transform-preview-container {
   background-color: #ffffff !important;
   padding: 20px 0;
+
+  .dark-theme .mat-mdc-dialog-component-host,
+  .dark-theme .mat-mdc-card,
+  .dark-theme .mdc-card {
+    background-color: #1e1e1e !important;
+  }
 
   .mat-mdc-dialog-component-host,
   .mat-mdc-card,
@@ -115,44 +173,40 @@
   }
 
   .identity-search-container {
-  background-color: #ffffff !important;
-  padding: 20px 0;
-
-  mat-card {
     background-color: #ffffff !important;
-  }
+    padding: 20px 0;
 
-  .mat-mdc-dialog-component-host,
-  .mat-mdc-card,
-  .mdc-card {
-    background-color: #ffffff !important;
-  }
+    mat-card {
+      background-color: #ffffff !important;
+    }
 
-  .mat-mdc-card-title,
-  .mat-mdc-card-subtitle,
-  .mat-mdc-card-header {
-    color: #415364 !important;
-  }
+    .mat-mdc-dialog-component-host,
+    .mat-mdc-card,
+    .mdc-card {
+      background-color: #ffffff !important;
+    }
 
-  .mat-mdc-form-field-infix {
-    border: 1px solid #415364 !important;
-  }
+    .mat-mdc-card-title,
+    .mat-mdc-card-subtitle,
+    .mat-mdc-card-header {
+      color: #415364 !important;
+    }
 
-  .mdc-text-field {
-    background-color: #ffffff !important;
-    border-radius: 0.5rem !important;
-    border: 1px solid #415364 !important;
-    text-decoration: none !important;
-    font-family: "Poppins" !important;
-    color: #415364 !important;
-  }
+    // .mat-mdc-form-field-infix {
+    //   border: 1px solid #415364 !important;
+    // }
 
-  .mdc-text-field--focused {
-    border: 1px solid #0071ce !important;
+    .mdc-text-field {
+      background-color: #ffffff !important;
+      border-radius: 0.5rem !important;
+      border: 1px solid #415364 !important;
+      text-decoration: none !important;
+      font-family: "Poppins" !important;
+      color: #415364 !important;
+    }
+
+    .mdc-text-field--focused {
+      border: 1px solid #0071ce !important;
+    }
   }
 }
-}
-
-
-
-
