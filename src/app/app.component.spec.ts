@@ -5,8 +5,7 @@ import { ElectronService } from './core/services';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Component } from '@angular/core';
 
-(globalThis as any).structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
-
+(globalThis as any).structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 @Component({ template: '' })
 class DummyHomeComponent {}
 
