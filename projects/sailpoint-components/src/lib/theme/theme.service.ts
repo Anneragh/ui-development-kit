@@ -14,22 +14,18 @@ export interface ThemeConfig {
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 
-
 declare function structuredClone<T>(value: T): T;
 
 declare global {
-  interface ElectronAPI {
-    readConfig(): Promise<any>;
-    writeConfig(config: any): Promise<void>;
-    writeLogo(buffer: Uint8Array, fileName: string): Promise<void>;
-    checkLogoExists(fileName: string): Promise<boolean>;
-  }
-
   interface Window {
-    electronAPI: ElectronAPI;
+    electronAPI: {
+      readConfig: () => Promise<any>;
+      writeConfig: (config: any) => Promise<any>;
+      writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
+      checkLogoExists: (fileName: string) => Promise<boolean>;
+    };
   }
 }
-
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private isElectron = typeof window !== 'undefined' && !!window.electronAPI;
@@ -104,12 +100,10 @@ export class ThemeService {
       background,
     } = config;
     if (!config.logoLight) {
-      config.logoLight =
-        'assets/icons/logo.png';
+      config.logoLight = 'assets/icons/logo.png';
     }
     if (!config.logoDark) {
-      config.logoDark =
-        'assets/icons/logo-dark.png';
+      config.logoDark = 'assets/icons/logo-dark.png';
     }
 
     document.body.style.setProperty('--theme-primary', primary);
@@ -132,8 +126,7 @@ export class ThemeService {
 
   public async getDefaultTheme(mode: 'light' | 'dark'): Promise<ThemeConfig> {
     let logoLight = 'assets/icons/logo.png';
-    let logoDark =
-      'assets/icons/logo-dark.png';
+    let logoDark = 'assets/icons/logo-dark.png';
 
     if (this.isElectron && window.electronAPI.checkLogoExists) {
       const lightExists = await window.electronAPI.checkLogoExists('logo.png');
