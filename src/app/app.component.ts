@@ -103,16 +103,20 @@ export class AppComponent implements OnInit {
       this.isDarkTheme = isDark;
 
       this.logoPath = isDark
-        ? theme?.logoDark ||
-          'assets/icons/logo-dark.png'
-        : theme?.logoLight ||
-          'assets/icons/logo.png';
+        ? theme?.logoDark || 'assets/icons/logo-dark.png'
+        : theme?.logoLight || 'assets/icons/logo.png';
 
       const logo = this.logoImageRef?.nativeElement;
       if (logo) {
-        const baseSrc = logo.src.split('?')[0];
         logo.onload = () => this.themeService.logoUpdated$.next();
-        logo.src = `${baseSrc}?t=${Date.now()}`;
+
+        const src = this.logoPath?.startsWith('data:')
+          ? this.logoPath
+          : `${this.logoPath?.split('?')[0]}?t=${Date.now()}`;
+
+        setTimeout(() => {
+          logo.src = src;
+        }, 100);
       }
     });
 
@@ -143,8 +147,8 @@ export class AppComponent implements OnInit {
 
   useFallbackLogo() {
     this.logoPath = this.isDarkTheme
-      ? 'assets/icons/SailPoint-Developer-Community-Inverse-Lockup.png'
-      : 'assets/icons/SailPoint-Developer-Community-Lockup.png';
+      ? 'assets/icons/logo-dark.png'
+      : 'assets/icons/logo.png';
   }
 
   toggleSidenav(): void {

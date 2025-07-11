@@ -23,6 +23,8 @@ declare global {
       writeConfig: (config: any) => Promise<any>;
       writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
       checkLogoExists: (fileName: string) => Promise<boolean>;
+      getUserDataPath: () => string;
+      getLogoDataUrl: (fileName: string) => Promise<string>;
     };
   }
 }
@@ -81,13 +83,20 @@ export class ThemeService {
     if (this.isElectron) {
       const raw = await window.electronAPI.readConfig();
       raw[`theme-${mode}`] = themeToSave;
-      this.lastRawConfig = raw; // ✅ Also update after saving
+      this.lastRawConfig = raw; 
       await window.electronAPI.writeConfig(raw);
     } else {
       localStorage.setItem(`theme-${mode}`, JSON.stringify(themeToSave));
     }
-
+    console.log(`[ThemeService] Saving theme (${mode}):`, config);
     this.applyTheme(themeToSave, mode);
+  }
+
+  isValidLogoPath(value?: string): boolean {
+    if (!value) return false;
+    if (value.startsWith('file://')) return true;
+    if (value.startsWith('data:')) return true;
+    return false; // treat all other paths (like assets/) as invalid
   }
 
   private applyTheme(config: ThemeConfig, mode: 'light' | 'dark') {
@@ -99,10 +108,10 @@ export class ThemeService {
       hoverText,
       background,
     } = config;
-    if (!config.logoLight) {
+    if (!this.isValidLogoPath(config.logoLight)) {
       config.logoLight = 'assets/icons/logo.png';
     }
-    if (!config.logoDark) {
+    if (!this.isValidLogoPath(config.logoDark)) {
       config.logoDark = 'assets/icons/logo-dark.png';
     }
 
@@ -125,17 +134,27 @@ export class ThemeService {
   }
 
   public async getDefaultTheme(mode: 'light' | 'dark'): Promise<ThemeConfig> {
-    let logoLight = 'assets/icons/logo.png';
-    let logoDark = 'assets/icons/logo-dark.png';
+    const fallbackLight = 'assets/icons/logo.png';
+    const fallbackDark = 'assets/icons/logo-dark.png';
+
+    let logoLight = fallbackLight;
+    let logoDark = fallbackDark;
 
     if (this.isElectron && window.electronAPI.checkLogoExists) {
-      const lightExists = await window.electronAPI.checkLogoExists('logo.png');
-      const darkExists = await window.electronAPI.checkLogoExists(
+      const userLogoLightExists = await window.electronAPI.checkLogoExists(
+        'logo.png'
+      );
+      const userLogoDarkExists = await window.electronAPI.checkLogoExists(
         'logo-dark.png'
       );
 
-      if (lightExists) logoLight = 'assets/icons/logo.png';
-      if (darkExists) logoDark = 'assets/icons/logo-dark.png';
+      if (userLogoLightExists) {
+        logoLight = await window.electronAPI.getLogoDataUrl('logo.png');
+      }
+
+      if (userLogoDarkExists) {
+        logoDark = await window.electronAPI.getLogoDataUrl('logo-dark.png');
+      }
     }
 
     return {
@@ -148,5 +167,20 @@ export class ThemeService {
       logoLight,
       logoDark,
     };
+  }
+
+  async waitForFile(path: string, timeout = 1000): Promise<boolean> {
+    const interval = 100;
+    const retries = timeout / interval;
+
+    for (let i = 0; i < retries; i++) {
+      const exists = await window.electronAPI.checkLogoExists(
+        path.split('/').pop()!
+      );
+      if (exists) return true;
+      await new Promise((res) => setTimeout(res, interval));
+    }
+
+    return false;
   }
 }

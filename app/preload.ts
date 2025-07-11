@@ -25,6 +25,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Logo file management
   writeLogo: (buffer, fileName) => ipcMain.invoke('write-logo', buffer, fileName),
   checkLogoExists: (fileName) => ipcMain.invoke('check-logo-exists', fileName),
+  getUserDataPath: () => ipcMain.invoke('get-user-data-path'),
+  getLogoDataUrl: (fileName) => ipcMain.invoke('get-logo-data-url', fileName),
 
   // SDK functions
   ...sdkPreloader

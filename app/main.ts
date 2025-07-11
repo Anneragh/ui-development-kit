@@ -68,19 +68,7 @@ function createWindow(): BrowserWindow {
           '*'
         );
         console.log('Ignoring reload on:', ignoredPath);
-        require('electron-reloader')(module, {
-          ignore: [
-            path.join(__dirname, '..', 'src', 'assets', 'icons', 'logo.png'),
-            path.join(
-              __dirname,
-              '..',
-              'src',
-              'assets',
-              'icons',
-              'logo-dark.png'
-            ),
-          ],
-        });
+        require('electron-reloader')(module, {});
       } catch (err) {
         console.error('Failed to enable reloader:', err);
       }
@@ -254,8 +242,12 @@ try {
 
   ipcMain.handle('write-logo', async (event, buffer, fileName) => {
     try {
-      const dest = path.join(projectRoot, 'assets', 'icons', fileName);
+      const logoDir = path.join(app.getPath('userData'), 'assets', 'icons');
+      await fs.promises.mkdir(logoDir, { recursive: true });
+
+      const dest = path.join(logoDir, fileName);
       await fs.promises.writeFile(dest, buffer);
+
       return { success: true };
     } catch (error) {
       console.error('Error writing logo file:', error);
@@ -265,13 +257,30 @@ try {
 
   ipcMain.handle('check-logo-exists', async (event, fileName: string) => {
     const fullPath = path.join(
-      app.getAppPath(),
-      'src',
+      app.getPath('userData'),
       'assets',
       'icons',
       fileName
     );
     return fs.existsSync(fullPath);
+  });
+
+  ipcMain.handle('get-user-data-path', () => {
+    return app.getPath('userData');
+  });
+
+  ipcMain.handle('get-logo-data-url', async (event, fileName) => {
+    try {
+      const userDataPath = app.getPath('userData');
+      const logoPath = path.join(userDataPath, 'assets', 'icons', fileName);
+      const buffer = await fs.promises.readFile(logoPath);
+      const base64 = buffer.toString('base64');
+      const ext = path.extname(fileName).substring(1); // e.g., png
+      return `data:image/${ext};base64,${base64}`;
+    } catch (err) {
+      console.error('Failed to get logo data URL:', err);
+      return null;
+    }
   });
 } catch (e) {
   console.error('Error during app initialization', e);

@@ -8,6 +8,8 @@ declare global {
       writeConfig: (config: any) => Promise<any>;
       writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
       checkLogoExists: (fileName: string) => Promise<boolean>;
+      getUserDataPath: () => string;
+      getLogoDataUrl: (fileName: string) => Promise<string>;
     };
   }
 }

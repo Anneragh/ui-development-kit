@@ -89,14 +89,14 @@ export class ThemePickerComponent implements OnInit {
     });
   }
 
-async onModeChange() {
-  localStorage.setItem('themeMode', this.mode);
+  async onModeChange() {
+    localStorage.setItem('themeMode', this.mode);
 
-  const loaded = await this.themeService.loadTheme(this.mode, false); // don't auto-apply
-  this.colors = structuredClone(loaded);
+    const loaded = await this.themeService.loadTheme(this.mode, false); // don't auto-apply
+    this.colors = structuredClone(loaded);
 
-  this.themeService['applyTheme'](this.colors, this.mode); // manually apply
-}
+    this.themeService['applyTheme'](this.colors, this.mode); // manually apply
+  }
 
   selectedLogoFile?: File;
   onFileSelected(event: Event) {
@@ -137,19 +137,23 @@ async onModeChange() {
     this.cdr.detectChanges(); // force UI to show spinner
 
     try {
-      const timestamp = Date.now();
 
       if (this.selectedLogoFile) {
         const buffer = await this.readFileAsBuffer(this.selectedLogoFile);
         const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
 
         await window.electronAPI?.writeLogo(buffer, fileName);
+        await this.themeService.waitForFile(fileName);
+
+        const base64 = await window.electronAPI.getLogoDataUrl(fileName);
         const updatedColors = structuredClone(this.colors);
+
         if (this.mode === 'dark') {
-          updatedColors.logoDark = `assets/icons/${fileName}?${timestamp}`;
+          updatedColors.logoDark = base64;
         } else {
-          updatedColors.logoLight = `assets/icons/${fileName}?${timestamp}`;
+          updatedColors.logoLight = base64;
         }
+
         this.colors = updatedColors;
         this.selectedLogoFile = undefined;
       }
