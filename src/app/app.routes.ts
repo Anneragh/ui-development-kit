@@ -1,12 +1,8 @@
 import { Routes } from '@angular/router';
+import { IdentitiesComponent, REPORT_EXAMPLE_ROUTES, TransformBuilderComponent, TransformsComponent, VelocityEditorDialogComponent } from 'sailpoint-components';
 import { campaignsComponent } from './campaigns/campaigns.component';
-import { IdentitiesComponent , VelocityEditorDialogComponent } from 'sailpoint-components';
-import { PageNotFoundComponent } from './shared/components';
-import { TransformBuilderComponent } from 'sailpoint-components';
-import { TransformsComponent } from 'sailpoint-components';
 import { HomeComponent } from './home/home.component';
-
-import { SailPointImportsComponent } from './sailpoint-imports/sailpoint-imports.component';
+import { PageNotFoundComponent } from './shared/components';
 
 export const appRoutes: Routes = [
   {
@@ -35,10 +31,6 @@ export const appRoutes: Routes = [
     component: TransformBuilderComponent
   },
   {
-    path: 'component',
-    component: SailPointImportsComponent
-  },
-  {
     path: 'component-selector',
     loadComponent: () => import('./component-selector/component-selector.component').then(m => m.ComponentSelectorComponent)
   },
@@ -47,7 +39,10 @@ export const appRoutes: Routes = [
     path: 'velocity-editor-dialog',
     component: VelocityEditorDialogComponent
   },
-
+  {
+    path: 'report-example',
+    children: REPORT_EXAMPLE_ROUTES
+  },
   {
     path: '**',
     component: PageNotFoundComponent

@@ -742,7 +742,7 @@
             <mat-form-field appearance="outline" style="flex: 0 0 120px">
               <mat-label>Operation</mat-label>
               <mat-select
-                [(ngModel)]="operation.operation"
+                [ngModel]="operation.operation" (ngModelChange)="operation.operation = $event"
                 [disabled]="editor.isReadonly"
                 (selectionChange)="
                   updateDateMathOperationAt(
@@ -764,14 +764,14 @@
             <mat-form-field
               appearance="outline"
               style="flex: 0 0 80px"
-              *ngIf="operation.operation !== '/'"
+              *ngIf="operation.operation !== '/' && operation.operation !== undefined"
             >
               <mat-label>Value</mat-label>
               <input
                 matInput
                 type="number"
                 min="1"
-                [(ngModel)]="operation.value"
+                [ngModel]="operation.value" (ngModelChange)="operation.value = $event"
                 [readonly]="editor.isReadonly"
                 (input)="
                   updateDateMathOperationAt(
@@ -789,7 +789,7 @@
             <mat-form-field appearance="outline" style="flex: 0 0 120px">
               <mat-label>Unit</mat-label>
               <mat-select
-                [(ngModel)]="operation.unit"
+                [ngModel]="operation.unit" (ngModelChange)="operation.unit = $event"
                 [disabled]="editor.isReadonly"
                 (selectionChange)="
                   updateDateMathOperationAt(

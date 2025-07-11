@@ -45,11 +45,30 @@ export class SearchBarComponent {
     }
 
     // Fallback: perform basic local filtering on all item values
-    const result = this.data.filter((item) =>
-      Object.values(item).some((val) =>
-        val?.toString().toLowerCase().includes(lowerQuery)
-      )
-    );
+    const result = this.data.filter((item) => {
+      // Ensure item is a valid object before calling Object.values
+      if (item && typeof item === 'object' && item !== null) {
+        // Type assertion to Record<string, unknown> for type safety
+        return Object.values(item as Record<string, unknown>).some((val) => {
+          if (val === null || val === undefined) {
+            return false;
+          }
+    
+          if (typeof val === 'object') {
+            // Handle objects explicitly (e.g., check specific properties or skip them)
+            return false; // Skip objects to avoid default stringification
+          }
+    
+          // Ensure val is a string, number, or boolean before calling .toString()
+          if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
+            return val.toString().toLowerCase().includes(lowerQuery);
+          }
+
+          return false; // Skip unsupported types
+        });
+      }
+      return false;
+    });
 
     this.filtered.emit(result);
   }

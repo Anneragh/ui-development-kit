@@ -43,6 +43,14 @@ export class ComponentSelectorService {
             icon: 'dashboard',
             description: 'Manage velocity editor dialog in SailPoint.',
             enabled: false
+        }, 
+        {
+            name: 'report-example',
+            displayName: 'Report Example',
+            route: '/report-example',
+            icon: 'dashboard',
+            description: 'Manage report example in SailPoint.',
+            enabled: false
         }
     ];
 

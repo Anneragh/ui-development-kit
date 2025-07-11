@@ -49,9 +49,7 @@ export class TransformsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadTransforms().catch((err) => {
-      console.error('Failed to load transforms:', err);
-    });
+    void this.loadTransforms();
   }
 
   private async loadTransforms(): Promise<void> {
@@ -105,7 +103,7 @@ export class TransformsComponent implements OnInit {
 
       dialogRef.afterClosed().subscribe((result) => {
         if (result === 'confirm') {
-          this.transformBuilder?.saveToCloud?.();
+          void this.transformBuilder?.saveToCloud?.();
           this.editing = false;
         } else if (result === 'discard') {
           this.transformBuilder?.discardLocalChanges();
@@ -146,16 +144,14 @@ export class TransformsComponent implements OnInit {
         },
       })
       .afterClosed()
-      .subscribe(async (confirmed) => {
+      .subscribe((confirmed) => {
         if (confirmed) {
           console.log('Deleting transform:', transform);
 
-          try {
-            const transformDeleteRequest: TransformsV2025ApiDeleteTransformRequest =
-              {
-                id: transform.id,
-              };
-            await this.sdk.deleteTransform(transformDeleteRequest);
+          const transformDeleteRequest: TransformsV2025ApiDeleteTransformRequest = {
+            id: transform.id,
+          };
+          void this.sdk.deleteTransform(transformDeleteRequest).then(() => {
             this.transforms =
               this.transforms.filter(
                 (transformFilter) =>
@@ -169,16 +165,16 @@ export class TransformsComponent implements OnInit {
               'Close',
               { duration: 3000 }
             );
-          } catch (error: unknown) {
+          }).catch((error: unknown) => {
             const message =
               error instanceof Error ? error.message : String(error);
             this.openMessageDialog(
               `Error deleting transform: ${message}`,
               'Error'
             );
-          } finally {
+          }).finally(() => {
             this.loading = false;
-          }
+          });
         }
       });
   }

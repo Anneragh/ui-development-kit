@@ -151,7 +151,7 @@ export function deserializeDateMath(data: any): DateMathStep {
 
     // Try to parse expression into operations for builder
     if (data.attributes.expression) {
-      const parsed = parseExpressionToOperations(data.attributes.expression);
+      const parsed = parseExpressionToOperations(data.attributes.expression as string);
       step.properties.baseDate = parsed.baseDate;
       step.properties.operations = parsed.operations;
     }
@@ -175,7 +175,7 @@ export function parseExpressionToOperations(expression: string): { baseDate: 'in
   let remaining = expression.startsWith('now') ? expression.substring(3) : expression;
   
   // Parse operations using regex - make the value group optional for rounding operations
-  const operationRegex = /([+\-\/])(\d*)([yMwdhms])/g;
+  const operationRegex = /([+\-/])(\d*)([yMwdhms])/g;
   let match;
   while ((match = operationRegex.exec(remaining)) !== null) {
     const [, operation, value, unit] = match;
