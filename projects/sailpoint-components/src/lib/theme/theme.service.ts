@@ -1,5 +1,4 @@
 // src/app/core/services/theme.service.ts
-import 'electron-types';
 
 export interface ThemeConfig {
   primary: string;
@@ -15,7 +14,21 @@ export interface ThemeConfig {
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 
+
 declare function structuredClone<T>(value: T): T;
+
+declare global {
+  interface ElectronAPI {
+    readConfig(): Promise<any>;
+    writeConfig(config: any): Promise<void>;
+    writeLogo(buffer: Uint8Array, fileName: string): Promise<void>;
+    checkLogoExists(fileName: string): Promise<boolean>;
+  }
+
+  interface Window {
+    electronAPI: ElectronAPI;
+  }
+}
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {

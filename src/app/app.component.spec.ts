@@ -2,13 +2,26 @@ import { TestBed, waitForAsync } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ElectronService } from './core/services';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Component } from '@angular/core';
+
+(globalThis as any).structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+
+@Component({ template: '' })
+class DummyHomeComponent {}
 
 describe('AppComponent', () => {
   beforeEach(waitForAsync(() => {
     void TestBed.configureTestingModule({
-      declarations: [],
+      imports: [
+        AppComponent, // 👈 standalone component goes here
+        DummyHomeComponent,
+        TranslateModule.forRoot(),
+        RouterTestingModule.withRoutes([
+          { path: 'home', component: DummyHomeComponent },
+        ]),
+      ],
       providers: [ElectronService],
-      imports: [TranslateModule.forRoot()]
     }).compileComponents();
   }));
 
