@@ -134,12 +134,11 @@ export class AppComponent implements OnInit {
   async toggleTheme(): Promise<void> {
     const mode = this.isDarkTheme ? 'light' : 'dark';
 
-    // 🔍 Always fetch the full intended theme (light or dark)
     const raw = this.themeService.getRawConfig();
     let targetTheme = raw?.[`theme-${mode}`] as ThemeConfig | undefined;
 
     if (!targetTheme) {
-      targetTheme = await this.themeService['getDefaultTheme'](mode); // Make getDefaultTheme public if needed
+      targetTheme = await this.themeService['getDefaultTheme'](mode); 
     }
 
     await this.themeService.saveTheme(targetTheme, mode);

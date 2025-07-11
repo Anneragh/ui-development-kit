@@ -1,3 +1,4 @@
+// Angular core and common modules
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -6,16 +7,20 @@ import {
   ChangeDetectorRef,
   OnInit,
 } from '@angular/core';
+
+// Angular Material UI modules
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ThemeService } from '../theme/theme.service';
-import { ThemeConfig } from '../theme/theme.service';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+// Theme management service and config interface
+import { ThemeService, ThemeConfig } from '../theme/theme.service';
+
+// Required for deep cloning
 declare function structuredClone<T>(value: T): T;
 
 @Component({
@@ -37,11 +42,16 @@ declare function structuredClone<T>(value: T): T;
 export class ThemePickerComponent implements OnInit {
   title = 'Theme Picker';
 
+  // Reference to the logo <img> in the template
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
 
+  // Track current theme mode
   mode: 'light' | 'dark' = this.themeService.getCurrentMode();
+
+  // Spinner visibility
   loading = false;
 
+  // Factory for empty theme object
   emptyTheme(): ThemeConfig {
     return {
       primary: '',
@@ -55,13 +65,16 @@ export class ThemePickerComponent implements OnInit {
     };
   }
 
+  // Store theme colors for each mode
   lightColors: ThemeConfig = { ...this.emptyTheme() };
   darkColors: ThemeConfig = { ...this.emptyTheme() };
 
+  // Getter for current mode's color config
   get colors(): ThemeConfig {
     return this.mode === 'dark' ? this.darkColors : this.lightColors;
   }
 
+  // Setter for updating current mode's color config
   set colors(value: ThemeConfig) {
     if (this.mode === 'dark') {
       this.darkColors = structuredClone(value);
@@ -70,48 +83,48 @@ export class ThemePickerComponent implements OnInit {
     }
   }
 
-  private ignoreNextDarkChange = false;
+  private ignoreNextDarkChange = false; // reserved for preventing recursive theme toggling (not used here)
 
   ngOnInit(): void {
+    // Restore mode from local storage
     const storedMode =
       (localStorage.getItem('themeMode') as 'light' | 'dark') ?? 'light';
     this.mode = storedMode;
 
+    // Load theme config for selected mode
     void this.loadThemeForMode().then(() => {
+      // Subscribe to dark mode changes from ThemeService
       this.themeService.isDark$.subscribe((isDark) => {
         const newMode = isDark ? 'dark' : 'light';
-        if (newMode === this.mode) return; 
+        if (newMode === this.mode) return; // Avoid redundant updates
 
         this.mode = newMode;
-        void this.loadThemeForMode(); 
+        void this.loadThemeForMode(); // Reload theme config on mode change
       });
     });
   }
 
+  // Handler for manual mode toggle (e.g., from UI switch)
   async onModeChange() {
     localStorage.setItem('themeMode', this.mode);
-
-    const loaded = await this.themeService.loadTheme(this.mode, false); 
+    const loaded = await this.themeService.loadTheme(this.mode, false); // Don't apply automatically
     this.colors = structuredClone(loaded);
-
-    this.themeService['applyTheme'](this.colors, this.mode); 
+    this.themeService['applyTheme'](this.colors, this.mode); // Apply manually
   }
 
+  // Set selected logo file from file input
   selectedLogoFile?: File;
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
-
     this.selectedLogoFile = input.files[0];
   }
 
+  // Load both light and dark themes into memory (from config or default)
   async loadThemeForMode(): Promise<void> {
     const raw = this.themeService.getRawConfig();
-
-    // fallback-safe calls for both modes
     this.lightColors =
-      raw?.['theme-light'] ??
-      (await this.themeService.getDefaultTheme('light'));
+      raw?.['theme-light'] ?? (await this.themeService.getDefaultTheme('light'));
     this.darkColors =
       raw?.['theme-dark'] ?? (await this.themeService.getDefaultTheme('dark'));
   }
@@ -121,33 +134,35 @@ export class ThemePickerComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
+  // Utility: Read file input into Uint8Array buffer
   private readFileAsBuffer(file: File): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () =>
-        resolve(new Uint8Array(reader.result as ArrayBuffer));
+      reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
       reader.onerror = reject;
       reader.readAsArrayBuffer(file);
     });
   }
 
+  // Main action to apply the selected theme and optional new logo
   async apply() {
     this.loading = true;
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges(); // Ensure spinner updates in UI
 
     try {
-
       if (this.selectedLogoFile) {
         const buffer = await this.readFileAsBuffer(this.selectedLogoFile);
         const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
 
+        // Save the logo image to disk and wait for it to be ready
         await window.electronAPI?.writeLogo(buffer, fileName);
         await this.themeService.waitForFile(fileName);
 
-   
+        // Retrieve the base64 image URL for display
         const base64 = await window.electronAPI.getLogoDataUrl(fileName);
         const updatedColors = structuredClone(this.colors);
 
+        // Assign the base64 image as the logo
         if (this.mode === 'dark') {
           updatedColors.logoDark = base64;
         } else {
@@ -158,16 +173,17 @@ export class ThemePickerComponent implements OnInit {
         this.selectedLogoFile = undefined;
       }
 
+      // Save updated theme config
       await this.themeService.saveTheme(
         this.mode === 'dark' ? this.darkColors : this.lightColors,
         this.mode
       );
 
-    
+      // Apply the new theme to the UI
       this.themeService['applyTheme'](this.colors, this.mode);
-      this.themeService.logoUpdated$.next(); 
+      this.themeService.logoUpdated$.next(); // Notify subscribers (like the app component)
 
-    
+      // Wait for logo update event or timeout to avoid UI stalling
       await Promise.race([
         new Promise<void>((resolve) => {
           const sub = this.themeService.logoUpdated$.subscribe(() => {
@@ -175,13 +191,13 @@ export class ThemePickerComponent implements OnInit {
             sub.unsubscribe();
           });
         }),
-        new Promise((resolve) => setTimeout(resolve, 1000)), 
+        new Promise((resolve) => setTimeout(resolve, 1000)), // fallback timeout
       ]);
     } catch (err) {
       console.error('Failed to apply theme:', err);
     } finally {
       this.loading = false;
-      this.cdr.detectChanges();
+      this.cdr.detectChanges(); // Stop spinner
     }
   }
 }
