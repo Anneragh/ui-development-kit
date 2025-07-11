@@ -5,7 +5,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  ViewEncapsulation,
+  ViewEncapsulation
 } from '@angular/core';
 import {
   Designer,
@@ -611,6 +611,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private dialog: MatDialog,
+    private editorDialog: MatDialog,
     private sdk: SailPointSDKService,
     private autoSaveService: AutoSaveService,
     private snackBar: MatSnackBar,
@@ -1330,10 +1331,17 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   }
 
   public openVelocityEditor(properties: Properties, name: string, event: Event, context: StepEditorContext) {
+    this.isReadonly = true; // Disable editing while opening editor
+
     console.log('openVelocityEditor', properties, name, event);
     const currentValue = properties[name] || '';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const dialogReference = this.dialog.open(VelocityEditorDialogComponent, {
+
+    
+    const dialogReference = this.editorDialog.open(VelocityEditorDialogComponent, {
+      autoFocus: true,
+      restoreFocus: true,
+      role: 'dialog',
       width: '90vw',
       maxWidth: '1000px',
       height: '80vh',
@@ -1347,6 +1355,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     });
 
     dialogReference.afterClosed().subscribe((result) => {
+      this.isReadonly = false; // Re-enable editing after editor is closed
       console.log('Velocity editor closed with result:', result);
       if (result !== undefined && result.saved) {
         properties[name] = result.code;
