@@ -99,6 +99,7 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     if (this.editorView) {
       this.editorView.destroy();
     }
+
   }
 
   private initializeCodeMirror(): void {

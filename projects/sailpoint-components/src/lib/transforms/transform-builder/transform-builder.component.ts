@@ -76,7 +76,7 @@ import {
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import {
   TransformReadV2025,
   TransformsV2025ApiCreateTransformRequest,
@@ -580,7 +580,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private autoSaveSubject = new Subject<Definition>();
 
-  private designer?: Designer;
+  private designer?: ThemedDesigner;
   public validatorConfiguration?: ValidatorConfiguration;
   public stepEditorProvider?: StepEditorProvider;
   public rootEditorProvider?: RootEditorProvider;
@@ -849,16 +849,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
     this.updateDefinitionJSON();
 
-    // Set up auto-save debouncing
-    this.autoSaveSubject
-      .pipe(
-        debounceTime(2000), // Wait 2 seconds after last change
-        takeUntil(this.destroy$)
-      )
-      .subscribe((definition) => {
-        this.performAutoSave(definition);
-      });
-
     void (async () => {
       try {
         const [sourcesResult, transforms, rules] = await Promise.all([
@@ -893,6 +883,10 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         };
 
         this.isReady = true;
+
+        if (this.definition) {
+          this.performAutoSave(this.definition);
+        }
       } catch (error) {
         console.error('Failed during ngOnInit async setup:', error);
       }
@@ -1102,15 +1096,16 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onDesignerReady(designer: Designer) {
+  public onDesignerReady(designer: ThemedDesigner) {
     this.designer = designer;
     this.updateIsValid();
 
     // Safely apply initial theme
-    (designer as ThemedDesigner).setTheme(this.isDarkTheme ? 'dark' : 'light');
+    designer.setTheme(this.isDarkTheme ? 'dark' : 'light');
   }
 
   public onDefinitionChanged(definition: Definition) {
+    console.log('onDefinitionChanged', definition);
     this.definition = definition;
     this.updateDefinitionJSON();
 
@@ -1382,7 +1377,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     console.log('openVelocityEditor', properties, name, event);
     const currentValue = properties[name] || '';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const dialogRef = this.dialog.open(VelocityEditorDialogComponent, {
+    const dialogReference = this.dialog.open(VelocityEditorDialogComponent, {
       width: '90vw',
       maxWidth: '1000px',
       height: '80vh',
@@ -1395,7 +1390,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogReference.afterClosed().subscribe((result) => {
       console.log('Velocity editor closed with result:', result);
       if (result !== undefined && result.saved) {
         properties[name] = result.code;
@@ -1411,6 +1406,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     event: Event | MatSlideToggleChange,
     context: RootEditorContext | StepEditorContext
   ) {
+    console.log('updateProperty', properties, name, event);
     if (event instanceof MatSlideToggleChange) {
       properties[name] = event.checked;
     } else if (event instanceof InputEvent) {
