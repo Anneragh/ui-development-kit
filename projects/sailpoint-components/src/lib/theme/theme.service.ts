@@ -1,4 +1,5 @@
 // src/app/core/services/theme.service.ts
+/// <reference path="../../types/custom-electron-api.d.ts" />
 
 export interface ThemeConfig {
   primary: string;
@@ -13,6 +14,7 @@ export interface ThemeConfig {
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+
 
 declare function structuredClone<T>(value: T): T;
 
