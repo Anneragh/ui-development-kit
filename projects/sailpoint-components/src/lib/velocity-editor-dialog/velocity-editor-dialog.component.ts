@@ -1,6 +1,6 @@
 // velocity-editor-dialog.component.ts
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -54,7 +54,7 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
   editorView!: EditorView;
   originalCode: string;
   hasChanges: boolean = false;
-  editorStats: any = null;
+  editorStats: any = '{"lines":0,"length":0,"selection":0,"cursor":"1:1"}';
   currentTheme: 'light' | 'dark' = 'light';
   wordWrapEnabled: boolean = true;
   identities: any;
@@ -63,7 +63,8 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     private dialogRef: MatDialogRef<VelocityEditorDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VelocityEditorData,
     private fb: FormBuilder,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private changeRef: ChangeDetectorRef
   ) {
     this.originalCode = data.code || '';
     this.currentTheme = data.theme || 'light';
@@ -203,6 +204,8 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
       selection: selection.empty ? 0 : selection.to - selection.from,
       cursor: `${doc.lineAt(selection.head).number}:${selection.head - doc.lineAt(selection.head).from + 1}`
     };
+    
+    this.changeRef.detectChanges();
   }
 
   toggleWordWrap(): void {
