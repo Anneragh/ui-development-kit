@@ -164,6 +164,7 @@ try {
 
   ipcMain.handle('validate-connection-tokens', async (event, connection: string) => {
     return await validateConnectionTokens(connection);
+  });
   ipcMain.handle('read-config', async () => {
     try {
       const configPath = getConfigPath();

@@ -4,7 +4,7 @@ import {
   LayoutModule,
 } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Renderer2, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Renderer2, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -59,7 +59,6 @@ export class AppComponent implements OnDestroy, OnInit {
     private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private changeDetectorRef: ChangeDetectorRef,
     private themeService: ThemeService,
     private componentSelectorService: ComponentSelectorService
   ) {
@@ -97,7 +96,6 @@ export class AppComponent implements OnDestroy, OnInit {
         console.log('App component received connection state:', connection);
         this.isConnected = connection.connected;
         this.connectionName = connection.name || '';
-        this.changeDetectorRef.detectChanges();
       })
     );
 
@@ -106,7 +104,6 @@ export class AppComponent implements OnDestroy, OnInit {
       this.connectionService.sessionStatus$.subscribe((status: SessionStatus | null) => {
         console.log('App component received session status:', status);
         this.sessionStatus = status;
-        this.changeDetectorRef.detectChanges();
       })
     );
 
@@ -115,7 +112,6 @@ export class AppComponent implements OnDestroy, OnInit {
       this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | null) => {
         console.log('App component received environment:', environment);
         this.currentEnvironment = environment;
-        this.changeDetectorRef.detectChanges();
       })
     );
     this.connectionService.isConnected$.subscribe((connection) => {
