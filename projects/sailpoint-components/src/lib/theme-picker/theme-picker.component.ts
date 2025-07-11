@@ -78,13 +78,12 @@ export class ThemePickerComponent implements OnInit {
     this.mode = storedMode;
 
     void this.loadThemeForMode().then(() => {
-      // ✅ Subscribe once, cleanly, and gate logic using an internal flag
       this.themeService.isDark$.subscribe((isDark) => {
         const newMode = isDark ? 'dark' : 'light';
-        if (newMode === this.mode) return; // 🔒 prevents recursion
+        if (newMode === this.mode) return; 
 
         this.mode = newMode;
-        void this.loadThemeForMode(); // 🧠 keep visual state in sync
+        void this.loadThemeForMode(); 
       });
     });
   }
@@ -92,10 +91,10 @@ export class ThemePickerComponent implements OnInit {
   async onModeChange() {
     localStorage.setItem('themeMode', this.mode);
 
-    const loaded = await this.themeService.loadTheme(this.mode, false); // don't auto-apply
+    const loaded = await this.themeService.loadTheme(this.mode, false); 
     this.colors = structuredClone(loaded);
 
-    this.themeService['applyTheme'](this.colors, this.mode); // manually apply
+    this.themeService['applyTheme'](this.colors, this.mode); 
   }
 
   selectedLogoFile?: File;
@@ -134,7 +133,7 @@ export class ThemePickerComponent implements OnInit {
 
   async apply() {
     this.loading = true;
-    this.cdr.detectChanges(); // force UI to show spinner
+    this.cdr.detectChanges(); 
 
     try {
 
@@ -145,6 +144,7 @@ export class ThemePickerComponent implements OnInit {
         await window.electronAPI?.writeLogo(buffer, fileName);
         await this.themeService.waitForFile(fileName);
 
+   
         const base64 = await window.electronAPI.getLogoDataUrl(fileName);
         const updatedColors = structuredClone(this.colors);
 
@@ -163,11 +163,11 @@ export class ThemePickerComponent implements OnInit {
         this.mode
       );
 
-      // ✅ Wait for changes
+    
       this.themeService['applyTheme'](this.colors, this.mode);
-      this.themeService.logoUpdated$.next(); // ✅ FIX: emit to resolve apply() wait
+      this.themeService.logoUpdated$.next(); 
 
-      // ⬇️ Wait for the logo to update OR timeout to avoid infinite spinner
+    
       await Promise.race([
         new Promise<void>((resolve) => {
           const sub = this.themeService.logoUpdated$.subscribe(() => {
@@ -175,7 +175,7 @@ export class ThemePickerComponent implements OnInit {
             sub.unsubscribe();
           });
         }),
-        new Promise((resolve) => setTimeout(resolve, 1000)), // Fallback if logoUpdated$ never fires
+        new Promise((resolve) => setTimeout(resolve, 1000)), 
       ]);
     } catch (err) {
       console.error('Failed to apply theme:', err);

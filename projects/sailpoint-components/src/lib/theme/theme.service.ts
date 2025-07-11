@@ -96,7 +96,7 @@ export class ThemeService {
     if (!value) return false;
     if (value.startsWith('file://')) return true;
     if (value.startsWith('data:')) return true;
-    return false; // treat all other paths (like assets/) as invalid
+    return false;
   }
 
   private applyTheme(config: ThemeConfig, mode: 'light' | 'dark') {
