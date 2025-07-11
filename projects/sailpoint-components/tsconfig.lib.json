@@ -10,7 +10,9 @@
     "types": [],
     "lib": ["es2019", "dom"],
     "skipLibCheck": true,
-    "typeRoots": ["node_modules/@types", "src/types"]
+    "paths": {
+      "electron-types": ["projects/sailpoint-components/src/lib/types/electron-api.d.ts"]
+    }
   },
   "exclude": [
     "**/*.spec.ts"
