@@ -832,7 +832,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
    this.themeSub = this.theme.isDark$.subscribe(dark => {
       this.isDarkTheme = dark;
       this.showDesigner = false;
-      this.cdr.detectChanges();
       setTimeout(() => {
         this.showDesigner = true;
         this.cdr.detectChanges();
@@ -893,34 +892,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     })();
   }
 
-  // private loadFromLocalSaveIfExists(): void {
-  //   if (!this.transform) return;
-
-  //   const localSave = this.autoSaveService.getLocalSave(this.transform.id!);
-  //   if (localSave) {
-  //     // Ask user if they want to restore
-  //     const shouldRestore = confirm(
-  //       `Found local changes from ${this.autoSaveService.getTimeSinceLastSave(
-  //         this.transform.id!
-  //       )}. ` + 'Would you like to restore these changes?'
-  //     );
-
-  //     if (shouldRestore) {
-  //       this.definition = {
-  //         properties: { name: localSave.name },
-  //         sequence: [deserializeToStep(localSave.definition)],
-  //       };
-  //       this.hasUnsavedChanges = true;
-  //       this.snackBar.open('Restored local changes', 'Close', {
-  //         duration: 3000,
-  //       });
-  //     } else {
-  //       // Clear the local save since user doesn't want it
-  //       this.autoSaveService.clearLocalSave(this.transform.id!);
-  //     }
-  //   }
-  // }
-
   private performAutoSave(definition: Definition): void {
     if (!definition?.sequence?.[0]) return;
 
@@ -943,21 +914,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         this.isNewTransform,
         this.transform // Store original cloud version for comparison
       );
-
-      const lastSave = this.autoSaveService.getTimeSinceLastSave(
-        transformId,
-        this.isNewTransform
-      );
-      this.lastAutoSave = lastSave === null ? undefined : lastSave;
-
-      // Update UI to show last save time
-      setTimeout(() => {
-        const lastSave = this.autoSaveService.getTimeSinceLastSave(
-          transformId,
-          this.isNewTransform
-        );
-        this.lastAutoSave = lastSave === null ? undefined : lastSave;
-      }, 1000);
     } catch (error) {
       console.error('Auto-save failed:', error);
       this.snackBar.open('Auto-save failed', 'Close', { duration: 3000 });
@@ -1034,21 +990,21 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  public hasLocalChanges(): boolean {
-    if (this.isNewTransform) {
-      return this.hasUnsavedChanges;
-    }
+  // public hasLocalChanges(): boolean {
+  //   if (this.isNewTransform) {
+  //     return this.hasUnsavedChanges;
+  //   }
 
-    const id = this.transform?.id;
-    if (!id) return false;
+  //   const id = this.transform?.id;
+  //   if (!id) return false;
 
-    const localSave = this.autoSaveService.getLocalSave(id);
-    if (!localSave) return false;
+  //   const localSave = this.autoSaveService.getLocalSave(id);
+  //   if (!localSave) return false;
 
-    // Compare definitions to avoid false positive
-    const parsedDef = JSON.parse(this.definitionJSON ?? '{}');
-    return this.autoSaveService.hasUnsavedChanges(id, parsedDef);
-  }
+  //   // Compare definitions to avoid false positive
+  //   const parsedDef = JSON.parse(this.definitionJSON ?? '{}');
+  //   return this.autoSaveService.hasUnsavedChanges(id, parsedDef);
+  // }
 
   public restoreFromCloud(): void {
     if (!this.transform) return;

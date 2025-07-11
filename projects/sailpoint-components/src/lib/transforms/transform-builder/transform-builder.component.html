@@ -31,8 +31,8 @@
       class="action-buttons"
       color="warn"
       (click)="discardLocalChanges()"
-      [disabled]="!hasLocalChanges() || isSyncing"
-      *ngIf="hasLocalChanges()"
+      [disabled]="!hasUnsavedChanges || isSyncing"
+      *ngIf="hasUnsavedChanges"
     >
       <mat-icon>delete</mat-icon>
       Discard
@@ -53,7 +53,7 @@
       class="action-buttons"
       color="primary"
       (click)="saveToCloud()"
-      [matBadge]="hasLocalChanges() ? '!' : null"
+      [matBadge]="hasUnsavedChanges ? '!' : null"
       matBadgeColor="warn"
       matBadgeSize="small"
     >
@@ -67,17 +67,17 @@
     <div class="autosave-status">
       <mat-icon
         [style.color]="
-          isSaving ? 'orange' : hasLocalChanges() ? 'red' : 'green'
+          isSaving ? 'orange' : hasUnsavedChanges ? 'red' : 'green'
         "
       >
-        {{ isSaving ? "sync" : hasLocalChanges() ? "cloud_off" : "cloud_done" }}
+        {{ isSaving ? "sync" : hasUnsavedChanges ? "cloud_off" : "cloud_done" }}
       </mat-icon>
       <span class="status-text">
         <ng-container *ngIf="isSaving">Saving...</ng-container>
-        <ng-container *ngIf="!isSaving && hasLocalChanges()">
+        <ng-container *ngIf="!isSaving && hasUnsavedChanges">
           Unsaved
         </ng-container>
-        <ng-container *ngIf="!isSaving && !hasLocalChanges()"
+        <ng-container *ngIf="!isSaving && !hasUnsavedChanges"
           >Saved</ng-container
         >
       </span>

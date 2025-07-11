@@ -89,7 +89,7 @@ export class TransformsComponent implements OnInit {
   // }
 
   confirmBack(): void {
-    if (this.transformBuilder?.hasLocalChanges?.()) {
+    if (this.transformBuilder?.hasUnsavedChanges) {
       const dialogRef = this.dialog.open(GenericDialogComponent, {
         width: '400px',
         data: {
