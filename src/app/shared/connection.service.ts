@@ -477,65 +477,53 @@ export class ConnectionService implements OnDestroy {
     if (!status) {
       return null;
     }
-    
-    // For PAT tokens, they don't have expiry times, so show a different status
-    if (status.authType === 'pat') {
-      return status.isValid ? 'Valid' : 'Invalid';
-    }
-    
-    // For OAuth tokens, calculate time until expiry
+
     if (!status.expiry) {
       return null;
     }
-    
+
     const now = new Date();
     const timeDiff = status.expiry.getTime() - now.getTime();
-    
+
     if (timeDiff <= 0) {
       return 'Expired';
     }
-    
-    const minutes = Math.floor(timeDiff / (1000 * 60));
-    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-    
-    return `${minutes}m ${seconds}s`;
+
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m`;
+    }
   }
 
   get sessionStatusDisplay(): string {
     const status = this.getSessionStatus();
     console.log('sessionStatusDisplay called with status:', status);
-    
+
     if (!status) {
       console.log('No session status, returning "Checking..."');
       return 'Checking...';
     }
-    
-    if (status.authType === 'pat') {
-      const result = status.isValid ? 'Valid' : 'Invalid';
-      console.log('PAT token status:', result);
-      return result;
-    }
-    
-    // For OAuth tokens, show time until expiry or status
+
     if (!status.expiry) {
-      console.log('OAuth token has no expiry, returning "Checking..."');
+      console.log('Auth token has no expiry, returning "Checking..."');
       return 'Checking...';
     }
-    
-    const now = new Date();
-    const timeDiff = status.expiry.getTime() - now.getTime();
-    
-    if (timeDiff <= 0) {
-      console.log('OAuth token expired');
+
+    const timeUntilExpiry = this.timeUntilExpiry || 'Checking...';
+    if (timeUntilExpiry === 'Expired') {
+      console.log('Token expired');
       return 'Expired';
     }
-    
-    const minutes = Math.floor(timeDiff / (1000 * 60));
-    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-    const result = `${minutes}m ${seconds}s`;
-    console.log('OAuth token time until expiry:', result);
-    
-    return result;
+
+    console.log('Token time until expiry:', timeUntilExpiry);
+    return timeUntilExpiry;
   }
 
   get isRefreshing(): boolean {
