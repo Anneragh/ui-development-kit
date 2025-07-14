@@ -14,6 +14,8 @@ import {
 import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { TransformBuilderComponent } from './transform-builder/transform-builder.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-transforms',
@@ -26,11 +28,14 @@ import { TransformBuilderComponent } from './transform-builder/transform-builder
     MatButtonModule,
     TransformBuilderComponent,
     MatSnackBarModule,
+    MatToolbarModule,
+    MatIconModule,
   ],
   templateUrl: './transforms.component.html',
   styleUrl: './transforms.component.scss',
 })
 export class TransformsComponent implements OnInit {
+  title = 'Transforms';
   transforms: TransformReadV2025[] = [];
   dataSource: MatTableDataSource<TransformReadV2025> = new MatTableDataSource();
   displayedColumns: string[] = ['id', 'name', 'type', 'internal', 'actions'];
