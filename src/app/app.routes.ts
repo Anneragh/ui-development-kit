@@ -4,12 +4,17 @@ import { PageNotFoundComponent } from './shared/components';
 import { TransformBuilderComponent } from 'sailpoint-components';
 import { TransformsComponent } from 'sailpoint-components';
 import { HomeComponent } from './home/home.component';
+import  { ThemePickerComponent } from 'sailpoint-components';
 
 export const appRoutes: Routes = [
   {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'theme-picker',
+    component: ThemePickerComponent
   },
   {
     path: 'home',
@@ -28,6 +33,10 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./component-selector/component-selector.component').then(m => m.ComponentSelectorComponent)
   },
 
+  {
+    path: 'theme-picker',
+    component: ThemePickerComponent
+  },
   {
     path: 'report-example',
     children: REPORT_EXAMPLE_ROUTES

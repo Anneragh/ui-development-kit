@@ -1,0 +1,109 @@
+<div class="theme-picker-container">
+  <mat-toolbar color="primary">
+    <mat-icon>dashboard</mat-icon>
+    <span class="toolbar-title">{{ title }}</span>
+  </mat-toolbar>
+
+  <div class="content">
+    <div class="theme-picker">
+      <h2>Theme Customization</h2>
+
+      <!-- Loading spinner shown while data is being fetched -->
+      <div *ngIf="loading" class="spinner-container">
+        <mat-spinner diameter="75"></mat-spinner>
+      </div>
+
+      <div class="form-group">
+        <label>Mode</label>
+        <select [(ngModel)]="mode" (change)="onModeChange()">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Primary Color</label>
+        <div class="input-row">
+          <input type="color" [(ngModel)]="colors.primary" />
+          <input
+            type="text"
+            [(ngModel)]="colors.primary"
+            maxlength="7"
+            pattern="#[a-fA-F0-9]{6}"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Secondary Color</label>
+        <div class="input-row">
+          <input type="color" [(ngModel)]="colors.secondary" />
+          <input
+            type="text"
+            [(ngModel)]="colors.secondary"
+            maxlength="7"
+            pattern="#[a-fA-F0-9]{6}"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Primary Text Color</label>
+        <div class="input-row">
+          <input type="color" [(ngModel)]="colors.primaryText" />
+          <input
+            type="text"
+            [(ngModel)]="colors.primaryText"
+            maxlength="7"
+            pattern="#[a-fA-F0-9]{6}"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Secondary Text Color</label>
+        <div class="input-row">
+          <input type="color" [(ngModel)]="colors.secondaryText" />
+          <input
+            type="text"
+            [(ngModel)]="colors.secondaryText"
+            maxlength="7"
+            pattern="#[a-fA-F0-9]{6}"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Hover Text Color</label>
+        <div class="input-row">
+          <input type="color" [(ngModel)]="colors.hoverText" />
+          <input
+            type="text"
+            [(ngModel)]="colors.hoverText"
+            maxlength="7"
+            pattern="#[a-fA-F0-9]{6}"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Background Color</label>
+        <div class="input-row">
+          <input type="color" [(ngModel)]="colors.background" />
+          <input
+            type="text"
+            [(ngModel)]="colors.background"
+            maxlength="7"
+            pattern="#[a-fA-F0-9]{6}"
+          />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="logoUpload">Upload Logo (for {{ mode }} mode):</label>
+        <input type="file" (change)="onFileSelected($event)" id="logoUpload" />
+      </div>
+
+      <button (click)="apply()">Apply</button>
+    </div>
+  </div>
+</div>
