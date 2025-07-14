@@ -82,10 +82,10 @@ import {
   TransformsV2025ApiCreateTransformRequest,
   TransformsV2025ApiUpdateTransformRequest,
 } from 'sailpoint-api-client';
-import { VelocityEditorDialogComponent } from 'sailpoint-components';
 import { GenericDialogComponent } from '../../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
 import { ThemeService } from '../../theme/theme.service';
+import { VelocityEditorDialogComponent } from '../../velocity-editor-dialog/velocity-editor-dialog.component';
 import { AutoSaveService } from '../transform-builder/utils/autosave.service'; // Adjust path as needed
 import { createBase64Decode, deserializeBase64Decode, getBase64DecodeIcon, isBase64DecodeStep, serializeBase64Decode } from './models/base-64-decode';
 import { createBase64Encode, deserializeBase64Encode, getBase64EncodeIcon, isBase64EncodeStep, serializeBase64Encode } from './models/base-64-encode';
