@@ -1,7 +1,7 @@
 // velocity-editor-dialog.component.ts
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -69,7 +69,7 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     this.originalCode = data.code || '';
     this.currentTheme = data.theme || 'light';
     this.editorForm = this.fb.group({
-      code: [this.originalCode, [Validators.required]]
+      code: [this.originalCode, (control: AbstractControl<any, any>) => Validators.required(control)]
     });
   }
 
@@ -241,8 +241,8 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     let indentLevel = 0;
     const indentSize = 2;
     let inComment = false;
-    
-    const formattedLines = lines.map((line, index) => {
+
+    const formattedLines = lines.map((line) => {
       const trimmed = line.trim();
       
       // Handle multi-line comments
@@ -752,7 +752,7 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
 
   onCancel(): void {
     if (this.hasChanges) {
-      const confirmClose = confirm('You have unsaved changes. Are you sure you want to close?');
+      const confirmClose = window.confirm('You have unsaved changes. Are you sure you want to close?');
       if (!confirmClose) {
         return;
       }

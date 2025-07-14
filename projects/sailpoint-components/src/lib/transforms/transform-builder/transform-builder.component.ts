@@ -1334,10 +1334,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     this.isReadonly = true; // Disable editing while opening editor
 
     console.log('openVelocityEditor', properties, name, event);
-    const currentValue = properties[name] || '';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-
-    
+    const currentValue = properties[name] || '';    
     const dialogReference = this.editorDialog.open(VelocityEditorDialogComponent, {
       autoFocus: true,
       restoreFocus: true,
