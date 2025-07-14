@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { IdentitiesComponent, REPORT_EXAMPLE_ROUTES, TransformBuilderComponent, TransformsComponent, VelocityEditorDialogComponent } from 'sailpoint-components';
+import { IdentitiesComponent, REPORT_EXAMPLE_ROUTES, ThemePickerComponent, TransformBuilderComponent, TransformsComponent } from 'sailpoint-components';
 import { campaignsComponent } from './campaigns/campaigns.component';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './shared/components';
@@ -9,6 +9,10 @@ export const appRoutes: Routes = [
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'theme-picker',
+    component: ThemePickerComponent
   },
   {
     path: 'home',
@@ -36,8 +40,8 @@ export const appRoutes: Routes = [
   },
 
   {
-    path: 'velocity-editor-dialog',
-    component: VelocityEditorDialogComponent
+    path: 'theme-picker',
+    component: ThemePickerComponent
   },
   {
     path: 'report-example',
