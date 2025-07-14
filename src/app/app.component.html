@@ -74,10 +74,18 @@
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
       </a>
-      <a *ngIf="isComponentEnabled('identities')" mat-list-item class="sidebar-link" routerLink="/identities" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+      <a
+        *ngIf="isComponentEnabled('identities')"
+        mat-list-item
+        class="sidebar-link"
+        routerLink="/identities"
+        routerLinkActive="active-link"
+        [class.disabled]="!isConnected"
+        (click)="!isConnected && $event.preventDefault()"
+      >
         <mat-icon class="card-icon">dashboard</mat-icon>
         Identities
+      </a>
       <a
         *ngIf="isComponentEnabled('theme-picker')"
         mat-list-item
@@ -90,23 +98,29 @@
         <mat-icon class="card-icon">dashboard</mat-icon>
         Theme Picker
       </a>
-      <a *ngIf="isComponentEnabled('report-example')" mat-list-item class="sidebar-link" routerLink="/report-example" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+      <a
+        *ngIf="isComponentEnabled('report-example')"
+        mat-list-item
+        class="sidebar-link"
+        routerLink="/report-example"
+        routerLinkActive="active-link"
+        [class.disabled]="!isConnected"
+        (click)="!isConnected && $event.preventDefault()"
+      >
         <mat-icon class="card-icon">dashboard</mat-icon>
         Report Example
       </a>
-      <a mat-list-item class="sidebar-link" routerLink="/component-selector" routerLinkActive="active-link" [class.disabled]="!isConnected"
-    (click)="!isConnected && $event.preventDefault()">
-    <mat-icon class="card-icon">settings</mat-icon>
-    Component Selector
-  </a>
-
-  <a mat-list-item routerLink="/builder" routerLinkActive="active-link" [class.disabled]="!isConnected"
-(click)="!isConnected && $event.preventDefault()">
-<mat-icon class="card-icon">transform</mat-icon>
-Builder
-</a>
-   
+      <a
+        mat-list-item
+        class="sidebar-link"
+        routerLink="/component-selector"
+        routerLinkActive="active-link"
+        [class.disabled]="!isConnected"
+        (click)="!isConnected && $event.preventDefault()"
+      >
+        <mat-icon class="card-icon">settings</mat-icon>
+        Component Selector
+      </a>
 
       <a
         mat-list-item
