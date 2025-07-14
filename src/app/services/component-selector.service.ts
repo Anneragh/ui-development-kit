@@ -55,6 +55,14 @@ export class ComponentSelectorService {
       description: 'Manage report example in SailPoint.',
       enabled: false,
     },
+    {
+      name: 'identities',
+      displayName: 'Identities',
+      route: '/identities',
+      icon: 'dashboard',
+      description: 'Manage identities in SailPoint.',
+      enabled: false,
+    },
   ];
 
   private enabledComponentsSubject = new BehaviorSubject<ComponentInfo[]>([]);

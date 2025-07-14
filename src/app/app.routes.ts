@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { IdentitiesComponent, REPORT_EXAMPLE_ROUTES, ThemePickerComponent, TransformBuilderComponent, TransformsComponent } from 'sailpoint-components';
-import { campaignsComponent } from './campaigns/campaigns.component';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './shared/components';
 
@@ -23,14 +22,6 @@ export const appRoutes: Routes = [
     component: TransformsComponent
   },
   {
-    path: 'identities',
-    component: IdentitiesComponent
-  },
-  {
-    path: 'campaigns',
-    component: campaignsComponent
-  },
-  {
     path: 'transform-builder',
     component: TransformBuilderComponent
   },
@@ -47,6 +38,11 @@ export const appRoutes: Routes = [
     path: 'report-example',
     children: REPORT_EXAMPLE_ROUTES
   },
+  {
+    path: 'identities',
+    component: IdentitiesComponent
+  },
+
   {
     path: '**',
     component: PageNotFoundComponent
