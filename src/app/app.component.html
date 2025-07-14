@@ -75,6 +75,18 @@
         Transforms
       </a>
       <a
+        *ngIf="isComponentEnabled('identities')"
+        mat-list-item
+        class="sidebar-link"
+        routerLink="/identities"
+        routerLinkActive="active-link"
+        [class.disabled]="!isConnected"
+        (click)="!isConnected && $event.preventDefault()"
+      >
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Identities
+      </a>
+      <a
         *ngIf="isComponentEnabled('theme-picker')"
         mat-list-item
         class="sidebar-link"
@@ -86,26 +98,17 @@
         <mat-icon class="card-icon">dashboard</mat-icon>
         Theme Picker
       </a>
-      <a *ngIf="isComponentEnabled('report-example')" mat-list-item class="sidebar-link" routerLink="/report-example" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
-        <mat-icon class="card-icon">dashboard</mat-icon>
-        Report Example
-      </a>
-      <a mat-list-item class="sidebar-link" routerLink="/identities" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
-        <mat-icon class="card-icon">home</mat-icon>
-        Identities
-      </a>
       <a
+        *ngIf="isComponentEnabled('report-example')"
         mat-list-item
         class="sidebar-link"
-        routerLink="/campaigns"
+        routerLink="/report-example"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
         (click)="!isConnected && $event.preventDefault()"
       >
-        <mat-icon class="card-icon">home</mat-icon>
-        Campaigns
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Report Example
       </a>
       <a
         mat-list-item
