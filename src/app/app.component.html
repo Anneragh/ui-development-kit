@@ -30,48 +30,47 @@
     <mat-nav-list>
 
       <a mat-list-item class="sidebar-link" routerLink="/home" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        [class.disabled]="!isConnected" (click)="handleLinkClick($event)">
         <mat-icon class="card-icon">home</mat-icon>
         Home
       </a>
 
       <a *ngIf="isComponentEnabled('transforms')" mat-list-item class="sidebar-link" routerLink="/transforms" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        [class.disabled]="!isConnected" (click)="handleLinkClick($event)">
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
       </a>
       <a *ngIf="isComponentEnabled('velocity-editor-dialog')" mat-list-item class="sidebar-link" routerLink="/velocity-editor-dialog" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        [class.disabled]="!isConnected" (click)="handleLinkClick($event)">
         <mat-icon class="card-icon">dashboard</mat-icon>
         Velocity Editor Dialog
         </a>
       <a *ngIf="isComponentEnabled('report-example')" mat-list-item class="sidebar-link" routerLink="/report-example" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        [class.disabled]="!isConnected" (click)="handleLinkClick($event)">
         <mat-icon class="card-icon">dashboard</mat-icon>
         Report Example
       </a>
       <a mat-list-item class="sidebar-link" routerLink="/identities" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        [class.disabled]="!isConnected" (click)="handleLinkClick($event)">
         <mat-icon class="card-icon">home</mat-icon>
         Identities
       </a>
       <a mat-list-item class="sidebar-link" routerLink="/campaigns" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        [class.disabled]="!isConnected" (click)="handleLinkClick($event)">
         <mat-icon class="card-icon">home</mat-icon>
         Campaigns
       </a>
       <a mat-list-item class="sidebar-link" routerLink="/component-selector" routerLinkActive="active-link" [class.disabled]="!isConnected"
-    (click)="!isConnected && $event.preventDefault()">
+    (click)="handleLinkClick($event)">
     <mat-icon class="card-icon">settings</mat-icon>
     Component Selector
   </a>
 
   <a mat-list-item routerLink="/builder" routerLinkActive="active-link" [class.disabled]="!isConnected"
-(click)="!isConnected && $event.preventDefault()">
+(click)="handleLinkClick($event)">
 <mat-icon class="card-icon">transform</mat-icon>
 Builder
 </a>
-   
 
     </mat-nav-list>
   </mat-sidenav>
