@@ -1391,8 +1391,8 @@ ipcMain.handle('patch-oauth-client', async (event, request: sdk.OAuthClientsV202
     return await sdkWrapper.patchOauthClient(request, apiConfig);
 });
 
-ipcMain.handle('get-org-config', async (event, request: sdk.OrgConfigV2025ApiGetOrgConfigRequest = {}) => {
-    return await sdkWrapper.getOrgConfig(request, apiConfig);
+ipcMain.handle('get-org-config', async (event, ) => {
+    return await sdkWrapper.getOrgConfig(apiConfig);
 });
 ipcMain.handle('get-valid-time-zones', async (event, request: sdk.OrgConfigV2025ApiGetValidTimeZonesRequest = {}) => {
     return await sdkWrapper.getValidTimeZones(request, apiConfig);

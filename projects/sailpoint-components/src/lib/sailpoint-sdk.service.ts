@@ -1402,8 +1402,8 @@ patchOauthClient(requestParameters: sdk.OAuthClientsV2025ApiPatchOauthClientRequ
     return this.electronAPI.patchOauthClient(requestParameters) as Promise<AxiosResponse<sdk.GetOAuthClientResponseV2025, any>>;
 }
 
-getOrgConfig(requestParameters: sdk.OrgConfigV2025ApiGetOrgConfigRequest = {}): Promise<AxiosResponse<sdk.OrgConfigV2025, any>> {
-    return this.electronAPI.getOrgConfig(requestParameters) as Promise<AxiosResponse<sdk.OrgConfigV2025, any>>;
+getOrgConfig(): Promise<AxiosResponse<sdk.OrgConfigV2025, any>> {
+    return this.electronAPI.getOrgConfig() as Promise<AxiosResponse<sdk.OrgConfigV2025, any>>;
 }
 getValidTimeZones(requestParameters: sdk.OrgConfigV2025ApiGetValidTimeZonesRequest = {}): Promise<AxiosResponse<Array<string>, any>> {
     return this.electronAPI.getValidTimeZones(requestParameters) as Promise<AxiosResponse<Array<string>, any>>;
