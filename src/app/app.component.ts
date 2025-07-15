@@ -6,10 +6,10 @@ import {
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  ElementRef,
   OnInit,
   Renderer2,
   ViewChild,
-  ElementRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +18,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { combineLatest } from 'rxjs';
 import { ThemeConfig, ThemeService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
@@ -26,7 +27,6 @@ import {
   ComponentSelectorService,
 } from './services/component-selector.service';
 import { ConnectionService } from './shared/connection.service';
-import { combineLatest } from 'rxjs';
 
 declare const window: any;
 
@@ -174,6 +174,20 @@ export class AppComponent implements OnInit {
    */
   toggleSidenav(): void {
     this.sidenavOpened = !this.sidenavOpened;
+  }
+
+  // New method to handle link clicks
+  handleLinkClick(event: MouseEvent): void {
+    // If not connected, prevent the default action
+    if (!this.isConnected) {
+      event.preventDefault();
+      return;
+    }
+    
+    // Close sidebar on small screens when a link is clicked
+    if (this.isSmallScreen && this.sidenavOpened) {
+      this.sidenavOpened = false;
+    }
   }
 
   /**
