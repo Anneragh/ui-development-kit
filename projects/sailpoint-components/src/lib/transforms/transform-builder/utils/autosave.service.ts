@@ -1,7 +1,7 @@
 // auto-save.service.ts
 import { Injectable } from '@angular/core';
+import { cloneDeep, isEqual } from 'lodash-es';
 import { BehaviorSubject } from 'rxjs';
-import { isEqual, cloneDeep } from 'lodash-es';
 
 export interface SavedTransform {
   id?: string;
@@ -35,7 +35,7 @@ export class AutoSaveService {
     definition: any,
     isNew: boolean = false,
     cloudVersion?: any
-  ): void {
+  ): void {  
     const savedTransform: SavedTransform = {
       id: isNew ? undefined : transformId,
       name,
@@ -143,6 +143,7 @@ export class AutoSaveService {
   }
 
   private normalizeDefinition(def: any): any {
+    console.log('[AutoSave] Normalizing definition:', def);
     const clone = cloneDeep(def);
 
     if (typeof clone !== 'object' || clone === null) {

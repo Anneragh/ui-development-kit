@@ -318,3 +318,79 @@
 .transform-description {
   line-height: 18px;
 }
+
+
+.input-with-editor-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+/* Input field styling */
+.input-field {
+  flex: 1;
+  min-width: 0; /* Allows the field to shrink properly */
+}
+
+/* Editor button styling */
+.editor-button {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  margin-top: 4px; /* Slight offset to align with the form field */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.editor-button:hover {
+  transform: scale(1.1);
+}
+
+.editor-button:disabled {
+  opacity: 0.6;
+  transform: none;
+}
+
+.editor-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Button text - no longer needed */
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .input-with-editor-container {
+    gap: 8px;
+  }
+  
+  .editor-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Dark theme support for the new button */
+.dark-theme .editor-button {
+  color: #54c0e8 !important;
+}
+
+.dark-theme .editor-button:hover {
+  background-color: rgba(84, 192, 232, 0.1) !important;
+  color: #54c0e8 !important;
+}
+
+.dark-theme .editor-button:disabled {
+  color: #666666 !important;
+}
+
+/* Ensure consistent spacing with other form elements */
+.input-with-editor-container + .input-with-editor-container {
+  margin-top: 1rem;
+}

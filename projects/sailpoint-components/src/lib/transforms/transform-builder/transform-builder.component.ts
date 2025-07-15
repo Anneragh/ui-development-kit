@@ -5,8 +5,8 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  ViewEncapsulation,
-  } from '@angular/core';
+  ViewEncapsulation
+} from '@angular/core';
 import {
   Designer,
   RootEditorContext,
@@ -76,7 +76,7 @@ import {
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import {
   TransformReadV2025,
   TransformsV2025ApiCreateTransformRequest,
@@ -85,6 +85,7 @@ import {
 import { GenericDialogComponent } from '../../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
 import { ThemeService } from '../../theme/theme.service';
+import { VelocityEditorDialogComponent } from '../../velocity-editor-dialog/velocity-editor-dialog.component';
 import { AutoSaveService } from '../transform-builder/utils/autosave.service'; // Adjust path as needed
 import { createBase64Decode, deserializeBase64Decode, getBase64DecodeIcon, isBase64DecodeStep, serializeBase64Decode } from './models/base-64-decode';
 import { createBase64Encode, deserializeBase64Encode, getBase64EncodeIcon, isBase64EncodeStep, serializeBase64Encode } from './models/base-64-encode';
@@ -331,7 +332,7 @@ import { MapEditorDialogComponent } from './utils/map-editor-dialog.component';
 import { TransformPreviewComponent } from './utils/transform-preview.component';
 
 interface ThemedDesigner extends Designer {
-  setTheme: (theme: 'dark' | 'light') => void;
+  setTheme?: (theme: 'dark' | 'light') => void;
 }
 
 interface StepDefinition {
@@ -610,6 +611,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private dialog: MatDialog,
+    private editorDialog: MatDialog,
     private sdk: SailPointSDKService,
     private autoSaveService: AutoSaveService,
     private snackBar: MatSnackBar,
@@ -831,7 +833,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
    this.themeSub = this.theme.isDark$.subscribe(dark => {
       this.isDarkTheme = dark;
       this.showDesigner = false;
-      this.cdr.detectChanges();
       setTimeout(() => {
         this.showDesigner = true;
         this.cdr.detectChanges();
@@ -847,16 +848,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
 
     this.updateDefinitionJSON();
-
-    // Set up auto-save debouncing
-    this.autoSaveSubject
-      .pipe(
-        debounceTime(2000), // Wait 2 seconds after last change
-        takeUntil(this.destroy$)
-      )
-      .subscribe((definition) => {
-        this.performAutoSave(definition);
-      });
 
     void (async () => {
       try {
@@ -892,39 +883,15 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         };
 
         this.isReady = true;
+
+        if (this.definition) {
+          this.performAutoSave(this.definition);
+        }
       } catch (error) {
         console.error('Failed during ngOnInit async setup:', error);
       }
     })();
   }
-
-  // private loadFromLocalSaveIfExists(): void {
-  //   if (!this.transform) return;
-
-  //   const localSave = this.autoSaveService.getLocalSave(this.transform.id!);
-  //   if (localSave) {
-  //     // Ask user if they want to restore
-  //     const shouldRestore = confirm(
-  //       `Found local changes from ${this.autoSaveService.getTimeSinceLastSave(
-  //         this.transform.id!
-  //       )}. ` + 'Would you like to restore these changes?'
-  //     );
-
-  //     if (shouldRestore) {
-  //       this.definition = {
-  //         properties: { name: localSave.name },
-  //         sequence: [deserializeToStep(localSave.definition)],
-  //       };
-  //       this.hasUnsavedChanges = true;
-  //       this.snackBar.open('Restored local changes', 'Close', {
-  //         duration: 3000,
-  //       });
-  //     } else {
-  //       // Clear the local save since user doesn't want it
-  //       this.autoSaveService.clearLocalSave(this.transform.id!);
-  //     }
-  //   }
-  // }
 
   private performAutoSave(definition: Definition): void {
     if (!definition?.sequence?.[0]) return;
@@ -948,21 +915,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         this.isNewTransform,
         this.transform // Store original cloud version for comparison
       );
-
-      const lastSave = this.autoSaveService.getTimeSinceLastSave(
-        transformId,
-        this.isNewTransform
-      );
-      this.lastAutoSave = lastSave === null ? undefined : lastSave;
-
-      // Update UI to show last save time
-      setTimeout(() => {
-        const lastSave = this.autoSaveService.getTimeSinceLastSave(
-          transformId,
-          this.isNewTransform
-        );
-        this.lastAutoSave = lastSave === null ? undefined : lastSave;
-      }, 1000);
     } catch (error) {
       console.error('Auto-save failed:', error);
       this.snackBar.open('Auto-save failed', 'Close', { duration: 3000 });
@@ -1039,22 +991,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  public hasLocalChanges(): boolean {
-    if (this.isNewTransform) {
-      return this.hasUnsavedChanges;
-    }
-
-    const id = this.transform?.id;
-    if (!id) return false;
-
-    const localSave = this.autoSaveService.getLocalSave(id);
-    if (!localSave) return false;
-
-    // Compare definitions to avoid false positive
-    const parsedDef = JSON.parse(this.definitionJSON ?? '{}');
-    return this.autoSaveService.hasUnsavedChanges(id, parsedDef);
-  }
-
   public restoreFromCloud(): void {
     if (!this.transform) return;
 
@@ -1101,15 +1037,16 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onDesignerReady(designer: Designer) {
+  public onDesignerReady(designer: ThemedDesigner) {
     this.designer = designer;
     this.updateIsValid();
 
     // Safely apply initial theme
-    (designer as ThemedDesigner).setTheme(this.isDarkTheme ? 'dark' : 'light');
+    designer.setTheme?.(this.isDarkTheme ? 'dark' : 'light');
   }
 
   public onDefinitionChanged(definition: Definition) {
+    console.log('onDefinitionChanged', definition);
     this.definition = definition;
     this.updateDefinitionJSON();
 
@@ -1175,10 +1112,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     if (propDef?.value.id === 'number') return true;
 
     return false;
-    // if (value === '' || value === null || value === undefined) return true;
-    // return (
-    //   typeof value === 'number' || (!isNaN(value) && !isNaN(parseFloat(value)))
-    // );
   }
 
   getHintForProperty(stepType: string, key: string): string | undefined {
@@ -1287,9 +1220,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       maxWidth: 'none',
       data: { sdkService: this.sdk, transformDefinition: serializedTransform },
     });
-
-    // dialogRef.afterClosed().subscribe(result => {
-    // });
   }
 
   viewTransformDefinition(): void {
@@ -1377,12 +1307,45 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     return Object.keys(branches || {});
   }
 
+  public openVelocityEditor(properties: Properties, name: string, event: Event, context: StepEditorContext) {
+    this.isReadonly = true; // Disable editing while opening editor
+
+    console.log('openVelocityEditor', properties, name, event);
+    const currentValue = properties[name] || '';    
+    const dialogReference = this.editorDialog.open(VelocityEditorDialogComponent, {
+      autoFocus: true,
+      restoreFocus: true,
+      role: 'dialog',
+      width: '90vw',
+      maxWidth: '1000px',
+      height: '80vh',
+      maxHeight: '800px',
+      data: {
+        code: currentValue,
+        title: 'Edit Velocity Code',
+        readonly: false
+      },
+      disableClose: true
+    });
+
+    dialogReference.afterClosed().subscribe((result) => {
+      this.isReadonly = false; // Re-enable editing after editor is closed
+      console.log('Velocity editor closed with result:', result);
+      if (result !== undefined && result.saved) {
+        properties[name] = result.code;
+        console.log('Updated properties:', properties);
+        context.notifyPropertiesChanged();
+      }
+    });
+  }
+
   public updateProperty(
     properties: Properties,
     name: string,
     event: Event | MatSlideToggleChange,
     context: RootEditorContext | StepEditorContext
   ) {
+    console.log('updateProperty', properties, name, event);
     if (event instanceof MatSlideToggleChange) {
       properties[name] = event.checked;
     } else if (event instanceof InputEvent) {
