@@ -1,5 +1,8 @@
-// Angular and Angular Material imports
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -27,8 +30,12 @@ import { ColumnCustomizerComponent } from './utils/column-customizer/column-cust
   selector: 'app-identities',
   standalone: true,
   imports: [
-    MatTableModule,
     CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatTableModule,
+    MatToolbarModule,
     MatProgressSpinnerModule,
     MatPaginatorModule,
     SearchBarComponent,
@@ -38,6 +45,8 @@ import { ColumnCustomizerComponent } from './utils/column-customizer/column-cust
   styleUrl: './identities.component.scss',
 })
 export class IdentitiesComponent implements OnInit {
+  title = 'Identities';
+
   // Table and search state
   identities: IdentityV2025[] & Record<string, unknown>[] = [];
   filteredIdentities: IdentityV2025[] & Record<string, unknown>[] = [];
@@ -106,7 +115,8 @@ export class IdentitiesComponent implements OnInit {
 
       // Fetch data
       const response = await this.sdk.listIdentities(request);
-      this.identities = (response.data ?? []) as IdentityV2025[] & Record<string, unknown>[];
+      this.identities = (response.data ?? []) as IdentityV2025[] &
+        Record<string, unknown>[];
 
       // Extract total count from headers (if present)
       let count: number | undefined;
@@ -185,25 +195,29 @@ export class IdentitiesComponent implements OnInit {
       const { data: identities } = await this.sdk.searchPost(request);
 
       // Transform search results
-      this.filteredIdentities = (identities ?? []).map((identity: SearchDocumentsV2025) => {
-        // Need to use any here because SearchDocumentsV2025 is a union type
-        // and TypeScript can't determine if attributes exists at compile time
-        const docWithAttrs = identity as any;
-        const attrs = docWithAttrs.attributes as Record<string, unknown> | undefined;
-        return {
-          ...identity,
-          alias: attrs?.uid as string ?? '–',
-          emailAddress: attrs?.email as string ?? docWithAttrs.email ?? '–',
-          lifecycleState: {
-            stateName:
-              attrs?.identityState as string ??
-              attrs?.cloudStatus as string ??
-              'Unknown',
-            manuallyUpdated: false,
-          },
-          created: docWithAttrs.created ?? undefined,
-        };
-      }) as IdentityV2025[] & Record<string, unknown>[];
+      this.filteredIdentities = (identities ?? []).map(
+        (identity: SearchDocumentsV2025) => {
+          // Need to use any here because SearchDocumentsV2025 is a union type
+          // and TypeScript can't determine if attributes exists at compile time
+          const docWithAttrs = identity as any;
+          const attrs = docWithAttrs.attributes as
+            | Record<string, unknown>
+            | undefined;
+          return {
+            ...identity,
+            alias: (attrs?.uid as string) ?? '–',
+            emailAddress: (attrs?.email as string) ?? docWithAttrs.email ?? '–',
+            lifecycleState: {
+              stateName:
+                (attrs?.identityState as string) ??
+                (attrs?.cloudStatus as string) ??
+                'Unknown',
+              manuallyUpdated: false,
+            },
+            created: docWithAttrs.created ?? undefined,
+          };
+        }
+      ) as IdentityV2025[] & Record<string, unknown>[];
 
       this.totalCount = this.filteredIdentities.length;
       this.pageIndex = 0;
@@ -349,7 +363,7 @@ export class IdentitiesComponent implements OnInit {
       return JSON.stringify(value);
     }
 
-    return value as string ?? '–';
+    return (value as string) ?? '–';
   }
 
   // Capitalize helper

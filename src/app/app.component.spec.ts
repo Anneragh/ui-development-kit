@@ -3,12 +3,15 @@ import { AppComponent } from './app.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ElectronService } from './core/services';
 
+(globalThis as any).structuredClone = <T>(obj: T): T =>
+  JSON.parse(JSON.stringify(obj)) as T;
+
 describe('AppComponent', () => {
   beforeEach(waitForAsync(() => {
     void TestBed.configureTestingModule({
       declarations: [],
       providers: [ElectronService],
-      imports: [TranslateModule.forRoot()]
+      imports: [TranslateModule.forRoot()],
     }).compileComponents();
   }));
 

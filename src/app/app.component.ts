@@ -4,7 +4,7 @@ import {
   LayoutModule,
 } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Renderer2, OnDestroy } from '@angular/core';
+import { Component, OnInit, Renderer2, OnDestroy, ViewChild, ElementRef, } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -12,15 +12,17 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
+import { ThemeConfig, ThemeService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
 import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './shared/connection.service';
-import { ThemeService } from 'sailpoint-components';
 import {
   ComponentInfo,
   ComponentSelectorService,
 } from './services/component-selector.service';
+import { ConnectionService } from './shared/connection.service';
+
 
 declare const window: any;
 
@@ -40,7 +42,11 @@ declare const window: any;
     MatButtonModule,
   ],
 })
+
 export class AppComponent implements OnDestroy, OnInit {
+  @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
+
+  // UI and state flags
   isSmallScreen: boolean = false;
   sidenavOpened = true;
   isConnected = false;
@@ -50,7 +56,10 @@ export class AppComponent implements OnDestroy, OnInit {
   currentEnvironment: EnvironmentInfo | null = null;
 
   private subscriptions = new Subscription();
+
+  // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
+  logoPath = '';
 
   constructor(
     private electronService: ElectronService,
@@ -62,6 +71,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private themeService: ThemeService,
     private componentSelectorService: ComponentSelectorService
   ) {
+    // Set default language
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
     
@@ -73,7 +83,7 @@ export class AppComponent implements OnDestroy, OnInit {
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
 
-    // Layout responsiveness
+    // Watch for screen size changes to adjust layout
     this.breakpointObserver
       .observe([Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall])
       .subscribe((result) => {
@@ -81,7 +91,7 @@ export class AppComponent implements OnDestroy, OnInit {
         this.sidenavOpened = !this.isSmallScreen;
       });
 
-    // Platform context
+    // Platform-specific logging
     if (electronService.isElectron) {
       console.log('Run in electron');
       console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
@@ -89,6 +99,7 @@ export class AppComponent implements OnDestroy, OnInit {
     } else {
       console.log('Run in browser');
     }
+
 
     // Subscribe to connection state changes
     this.subscriptions.add(
@@ -114,6 +125,8 @@ export class AppComponent implements OnDestroy, OnInit {
         this.currentEnvironment = environment;
       })
     );
+    // Monitor connection state and redirect on disconnect
+
     this.connectionService.isConnected$.subscribe((connection) => {
       this.isConnected = connection.connected;
       if (!connection.connected) {
@@ -122,24 +135,46 @@ export class AppComponent implements OnDestroy, OnInit {
         });
       }
     });
-
-    // ✅ Theme subscription
-    this.themeService.isDark$.subscribe((isDark) => {
-      this.isDarkTheme = isDark;
-      if (isDark) {
-        this.renderer.addClass(document.body, 'dark-theme');
-      } else {
-        this.renderer.removeClass(document.body, 'dark-theme');
-      }
-    });
   }
 
   ngOnInit(): void {
+    // Combine theme config and dark mode stream for live updates
+    combineLatest([
+      this.themeService.theme$,
+      this.themeService.isDark$,
+    ]).subscribe(([theme, isDark]) => {
+      this.isDarkTheme = isDark;
+
+      // Resolve logo path based on current theme
+      this.logoPath = isDark
+        ? theme?.logoDark || 'assets/icons/logo-dark.png'
+        : theme?.logoLight || 'assets/icons/logo.png';
+
+      // Apply logo with a cache-busting timestamp
+      const logo = this.logoImageRef?.nativeElement;
+      if (logo) {
+        logo.onload = () => this.themeService.logoUpdated$.next();
+
+        const src = this.logoPath?.startsWith('data:')
+          ? this.logoPath
+          : `${this.logoPath?.split('?')[0]}?t=${Date.now()}`;
+
+        // Defer setting logo to avoid layout conflicts
+        setTimeout(() => {
+          logo.src = src;
+        }, 100);
+      }
+    });
+
+    // Watch component enablement state
     this.componentSelectorService.enabledComponents$.subscribe((components) => {
       this.enabledComponents = components;
     });
   }
 
+  /**
+   * Returns true if the given component is enabled.
+   */
   isComponentEnabled(componentName: string): boolean {
     return this.enabledComponents.some(
       (component) => component.name === componentName && component.enabled
@@ -152,12 +187,41 @@ export class AppComponent implements OnDestroy, OnInit {
 
   toggleTheme(): void {
     this.themeService.setDark(!this.isDarkTheme); // ✅ Use service setter
+
+  /**
+   * Toggles between light and dark themes.
+   */
+  async toggleTheme(): Promise<void> {
+    const mode = this.isDarkTheme ? 'light' : 'dark';
+    const raw = this.themeService.getRawConfig();
+    let targetTheme = raw?.[`theme-${mode}`] as ThemeConfig | undefined;
+
+    if (!targetTheme) {
+      targetTheme = await this.themeService['getDefaultTheme'](mode);
+    }
+
+    await this.themeService.saveTheme(targetTheme, mode);
   }
 
+  /**
+   * Falls back to default logo if logo fails to load.
+   */
+  useFallbackLogo() {
+    this.logoPath = this.isDarkTheme
+      ? 'assets/icons/logo-dark.png'
+      : 'assets/icons/logo.png';
+  }
+
+  /**
+   * Toggle the state of the side navigation.
+   */
   toggleSidenav(): void {
     this.sidenavOpened = !this.sidenavOpened;
   }
 
+  /**
+   * Disconnects from Identity Security Cloud and navigates home.
+   */
   async disconnectFromISC() {
     await window.electronAPI.disconnectFromISC();
     this.connectionService.setConnectionState(false);

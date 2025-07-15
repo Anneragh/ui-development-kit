@@ -6,8 +6,9 @@ import { disconnectFromISC, getTenants, harborPilotTransformChat, createOrUpdate
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 
 let win: BrowserWindow | null = null;
+const projectRoot = path.resolve(__dirname, '..', 'src'); // adjust if needed
 const args = process.argv.slice(1),
-  serve = args.some(val => val === '--serve');
+  serve = args.some((val) => val === '--serve');
 
 function getConfigPath(): string {
   const userDataPath = app.getPath('userData');
@@ -25,7 +26,6 @@ function ensureConfigDir(): void {
 }
 
 function createWindow(): BrowserWindow {
-
   const size = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
@@ -38,9 +38,8 @@ function createWindow(): BrowserWindow {
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
-      allowRunningInsecureContent: (serve),
+      allowRunningInsecureContent: serve,
       contextIsolation: true,
-
 
       //enableRemoteModule: false,
     },
@@ -49,7 +48,16 @@ function createWindow(): BrowserWindow {
   if (serve) {
     (async () => {
       try {
-        require('electron-reloader')(module);
+        const ignoredPath = path.join(
+          __dirname,
+          '..',
+          'src',
+          'assets',
+          'icons',
+          '*'
+        );
+        console.log('Ignoring reload on:', ignoredPath);
+        require('electron-reloader')(module, {});
       } catch (err) {
         console.error('Failed to enable reloader:', err);
       }
@@ -126,13 +134,19 @@ try {
     return await createOrUpdateEnvironment(config);
   });
 
-  ipcMain.handle('delete-environment', async (event, environmentName: string) => {
-    return await deleteEnvironment(environmentName);
-  });
+  ipcMain.handle(
+    'delete-environment',
+    async (event, environmentName: string) => {
+      return await deleteEnvironment(environmentName);
+    }
+  );
 
-  ipcMain.handle('set-active-environment', async (event, environmentName: string) => {
-    return await setActiveEnvironment(environmentName);
-  });
+  ipcMain.handle(
+    'set-active-environment',
+    async (event, environmentName: string) => {
+      return await setActiveEnvironment(environmentName);
+    }
+  );
 
   ipcMain.handle('get-global-auth-type', async () => {
     return await getGlobalAuthType();
@@ -173,11 +187,11 @@ try {
         return JSON.parse(configData);
       } else {
         const defaultConfig = {
-          "components": {
-            "enabled": []
+          components: {
+            enabled: [],
           },
-          "version": "1.0.0"
-        }
+          version: '1.0.0',
+        };
 
         ensureConfigDir();
         fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
@@ -201,6 +215,48 @@ try {
     }
   });
 
+  ipcMain.handle('write-logo', async (event, buffer, fileName) => {
+    try {
+      const logoDir = path.join(app.getPath('userData'), 'assets', 'icons');
+      await fs.promises.mkdir(logoDir, { recursive: true });
+
+      const dest = path.join(logoDir, fileName);
+      await fs.promises.writeFile(dest, buffer);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error writing logo file:', error);
+      throw new Error('Failed to write logo file');
+    }
+  });
+
+  ipcMain.handle('check-logo-exists', async (event, fileName: string) => {
+    const fullPath = path.join(
+      app.getPath('userData'),
+      'assets',
+      'icons',
+      fileName
+    );
+    return fs.existsSync(fullPath);
+  });
+
+  ipcMain.handle('get-user-data-path', () => {
+    return app.getPath('userData');
+  });
+
+  ipcMain.handle('get-logo-data-url', async (event, fileName) => {
+    try {
+      const userDataPath = app.getPath('userData');
+      const logoPath = path.join(userDataPath, 'assets', 'icons', fileName);
+      const buffer = await fs.promises.readFile(logoPath);
+      const base64 = buffer.toString('base64');
+      const ext = path.extname(fileName).substring(1); // e.g., png
+      return `data:image/${ext};base64,${base64}`;
+    } catch (err) {
+      console.error('Failed to get logo data URL:', err);
+      return null;
+    }
+  });
 } catch (e) {
   console.error('Error during app initialization', e);
 }

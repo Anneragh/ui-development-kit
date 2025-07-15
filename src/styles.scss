@@ -4,28 +4,141 @@
 @include mat.core();
 
 body.dark-theme {
-    --mdc-protected-button-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-    --mdc-protected-button-disabled-container-elevation-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0.12);
-    --mdc-protected-button-focus-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-    --mdc-protected-button-hover-container-elevation-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
-    --mdc-protected-button-pressed-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-    --mdc-protected-button-container-color: #151316;
-    --mdc-protected-button-label-text-color: #54c0e8 !important;
-    --mdc-protected-button-disabled-container-color: rgba(230, 225, 230, 0.12);
-    --mdc-protected-button-disabled-label-text-color: rgba(230, 225, 230, 0.38);
-    --mdc-protected-button-label-text-font: Roboto, sans-serif;
-    --mdc-protected-button-label-text-size: 0.875rem;
-    --mdc-protected-button-label-text-tracking: 0.006rem;
-    --mdc-protected-button-label-text-weight: 500;
-    --mdc-protected-button-container-height: 40px;
-    --mdc-protected-button-container-shape: 9999px;
-    --mdc-circular-progress-active-indicator-color: #54c0e8 !important;
+  --theme-primary: #54c0e8;
+  --theme-secondary: #0071ce;
+  --theme-primary-text: #ffffff;
+  --theme-secondary-text: #ffffff;
+  --theme-background: #1e1e1e;
+
+  --mdc-protected-button-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  --mdc-protected-button-disabled-container-elevation-shadow: 0px 0px 0px 0px
+      rgba(0, 0, 0, 0.2),
+    0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0.12);
+  --mdc-protected-button-focus-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  --mdc-protected-button-hover-container-elevation-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+  --mdc-protected-button-pressed-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  --mdc-protected-button-container-color: #151316;
+  --mdc-protected-button-label-text-color: var(--theme-primary) !important;
+  --mdc-protected-button-disabled-container-color: rgba(230, 225, 230, 0.12);
+  --mdc-protected-button-disabled-label-text-color: rgba(230, 225, 230, 0.38);
+  --mdc-protected-button-label-text-font: Roboto, sans-serif;
+  --mdc-protected-button-label-text-size: 0.875rem;
+  --mdc-protected-button-label-text-tracking: 0.006rem;
+  --mdc-protected-button-label-text-weight: 500;
+  --mdc-protected-button-container-height: 40px;
+  --mdc-protected-button-container-shape: 9999px;
+  --mdc-circular-progress-active-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-switch-selected-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-focus-track-color: var(--theme-primary) !important;
+  --mat-sys-primary: var(--theme-primary) !important;
+  --mat-sys-on-primary: var(--theme-secondary) !important;
+  --mdc-switch-selected-handle-color: var(--theme-primary) !important;
+
+  --mdc-slider-handle-color: var(--theme-secondary) !important;
+  --mdc-slider-focus-handle-color: var(--theme-secondary) !important;
+  --mdc-slider-hover-handle-color: var(--theme-secondary) !important;
+  --mdc-slider-active-track-color: var(--theme-secondary) !important;
+  --mdc-slider-inactive-track-color: #49454e;
+  --mdc-slider-with-tick-marks-inactive-container-color: #e8e0eb;
+  --mdc-slider-with-tick-marks-active-container-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-slider-disabled-active-track-color: var(--theme-background) !important;
+  --mdc-slider-disabled-handle-color: var(--theme-background) !important;
+  --mdc-slider-disabled-inactive-track-color: var(
+    --theme-background
+  ) !important;
+  --mdc-slider-label-container-color: var(--theme-secondary) !important;
+
+  --mdc-slider-label-label-text-color: var(--theme-primary) !important;
+  --mdc-slider-with-overlap-handle-outline-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-slider-with-tick-marks-disabled-container-color: var(
+    --theme-background
+  ) !important;
+
+  --mdc-switch-selected-focus-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-hover-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-pressed-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-focus-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-hover-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-pressed-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-focus-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-hover-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-pressed-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-track-color: var(--theme-secondary) !important;
 }
 
 body {
-  --mdc-protected-button-label-text-color: #0071ce!important;
-  --mdc-circular-progress-active-indicator-color: #0071ce !important;
-  --mdc-protected-button-hover-container-elevation-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+  --theme-primary: #0071ce;
+  --theme-secondary: #0033a1;
+  --theme-primary-text: #415364;
+  --theme-hover-text: #ffffff;
+  --theme-secondary-text: #415364;
+  --theme-background: #ffffff;
+
+  --mat-sys-primary: var(--theme-primary) !important;
+  --mdc-switch-selected-focus-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-hover-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-pressed-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-focus-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-hover-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-pressed-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-focus-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-hover-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-pressed-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-track-color: var(--theme-secondary) !important;
+
+  --mdc-slider-handle-color: var(--theme-secondary) !important;
+  --mdc-slider-focus-handle-color: var(--theme-secondary) !important;
+  --mdc-slider-hover-handle-color: var(--theme-secondary) !important;
+  --mdc-slider-active-track-color: var(--theme-secondary) !important;
+  --mdc-slider-inactive-track-color: #49454e;
+  --mdc-slider-with-tick-marks-inactive-container-color: #e8e0eb;
+  --mdc-slider-with-tick-marks-active-container-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-slider-disabled-active-track-color: var(--theme-background) !important;
+  --mdc-slider-disabled-handle-color: var(--theme-background) !important;
+  --mdc-slider-disabled-inactive-track-color: var(
+    --theme-background
+  ) !important;
+  --mdc-slider-label-container-color: var(--theme-secondary) !important;
+
+  --mdc-slider-label-label-text-color: var(--theme-primary) !important;
+  --mdc-slider-with-overlap-handle-outline-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-slider-with-tick-marks-disabled-container-color: var(
+    --theme-background
+  ) !important;
+
+  --mdc-protected-button-label-text-color: var(--theme-primary) !important;
+  --mdc-circular-progress-active-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-protected-button-hover-container-elevation-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
 }
 
 // Define a dark theme
@@ -51,6 +164,220 @@ $light-theme: mat.define-theme(
 // Apply the light theme by default
 html {
   @include mat.all-component-themes($light-theme);
+  --mat-stepper-header-label-text-color: var(--theme-primary-text) !important;
+  --mat-stepper-header-optional-label-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mat-stepper-header-selected-state-label-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mat-stepper-header-icon-background-color: var(
+    --theme-primary-text
+  ) !important;
+
+  --mat-sidenav-container-text-color: var(--theme-primary-text) !important;
+
+  --mat-expansion-header-description-color: var(
+    --theme-primary-text
+  ) !important;
+  --mat-expansion-header-indicator-color: var(--theme-primary-text) !important;
+
+  --mat-datepicker-toggle-active-state-icon-color: var(
+    --theme-primary-text
+  ) !important;
+  --mat-datepicker-toggle-icon-color: var(--theme-primary-text) !important;
+  --mat-datepicker-calendar-period-button-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mat-datepicker-calendar-period-button-icon-color: var(
+    --theme-primary-text
+  ) !important;
+  --mat-datepicker-calendar-navigation-button-icon-color: var(
+    --theme-primary-text
+  ) !important;
+
+  --mat-select-placeholder-text-color: var(--theme-primary-text) !important;
+
+  --mat-form-field-leading-icon-color: var(--theme-primary-text) !important;
+  --mat-form-field-trailing-icon-color: var(--theme-primary-text) !important;
+
+  --mdc-outlined-text-field-label-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-outlined-text-field-input-text-placeholder-color: var(
+    --theme-primary-text
+  ) !important;
+
+  --mdc-filled-text-field-label-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-filled-text-field-hover-label-text-color: var(
+    --theme-primary-text
+  ) !important;
+
+  --mdc-list-list-item-supporting-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-list-list-item-leading-icon-color: var(--theme-primary-text) !important;
+  --mdc-list-list-item-trailing-supporting-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-list-list-item-trailing-icon-color: var(
+    --theme-primary-text
+  ) !important;
+
+  --mat-menu-item-icon-color: var(--theme-primary-text) !important;
+
+  --mdc-chip-focus-outline-color: var(--theme-primary-text) !important;
+  --mdc-chip-hover-state-layer-color: var(--theme-primary-text) !important;
+  --mdc-chip-label-text-color: var(--theme-primary-text) !important;
+  --mdc-chip-with-icon-icon-color: var(--theme-primary-text) !important;
+  --mdc-chip-with-trailing-icon-trailing-icon-color: var(
+    --theme-primary-text
+  ) !important;
+
+  --mat-optgroup-label-text-color: var(--theme-primary-text) !important;
+
+  /* Stepper */
+  --mat-stepper-header-selected-state-icon-background-color: var(
+    --theme-primary
+  ) !important;
+  --mat-stepper-header-edit-state-icon-background-color: var(
+    --theme-primary
+  ) !important;
+
+  /* Datepicker */
+  --mat-datepicker-calendar-date-selected-state-background-color: var(
+    --theme-primary
+  ) !important;
+  --mat-datepicker-calendar-date-today-selected-state-outline-color: var(
+    --theme-primary
+  ) !important;
+  --mat-datepicker-calendar-date-today-outline-color: var(
+    --theme-primary
+  ) !important;
+  --mat-datepicker-calendar-date-preview-state-outline-color: var(
+    --theme-primary
+  ) !important;
+
+  /* Circular progress */
+  --mdc-circular-progress-active-indicator-color: var(
+    --theme-primary
+  ) !important;
+
+  /* Outlined buttons */
+  --mat-outlined-button-state-layer-color: var(--theme-primary) !important;
+
+  /* Protected buttons */
+  --mat-protected-button-state-layer-color: var(--theme-primary) !important;
+
+  /* Text buttons */
+  --mat-text-button-state-layer-color: var(--theme-primary) !important;
+
+  /* MDC outlined button label */
+  --mdc-outlined-button-label-text-color: var(--theme-primary) !important;
+
+  /* MDC filled button */
+  --mdc-filled-button-container-color: var(--theme-primary) !important;
+
+  /* MDC protected button label */
+  --mdc-protected-button-label-text-color: var(--theme-primary) !important;
+
+  /* MDC text button label */
+  --mdc-text-button-label-text-color: var(--theme-primary) !important;
+
+  /* MDC checkbox icons & layers */
+  --mdc-checkbox-selected-pressed-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-focus-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-hover-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-focus-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-checkbox-selected-hover-state-layer-color: var(
+    --theme-primary
+  ) !important;
+
+  /* Tab header indicator */
+  --mat-tab-header-active-focus-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mat-tab-header-active-hover-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-tab-indicator-active-indicator-color: var(--theme-primary) !important;
+
+  /* List item selected trailing icon */
+  --mdc-list-list-item-selected-trailing-icon-color: var(
+    --theme-primary
+  ) !important;
+
+  /* Slider */
+  --mat-slider-ripple-color: var(--theme-primary) !important;
+  --mdc-slider-handle-color: var(--theme-primary) !important;
+  --mdc-slider-focus-handle-color: var(--theme-primary) !important;
+  --mdc-slider-hover-handle-color: var(--theme-primary) !important;
+  --mdc-slider-active-track-color: var(--theme-primary) !important;
+  --mdc-slider-label-container-color: var(--theme-primary) !important;
+
+  /* Radio */
+  --mat-radio-checked-ripple-color: var(--theme-primary) !important;
+  --mdc-radio-selected-focus-icon-color: var(--theme-primary) !important;
+  --mdc-radio-selected-hover-icon-color: var(--theme-primary) !important;
+  --mdc-radio-selected-icon-color: var(--theme-primary) !important;
+  --mdc-radio-selected-pressed-icon-color: var(--theme-primary) !important;
+
+  /* Switch */
+  --mdc-switch-selected-focus-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-switch-selected-hover-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-switch-selected-pressed-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-switch-selected-focus-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-hover-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-pressed-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-track-color: var(--theme-primary) !important;
+
+  /* Form-field select arrow */
+  --mat-form-field-focus-select-arrow-color: var(--theme-primary) !important;
+
+  /* Filled text field */
+  --mdc-filled-text-field-caret-color: var(--theme-primary) !important;
+  --mdc-filled-text-field-focus-active-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-filled-text-field-focus-label-text-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-outlined-text-field-caret-color: var(--theme-primary) !important;
+  --mdc-outlined-text-field-focus-outline-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-outlined-text-field-focus-label-text-color: var(
+    --theme-primary
+  ) !important;
+
+  /* Linear progress */
+  --mdc-linear-progress-active-indicator-color: var(--theme-primary) !important;
+
+  /* Minimal pseudo-checkbox */
+  --mat-minimal-pseudo-checkbox-selected-checkmark-color: var(
+    --theme-primary
+  ) !important;
+
+  /* Full pseudo-checkbox */
+  --mat-full-pseudo-checkbox-selected-icon-color: var(
+    --theme-primary
+  ) !important;
+
+  --mdc-checkbox-unselected-pressed-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mat-select-focused-arrow-color: var(--theme-primary) !important;
 }
 
 // Apply the dark theme only when the 'dark-theme' class is added to the body
@@ -70,47 +397,6 @@ html,
 body {
   height: 100%;
   margin: 0;
-}
-
-/* CAN (MUST) BE REMOVED ! Sample Global style */
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  background: url(./assets/background.jpg) no-repeat center fixed;
-  -webkit-background-size: cover; /* pour anciens Chrome et Safari */
-  background-size: cover; /* version standardisée */
-
-  .title {
-    color: white;
-    margin: 0;
-    padding: 50px 20px;
-  }
-
-  a {
-    color: #fff !important;
-    text-transform: uppercase;
-    text-decoration: none;
-    background: #ed3330;
-    padding: 20px;
-    border-radius: 0.25rem;
-    display: inline-block;
-    border: none;
-    transition: all 0.4s ease 0s;
-
-    &:hover {
-      background: #fff;
-      color: #ed3330 !important;
-      letter-spacing: 1px;
-      -webkit-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
-      -moz-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
-      box-shadow: 5px 40px -10px rgba(0, 0, 0, 0.57);
-      transition: all 0.4s ease 0s;
-    }
-  }
 }
 
 html,
@@ -190,7 +476,7 @@ body.dark-theme .mat-mdc-select-panel {
 .sidebar-link.active-link,
 .sidebar-link.mdc-list-item--activated {
   background-color: #eaeef1; /* light blue */
-  color: #0071ce;
+  color: var(--theme-primary) !important;
   font-weight: 500;
 }
 
@@ -205,8 +491,8 @@ body.dark-theme .sidebar-link:hover {
 
 body.dark-theme .sidebar-link.active-link,
 body.dark-theme .sidebar-link.mdc-list-item--activated {
-  background-color: #00000075;
-  color: #0071ce;
+  background-color: var(--theme-background) !important;
+  color: var(--theme-primary) !important;
 }
 
 .mat-mdc-table {
@@ -215,7 +501,67 @@ body.dark-theme .sidebar-link.mdc-list-item--activated {
 
 button {
   background-color: #ffffff;
-  color: #0071ce;
+  color: var(--theme-primary) !important;
+  border: 1px solid var(--theme-primary) !important;
   width: fit-content;
   padding: 5px;
+  border-radius: 0.5rem !important;
+}
+
+button:hover {
+  background-color: var(--theme-primary) !important;
+  color: var(--theme-hover-text) !important;
+  border: 1px solid var(--theme-primary) !important;
+}
+
+.dark-theme button {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-primary) !important;
+}
+
+.dark-theme button:hover {
+  background-color: var(--theme-primary) !important;
+  color: var(--theme-primary-text) !important;
+  border: 1px solid var(--theme-primary) !important;
+}
+
+select {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-primary-text) !important;
+  border: 1px solid var(--theme-primary-text) !important;
+  border-radius: 0.5rem !important;
+}
+.dark-theme select {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-primary-text) !important;
+  border: 1px solid var(--theme-primary-text) !important;
+}
+
+input {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-primary-text) !important;
+  border: 1px solid var(--theme-primary-text) !important;
+  border-radius: 0.5rem !important;
+}
+.dark-theme input {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-primary-text) !important;
+  border: 1px solid var(--theme-primary-text) !important;
+}
+
+.mdc-switch {
+  background-color: var(--theme-background) !important;
+  border: none !important;
+  padding: 0 !important;
+  width: 52px !important;
+}
+
+.mdc-switch:hover {
+  background-color: var(--theme-background) !important;
+  border: none !important;
+}
+
+.dark-theme .mdc-switch:hover {
+  background-color: var(--theme-background) !important;
+  border: none !important;
 }

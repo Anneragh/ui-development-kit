@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { campaignsComponent } from './campaigns/campaigns.component';
-import { IdentitiesComponent, REPORT_EXAMPLE_ROUTES } from 'sailpoint-components';
+import { REPORT_EXAMPLE_ROUTES , IdentitiesComponent } from 'sailpoint-components';
 import { PageNotFoundComponent } from './shared/components';
 import { TransformBuilderComponent } from 'sailpoint-components';
 import { TransformsComponent } from 'sailpoint-components';
 import { HomeComponent } from './home/home.component';
+import  { ThemePickerComponent } from 'sailpoint-components';
 
 export const appRoutes: Routes = [
   {
@@ -13,20 +13,16 @@ export const appRoutes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'theme-picker',
+    component: ThemePickerComponent
+  },
+  {
     path: 'home',
     component: HomeComponent
   },
   {
     path: 'transforms',
     component: TransformsComponent
-  },
-  {
-    path: 'identities',
-    component: IdentitiesComponent
-  },
-  {
-    path: 'campaigns',
-    component: campaignsComponent
   },
   {
     path: 'transform-builder',
@@ -38,8 +34,17 @@ export const appRoutes: Routes = [
   },
 
   {
+    path: 'theme-picker',
+    component: ThemePickerComponent
+  },
+  {
     path: 'report-example',
     children: REPORT_EXAMPLE_ROUTES
+  },
+
+  {
+    path: 'identities',
+    component: IdentitiesComponent
   },
 
   {
