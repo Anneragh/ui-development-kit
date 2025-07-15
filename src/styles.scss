@@ -8,6 +8,7 @@ body.dark-theme {
   --theme-secondary: #0071ce;
   --theme-primary-text: #ffffff;
   --theme-secondary-text: #ffffff;
+  --theme-hover-text: #ffffff;
   --theme-background: #1e1e1e;
 
   // General Material theme
@@ -570,4 +571,14 @@ input {
 
 .mat-mdc-paginator-range-actions .mat-mdc-icon-button:focus-visible {
   outline: none !important;
+}
+
+.mat-mdc-paginator-range-actions button {
+  color: var(--theme-primary-text) !important;
+}
+.mat-mdc-paginator-icon {
+  fill: currentColor !important;
+}
+.mat-mdc-paginator-range-actions button:hover .mat-mdc-paginator-icon {
+  color: var(--theme-hover-text) !important;
 }
