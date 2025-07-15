@@ -991,22 +991,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // public hasLocalChanges(): boolean {
-  //   if (this.isNewTransform) {
-  //     return this.hasUnsavedChanges;
-  //   }
-
-  //   const id = this.transform?.id;
-  //   if (!id) return false;
-
-  //   const localSave = this.autoSaveService.getLocalSave(id);
-  //   if (!localSave) return false;
-
-  //   // Compare definitions to avoid false positive
-  //   const parsedDef = JSON.parse(this.definitionJSON ?? '{}');
-  //   return this.autoSaveService.hasUnsavedChanges(id, parsedDef);
-  // }
-
   public restoreFromCloud(): void {
     if (!this.transform) return;
 
@@ -1128,10 +1112,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     if (propDef?.value.id === 'number') return true;
 
     return false;
-    // if (value === '' || value === null || value === undefined) return true;
-    // return (
-    //   typeof value === 'number' || (!isNaN(value) && !isNaN(parseFloat(value)))
-    // );
   }
 
   getHintForProperty(stepType: string, key: string): string | undefined {
@@ -1240,9 +1220,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       maxWidth: 'none',
       data: { sdkService: this.sdk, transformDefinition: serializedTransform },
     });
-
-    // dialogRef.afterClosed().subscribe(result => {
-    // });
   }
 
   viewTransformDefinition(): void {
