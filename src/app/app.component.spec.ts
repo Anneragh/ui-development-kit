@@ -2,16 +2,37 @@ import { TestBed, waitForAsync } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ElectronService } from './core/services';
+import { provideRouter, Routes } from '@angular/router';
+import { ConnectionService } from './shared/connection.service';
+import { of } from 'rxjs';
 
 (globalThis as any).structuredClone = <T>(obj: T): T =>
   JSON.parse(JSON.stringify(obj)) as T;
 
+const routes: Routes = [
+  { path: 'home', component: AppComponent }, // Mock route for 'home'
+];
+
 describe('AppComponent', () => {
+  let mockConnectionService: any;
+
   beforeEach(waitForAsync(() => {
+    mockConnectionService = {
+      isConnected$: of({ connected: false }),
+      sessionStatus$: of(null),
+      currentEnvironment$: of(null),
+      startSessionMonitoring: jest.fn().mockReturnValue(undefined), // Use jest.fn() for mocking
+      stopSessionMonitoring: jest.fn().mockReturnValue(undefined), // Use jest.fn() for mocking
+    };
+
     void TestBed.configureTestingModule({
       declarations: [],
-      providers: [ElectronService],
-      imports: [TranslateModule.forRoot()],
+      providers: [
+        ElectronService,
+        provideRouter(routes),
+        { provide: ConnectionService, useValue: mockConnectionService }, // Mock ConnectionService
+      ],
+      imports: [AppComponent, TranslateModule.forRoot()],
     }).compileComponents();
   }));
 
