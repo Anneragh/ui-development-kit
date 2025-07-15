@@ -55,6 +55,9 @@ jobs:
         npm install
         npm --prefix ./app install
 
+    - name: Install Angular CLI Globally
+      run: npm install -g @angular/cli
+
     - name: Check lint
       run: npm run lint
 
