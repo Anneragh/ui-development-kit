@@ -21,7 +21,7 @@ import { EditorView, basicSetup } from 'codemirror';
 import { smoothy } from 'thememirror';
 
 import { Subject, takeUntil } from 'rxjs';
-import { ThemeService } from 'sailpoint-components';
+import { ThemeService } from '../theme/theme.service';
 
 
 export interface VelocityEditorData {
