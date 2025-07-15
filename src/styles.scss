@@ -15,7 +15,7 @@ body.dark-theme {
   --mat-sys-on-primary: var(--theme-secondary) !important;
 
   // Switch
-  --mdc-switch-selected-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-handle-color: var(--theme-background) !important;
   --mdc-switch-selected-focus-handle-color: var(--theme-primary) !important;
   --mdc-switch-selected-hover-handle-color: var(--theme-primary) !important;
   --mdc-switch-selected-pressed-handle-color: var(--theme-primary) !important;
@@ -105,7 +105,7 @@ body {
   --mdc-switch-selected-focus-state-layer-color: var(
     --theme-secondary
   ) !important;
-  --mdc-switch-selected-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-handle-color: var(--theme-background) !important;
   --mdc-switch-selected-hover-state-layer-color: var(
     --theme-secondary
   ) !important;
@@ -412,7 +412,7 @@ textarea {
 /* ✅ Default (Light Mode) */
 .custom-fill-field .mat-mdc-text-field-wrapper,
 textarea.custom-fill-field {
-  background-color: #ffffff !important;
+  background-color: var(--theme-background) !important;
   border-radius: 0.25rem;
   box-shadow: inset 0 0 0 1px #415364;
 }
@@ -424,17 +424,17 @@ textarea.custom-fill-field {
 /* ✅ Dark Theme Override */
 body.dark-theme .custom-fill-field .mat-mdc-text-field-wrapper,
 body.dark-theme textarea.custom-fill-field {
-  background-color: #000000 !important;
+  background-color: var(--theme-background) !important;
   box-shadow: inset 0 0 0 1px #415364;
   color: #ffffff;
 }
 
 .mat-mdc-select-panel {
-  background-color: #ffffff !important; // for light
+  background-color: var(--theme-background) !important; // for light
 }
 
 body.dark-theme .mat-mdc-select-panel {
-  background-color: #000000 !important; // for dark
+  background-color: var(--theme-background) !important; // for dark
 }
 
 .toolbar-with-border {
