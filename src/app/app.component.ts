@@ -21,7 +21,6 @@ import {
   ComponentInfo,
   ComponentSelectorService,
 } from './services/component-selector.service';
-import { ConnectionService } from './shared/connection.service';
 
 
 declare const window: any;
@@ -184,9 +183,6 @@ export class AppComponent implements OnDestroy, OnInit {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
-
-  toggleTheme(): void {
-    this.themeService.setDark(!this.isDarkTheme); // ✅ Use service setter
 
   /**
    * Toggles between light and dark themes.
