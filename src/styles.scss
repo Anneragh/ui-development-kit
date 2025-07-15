@@ -560,3 +560,14 @@ input {
   border: none !important;
   background-color: transparent !important;
 }
+
+.mat-mdc-paginator-range-actions .mat-mdc-icon-button,
+.mat-mdc-paginator-range-actions .mdc-icon-button {
+  border: none !important;
+  // box-shadow: none !important;
+  outline: none !important;
+}
+
+.mat-mdc-paginator-range-actions .mat-mdc-icon-button:focus-visible {
+  outline: none !important;
+}
