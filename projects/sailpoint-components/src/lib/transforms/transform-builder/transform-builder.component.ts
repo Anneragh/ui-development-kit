@@ -332,7 +332,7 @@ import { MapEditorDialogComponent } from './utils/map-editor-dialog.component';
 import { TransformPreviewComponent } from './utils/transform-preview.component';
 
 interface ThemedDesigner extends Designer {
-  setTheme: (theme: 'dark' | 'light') => void;
+  setTheme?: (theme: 'dark' | 'light') => void;
 }
 
 interface StepDefinition {
@@ -580,7 +580,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private autoSaveSubject = new Subject<Definition>();
 
-  private designer?: ThemedDesigner;
+  private designer?: Designer;
   public validatorConfiguration?: ValidatorConfiguration;
   public stepEditorProvider?: StepEditorProvider;
   public rootEditorProvider?: RootEditorProvider;
@@ -1058,7 +1058,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     this.updateIsValid();
 
     // Safely apply initial theme
-    designer.setTheme(this.isDarkTheme ? 'dark' : 'light');
+    designer.setTheme?.(this.isDarkTheme ? 'dark' : 'light');
   }
 
   public onDefinitionChanged(definition: Definition) {
