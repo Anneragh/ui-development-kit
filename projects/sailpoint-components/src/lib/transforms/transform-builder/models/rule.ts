@@ -32,12 +32,14 @@ export interface RuleStep extends Step {
 
 export function createRuleStepModel(rules: string[]) {
     return createStepModel<RuleStep>('rule', 'task', step => {
-    step.property('name').value(
-        createChoiceValueModel({
-            choices: rules,
-        })
-      )
-      .label('Name of the Rule to Reference');
+      if(rules.length > 0) {
+        step.property('name').value(
+                createChoiceValueModel({
+                    choices: rules,
+                })
+              )
+              .label('Name of the Rule to Reference');
+      }
   });
 }
 

@@ -4,7 +4,14 @@ import {
   LayoutModule,
 } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Renderer2, OnDestroy, ViewChild, ElementRef, } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -21,7 +28,6 @@ import {
   ComponentInfo,
   ComponentSelectorService,
 } from './services/component-selector.service';
-
 
 declare const window: any;
 
@@ -222,6 +228,20 @@ export class AppComponent implements OnDestroy, OnInit {
    */
   toggleSidenav(): void {
     this.sidenavOpened = !this.sidenavOpened;
+  }
+
+  // New method to handle link clicks
+  handleLinkClick(event: MouseEvent): void {
+    // If not connected, prevent the default action
+    if (!this.isConnected) {
+      event.preventDefault();
+      return;
+    }
+    
+    // Close sidebar on small screens when a link is clicked
+    if (this.isSmallScreen && this.sidenavOpened) {
+      this.sidenavOpened = false;
+    }
   }
 
   /**

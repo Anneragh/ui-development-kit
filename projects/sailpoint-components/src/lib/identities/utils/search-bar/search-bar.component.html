@@ -1,7 +1,10 @@
-<input
-  type="text"
-  class="search-bar"
-  [placeholder]="placeholder"
-  [(ngModel)]="searchQuery"
-  (ngModelChange)="onSearch($event)"
-/>
+<mat-form-field appearance="fill" class="custom-fill-field">
+  <mat-label>{{ placeholder }}</mat-label>
+  <input
+    matInput
+    type="text"
+    [(ngModel)]="searchQuery"
+    (ngModelChange)="onSearch($event)"
+    placeholder="Search..."
+  />
+</mat-form-field>
