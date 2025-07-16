@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, interval, Subscription } from 'rxjs';
+import { BehaviorSubject, interval } from 'rxjs';
 import { takeWhile, map } from 'rxjs/operators';
 
 export interface Connection {
