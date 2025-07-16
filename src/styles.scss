@@ -8,38 +8,63 @@ body.dark-theme {
   --theme-secondary: #0071ce;
   --theme-primary-text: #ffffff;
   --theme-secondary-text: #ffffff;
+  --theme-hover-text: #ffffff;
   --theme-background: #1e1e1e;
 
-  --mdc-protected-button-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-  --mdc-protected-button-disabled-container-elevation-shadow: 0px 0px 0px 0px
-      rgba(0, 0, 0, 0.2),
-    0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0.12);
-  --mdc-protected-button-focus-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-  --mdc-protected-button-hover-container-elevation-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2),
-    0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
-  --mdc-protected-button-pressed-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  // General Material theme
+  --mat-sys-primary: var(--theme-primary) !important;
+  --mat-sys-on-primary: var(--theme-secondary) !important;
+
+  // Switch
+  --mdc-switch-selected-handle-color: var(--theme-background) !important;
+  --mdc-switch-selected-focus-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-hover-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-pressed-handle-color: var(--theme-primary) !important;
+
+  --mdc-switch-selected-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-focus-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-hover-track-color: var(--theme-secondary) !important;
+  --mdc-switch-selected-pressed-track-color: var(--theme-secondary) !important;
+
+  --mdc-switch-selected-focus-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-hover-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+  --mdc-switch-selected-pressed-state-layer-color: var(
+    --theme-secondary
+  ) !important;
+
+  // Protected button
   --mdc-protected-button-container-color: #151316;
+  --mdc-protected-button-container-height: 40px;
+  --mdc-protected-button-container-shape: 9999px;
   --mdc-protected-button-label-text-color: var(--theme-primary) !important;
-  --mdc-protected-button-disabled-container-color: rgba(230, 225, 230, 0.12);
-  --mdc-protected-button-disabled-label-text-color: rgba(230, 225, 230, 0.38);
   --mdc-protected-button-label-text-font: Roboto, sans-serif;
   --mdc-protected-button-label-text-size: 0.875rem;
   --mdc-protected-button-label-text-tracking: 0.006rem;
   --mdc-protected-button-label-text-weight: 500;
-  --mdc-protected-button-container-height: 40px;
-  --mdc-protected-button-container-shape: 9999px;
-  --mdc-circular-progress-active-indicator-color: var(
-    --theme-primary
-  ) !important;
-  --mdc-switch-selected-track-color: var(--theme-primary) !important;
-  --mdc-switch-selected-focus-track-color: var(--theme-primary) !important;
-  --mat-sys-primary: var(--theme-primary) !important;
-  --mat-sys-on-primary: var(--theme-secondary) !important;
-  --mdc-switch-selected-handle-color: var(--theme-primary) !important;
+  --mdc-protected-button-disabled-container-color: rgba(230, 225, 230, 0.12);
+  --mdc-protected-button-disabled-label-text-color: rgba(230, 225, 230, 0.38);
 
+  --mdc-protected-button-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+
+  --mdc-protected-button-disabled-container-elevation-shadow: 0px 0px 0px 0px
+      rgba(0, 0, 0, 0.2),
+    0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0.12);
+
+  --mdc-protected-button-focus-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+
+  --mdc-protected-button-hover-container-elevation-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+
+  --mdc-protected-button-pressed-container-elevation-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+
+  // Slider
   --mdc-slider-handle-color: var(--theme-secondary) !important;
   --mdc-slider-focus-handle-color: var(--theme-secondary) !important;
   --mdc-slider-hover-handle-color: var(--theme-secondary) !important;
@@ -55,7 +80,6 @@ body.dark-theme {
     --theme-background
   ) !important;
   --mdc-slider-label-container-color: var(--theme-secondary) !important;
-
   --mdc-slider-label-label-text-color: var(--theme-primary) !important;
   --mdc-slider-with-overlap-handle-outline-color: var(
     --theme-primary
@@ -64,22 +88,10 @@ body.dark-theme {
     --theme-background
   ) !important;
 
-  --mdc-switch-selected-focus-state-layer-color: var(
-    --theme-secondary
+  // Progress indicator
+  --mdc-circular-progress-active-indicator-color: var(
+    --theme-primary
   ) !important;
-  --mdc-switch-selected-hover-state-layer-color: var(
-    --theme-secondary
-  ) !important;
-  --mdc-switch-selected-pressed-state-layer-color: var(
-    --theme-secondary
-  ) !important;
-  --mdc-switch-selected-focus-handle-color: var(--theme-primary) !important;
-  --mdc-switch-selected-hover-handle-color: var(--theme-primary) !important;
-  --mdc-switch-selected-pressed-handle-color: var(--theme-primary) !important;
-  --mdc-switch-selected-focus-track-color: var(--theme-secondary) !important;
-  --mdc-switch-selected-hover-track-color: var(--theme-secondary) !important;
-  --mdc-switch-selected-pressed-track-color: var(--theme-secondary) !important;
-  --mdc-switch-selected-track-color: var(--theme-secondary) !important;
 }
 
 body {
@@ -94,7 +106,7 @@ body {
   --mdc-switch-selected-focus-state-layer-color: var(
     --theme-secondary
   ) !important;
-  --mdc-switch-selected-handle-color: var(--theme-primary) !important;
+  --mdc-switch-selected-handle-color: var(--theme-background) !important;
   --mdc-switch-selected-hover-state-layer-color: var(
     --theme-secondary
   ) !important;
@@ -164,6 +176,14 @@ $light-theme: mat.define-theme(
 // Apply the light theme by default
 html {
   @include mat.all-component-themes($light-theme);
+
+  // General text and background
+  --mat-sys-on-surface-variant: var(--theme-background) !important;
+  --mat-sidenav-container-text-color: var(--theme-primary-text) !important;
+  --mat-select-placeholder-text-color: var(--theme-primary-text) !important;
+  --mat-optgroup-label-text-color: var(--theme-primary-text) !important;
+
+  // Stepper
   --mat-stepper-header-label-text-color: var(--theme-primary-text) !important;
   --mat-stepper-header-optional-label-text-color: var(
     --theme-primary-text
@@ -174,14 +194,20 @@ html {
   --mat-stepper-header-icon-background-color: var(
     --theme-primary-text
   ) !important;
+  --mat-stepper-header-selected-state-icon-background-color: var(
+    --theme-primary
+  ) !important;
+  --mat-stepper-header-edit-state-icon-background-color: var(
+    --theme-primary
+  ) !important;
 
-  --mat-sidenav-container-text-color: var(--theme-primary-text) !important;
-
+  // Expansion panel
   --mat-expansion-header-description-color: var(
     --theme-primary-text
   ) !important;
   --mat-expansion-header-indicator-color: var(--theme-primary-text) !important;
 
+  // Datepicker
   --mat-datepicker-toggle-active-state-icon-color: var(
     --theme-primary-text
   ) !important;
@@ -195,58 +221,6 @@ html {
   --mat-datepicker-calendar-navigation-button-icon-color: var(
     --theme-primary-text
   ) !important;
-
-  --mat-select-placeholder-text-color: var(--theme-primary-text) !important;
-
-  --mat-form-field-leading-icon-color: var(--theme-primary-text) !important;
-  --mat-form-field-trailing-icon-color: var(--theme-primary-text) !important;
-
-  --mdc-outlined-text-field-label-text-color: var(
-    --theme-primary-text
-  ) !important;
-  --mdc-outlined-text-field-input-text-placeholder-color: var(
-    --theme-primary-text
-  ) !important;
-
-  --mdc-filled-text-field-label-text-color: var(
-    --theme-primary-text
-  ) !important;
-  --mdc-filled-text-field-hover-label-text-color: var(
-    --theme-primary-text
-  ) !important;
-
-  --mdc-list-list-item-supporting-text-color: var(
-    --theme-primary-text
-  ) !important;
-  --mdc-list-list-item-leading-icon-color: var(--theme-primary-text) !important;
-  --mdc-list-list-item-trailing-supporting-text-color: var(
-    --theme-primary-text
-  ) !important;
-  --mdc-list-list-item-trailing-icon-color: var(
-    --theme-primary-text
-  ) !important;
-
-  --mat-menu-item-icon-color: var(--theme-primary-text) !important;
-
-  --mdc-chip-focus-outline-color: var(--theme-primary-text) !important;
-  --mdc-chip-hover-state-layer-color: var(--theme-primary-text) !important;
-  --mdc-chip-label-text-color: var(--theme-primary-text) !important;
-  --mdc-chip-with-icon-icon-color: var(--theme-primary-text) !important;
-  --mdc-chip-with-trailing-icon-trailing-icon-color: var(
-    --theme-primary-text
-  ) !important;
-
-  --mat-optgroup-label-text-color: var(--theme-primary-text) !important;
-
-  /* Stepper */
-  --mat-stepper-header-selected-state-icon-background-color: var(
-    --theme-primary
-  ) !important;
-  --mat-stepper-header-edit-state-icon-background-color: var(
-    --theme-primary
-  ) !important;
-
-  /* Datepicker */
   --mat-datepicker-calendar-date-selected-state-background-color: var(
     --theme-primary
   ) !important;
@@ -260,98 +234,22 @@ html {
     --theme-primary
   ) !important;
 
-  /* Circular progress */
-  --mdc-circular-progress-active-indicator-color: var(
-    --theme-primary
-  ) !important;
-
-  /* Outlined buttons */
-  --mat-outlined-button-state-layer-color: var(--theme-primary) !important;
-
-  /* Protected buttons */
-  --mat-protected-button-state-layer-color: var(--theme-primary) !important;
-
-  /* Text buttons */
-  --mat-text-button-state-layer-color: var(--theme-primary) !important;
-
-  /* MDC outlined button label */
-  --mdc-outlined-button-label-text-color: var(--theme-primary) !important;
-
-  /* MDC filled button */
-  --mdc-filled-button-container-color: var(--theme-primary) !important;
-
-  /* MDC protected button label */
-  --mdc-protected-button-label-text-color: var(--theme-primary) !important;
-
-  /* MDC text button label */
-  --mdc-text-button-label-text-color: var(--theme-primary) !important;
-
-  /* MDC checkbox icons & layers */
-  --mdc-checkbox-selected-pressed-icon-color: var(--theme-primary) !important;
-  --mdc-checkbox-selected-focus-icon-color: var(--theme-primary) !important;
-  --mdc-checkbox-selected-hover-icon-color: var(--theme-primary) !important;
-  --mdc-checkbox-selected-icon-color: var(--theme-primary) !important;
-  --mdc-checkbox-selected-focus-state-layer-color: var(
-    --theme-primary
-  ) !important;
-  --mdc-checkbox-selected-hover-state-layer-color: var(
-    --theme-primary
-  ) !important;
-
-  /* Tab header indicator */
-  --mat-tab-header-active-focus-indicator-color: var(
-    --theme-primary
-  ) !important;
-  --mat-tab-header-active-hover-indicator-color: var(
-    --theme-primary
-  ) !important;
-  --mdc-tab-indicator-active-indicator-color: var(--theme-primary) !important;
-
-  /* List item selected trailing icon */
-  --mdc-list-list-item-selected-trailing-icon-color: var(
-    --theme-primary
-  ) !important;
-
-  /* Slider */
-  --mat-slider-ripple-color: var(--theme-primary) !important;
-  --mdc-slider-handle-color: var(--theme-primary) !important;
-  --mdc-slider-focus-handle-color: var(--theme-primary) !important;
-  --mdc-slider-hover-handle-color: var(--theme-primary) !important;
-  --mdc-slider-active-track-color: var(--theme-primary) !important;
-  --mdc-slider-label-container-color: var(--theme-primary) !important;
-
-  /* Radio */
-  --mat-radio-checked-ripple-color: var(--theme-primary) !important;
-  --mdc-radio-selected-focus-icon-color: var(--theme-primary) !important;
-  --mdc-radio-selected-hover-icon-color: var(--theme-primary) !important;
-  --mdc-radio-selected-icon-color: var(--theme-primary) !important;
-  --mdc-radio-selected-pressed-icon-color: var(--theme-primary) !important;
-
-  /* Switch */
-  --mdc-switch-selected-focus-state-layer-color: var(
-    --theme-primary
-  ) !important;
-  --mdc-switch-selected-hover-state-layer-color: var(
-    --theme-primary
-  ) !important;
-  --mdc-switch-selected-pressed-state-layer-color: var(
-    --theme-primary
-  ) !important;
-  --mdc-switch-selected-focus-track-color: var(--theme-primary) !important;
-  --mdc-switch-selected-hover-track-color: var(--theme-primary) !important;
-  --mdc-switch-selected-pressed-track-color: var(--theme-primary) !important;
-  --mdc-switch-selected-track-color: var(--theme-primary) !important;
-
-  /* Form-field select arrow */
+  // Form fields & text fields
+  --mat-form-field-leading-icon-color: var(--theme-primary-text) !important;
+  --mat-form-field-trailing-icon-color: var(--theme-primary-text) !important;
   --mat-form-field-focus-select-arrow-color: var(--theme-primary) !important;
-
-  /* Filled text field */
-  --mdc-filled-text-field-caret-color: var(--theme-primary) !important;
-  --mdc-filled-text-field-focus-active-indicator-color: var(
-    --theme-primary
+  --mat-select-focused-arrow-color: var(--theme-primary) !important;
+  --mdc-outlined-text-field-label-text-color: var(
+    --theme-primary-text
   ) !important;
-  --mdc-filled-text-field-focus-label-text-color: var(
-    --theme-primary
+  --mdc-outlined-text-field-input-text-placeholder-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-filled-text-field-label-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-filled-text-field-hover-label-text-color: var(
+    --theme-primary-text
   ) !important;
   --mdc-outlined-text-field-caret-color: var(--theme-primary) !important;
   --mdc-outlined-text-field-focus-outline-color: var(
@@ -360,24 +258,115 @@ html {
   --mdc-outlined-text-field-focus-label-text-color: var(
     --theme-primary
   ) !important;
-
-  /* Linear progress */
-  --mdc-linear-progress-active-indicator-color: var(--theme-primary) !important;
-
-  /* Minimal pseudo-checkbox */
-  --mat-minimal-pseudo-checkbox-selected-checkmark-color: var(
+  --mdc-filled-text-field-caret-color: var(--theme-primary) !important;
+  --mdc-filled-text-field-focus-active-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-filled-text-field-focus-label-text-color: var(
     --theme-primary
   ) !important;
 
-  /* Full pseudo-checkbox */
-  --mat-full-pseudo-checkbox-selected-icon-color: var(
+  // Buttons
+  --mat-outlined-button-state-layer-color: var(--theme-primary) !important;
+  --mat-protected-button-state-layer-color: var(--theme-primary) !important;
+  --mat-text-button-state-layer-color: var(--theme-primary) !important;
+  --mdc-outlined-button-label-text-color: var(--theme-primary) !important;
+  --mdc-filled-button-container-color: var(--theme-primary) !important;
+  --mdc-protected-button-label-text-color: var(--theme-primary) !important;
+  --mdc-text-button-label-text-color: var(--theme-primary) !important;
+
+  // Menu & list items
+  --mat-menu-item-icon-color: var(--theme-primary-text) !important;
+  --mdc-list-list-item-supporting-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-list-list-item-leading-icon-color: var(--theme-primary-text) !important;
+  --mdc-list-list-item-trailing-supporting-text-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-list-list-item-trailing-icon-color: var(
+    --theme-primary-text
+  ) !important;
+  --mdc-list-list-item-selected-trailing-icon-color: var(
     --theme-primary
   ) !important;
 
+  // Chip
+  --mdc-chip-focus-outline-color: var(--theme-primary-text) !important;
+  --mdc-chip-hover-state-layer-color: var(--theme-primary-text) !important;
+  --mdc-chip-label-text-color: var(--theme-primary-text) !important;
+  --mdc-chip-with-icon-icon-color: var(--theme-primary-text) !important;
+  --mdc-chip-with-trailing-icon-trailing-icon-color: var(
+    --theme-primary-text
+  ) !important;
+
+  // Checkbox
+  --mdc-checkbox-selected-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-hover-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-focus-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-pressed-icon-color: var(--theme-primary) !important;
+  --mdc-checkbox-selected-focus-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-checkbox-selected-hover-state-layer-color: var(
+    --theme-primary
+  ) !important;
   --mdc-checkbox-unselected-pressed-state-layer-color: var(
     --theme-primary
   ) !important;
-  --mat-select-focused-arrow-color: var(--theme-primary) !important;
+
+  // Switch
+  --mdc-switch-selected-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-hover-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-focus-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-pressed-track-color: var(--theme-primary) !important;
+  --mdc-switch-selected-hover-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-switch-selected-focus-state-layer-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-switch-selected-pressed-state-layer-color: var(
+    --theme-primary
+  ) !important;
+
+  // Radio
+  --mat-radio-checked-ripple-color: var(--theme-primary) !important;
+  --mdc-radio-selected-icon-color: var(--theme-primary) !important;
+  --mdc-radio-selected-hover-icon-color: var(--theme-primary) !important;
+  --mdc-radio-selected-focus-icon-color: var(--theme-primary) !important;
+  --mdc-radio-selected-pressed-icon-color: var(--theme-primary) !important;
+
+  // Slider
+  --mat-slider-ripple-color: var(--theme-primary) !important;
+  --mdc-slider-handle-color: var(--theme-primary) !important;
+  --mdc-slider-focus-handle-color: var(--theme-primary) !important;
+  --mdc-slider-hover-handle-color: var(--theme-primary) !important;
+  --mdc-slider-active-track-color: var(--theme-primary) !important;
+  --mdc-slider-label-container-color: var(--theme-primary) !important;
+
+  // Tabs
+  --mat-tab-header-active-focus-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mat-tab-header-active-hover-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-tab-indicator-active-indicator-color: var(--theme-primary) !important;
+
+  // Progress indicators
+  --mdc-circular-progress-active-indicator-color: var(
+    --theme-primary
+  ) !important;
+  --mdc-linear-progress-active-indicator-color: var(--theme-primary) !important;
+
+  // Pseudo-checkboxes
+  --mat-minimal-pseudo-checkbox-selected-checkmark-color: var(
+    --theme-primary
+  ) !important;
+  --mat-full-pseudo-checkbox-selected-icon-color: var(
+    --theme-primary
+  ) !important;
 }
 
 // Apply the dark theme only when the 'dark-theme' class is added to the body
@@ -391,7 +380,7 @@ body {
   padding: 0;
 
   height: 100%;
-  font-family: "Poppins";
+  font-family: "Poppins" !important;
 }
 html,
 body {
@@ -405,7 +394,7 @@ body {
 }
 body {
   margin: 0;
-  font-family: "Poppins";
+  font-family: "Poppins" !important;
 }
 
 .block {
@@ -424,7 +413,7 @@ textarea {
 /* ✅ Default (Light Mode) */
 .custom-fill-field .mat-mdc-text-field-wrapper,
 textarea.custom-fill-field {
-  background-color: #ffffff !important;
+  background-color: var(--theme-background) !important;
   border-radius: 0.25rem;
   box-shadow: inset 0 0 0 1px #415364;
 }
@@ -436,17 +425,17 @@ textarea.custom-fill-field {
 /* ✅ Dark Theme Override */
 body.dark-theme .custom-fill-field .mat-mdc-text-field-wrapper,
 body.dark-theme textarea.custom-fill-field {
-  background-color: #000000 !important;
+  background-color: var(--theme-background) !important;
   box-shadow: inset 0 0 0 1px #415364;
   color: #ffffff;
 }
 
 .mat-mdc-select-panel {
-  background-color: #ffffff !important; // for light
+  background-color: var(--theme-background) !important; // for light
 }
 
 body.dark-theme .mat-mdc-select-panel {
-  background-color: #000000 !important; // for dark
+  background-color: var(--theme-background) !important; // for dark
 }
 
 .toolbar-with-border {
@@ -506,6 +495,8 @@ button {
   width: fit-content;
   padding: 5px;
   border-radius: 0.5rem !important;
+  font-family: "Poppins" !important;
+  font-size: 14px !important;
 }
 
 button:hover {
@@ -564,4 +555,30 @@ input {
 .dark-theme .mdc-switch:hover {
   background-color: var(--theme-background) !important;
   border: none !important;
+}
+
+.mat-mdc-form-field-input-control.mat-mdc-form-field-input-control {
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.mat-mdc-paginator-range-actions .mat-mdc-icon-button,
+.mat-mdc-paginator-range-actions .mdc-icon-button {
+  border: none !important;
+  // box-shadow: none !important;
+  outline: none !important;
+}
+
+.mat-mdc-paginator-range-actions .mat-mdc-icon-button:focus-visible {
+  outline: none !important;
+}
+
+.mat-mdc-paginator-range-actions button {
+  color: var(--theme-primary-text) !important;
+}
+.mat-mdc-paginator-icon {
+  fill: currentColor !important;
+}
+.mat-mdc-paginator-range-actions button:hover .mat-mdc-paginator-icon {
+  color: var(--theme-hover-text) !important;
 }

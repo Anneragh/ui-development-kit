@@ -5,13 +5,6 @@
   </mat-toolbar>
 
   <div class="content">
-    <!-- Column customization control (lets user choose visible columns) -->
-    <app-column-customizer
-      [allColumns]="columnOrder"
-      [displayedColumns]="displayedColumns"
-      (displayedColumnsChange)="displayedColumns = $event"
-    />
-
     <!-- Search bar for local and remote filtering -->
     <app-search-bar
       [data]="identities"
@@ -19,6 +12,13 @@
       (filtered)="filteredIdentities = $event"
       (searchApi)="onRemoteSearch($event)"
     ></app-search-bar>
+
+    <!-- Column customization control (lets user choose visible columns) -->
+    <app-column-customizer
+      [allColumns]="columnOrder"
+      [displayedColumns]="displayedColumns"
+      (displayedColumnsChange)="displayedColumns = $event"
+    />
 
     <!-- Loading spinner shown while data is being fetched -->
     <div *ngIf="loading" class="spinner-container">

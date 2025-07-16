@@ -99,8 +99,32 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="logoUpload">Upload Logo (for {{ mode }} mode):</label>
-        <input type="file" (change)="onFileSelected($event)" id="logoUpload" />
+        <mat-form-field appearance="outline" class="upload-logo-label">
+          <mat-label>Upload Logo ({{ mode }})</mat-label>
+
+          <input
+            matInput
+            [value]="selectedLogoFile?.name || 'No file chosen…'"
+            readonly
+          />
+
+          <button
+            class="upload-button"
+            mat-icon-button
+            matSuffix
+            aria-label="Select logo file"
+            (click)="fileInput.click()"
+          >
+            <mat-icon>upload</mat-icon>
+          </button>
+
+          <input
+            #fileInput
+            type="file"
+            hidden
+            (change)="onFileSelected($event)"
+          />
+        </mat-form-field>
       </div>
 
       <button (click)="apply()">Apply</button>

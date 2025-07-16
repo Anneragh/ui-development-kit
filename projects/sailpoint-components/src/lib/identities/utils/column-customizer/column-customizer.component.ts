@@ -9,6 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import {
   DragDropModule,
   CdkDragDrop,
@@ -18,7 +19,7 @@ import {
 @Component({
   selector: 'app-column-customizer', // Component selector for template usage
   standalone: true, // Allows standalone usage without needing module declarations
-  imports: [CommonModule, DragDropModule], // Modules needed for this component
+  imports: [CommonModule, DragDropModule, MatButtonModule], // Modules needed for this component
   templateUrl: './column-customizer.component.html', // Component template
   styleUrl: './column-customizer.component.scss', // Component styles
 })
