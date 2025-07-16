@@ -19,6 +19,7 @@ describe('AppComponent', () => {
   beforeEach(waitForAsync(() => {
     mockConnectionService = {
       isConnected$: of({ connected: false }),
+      countdown$: of(null),
       sessionStatus$: of(null),
       currentEnvironment$: of(null),
       startSessionMonitoring: jest.fn().mockReturnValue(undefined), // Use jest.fn() for mocking
