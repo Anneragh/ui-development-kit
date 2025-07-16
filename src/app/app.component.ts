@@ -117,6 +117,14 @@ export class AppComponent implements OnDestroy, OnInit {
       })
     );
 
+    // Subscribe to countdown updates for real-time session display updates
+    this.subscriptions.add(
+      this.connectionService.countdown$.subscribe(() => {
+        // This triggers change detection for countdown display without logging
+        // The sessionStatusDisplay getter will recalculate the time automatically
+      })
+    );
+
     // Subscribe to current environment changes
     this.subscriptions.add(
       this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | null) => {
@@ -125,15 +133,16 @@ export class AppComponent implements OnDestroy, OnInit {
       })
     );
     // Monitor connection state and redirect on disconnect
-
-    this.connectionService.isConnected$.subscribe((connection) => {
-      this.isConnected = connection.connected;
-      if (!connection.connected) {
-        this.router.navigate(['/home']).catch((error) => {
-          console.error('Navigation error:', error);
-        });
-      }
-    });
+    this.subscriptions.add(
+      this.connectionService.isConnected$.subscribe((connection) => {
+        this.isConnected = connection.connected;
+        if (!connection.connected) {
+          this.router.navigate(['/home']).catch((error) => {
+            console.error('Navigation error:', error);
+          });
+        }
+      })
+    );
   }
 
   ngOnInit(): void {
