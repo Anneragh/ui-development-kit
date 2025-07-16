@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   refreshPATToken: (environment: any) => ipcMain.invoke('refresh-pat-token', environment),
   checkEnvironmentTokenStatus: (environment: any) => ipcMain.invoke('check-environment-token-status', environment),
   getStoredOAuthTokens: (environment: any) => ipcMain.invoke('get-stored-oauth-tokens', environment),
+  getStoredPATTokens: (environment: any) => ipcMain.invoke('get-stored-pat-tokens', environment),
   
   // Environment management
   getTenants: () => ipcMain.invoke('get-tenants'),
