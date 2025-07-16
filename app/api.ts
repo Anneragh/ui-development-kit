@@ -6,7 +6,7 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import * as keytar from 'keytar';
+import { safeStorage } from 'electron';
 import * as os from 'os';
 import { shell } from 'electron';
 import axios, { AxiosResponse } from 'axios';
@@ -73,12 +73,20 @@ interface TokenSet {
   refreshExpiry: Date;
 }
 
-// New interfaces for token management
+// Interfaces for stored tokens (aligned structure)
 interface StoredOAuthTokens {
   accessToken: string;
   accessExpiry: string; // ISO string for serialization
   refreshToken: string;
   refreshExpiry: string; // ISO string for serialization
+  environment: string;
+}
+
+interface StoredPATTokens {
+  accessToken: string;
+  accessExpiry: string; // ISO string for serialization
+  clientId: string;
+  clientSecret: string;
   environment: string;
 }
 
@@ -141,43 +149,70 @@ export const unifiedLogin = async (request: UnifiedLoginRequest): Promise<Unifie
       };
     }
 
-    // Check for existing valid tokens before proceeding
+    // Check for existing tokens and attempt refresh if needed
     const tokenStatus = await checkEnvironmentTokenStatus(request.environment);
-    if (tokenStatus.hasValidTokens && tokenStatus.authType === request.authType) {
-      console.log(`Using existing valid ${tokenStatus.authType} tokens for environment: ${request.environment}`);
-      
-      // Test the connection with existing tokens
-      let connectionResult;
-      if (tokenStatus.authType === 'oauth') {
-        // For OAuth, we need to get the stored access token
-        const storedTokens = await getStoredOAuthTokens(request.environment);
-        if (storedTokens) {
-          connectionResult = await connectToISCWithOAuth(
-            request.apiUrl,
-            request.baseUrl,
-            storedTokens.accessToken,
-            request.environment
-          );
+    
+    if (tokenStatus.authType === request.authType) {
+      if (tokenStatus.hasValidTokens) {
+        console.log(`Using existing valid ${tokenStatus.authType} tokens for environment: ${request.environment}`);
+        
+        // Test the connection with existing tokens
+        let connectionResult;
+        if (tokenStatus.authType === 'oauth') {
+          const storedTokens = await getStoredOAuthTokens(request.environment);
+          if (storedTokens) {
+            connectionResult = await connectToISCWithOAuth(
+              request.apiUrl,
+              request.baseUrl,
+              storedTokens.accessToken,
+              request.environment
+            );
+          }
+        } else {
+          const storedTokens = await getStoredPATTokens(request.environment);
+          if (storedTokens) {
+            connectionResult = await connectToISCWithOAuth(
+              request.apiUrl,
+              request.baseUrl,
+              storedTokens.accessToken,
+              request.environment
+            );
+          }
         }
-      } else {
-        // For PAT, we need to get the stored access token
-        const accessToken = await getAccessToken(request.environment);
-        if (accessToken) {
-          connectionResult = await connectToISCWithOAuth(
-            request.apiUrl,
-            request.baseUrl,
-            accessToken,
-            request.environment
-          );
-        }
-      }
 
-      if (connectionResult && connectionResult.connected) {
-        return {
-          success: true,
-          connected: true,
-          name: connectionResult.name
-        };
+        if (connectionResult && connectionResult.connected) {
+          return {
+            success: true,
+            connected: true,
+            name: connectionResult.name
+          };
+        }
+      } else if (tokenStatus.needsRefresh) {
+        // Attempt to refresh tokens using cached refresh token
+        console.log(`Attempting to refresh expired tokens for environment: ${request.environment}`);
+        try {
+          const refreshedTokenSet = await refreshTokens(request.environment);
+          
+          // Test the connection with refreshed tokens
+          const connectionResult = await connectToISCWithOAuth(
+            request.apiUrl,
+            request.baseUrl,
+            refreshedTokenSet.accessToken,
+            request.environment
+          );
+
+          if (connectionResult && connectionResult.connected) {
+            console.log('Successfully refreshed tokens and connected');
+            return {
+              success: true,
+              connected: true,
+              name: connectionResult.name,
+              tokens: refreshedTokenSet
+            };
+          }
+        } catch (refreshError) {
+          console.log('Token refresh failed, will start new authentication flow:', refreshError);
+        }
       }
     } else if (tokenStatus.hasValidTokens && tokenStatus.authType !== request.authType) {
       console.log(`Found valid ${tokenStatus.authType} tokens but user requested ${request.authType} authentication. Proceeding with new ${request.authType} authentication.`);
@@ -585,7 +620,7 @@ export const validateConnectionTokens = async (environment: string): Promise<{
 }> => {
   try {
     console.log(`Validating connection tokens for environment: ${environment}`);
-    const validation = await validateTokens(environment);
+    const validation = await validateTokens(environment, true); // Explicitly request API validation
     
     if (validation.isValid) {
       console.log(`Connection tokens validated successfully for environment: ${environment} (${validation.authType})`);
@@ -611,16 +646,112 @@ export const validateConnectionTokens = async (environment: string): Promise<{
   }
 };
 
-// Function to store PAT token after successful authentication
-async function storePATToken(environment: string, accessToken: string, expiry: Date): Promise<void> {
+/**
+ * Stores PAT tokens securely for a given environment
+ * @param environment - The environment name to store tokens for
+ * @param tokenSet - The token set to store
+ */
+async function storePATTokens(environment: string, tokenSet: TokenSet): Promise<void> {
   try {
-    await setSecureValue('environments.pat.accesstoken', environment, accessToken);
-    await setSecureValue('environments.pat.expiry', environment, expiry.toISOString());
-    console.log(`PAT token and expiry stored for environment: ${environment}`);
+    await setSecureValue('environments.pat.accesstoken', environment, tokenSet.accessToken);
+    await setSecureValue('environments.pat.expiry', environment, tokenSet.accessExpiry.toISOString());
+    
+    // Store client credentials if available
+    const clientId = await getClientId(environment);
+    const clientSecret = await getClientSecret(environment);
+    
+    if (clientId && clientSecret) {
+      await setSecureValue('environments.pat.clientid', environment, clientId);
+      await setSecureValue('environments.pat.clientsecret', environment, clientSecret);
+    }
+
+    console.log(`PAT tokens stored for environment: ${environment}`);
   } catch (error) {
-    console.error('Error storing PAT token or expiry:', error);
+    console.error('Error storing PAT tokens:', error);
     throw error;
   }
+}
+
+/**
+ * Retrieves stored PAT tokens for a given environment
+ * @param environment - The environment name to retrieve tokens for
+ * @returns Promise resolving to stored PAT tokens or null if not found
+ */
+async function getStoredPATTokens(environment: string): Promise<StoredPATTokens | null> {
+  try {
+    const accessToken = await getSecureValue('environments.pat.accesstoken', environment);
+    const accessExpiry = await getSecureValue('environments.pat.expiry', environment);
+    const clientId = await getSecureValue('environments.pat.clientid', environment);
+    const clientSecret = await getSecureValue('environments.pat.clientsecret', environment);
+
+    if (!accessToken || !accessExpiry || !clientId || !clientSecret) {
+      return null;
+    }
+
+    return {
+      accessToken,
+      accessExpiry,
+      clientId,
+      clientSecret,
+      environment
+    };
+  } catch (error) {
+    console.error('Error retrieving PAT tokens:', error);
+    throw error;
+  }
+}
+
+// Legacy PAT token functions (kept for backward compatibility)
+async function getClientId(env: string): Promise<string | null> {
+  return getSecureValue('environments.pat.clientid', env);
+}
+
+async function getClientSecret(env: string): Promise<string | null> {
+  return getSecureValue('environments.pat.clientsecret', env);
+}
+
+async function getAccessToken(env: string): Promise<string | null> {
+  try {
+    const accessToken = await getSecureValue('environments.pat.accesstoken', env);
+    if (!accessToken) {
+      console.log(`No PAT access token found for environment: ${env}`);
+      return null;
+    }
+    return accessToken;
+  } catch (error) {
+    console.error(`Error retrieving PAT access token for environment: ${env}`, error);
+    return null;
+  }
+}
+
+async function getPATTokenExpiry(env: string): Promise<Date | null> {
+  try {
+    const expiryString = await getSecureValue('environments.pat.expiry', env);
+    if (!expiryString) {
+      console.log(`No PAT token expiry found for environment: ${env}`);
+      return null;
+    }
+    const expiry = new Date(expiryString);
+    if (isNaN(expiry.getTime())) {
+      console.error(`Invalid expiry date format for environment: ${env}`);
+      return null;
+    }
+    return expiry;
+  } catch (error) {
+    console.error(`Error retrieving PAT token expiry for environment: ${env}`, error);
+    return null;
+  }
+}
+
+// Legacy function for backward compatibility
+async function storePATToken(environment: string, accessToken: string, expiry: Date): Promise<void> {
+  const tokenSet: TokenSet = {
+    accessToken,
+    accessExpiry: expiry,
+    refreshToken: '',
+    refreshExpiry: expiry
+  };
+  await storePATTokens(environment, tokenSet);
 }
 
 export const connectToISC = async (
@@ -680,7 +811,17 @@ export const connectToISC = async (
         if (tokenResponse.ok) {
           const tokenData = await tokenResponse.json();
           if (tokenData.access_token) {
-            await storePATToken(environment, tokenData.access_token, new Date(tokenData.expires_in * 1000));
+            const accessTokenClaims = parseJwt(tokenData.access_token);
+            const expiry = new Date(accessTokenClaims.exp * 1000);
+            
+            const tokenSet: TokenSet = {
+              accessToken: tokenData.access_token,
+              accessExpiry: expiry,
+              refreshToken: '',
+              refreshExpiry: expiry
+            };
+            
+            await storePATTokens(environment, tokenSet);
           }
         }
       } catch (tokenError) {
@@ -724,7 +865,7 @@ export const connectToISCWithOAuth = async (
 };
 
 // Unified token validation function
-async function validateTokens(environment: string): Promise<{
+async function validateTokens(environment: string, performApiValidation: boolean = true): Promise<{
   isValid: boolean;
   needsRefresh: boolean;
   token?: string;
@@ -735,7 +876,7 @@ async function validateTokens(environment: string): Promise<{
     const authType = await getGlobalAuthType();
     
     if (authType === 'oauth') {
-      const oauthValidation = await validateOAuthTokens(environment);
+      const oauthValidation = await validateOAuthTokens(environment, performApiValidation);
       return {
         ...oauthValidation,
         authType: 'oauth'
@@ -774,11 +915,23 @@ async function getSecureValue(
   environment: string,
 ): Promise<string> {
   try {
-    const allCreds = await keytar.findCredentials(key);
-    const cred = getCredential(allCreds, environment);
-    let value = cred?.password || '';
+    if (!safeStorage.isEncryptionAvailable()) {
+      console.warn('Encryption not available, returning empty value');
+      return '';
+    }
 
-    // Detect and decode base64-encoded values
+    const secureDir = getSecureStorageDir();
+    const filename = getSecureStorageFilename(key, environment);
+    const filePath = path.join(secureDir, filename);
+
+    if (!fs.existsSync(filePath)) {
+      return '';
+    }
+
+    const encryptedData = fs.readFileSync(filePath);
+    let value = safeStorage.decryptString(encryptedData);
+
+    // Detect and decode base64-encoded values (maintain compatibility)
     if (value.startsWith('go-keyring-base64:')) {
       const base64Value = value.replace('go-keyring-base64:', '');
       try {
@@ -796,52 +949,20 @@ async function getSecureValue(
   }
 }
 
-function getCredential(
-  allCreds: Array<{ account: string; password: string }>,
-  environment: string,
-): { account: string; password: string } | undefined {
-  return allCreds.find((cred) => cred.account === environment);
-}
-
-async function getClientId(env: string): Promise<string | null> {
-  return getSecureValue('environments.pat.clientid', env);
-}
-
-async function getClientSecret(env: string): Promise<string | null> {
-  return getSecureValue('environments.pat.clientsecret', env);
-}
-
-async function getAccessToken(env: string): Promise<string | null> {
-  try {
-    const accessToken = await getSecureValue('environments.pat.accesstoken', env);
-    if (!accessToken) {
-      console.log(`No PAT access token found for environment: ${env}`);
-      return null;
-    }
-    return accessToken;
-  } catch (error) {
-    console.error(`Error retrieving PAT access token for environment: ${env}`, error);
-    return null;
+function getSecureStorageDir(): string {
+  const homedir = os.homedir();
+  const secureDir = path.join(homedir, '.sailpoint', 'secure');
+  if (!fs.existsSync(secureDir)) {
+    fs.mkdirSync(secureDir, { recursive: true });
   }
+  return secureDir;
 }
 
-async function getPATTokenExpiry(env: string): Promise<Date | null> {
-  try {
-    const expiryString = await getSecureValue('environments.pat.expiry', env);
-    if (!expiryString) {
-      console.log(`No PAT token expiry found for environment: ${env}`);
-      return null;
-    }
-    const expiry = new Date(expiryString);
-    if (isNaN(expiry.getTime())) {
-      console.error(`Invalid expiry date format for environment: ${env}`);
-      return null;
-    }
-    return expiry;
-  } catch (error) {
-    console.error(`Error retrieving PAT token expiry for environment: ${env}`, error);
-    return null;
-  }
+function getSecureStorageFilename(key: string, environment: string): string {
+  // Create a safe filename by replacing special characters
+  const safeKey = key.replace(/[^a-zA-Z0-9]/g, '_');
+  const safeEnv = environment.replace(/[^a-zA-Z0-9]/g, '_');
+  return `${safeKey}_${safeEnv}.enc`;
 }
 
 export const getTenants = async () => {
@@ -853,13 +974,14 @@ export const getTenants = async () => {
     const tenants: Tenant[] = [];
     for (let environment of Object.keys(config.environments)) {
       const envConfig = config.environments[environment];
+      const storedPATTokens = await getStoredPATTokens(environment);
       tenants.push({
         active: environment === activeEnv,
         name: environment,
         apiUrl: envConfig.baseurl,
         tenantUrl: envConfig.tenanturl,
-        clientId: await getClientId(environment),
-        clientSecret: await getClientSecret(environment),
+        clientId: storedPATTokens?.clientId || null,
+        clientSecret: storedPATTokens?.clientSecret || null,
         authType: config.authtype,
         tenantName: environment,
       });
@@ -892,7 +1014,16 @@ async function setSecureValue(
   value: string,
 ): Promise<void> {
   try {
-    await keytar.setPassword(key, environment, value);
+    if (!safeStorage.isEncryptionAvailable()) {
+      throw new Error('Encryption not available');
+    }
+
+    const secureDir = getSecureStorageDir();
+    const filename = getSecureStorageFilename(key, environment);
+    const filePath = path.join(secureDir, filename);
+
+    const encryptedData = safeStorage.encryptString(value);
+    fs.writeFileSync(filePath, encryptedData);
   } catch (error) {
     console.error(`Error setting secure value for ${key}:`, error);
     throw error;
@@ -904,7 +1035,13 @@ async function deleteSecureValue(
   environment: string,
 ): Promise<void> {
   try {
-    await keytar.deletePassword(key, environment);
+    const secureDir = getSecureStorageDir();
+    const filename = getSecureStorageFilename(key, environment);
+    const filePath = path.join(secureDir, filename);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
   } catch (error) {
     console.error(`Error deleting secure value for ${key}:`, error);
     // Don't throw error for delete operations as the key might not exist
@@ -1122,7 +1259,12 @@ export const setGlobalAuthType = async (authType: string): Promise<ConfigUpdateR
   }
 };
 
-// New function to check token status for an environment
+// New function to check token status for an environment (lightweight - no API calls)
+/**
+ * Checks the token status for a given environment without performing API validation
+ * @param environment - The environment name to check token status for
+ * @returns Promise resolving to token status information
+ */
 export const checkEnvironmentTokenStatus = async (environment: string): Promise<{
   hasValidTokens: boolean;
   authType: string;
@@ -1130,13 +1272,88 @@ export const checkEnvironmentTokenStatus = async (environment: string): Promise<
   expiry?: Date;
 }> => {
   try {
-    const validation = await validateTokens(environment);
-    return {
-      hasValidTokens: validation.isValid,
-      authType: validation.authType,
-      needsRefresh: validation.needsRefresh,
-      expiry: validation.expiry
-    };
+    const authType = await getGlobalAuthType();
+    
+    if (authType === 'oauth') {
+      const storedTokens = await getStoredOAuthTokens(environment);
+      if (!storedTokens) {
+        return {
+          hasValidTokens: false,
+          authType: 'oauth',
+          needsRefresh: false
+        };
+      }
+
+      const now = new Date();
+      const accessExpiry = new Date(storedTokens.accessExpiry);
+      const refreshExpiry = new Date(storedTokens.refreshExpiry);
+
+      // Check if refresh token is expired
+      if (refreshExpiry <= now) {
+        return {
+          hasValidTokens: false,
+          authType: 'oauth',
+          needsRefresh: false
+        };
+      }
+
+      // Check if access token is expired or will expire soon (within 5 minutes)
+      const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
+      if (accessExpiry <= fiveMinutesFromNow) {
+        return {
+          hasValidTokens: false,
+          authType: 'oauth',
+          needsRefresh: true,
+          expiry: accessExpiry
+        };
+      }
+
+      return {
+        hasValidTokens: true,
+        authType: 'oauth',
+        needsRefresh: false,
+        expiry: accessExpiry
+      };
+    } else {
+      const storedTokens = await getStoredPATTokens(environment);
+      if (!storedTokens) {
+        return {
+          hasValidTokens: false,
+          authType: 'pat',
+          needsRefresh: false
+        };
+      }
+
+      // Parse the JWT to extract claims
+      let claims;
+      try {
+        claims = parseJwt(storedTokens.accessToken);
+      } catch (error) {
+        return {
+          hasValidTokens: false,
+          authType: 'pat',
+          needsRefresh: false
+        };
+      }
+
+      // Validate the exp claim
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (!claims.exp || claims.exp <= currentTime) {
+        return {
+          hasValidTokens: false,
+          authType: 'pat',
+          needsRefresh: true
+        };
+      }
+
+      const jwtExpiry = new Date(claims.exp * 1000);
+      return {
+        hasValidTokens: true,
+        authType: 'pat',
+        needsRefresh: false,
+        expiry: jwtExpiry
+      };
+    }
   } catch (error) {
     console.error('Error checking token status:', error);
     return {
@@ -1147,7 +1364,11 @@ export const checkEnvironmentTokenStatus = async (environment: string): Promise<
   }
 };
 
-// New functions for OAuth token management
+/**
+ * Stores OAuth tokens securely for a given environment
+ * @param environment - The environment name to store tokens for
+ * @param tokenSet - The token set to store
+ */
 async function storeOAuthTokens(environment: string, tokenSet: TokenSet): Promise<void> {
   try {
     await setSecureValue('environments.oauth.accesstoken', environment, tokenSet.accessToken);
@@ -1162,6 +1383,11 @@ async function storeOAuthTokens(environment: string, tokenSet: TokenSet): Promis
   }
 }
 
+/**
+ * Retrieves stored OAuth tokens for a given environment
+ * @param environment - The environment name to retrieve tokens for
+ * @returns Promise resolving to stored OAuth tokens or null if not found
+ */
 async function getStoredOAuthTokens(environment: string): Promise<StoredOAuthTokens | null> {
   try {
     const accessToken = await getSecureValue('environments.oauth.accesstoken', environment);
@@ -1186,7 +1412,13 @@ async function getStoredOAuthTokens(environment: string): Promise<StoredOAuthTok
   }
 }
 
-async function validateOAuthTokens(environment: string): Promise<TokenValidationResult> {
+/**
+ * Validates OAuth tokens for a given environment
+ * @param environment - The environment name to validate OAuth tokens for
+ * @param performApiValidation - Whether to perform API validation (default: true)
+ * @returns Promise resolving to token validation result
+ */
+async function validateOAuthTokens(environment: string, performApiValidation: boolean = true): Promise<TokenValidationResult> {
   try {
     const storedTokens = await getStoredOAuthTokens(environment);
     if (!storedTokens) {
@@ -1211,48 +1443,58 @@ async function validateOAuthTokens(environment: string): Promise<TokenValidation
         isValid: false, 
         needsRefresh: true, 
         token: storedTokens.refreshToken,
-        expiry: refreshExpiry
+        expiry: accessExpiry
       };
     }
 
-    // Test the token against the API to see if it's still valid
-    try {
-      const config = await getConfig();
-      const envConfig = config.environments[environment];
-      if (!envConfig) {
-        console.log('Environment configuration not found for OAuth token validation');
-        return { isValid: false, needsRefresh: false };
+    // Test the token against the API to see if it's still valid (only if requested)
+    if (performApiValidation) {
+      try {
+        const config = await getConfig();
+        const envConfig = config.environments[environment];
+        if (!envConfig) {
+          console.log('Environment configuration not found for OAuth token validation');
+          return { isValid: false, needsRefresh: false };
+        }
+
+        const apiUrl = envConfig.baseurl;
+        const testConfig: ConfigurationParameters = {
+          accessToken: storedTokens.accessToken,
+          baseurl: apiUrl,
+        };
+
+        const testApiConfig = new Configuration(testConfig);
+        testApiConfig.experimental = true;
+        const tenantApi = new TenantV2024Api(testApiConfig);
+        
+        // Try to get tenant info to validate the token
+        await tenantApi.getTenant();
+        
+        // If we get here, the token is valid
+        console.log('OAuth token validation successful against API');
+        return { 
+          isValid: true, 
+          needsRefresh: false, 
+          token: storedTokens.accessToken,
+          expiry: accessExpiry
+        };
+      } catch (apiError) {
+        // Token is invalid or expired, even though local expiry check passed
+        console.log('OAuth token validation failed against API:', apiError);
+        return { 
+          isValid: false, 
+          needsRefresh: true, 
+          token: storedTokens.refreshToken,
+          expiry: accessExpiry
+        };
       }
-
-      const apiUrl = envConfig.baseurl;
-      const testConfig: ConfigurationParameters = {
-        accessToken: storedTokens.accessToken,
-        baseurl: apiUrl,
-      };
-
-      const testApiConfig = new Configuration(testConfig);
-      testApiConfig.experimental = true;
-      const tenantApi = new TenantV2024Api(testApiConfig);
-      
-      // Try to get tenant info to validate the token
-      await tenantApi.getTenant();
-      
-      // If we get here, the token is valid
-      console.log('OAuth token validation successful against API');
+    } else {
+      // Skip API validation, assume token is valid based on expiry check
       return { 
         isValid: true, 
         needsRefresh: false, 
         token: storedTokens.accessToken,
         expiry: accessExpiry
-      };
-    } catch (apiError) {
-      // Token is invalid or expired, even though local expiry check passed
-      console.log('OAuth token validation failed against API:', apiError);
-      return { 
-        isValid: false, 
-        needsRefresh: true, 
-        token: storedTokens.refreshToken,
-        expiry: refreshExpiry
       };
     }
   } catch (error) {
@@ -1261,61 +1503,71 @@ async function validateOAuthTokens(environment: string): Promise<TokenValidation
   }
 }
 
-async function validatePATToken(env: string): Promise<TokenValidationResult> {
+/**
+ * Validates PAT tokens for a given environment
+ * @param environment - The environment name to validate PAT tokens for
+ * @returns Promise resolving to token validation result
+ */
+async function validatePATToken(environment: string): Promise<TokenValidationResult> {
   try {
-    const accessToken = await getAccessToken(env);
-    if (!accessToken) {
-      console.log(`No PAT access token found for environment: ${env}`);
+    const storedTokens = await getStoredPATTokens(environment);
+    if (!storedTokens) {
+      console.log(`No PAT tokens found for environment: ${environment}`);
       return { isValid: false, needsRefresh: false };
     }
 
     // Parse the JWT to extract claims
     let claims;
     try {
-      claims = parseJwt(accessToken);
+      claims = parseJwt(storedTokens.accessToken);
     } catch (error) {
-      console.error(`Error parsing PAT JWT for environment: ${env}`, error);
+      console.error(`Error parsing PAT JWT for environment: ${environment}`, error);
       return { isValid: false, needsRefresh: false };
     }
 
     // Validate the exp claim
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
     if (!claims.exp || claims.exp <= currentTime) {
-      console.log(`PAT token expired for environment: ${env}`);
+      console.log(`PAT token expired for environment: ${environment}`);
       return { isValid: false, needsRefresh: true };
     }
 
     // Compare stored expiry with JWT exp claim
-    const storedExpiry = await getPATTokenExpiry(env);
+    const storedExpiry = new Date(storedTokens.accessExpiry);
     const jwtExpiry = new Date(claims.exp * 1000);
 
-    if (!storedExpiry || storedExpiry.getTime() !== jwtExpiry.getTime()) {
+    if (storedExpiry.getTime() !== jwtExpiry.getTime()) {
       console.warn(
-        `Mismatch between stored expiry (${storedExpiry?.toISOString() || 'undefined'}) and JWT exp (${jwtExpiry.toISOString()}) for environment: ${env}`
+        `Mismatch between stored expiry (${storedExpiry.toISOString()}) and JWT exp (${jwtExpiry.toISOString()}) for environment: ${environment}`
       );
 
       // Update stored expiry to match JWT exp
       try {
-        await setSecureValue('environments.pat.expiry', env, jwtExpiry.toISOString());
-        console.log(`Updated stored expiry to match JWT exp for environment: ${env}`);
+        await setSecureValue('environments.pat.expiry', environment, jwtExpiry.toISOString());
+        console.log(`Updated stored expiry to match JWT exp for environment: ${environment}`);
       } catch (updateError) {
-        console.error(`Error updating stored expiry for environment: ${env}`, updateError);
+        console.error(`Error updating stored expiry for environment: ${environment}`, updateError);
       }
     }
 
     return {
       isValid: true,
       needsRefresh: false,
-      token: accessToken,
+      token: storedTokens.accessToken,
       expiry: jwtExpiry,
     };
   } catch (error) {
-    console.error(`Error validating PAT token for environment: ${env}`, error);
+    console.error(`Error validating PAT token for environment: ${environment}`, error);
     return { isValid: false, needsRefresh: false };
   }
 }
 
-// OAuth token refresh implementation
+/**
+ * Refreshes OAuth tokens for a given environment using the provided refresh token
+ * @param environment - The environment name to refresh tokens for
+ * @param refreshToken - The refresh token to use for obtaining new tokens
+ * @returns Promise resolving to the new token set
+ */
 export const refreshOAuthToken = async (environment: string, refreshToken: string): Promise<TokenSet> => {
   try {
     console.log(`Refreshing OAuth token for environment: ${environment}`);
@@ -1338,8 +1590,6 @@ export const refreshOAuthToken = async (environment: string, refreshToken: strin
       apiBaseURL: apiUrl,
       tenant: environment
     };
-    
-    console.log('Sending refresh request to Lambda:', refreshRequestBody);
     
     const response = await fetch(authLambdaURL, {
       method: 'POST',
@@ -1387,16 +1637,18 @@ export const refreshOAuthToken = async (environment: string, refreshToken: strin
   }
 };
 
-// Placeholder function for PAT token refresh
+/**
+ * Refreshes PAT tokens for a given environment using stored client credentials
+ * @param environment - The environment name to refresh tokens for
+ * @returns Promise resolving to the new token set
+ */
 export const refreshPATToken = async (environment: string): Promise<TokenSet> => {
   try {
     console.log(`Refreshing PAT token for environment: ${environment}`);
 
-    const clientId = await getClientId(environment);
-    const clientSecret = await getClientSecret(environment);
-
-    if (!clientId || !clientSecret) {
-      throw new Error('Client credentials not found for environment');
+    const storedTokens = await getStoredPATTokens(environment);
+    if (!storedTokens) {
+      throw new Error('No stored PAT tokens found for environment');
     }
 
     const config = await getConfig();
@@ -1407,7 +1659,7 @@ export const refreshPATToken = async (environment: string): Promise<TokenSet> =>
 
     const apiUrl = envConfig.baseurl;
     const tokenUrl = `${apiUrl}/oauth/token`;
-    const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const authHeader = Buffer.from(`${storedTokens.clientId}:${storedTokens.clientSecret}`).toString('base64');
 
     const response = await fetch(tokenUrl, {
       method: 'POST',
@@ -1434,7 +1686,7 @@ export const refreshPATToken = async (environment: string): Promise<TokenSet> =>
       refreshExpiry: expiry, // PAT tokens don't have separate refresh tokens
     };
 
-    await storePATToken(environment, tokenData.access_token, expiry);
+    await storePATTokens(environment, tokenSet);
 
     console.log('PAT token refreshed successfully');
     return tokenSet;
@@ -1444,27 +1696,41 @@ export const refreshPATToken = async (environment: string): Promise<TokenSet> =>
   }
 };
 
-// Export the function for use in other modules
-export { getStoredOAuthTokens };
-
-// Helper function to handle fetch requests with JSON response handling
-async function fetchWithJsonHandling(url: string, options: RequestInit): Promise<any> {
+/**
+ * Unified token refresh function that handles both OAuth and PAT tokens
+ * @param environment - The environment name to refresh tokens for
+ * @returns Promise resolving to the new token set
+ */
+export const refreshTokens = async (environment: string): Promise<TokenSet> => {
   try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
-    }
-
-    const contentType = response.headers.get('Content-Type');
-    if (contentType && contentType.includes('application/json')) {
-      return await response.json();
+    const config = await getConfig();
+    const authType = config.authtype;
+    
+    if (authType === 'oauth') {
+      const storedTokens = await getStoredOAuthTokens(environment);
+      if (!storedTokens || !storedTokens.refreshToken) {
+        throw new Error('No refresh token available for OAuth refresh');
+      }
+      
+      // Check if refresh token is still valid
+      const refreshExpiry = new Date(storedTokens.refreshExpiry);
+      const now = new Date();
+      
+      if (refreshExpiry <= now) {
+        throw new Error('Refresh token has expired');
+      }
+      
+      return await refreshOAuthToken(environment, storedTokens.refreshToken);
     } else {
-      throw new Error(`Unexpected content type: ${contentType}`);
+      return await refreshPATToken(environment);
     }
   } catch (error) {
-    console.error(`Error fetching data from ${url}:`, error);
+    console.error('Error refreshing tokens:', error);
     throw error;
   }
-}
+};
+
+// Export functions for use in other modules
+export { getStoredOAuthTokens, getStoredPATTokens };
 
 
