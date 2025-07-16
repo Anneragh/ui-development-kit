@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import { disconnectFromISC, getTenants, harborPilotTransformChat, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType, setGlobalAuthType, refreshOAuthToken, refreshPATToken, checkEnvironmentTokenStatus, unifiedLogin, getStoredOAuthTokens, validateConnectionTokens } from './api';
+import { disconnectFromISC, getTenants, harborPilotTransformChat, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType, setGlobalAuthType, refreshOAuthToken, refreshPATToken, checkEnvironmentTokenStatus, unifiedLogin, getStoredOAuthTokens, getStoredPATTokens, validateConnectionTokens } from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 
 let win: BrowserWindow | null = null;
@@ -174,6 +174,10 @@ try {
 
   ipcMain.handle('get-stored-oauth-tokens', async (event, environment: string) => {
     return await getStoredOAuthTokens(environment);
+  });
+
+  ipcMain.handle('get-stored-pat-tokens', async (event, environment: string) => {
+    return await getStoredPATTokens(environment);
   });
 
   ipcMain.handle('validate-connection-tokens', async (event, connection: string) => {
