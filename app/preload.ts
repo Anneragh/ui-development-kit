@@ -7,8 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   disconnectFromISC: () => ipcMain.invoke('disconnect-from-isc'),
   
   // Token management
-  refreshOAuthToken: (environment: any, refreshToken: any) => ipcMain.invoke('refresh-oauth-token', environment, refreshToken),
-  refreshPATToken: (environment: any) => ipcMain.invoke('refresh-pat-token', environment),
+  refreshTokens: (environment: any) => ipcMain.invoke('refresh-tokens', environment),
   checkEnvironmentTokenStatus: (environment: any) => ipcMain.invoke('check-environment-token-status', environment),
   getStoredOAuthTokens: (environment: any) => ipcMain.invoke('get-stored-oauth-tokens', environment),
   getStoredPATTokens: (environment: any) => ipcMain.invoke('get-stored-pat-tokens', environment),

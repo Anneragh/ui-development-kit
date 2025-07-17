@@ -80,8 +80,26 @@
             </mat-form-field>
           </div>
 
+          <!-- Authentication Type Toggle for New Environments -->
+          <div class="form-row" *ngIf="selectedTenant === 'new'">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Authentication Method</mat-label>
+              <mat-select [(value)]="config.authType" (selectionChange)="onConfigAuthTypeChange()">
+                <mat-option value="pat">
+                  <mat-icon>vpn_key</mat-icon>
+                  Personal Access Token (PAT)
+                </mat-option>
+                <mat-option value="oauth">
+                  <mat-icon>verified_user</mat-icon>
+                  OAuth Browser Authentication
+                </mat-option>
+              </mat-select>
+              <mat-hint>Choose how to authenticate with this environment</mat-hint>
+            </mat-form-field>
+          </div>
+
           <!-- PAT Fields -->
-          <div *ngIf="globalAuthMethod === 'pat'" class="pat-section">
+          <div *ngIf="config.authType === 'pat'" class="pat-section">
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Client ID</mat-label>
@@ -98,7 +116,7 @@
           </div>
 
           <!-- OAuth Info -->
-          <div *ngIf="globalAuthMethod === 'oauth'" class="oauth-section">
+          <div *ngIf="config.authType === 'oauth'" class="oauth-section">
             <p class="oauth-info">
               <mat-icon>info</mat-icon>
               OAuth authentication will open your browser for secure login.

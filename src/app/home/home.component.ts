@@ -361,6 +361,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  onConfigAuthTypeChange() {
+    console.log('Config auth type changed to:', this.config.authType);
+    
+    // Clear client credentials if switching to OAuth
+    if (this.config.authType === 'oauth') {
+      this.config.clientId = undefined;
+      this.config.clientSecret = undefined;
+    }
+    
+    // Trigger OAuth validation if switching to OAuth and base URL is set
+    if (this.config.authType === 'oauth' && this.config.baseUrl) {
+      void this.validateOAuthEndpoint();
+    }
+  }
+
   toggleEnvironmentDetails(): void {
     this.showEnvironmentDetails = !this.showEnvironmentDetails;
     if (this.showEnvironmentDetails) {
@@ -380,8 +395,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       tenantUrl: tenant.tenantUrl,
       baseUrl: tenant.apiUrl,
       authType: tenant.authType as 'oauth' | 'pat', // Use tenant's authType instead of global
-      clientId: tenant.clientId || '',
-      clientSecret: tenant.clientSecret || ''
+      clientId: tenant.clientId || undefined,
+      clientSecret: tenant.clientSecret || undefined
     };
     console.log(`Loaded environment config for: ${tenant.name}`, this.config);
     
@@ -404,6 +419,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       baseUrl: '',
       authType: currentAuthType as 'oauth' | 'pat'
     };
+    
+    // Reset OAuth validation status
+    this.oauthValidationStatus = 'unknown';
   }
 
   onTenantNameChange() {
@@ -414,7 +432,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.config.baseUrl = `https://${this.config.tempTenantName}.api.identitynow.com`;
       
       // Trigger OAuth validation if using OAuth
-      if (this.globalAuthMethod === 'oauth') {
+      if (this.config.authType === 'oauth') {
         void this.validateOAuthEndpoint();
       }
     }
@@ -425,7 +443,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.oauthValidationStatus = 'unknown';
     
     // Auto-validate OAuth if using OAuth method and URL is provided
-    if (this.globalAuthMethod === 'oauth' && this.config.baseUrl) {
+    if (this.config.authType === 'oauth' && this.config.baseUrl) {
       // Debounce the validation to avoid too many requests while typing
       setTimeout(() => {
         if (this.config.baseUrl) {
@@ -442,13 +460,28 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     try {
       const isUpdate = this.selectedTenant !== 'new';
+      
+      // Ensure credentials are properly handled
+      const clientId = this.config.clientId?.trim() || undefined;
+      const clientSecret = this.config.clientSecret?.trim() || undefined;
+      
+      console.log('Saving environment with credentials:', {
+        environmentName: this.config.environmentName,
+        authType: this.config.authType,
+        hasClientId: !!clientId,
+        hasClientSecret: !!clientSecret
+      });
+      
+      // For new environments, use config.authType; for existing environments, use globalAuthMethod
+      const authType = this.selectedTenant === 'new' ? this.config.authType : this.globalAuthMethod;
+      
       const result = await window.electronAPI.createOrUpdateEnvironment({
         environmentName: this.config.environmentName,
         tenantUrl: this.config.tenantUrl,
         baseUrl: this.config.baseUrl,
-        authType: this.config.authType,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+        authType: authType as 'oauth' | 'pat',
+        clientId: clientId,
+        clientSecret: clientSecret,
         update: isUpdate
       });
 
@@ -457,7 +490,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         await this.loadTenants(); // Refresh the list
         
         // Automatically test OAuth configuration if using OAuth
-        if (this.globalAuthMethod === 'oauth') {
+        if (this.config.authType === 'oauth') {
           await this.validateOAuthEndpoint();
         }
         
@@ -608,7 +641,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    if (this.config.authType === 'pat') {
+    // For new environments, use config.authType; for existing environments, use globalAuthMethod
+    const authType = this.selectedTenant === 'new' ? this.config.authType : this.globalAuthMethod;
+    
+    if (authType === 'pat') {
       if (!this.config.clientId?.trim()) {
         this.showError('Client ID is required for PAT authentication');
         return false;

@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import { disconnectFromISC, getTenants, harborPilotTransformChat, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType, setGlobalAuthType, refreshOAuthToken, refreshPATToken, checkEnvironmentTokenStatus, unifiedLogin, getStoredOAuthTokens, getStoredPATTokens, validateConnectionTokens } from './api';
+import { disconnectFromISC, getTenants, harborPilotTransformChat, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType, setGlobalAuthType, refreshOAuthToken, refreshPATToken, checkEnvironmentTokenStatus, unifiedLogin, getStoredOAuthTokens, getStoredPATTokens, validateConnectionTokens, refreshTokens } from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 
 let win: BrowserWindow | null = null;
@@ -156,8 +156,8 @@ try {
     return await setGlobalAuthType(authType);
   });
 
-  ipcMain.handle('refresh-oauth-token', async (event, environment: string, refreshToken: string) => {
-    return await refreshOAuthToken(environment, refreshToken);
+  ipcMain.handle('refresh-tokens', async (event, environment: string) => {
+    return await refreshTokens(environment);
   });
 
   ipcMain.handle('refresh-pat-token', async (event, environment: string) => {
