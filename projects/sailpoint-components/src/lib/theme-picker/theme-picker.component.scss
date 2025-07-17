@@ -63,25 +63,20 @@ mat-card-actions button {
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
 }
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: var(--theme-primary-text, #333);
+.color-field {
+  width: 4rem;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  background: none;
+  cursor: pointer;
 }
-
-.form-group select,
-.form-group input[type="text"] {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-}
-
-.form-group input[type="text"] {
-  font-family: monospace;
+.hex-field {
+  flex: 1;
 }
 
 .input-row {
@@ -97,6 +92,17 @@ mat-card-actions button {
   border: none;
   background: transparent;
   cursor: pointer;
+}
+
+.color-swatch {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: none !important;
+  border-radius: 0.9rem !important;
+  background: none;
+  cursor: pointer;
+  margin-bottom: 14px;
 }
 
 button {

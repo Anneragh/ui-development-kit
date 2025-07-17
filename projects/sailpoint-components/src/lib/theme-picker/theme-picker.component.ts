@@ -18,6 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule     } from '@angular/material/select';
 
 // Theme management service and config interface
 import { ThemeService, ThemeConfig } from '../theme/theme.service';
@@ -39,6 +40,7 @@ declare function structuredClone<T>(value: T): T;
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
   ],
   templateUrl: './theme-picker.component.html',
   styleUrl: './theme-picker.component.scss',
