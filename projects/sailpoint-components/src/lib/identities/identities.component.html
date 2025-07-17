@@ -113,21 +113,31 @@
         </td>
       </ng-container>
 
+      <!-- paginator column -->
+      <ng-container matColumnDef="paginator">
+        <td
+          mat-footer-cell
+          *matFooterCellDef
+          [attr.colspan]="displayedColumns.length"
+          class="paginator-footer-cell"
+        >
+          <mat-paginator
+            [length]="totalCount"
+            [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons
+          ></mat-paginator>
+        </td>
+      </ng-container>
+
       <!-- Header and row definitions -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <!-- footer row with only the paginator column -->
+      <tr mat-footer-row *matFooterRowDef="['paginator']"></tr>
     </table>
-
-    <!-- Paginator for navigating identity pages -->
-    <mat-paginator
-      *ngIf="!loading && identities.length"
-      [length]="totalCount"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [pageSizeOptions]="[10, 25, 50, 100]"
-      (page)="onPageChange($event)"
-      showFirstLastButtons
-    ></mat-paginator>
 
     <!-- Message shown when no data was returned after loading completes -->
     <div
@@ -136,5 +146,16 @@
     >
       No identities found.
     </div>
+
+    <!-- Paginator for navigating identity pages
+    <mat-paginator
+      *ngIf="!loading && identities.length"
+      [length]="totalCount"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    ></mat-paginator> -->
   </div>
 </div>
