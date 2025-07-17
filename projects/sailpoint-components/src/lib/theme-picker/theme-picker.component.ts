@@ -51,6 +51,16 @@ export class ThemePickerComponent implements OnInit {
   // Reference to the logo <img> in the template
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
 
+    // now type the fields so that `key` is ONLY one of the keys of ThemeConfig:
+  readonly colorFields: Array<{ label: string; key: keyof ThemeConfig }> = [
+    { label: 'Primary',       key: 'primary'       },
+    { label: 'Secondary',     key: 'secondary'     },
+    { label: 'Primary Text',  key: 'primaryText'   },
+    { label: 'Secondary Text',key: 'secondaryText' },
+    { label: 'Hover Text',    key: 'hoverText'     },
+    { label: 'Background',    key: 'background'    },
+  ];
+
   // Track current theme mode
   mode: 'light' | 'dark' = this.themeService.getCurrentMode();
 

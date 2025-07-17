@@ -22,18 +22,7 @@
       </mat-form-field>
 
       <!-- Color + Hex pairs -->
-      <ng-container
-        *ngFor="
-          let field of [
-            { label: 'Primary', key: 'primary' },
-            { label: 'Secondary', key: 'secondary' },
-            { label: 'Primary Text', key: 'primaryText' },
-            { label: 'Secondary Text', key: 'secondaryText' },
-            { label: 'Hover Text', key: 'hoverText' },
-            { label: 'Background', key: 'background' }
-          ]
-        "
-      >
+      <ng-container *ngFor="let field of colorFields">
         <div class="form-group">
           <input
             class="color-swatch"
