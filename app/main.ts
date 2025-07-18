@@ -2,8 +2,12 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import { disconnectFromISC, getTenants, harborPilotTransformChat, createOrUpdateEnvironment, deleteEnvironment, setActiveEnvironment, getGlobalAuthType, setGlobalAuthType, refreshOAuthToken, refreshPATToken, checkEnvironmentTokenStatus, unifiedLogin, getStoredOAuthTokens, getStoredPATTokens, validateConnectionTokens, refreshTokens } from './api';
+import { harborPilotTransformChat } from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
+import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType, unifiedLogin, validateTokens } from './authentication/auth';
+import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
+import { getStoredOAuthTokens } from './authentication/oauth';
+import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
 
 let win: BrowserWindow | null = null;
 const projectRoot = path.resolve(__dirname, '..', 'src'); // adjust if needed
@@ -116,73 +120,78 @@ try {
     }
   });
 
-  ipcMain.handle('disconnect-from-isc', async () => {
-    return await disconnectFromISC();
+  // Unified authentication and connection
+
+  ipcMain.handle('unified-login', async (event, environment: string) => {
+    return unifiedLogin(environment);
   });
 
-  ipcMain.handle('get-tenants', async () => {
-    return await getTenants();
+  ipcMain.handle('disconnect-from-isc', () => {
+    return disconnectFromISC();
   });
 
-  setupSailPointSDKHandlers();
+  // Token management
 
-  ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
-    return await harborPilotTransformChat(chat);
+  ipcMain.handle('refresh-tokens', async (event, environment: string) => {
+    return refreshTokens(environment);
   });
 
-  ipcMain.handle('create-or-update-environment', async (event, config) => {
-    return await createOrUpdateEnvironment(config);
+  ipcMain.handle('get-stored-oauth-tokens', async (event, environment: string) => {
+    return getStoredOAuthTokens(environment);
+  });
+
+  ipcMain.handle('get-stored-pat-tokens', async (event, environment: string) => {
+    return getStoredPATTokens(environment);
+  });
+
+  ipcMain.handle('store-client-credentials', async (event, environment: string, clientId: string, clientSecret: string) => {
+    return storeClientCredentials(environment, clientId, clientSecret);
+  });
+
+  ipcMain.handle('validate-tokens', async (event, environment: string) => {
+    return validateTokens(environment);
+  });
+
+  // Environment management
+
+  ipcMain.handle('get-tenants', () => {
+    return getTenants();
+  });
+
+  ipcMain.handle('update-environment', (event, config: UpdateEnvironmentRequest) => {
+    return updateEnvironment(config);
   });
 
   ipcMain.handle(
     'delete-environment',
-    async (event, environmentName: string) => {
-      return await deleteEnvironment(environmentName);
+    (event, environment: string) => {
+      return deleteEnvironment(environment);
     }
   );
 
   ipcMain.handle(
     'set-active-environment',
-    async (event, environmentName: string) => {
-      return await setActiveEnvironment(environmentName);
+    (event, environment: string) => {
+      return setActiveEnvironment(environment);
     }
   );
 
   ipcMain.handle('get-global-auth-type', async () => {
-    return await getGlobalAuthType();
+    return getGlobalAuthType();
   });
 
-  ipcMain.handle('set-global-auth-type', async (event, authType: string) => {
-    return await setGlobalAuthType(authType);
+  ipcMain.handle('set-global-auth-type', async (event, authType: "oauth" | "pat") => {
+    return setGlobalAuthType(authType);
   });
 
-  ipcMain.handle('refresh-tokens', async (event, environment: string) => {
-    return await refreshTokens(environment);
+  // Harbor Pilot
+
+  ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
+    return await harborPilotTransformChat(chat);
   });
 
-  ipcMain.handle('refresh-pat-token', async (event, environment: string) => {
-    return await refreshPATToken(environment);
-  });
+  // Config file management
 
-  ipcMain.handle('check-environment-token-status', async (event, environment: string) => {
-    return await checkEnvironmentTokenStatus(environment);
-  });
-
-  ipcMain.handle('unified-login', async (event, request) => {
-    return await unifiedLogin(request);
-  });
-
-  ipcMain.handle('get-stored-oauth-tokens', async (event, environment: string) => {
-    return await getStoredOAuthTokens(environment);
-  });
-
-  ipcMain.handle('get-stored-pat-tokens', async (event, environment: string) => {
-    return await getStoredPATTokens(environment);
-  });
-
-  ipcMain.handle('validate-connection-tokens', async (event, connection: string) => {
-    return await validateConnectionTokens(connection);
-  });
   ipcMain.handle('read-config', async () => {
     try {
       const configPath = getConfigPath();
@@ -218,6 +227,8 @@ try {
       throw new Error('Failed to write config file');
     }
   });
+
+  // Logo file management
 
   ipcMain.handle('write-logo', async (event, buffer, fileName) => {
     try {
@@ -261,6 +272,10 @@ try {
       return null;
     }
   });
+
+  // SDK Functions
+  setupSailPointSDKHandlers();
+
 } catch (e) {
   console.error('Error during app initialization', e);
 }

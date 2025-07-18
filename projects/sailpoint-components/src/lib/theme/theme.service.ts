@@ -15,20 +15,6 @@ import { BehaviorSubject, Subject } from 'rxjs';
 // Needed for deep cloning objects
 declare function structuredClone<T>(value: T): T;
 
-// Extend the global window object to support Electron API methods
-declare global {
-  interface Window {
-    electronAPI: {
-      readConfig: () => Promise<any>;
-      writeConfig: (config: any) => Promise<any>;
-      writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
-      checkLogoExists: (fileName: string) => Promise<boolean>;
-      getUserDataPath: () => string;
-      getLogoDataUrl: (fileName: string) => Promise<string>;
-    };
-  }
-}
-
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   // Check if the app is running inside Electron

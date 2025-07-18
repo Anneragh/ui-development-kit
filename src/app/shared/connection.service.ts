@@ -135,7 +135,7 @@ export class ConnectionService implements OnDestroy {
         throw new Error('No environment available for refresh');
       }
 
-      await (window as any).electronAPI.refreshTokens(environment.name);
+      await window.electronAPI.refreshTokens(environment.name);
       await this.validateTokensAfterRefresh(environment.name);
     } catch (error) {
       console.error('Session refresh failed:', error);
@@ -176,7 +176,7 @@ export class ConnectionService implements OnDestroy {
   }
 
   private async handleSessionExpired(): Promise<void> {
-    
+  
     this.setConnectionState(false);
     
     await this.reconnectSession();

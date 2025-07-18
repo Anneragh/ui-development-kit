@@ -29,8 +29,6 @@ import {
   ComponentSelectorService,
 } from './services/component-selector.service';
 
-declare const window: any;
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -99,8 +97,6 @@ export class AppComponent implements OnDestroy, OnInit {
     // Platform-specific logging
     if (electronService.isElectron) {
       console.log('Run in electron');
-      console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
-      console.log('NodeJS childProcess', this.electronService.childProcess);
     } else {
       console.log('Run in browser');
     }

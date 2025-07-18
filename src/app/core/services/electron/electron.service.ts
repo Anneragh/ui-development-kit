@@ -1,58 +1,78 @@
 import { Injectable } from '@angular/core';
 
-// If you import a module but never use any of the imported values other than as TypeScript types,
-// the resulting javascript file will look as if you never imported the module at all.
-import { ipcRenderer, webFrame } from 'electron';
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
-
 @Injectable({
   providedIn: 'root'
 })
+
+// export type UpdateEnvironmentRequest = {
+//   environmentName: string;
+//   tenantUrl: string;
+//   baseUrl: string;
+//   authType: 'oauth' | 'pat';
+//   clientId?: string;
+//   clientSecret?: string;
+// }
+
+// export type Tenant = {
+//   active: boolean;
+//   name: string;
+//   apiUrl: string;
+//   tenantUrl: string;
+//   clientId: string | null;
+//   clientSecret: string | null;
+//   authType: string;
+//   tenantName: string;
+// }
+
+// export type ElectronAPI = {
+//   // Unified authentication and connection
+//   unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
+//   disconnectFromISC: () => void;
+  
+//   // Token management
+//   refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
+//   getStoredOAuthTokens: (environment: string) => TokenSet | undefined;
+//   getStoredPATTokens: (environment: string) => { accessToken: string, accessExpiry: Date, clientId: string, clientSecret: string } | undefined;
+  
+//   // Environment management
+//   getTenants: () => Tenant[];
+//   updateEnvironment: (config: UpdateEnvironmentRequest) => { success: boolean, error?: string };
+//   deleteEnvironment: (environment: string) => { success: boolean, error?: string };
+//   setActiveEnvironment: (environment: string) => { success: boolean, error?: string };
+//   getGlobalAuthType: () => "oauth" | "pat";
+//   setGlobalAuthType: (authType: "oauth" | "pat") => void;
+  
+//   // Harbor Pilot
+//   harborPilotTransformChat: (chat: any) => Promise<any>;
+  
+//   // Config file management
+//   readConfig: () => Promise<any>;
+//   writeConfig: (config: any) => Promise<any>;
+
+//   // Logo file management
+//   writeLogo: (buffer: any, fileName: any) => Promise<any>;
+//   checkLogoExists: (fileName: any) => Promise<any>;
+//   getUserDataPath: () => Promise<any>;
+//   getLogoDataUrl: (fileName: any) => Promise<any>;
+// }
+
+// declare global {
+//   interface Window {
+//     electronAPI: ElectronAPI;
+//   }
+// }
+
 export class ElectronService {
-  ipcRenderer!: typeof ipcRenderer;
-  webFrame!: typeof webFrame;
-  childProcess!: typeof childProcess;
-  fs!: typeof fs;
+  isElectron: boolean = false;
+  electronAPI: undefined | typeof window.electronAPI;
 
   constructor() {
-    // Conditional imports
-    if (this.isElectron) {
-      this.ipcRenderer = (window as any).require('electron').ipcRenderer;
-      this.webFrame = (window as any).require('electron').webFrame;
-
-      this.fs = (window as any).require('fs');
-
-      this.childProcess = (window as any).require('child_process');
-      this.childProcess.exec('node -v', (error, stdout, stderr) => {
-        if (error) {
-          console.error(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.error(`stderr: ${stderr}`);
-          return;
-        }
-        console.log(`stdout:\n${stdout}`);
-      });
-
-
-      // Notes :
-      // * A NodeJS's dependency imported with 'window.require' MUST BE present in `dependencies` of both `app/package.json`
-      // and `package.json (root folder)` in order to make it work here in Electron's Renderer process (src folder)
-      // because it will loaded at runtime by Electron.
-      // * A NodeJS's dependency imported with TS module import (ex: import { Dropbox } from 'dropbox') CAN only be present
-      // in `dependencies` of `package.json (root folder)` because it is loaded during build phase and does not need to be
-      // in the final bundle. Reminder : only if not used in Electron's Main process (app folder)
-
-      // If you want to use a NodeJS 3rd party deps in Renderer process,
-      // ipcRenderer.invoke can serve many common use cases.
-      // https://www.electronjs.org/docs/latest/api/ipc-renderer#ipcrendererinvokechannel-args
+    // Setup the electronAPI
+    if (window.electronAPI) {
+      this.electronAPI = window.electronAPI;
+      this.isElectron = true;
+    } else {
+      console.error('Electron API is not available');
     }
   }
-
-  get isElectron(): boolean {
-    return !!(window && window.process && window.process.type);
-  }
-
 }

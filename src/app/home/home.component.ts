@@ -18,8 +18,6 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 
-declare const window: any;
-
 interface Tenant {
   active: boolean;
   apiUrl: string;
@@ -27,7 +25,7 @@ interface Tenant {
   clientId: string | null;
   clientSecret: string | null;
   name: string;
-  authType: string;
+  authType: "oauth" | "pat";
   tenantName: string;
 }
 
@@ -70,13 +68,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   private configConnectionSubscription: Subscription | null = null;
 
   // Environment management
-  tenants: Tenant[] = [];
+  tenants: Array<Tenant> = [];
   selectedTenant: string = 'new';
   actualTenant: Tenant | undefined = undefined;
   name: string = '';
 
   // Environment configuration - unified with connection
-  globalAuthMethod: string = 'pat';
+  globalAuthMethod: "oauth" | "pat" = 'pat';
   showEnvironmentDetails = false;
   oauthValidationStatus: 'unknown' | 'valid' | 'invalid' | 'testing' = 'unknown';
   
@@ -101,15 +99,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
     
     // Initialize environment data and global auth method
-    void this.initializeAsync();
+    void this.loadTenants();
     void this.initializeGlobalAuthMethod();
-    
-    // Add visibility change listener to refresh tenants when returning to the app
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        void this.refreshTenants();
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -122,27 +113,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     document.removeEventListener('visibilitychange', () => {});
   }
 
-  private async initializeAsync() {
-    await this.loadTenants();
-  }
-
   private async loadTenants() {
     try {
-      this.tenants = <Tenant[]>await window.electronAPI.getTenants();
+      console.log('Loading tenants');
+      this.tenants = await window.electronAPI.getTenants();
+      console.log('Tenants loaded:', this.tenants);
       
       // Set the selected tenant to the active one, or default to 'new' if none are active
-      const activeTenant = this.tenants.find(tenant => tenant.active);
+      const activeTenant = this.tenants.find(tenant => tenant.active === true);
       if (activeTenant) {
         this.selectedTenant = activeTenant.name;
         this.actualTenant = activeTenant;
         // Ensure we have the latest auth type for the active tenant
-        await this.refreshCurrentTenantAuthType();
+        this.refreshCurrentTenantAuthType();
         // Load the environment configuration immediately
         this.loadEnvironmentForEditing(activeTenant);
       } else {
         this.selectedTenant = 'new';
         // Reset to default config for new environment
-        await this.resetConfig();
+        this.resetConfig();
       }
     } catch (error) {
       console.error('Error loading tenants:', error);
@@ -239,7 +228,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     
     try {
       // Check if we have valid tokens first
-      const tokenStatus = await window.electronAPI.checkEnvironmentTokenStatus(this.actualTenant.name);
+      console.log("Validating tokens")
+      const tokenStatus = await window.electronAPI.validateTokens(this.actualTenant.name);
       
       // Use the unified login function for both OAuth and PAT
       const loginRequest = {
@@ -252,33 +242,40 @@ export class HomeComponent implements OnInit, OnDestroy {
         tenant: this.actualTenant.name // For OAuth flow
       };
 
-      // Show loading dialog with appropriate message based on token status
-      const dialogData: DialogData = {
-        title: `${this.actualTenant.authType.toUpperCase()} Authentication`,
-        message: tokenStatus.hasValidTokens 
-          ? 'Connecting with existing tokens...' 
-          : `Initiating ${this.actualTenant.authType} authentication...`,
-        showSpinner: true,
-        showCancel: false,
-        disableClose: true
-      };
+      // I don't think we need to set them here, they should already be set by creating the environment
+      // await window.electronAPI.storeClientCredentials(this.actualTenant.name, this.actualTenant.clientId || '', this.actualTenant.clientSecret || '');
 
-      const dialogRef = this.dialog.open(GenericDialogComponent, {
-        data: dialogData,
-        width: '400px',
-        disableClose: true
-      });
+
+      // TODO: Swap this to use the snackbar
+      // Show loading dialog with appropriate message based on token status
+      // const dialogData: DialogData = {
+      //   title: `${this.actualTenant.authType.toUpperCase()} Authentication`,
+      //   message: tokenStatus.isValid 
+      //     ? 'Connecting with existing tokens...' 
+      //     : `Initiating ${this.actualTenant.authType} authentication...`,
+      //   showSpinner: true,
+      //   showCancel: false,
+      //   disableClose: true
+      // };
+
+      // const dialogRef = this.dialog.open(GenericDialogComponent, {
+      //   data: dialogData,
+      //   width: '400px',
+      //   disableClose: true
+      // });
 
       try {
         // Perform unified login
-        const loginResult = await window.electronAPI.unifiedLogin(loginRequest);
+        const loginResult = await window.electronAPI.unifiedLogin(this.actualTenant.name);
         
-        if (loginResult.success && loginResult.connected) {
+        if (loginResult.success) {
+
+          // TODO: Swap this to use the snackbar
           // Update dialog to show success
-          dialogData.title = 'Connection Successful';
-          dialogData.message = `Successfully connected to ${loginResult.name} using ${this.actualTenant.authType.toUpperCase()}!`;
-          dialogData.showSpinner = false;
-          dialogData.showCancel = false;
+          // dialogData.title = 'Connection Successful';
+          // dialogData.message = `Successfully connected to ${this.actualTenant.name} using ${this.actualTenant.authType.toUpperCase()}!`;
+          // dialogData.showSpinner = false;
+          // dialogData.showCancel = false;
           
           // Set current environment in connection service
           const environmentInfo: EnvironmentInfo = {
@@ -291,31 +288,33 @@ export class HomeComponent implements OnInit, OnDestroy {
           };
           
           // Use combined method to set environment and connection state
-          await this.connectionService.setConnectionWithEnvironment(environmentInfo, true, loginResult.name as string);
+          await this.connectionService.setConnectionWithEnvironment(environmentInfo, true, this.actualTenant.name);
           
           this.isConnected = true;
-          this.name = loginResult.name || this.actualTenant.name;
+          this.name = this.actualTenant.name;
           
           // Auto-close dialog after 1 second for existing tokens, 2 seconds for new auth
-          const closeDelay = tokenStatus.hasValidTokens ? 1000 : 2000;
-          setTimeout(() => {
-            dialogRef.close();
-          }, closeDelay);
+          const closeDelay = tokenStatus.isValid ? 1000 : 2000;
+          // setTimeout(() => {
+          // dialogRef.close();
+          // }, closeDelay);
         } else {
+          // TODO: Swap this to use the snackbar
           // Update dialog to show error
-          dialogData.title = 'Connection Failed';
-          dialogData.message = (loginResult.error as string) || `Failed to connect using ${this.actualTenant.authType.toUpperCase()}`;
-          dialogData.showSpinner = false;
-          dialogData.showCancel = true;
+          // dialogData.title = 'Connection Failed';
+          // dialogData.message = (loginResult.error as string) || `Failed to connect using ${this.actualTenant.authType.toUpperCase()}`;
+          // dialogData.showSpinner = false;
+          // dialogData.showCancel = true;
         }
       } catch (error) {
         console.error('Unified login failed:', error);
         
+        // TODO: Swap this to use the snackbar
         // Update dialog to show error
-        dialogData.title = 'Authentication Error';
-        dialogData.message = `Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        dialogData.showSpinner = false;
-        dialogData.showCancel = true;
+        // dialogData.title = 'Authentication Error';
+        // dialogData.message = `Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        // dialogData.showSpinner = false;
+        // dialogData.showCancel = true;
         
         throw error;
       }
@@ -329,10 +328,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     await window.electronAPI.disconnectFromISC();
     this.isConnected = false;
     this.connectionService.setConnectionState(false);
-  }
-
-  async refreshTenants(): Promise<void> {
-    await this.loadTenants();
   }
 
   // Environment configuration methods
@@ -475,14 +470,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       // For new environments, use config.authType; for existing environments, use globalAuthMethod
       const authType = this.selectedTenant === 'new' ? this.config.authType : this.globalAuthMethod;
       
-      const result = await window.electronAPI.createOrUpdateEnvironment({
+      const result = await window.electronAPI.updateEnvironment({
         environmentName: this.config.environmentName,
         tenantUrl: this.config.tenantUrl,
         baseUrl: this.config.baseUrl,
         authType: authType as 'oauth' | 'pat',
         clientId: clientId,
         clientSecret: clientSecret,
-        update: isUpdate
       });
 
       if (result.success) {

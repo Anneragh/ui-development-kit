@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AxiosResponse } from 'axios';
 import * as sdk from 'sailpoint-api-client';
-declare const window: any;
 @Injectable({
   providedIn: 'root'
 })

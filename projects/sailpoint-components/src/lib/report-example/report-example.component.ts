@@ -19,6 +19,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IdentityStatusChartComponent } from './identity-status-chart/identity-status-chart.component';
 import { ManagerDistributionChartComponent } from './manager-distribution-chart/manager-distribution-chart.component';
 import { LifecycleStateChartComponent } from './lifecycle-state-chart/lifecycle-state-chart.component';
+import { AxiosResponse } from 'axios';
 
 @Component({
   selector: 'app-report-example',
@@ -128,7 +129,7 @@ export class ReportExampleComponent implements OnInit, OnDestroy {
         this.loadingMessage = `Loading identities... (${this.totalLoaded} loaded so far)`;
         
         // Create an array of promises for parallel requests
-        const batchPromises = [];
+        const batchPromises: Promise<AxiosResponse<IdentityV2025[]>>[] = [];
         
         for (let i = 0; i < MAX_PARALLEL_REQUESTS && !this.isCancelled; i++) {
           const currentOffset = offset + (i * BATCH_SIZE);
