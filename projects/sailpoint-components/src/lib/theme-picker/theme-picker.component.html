@@ -1,6 +1,6 @@
 <div class="theme-picker-container">
   <mat-toolbar color="primary">
-    <mat-icon>dashboard</mat-icon>
+    <mat-icon>palette</mat-icon>
     <span class="toolbar-title">{{ title }}</span>
   </mat-toolbar>
 
@@ -8,126 +8,74 @@
     <div class="theme-picker">
       <h2>Theme Customization</h2>
 
-      <!-- Loading spinner shown while data is being fetched -->
       <div *ngIf="loading" class="spinner-container">
         <mat-spinner diameter="75"></mat-spinner>
       </div>
 
-      <div class="form-group">
-        <label>Mode</label>
-        <select [(ngModel)]="mode" (change)="onModeChange()">
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
-      </div>
+      <!-- Mode selector -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Mode</mat-label>
+        <mat-select [(value)]="mode" (selectionChange)="onModeChange()">
+          <mat-option value="light">Light</mat-option>
+          <mat-option value="dark">Dark</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-      <div class="form-group">
-        <label>Primary Color</label>
-        <div class="input-row">
-          <input type="color" [(ngModel)]="colors.primary" />
+      <!-- Color + Hex pairs -->
+      <ng-container *ngFor="let field of colorFields">
+        <div class="form-group">
           <input
-            type="text"
-            [(ngModel)]="colors.primary"
-            maxlength="7"
-            pattern="#[a-fA-F0-9]{6}"
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Secondary Color</label>
-        <div class="input-row">
-          <input type="color" [(ngModel)]="colors.secondary" />
-          <input
-            type="text"
-            [(ngModel)]="colors.secondary"
-            maxlength="7"
-            pattern="#[a-fA-F0-9]{6}"
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Primary Text Color</label>
-        <div class="input-row">
-          <input type="color" [(ngModel)]="colors.primaryText" />
-          <input
-            type="text"
-            [(ngModel)]="colors.primaryText"
-            maxlength="7"
-            pattern="#[a-fA-F0-9]{6}"
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Secondary Text Color</label>
-        <div class="input-row">
-          <input type="color" [(ngModel)]="colors.secondaryText" />
-          <input
-            type="text"
-            [(ngModel)]="colors.secondaryText"
-            maxlength="7"
-            pattern="#[a-fA-F0-9]{6}"
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Hover Text Color</label>
-        <div class="input-row">
-          <input type="color" [(ngModel)]="colors.hoverText" />
-          <input
-            type="text"
-            [(ngModel)]="colors.hoverText"
-            maxlength="7"
-            pattern="#[a-fA-F0-9]{6}"
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Background Color</label>
-        <div class="input-row">
-          <input type="color" [(ngModel)]="colors.background" />
-          <input
-            type="text"
-            [(ngModel)]="colors.background"
-            maxlength="7"
-            pattern="#[a-fA-F0-9]{6}"
-          />
-        </div>
-      </div>
-      <div class="form-group">
-        <mat-form-field appearance="outline" class="upload-logo-label">
-          <mat-label>Upload Logo ({{ mode }})</mat-label>
-
-          <input
+            class="color-swatch"
             matInput
-            [value]="selectedLogoFile?.name || 'No file chosen…'"
-            readonly
+            type="color"
+            [(ngModel)]="colors[field.key]"
           />
 
-          <button
-            class="upload-button"
-            mat-icon-button
-            matSuffix
-            aria-label="Select logo file"
-            (click)="fileInput.click()"
-          >
-            <mat-icon>upload</mat-icon>
-          </button>
+          <mat-form-field appearance="outline" class="hex-field">
+            <mat-label>{{ field.label }} Hex</mat-label>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="colors[field.key]"
+              maxlength="7"
+              pattern="#[A-Fa-f0-9]{6}"
+            />
+          </mat-form-field>
+        </div>
+      </ng-container>
 
-          <input
-            #fileInput
-            type="file"
-            hidden
-            (change)="onFileSelected($event)"
-          />
-        </mat-form-field>
+      <!-- Logo upload -->
+      <mat-form-field appearance="outline" class="upload-logo-label">
+        <mat-label>Upload Logo ({{ mode }})</mat-label>
+
+        <input
+          matInput
+          [value]="selectedLogoFile?.name || 'No file chosen…'"
+          readonly
+        />
+
+        <button
+          mat-icon-button
+          matSuffix
+          aria-label="Select logo file"
+          (click)="fileInput.click()"
+        >
+          <mat-icon>upload</mat-icon>
+        </button>
+
+        <input
+          #fileInput
+          type="file"
+          hidden
+          (change)="onFileSelected($event)"
+        />
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="apply()">
+          Apply
+        </button>
       </div>
-
-      <button (click)="apply()">Apply</button>
     </div>
   </div>
 </div>

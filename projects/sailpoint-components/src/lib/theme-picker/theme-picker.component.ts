@@ -18,6 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule     } from '@angular/material/select';
 
 // Theme management service and config interface
 import { ThemeService, ThemeConfig } from '../theme/theme.service';
@@ -39,6 +40,7 @@ declare function structuredClone<T>(value: T): T;
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
   ],
   templateUrl: './theme-picker.component.html',
   styleUrl: './theme-picker.component.scss',
@@ -48,6 +50,16 @@ export class ThemePickerComponent implements OnInit {
 
   // Reference to the logo <img> in the template
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
+
+    // now type the fields so that `key` is ONLY one of the keys of ThemeConfig:
+  readonly colorFields: Array<{ label: string; key: keyof ThemeConfig }> = [
+    { label: 'Primary',       key: 'primary'       },
+    { label: 'Secondary',     key: 'secondary'     },
+    { label: 'Primary Text',  key: 'primaryText'   },
+    { label: 'Secondary Text',key: 'secondaryText' },
+    { label: 'Hover Text',    key: 'hoverText'     },
+    { label: 'Background',    key: 'background'    },
+  ];
 
   // Track current theme mode
   mode: 'light' | 'dark' = this.themeService.getCurrentMode();
