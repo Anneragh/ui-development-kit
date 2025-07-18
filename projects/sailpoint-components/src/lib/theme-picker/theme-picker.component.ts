@@ -45,6 +45,7 @@ declare function structuredClone<T>(value: T): T;
 })
 export class ThemePickerComponent implements OnInit {
   title = 'Theme Picker';
+  selectedLogoFileName = '';
 
   // Reference to the logo <img> in the template
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
@@ -122,15 +123,22 @@ export class ThemePickerComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
     this.selectedLogoFile = input.files[0];
+    this.selectedLogoFileName = this.selectedLogoFile.name;
   }
 
   // Load both light and dark themes into memory (from config or default)
   async loadThemeForMode(): Promise<void> {
     const raw = this.themeService.getRawConfig();
     this.lightColors =
-      raw?.['theme-light'] ?? (await this.themeService.getDefaultTheme('light'));
+      raw?.['theme-light'] ??
+      (await this.themeService.getDefaultTheme('light'));
     this.darkColors =
       raw?.['theme-dark'] ?? (await this.themeService.getDefaultTheme('dark'));
+    // now populate the displayed “filename” field
+    this.selectedLogoFileName =
+      this.mode === 'dark'
+        ? this.darkColors.logoDarkFileName || ''
+        : this.lightColors.logoLightFileName || '';
   }
 
   constructor(
@@ -142,10 +150,31 @@ export class ThemePickerComponent implements OnInit {
   private readFileAsBuffer(file: File): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
+      reader.onload = () =>
+        resolve(new Uint8Array(reader.result as ArrayBuffer));
       reader.onerror = reject;
       reader.readAsArrayBuffer(file);
     });
+  }
+
+  async onResetLogo() {
+    if (this.mode === 'dark') {
+      this.darkColors.logoDark = 'assets/icons/logo-dark.png';
+      this.darkColors.logoDarkFileName = '';
+    } else {
+      this.lightColors.logoLight = 'assets/icons/logo.png';
+      this.lightColors.logoLightFileName = '';
+    }
+
+    this.selectedLogoFile = undefined;
+    this.selectedLogoFileName = '';
+
+    await this.themeService.saveTheme(
+      this.mode === 'dark' ? this.darkColors : this.lightColors,
+      this.mode
+    );
+
+    this.themeService.logoUpdated$.next();
   }
 
   // Main action to apply the selected theme and optional new logo
@@ -156,6 +185,7 @@ export class ThemePickerComponent implements OnInit {
     try {
       if (this.selectedLogoFile) {
         const buffer = await this.readFileAsBuffer(this.selectedLogoFile);
+        const originalFileName = this.selectedLogoFile.name;
         const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
 
         // Save the logo image to disk and wait for it to be ready
@@ -169,10 +199,12 @@ export class ThemePickerComponent implements OnInit {
         // Assign the base64 image as the logo
         if (this.mode === 'dark') {
           updatedColors.logoDark = base64;
+          updatedColors.logoDarkFileName = originalFileName;
         } else {
           updatedColors.logoLight = base64;
+          updatedColors.logoLightFileName = originalFileName; // Keep original name for light mode
         }
-
+        this.selectedLogoFileName = originalFileName;
         this.colors = updatedColors;
         this.selectedLogoFile = undefined;
       }

@@ -104,19 +104,29 @@
 
           <input
             matInput
-            [value]="selectedLogoFile?.name || 'No file chosen…'"
+            [value]="selectedLogoFileName || 'No file chosen…'"
             readonly
           />
+          <div matSuffix class="logo-suffix">
+            <button
+              class="upload-button"
+              mat-icon-button
+              aria-label="Select logo file"
+              (click)="fileInput.click()"
+            >
+              <mat-icon>upload</mat-icon>
+            </button>
 
-          <button
-            class="upload-button"
-            mat-icon-button
-            matSuffix
-            aria-label="Select logo file"
-            (click)="fileInput.click()"
-          >
-            <mat-icon>upload</mat-icon>
-          </button>
+            <button
+              *ngIf="selectedLogoFileName"
+              class="reset-button"
+              mat-icon-button
+              aria-label="Reset to default"
+              (click)="onResetLogo()"
+            >
+              <mat-icon>autorenew</mat-icon>
+            </button>
+          </div>
 
           <input
             #fileInput
