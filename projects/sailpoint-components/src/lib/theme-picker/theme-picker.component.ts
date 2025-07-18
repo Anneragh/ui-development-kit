@@ -18,6 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 // Theme management service and config interface
 import { ThemeService, ThemeConfig } from '../theme/theme.service';
@@ -39,6 +40,7 @@ declare function structuredClone<T>(value: T): T;
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSnackBarModule, // Import MatSnackBarModule for notifications
   ],
   templateUrl: './theme-picker.component.html',
   styleUrl: './theme-picker.component.scss',
@@ -119,20 +121,22 @@ export class ThemePickerComponent implements OnInit {
 
   // Set selected logo file from file input
   selectedLogoFile?: File;
-  async onFileSelected(event: Event) {
+  onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) {
       return;
     }
 
     const file = input.files[0];
+    // only allow PNG
     if (
       file.type !== 'image/png' &&
       !file.name.toLowerCase().endsWith('.png')
     ) {
-      // you could show a Snackbar / dialog here instead
-      alert('Please select a PNG image.');
-      input.value = ''; // clear the invalid selection
+      this.snackBar.open('Please select a PNG image.', 'Close', {
+        duration: 3000,
+      });
+      input.value = ''; // clear invalid selection
       return;
     }
 
@@ -157,7 +161,8 @@ export class ThemePickerComponent implements OnInit {
 
   constructor(
     private themeService: ThemeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar 
   ) {}
 
   // Utility: Read file input into Uint8Array buffer
