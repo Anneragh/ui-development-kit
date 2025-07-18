@@ -68,6 +68,10 @@ export class IdentityDetailViewComponent implements OnInit {
 
   private loadFilteredIdentities() {
     this.loading = true;
+
+    if (this.filterValue === 'Unknown') {
+      this.filterValue = '';
+    }
     
     // Get all identities from the service
     const allIdentities = this.dataService.getIdentities();
