@@ -47,6 +47,7 @@ export interface DialogData {
       </div>
       <div class="copy-container" *ngIf="isJsonMessage">
         <button
+          id="copyButton"
           mat-icon-button
           (click)="copyToClipboard()"
           matTooltip="Copy to clipboard"
@@ -97,6 +98,14 @@ export interface DialogData {
       :host {
         display: block;
       }
+
+      .mat-mdc-dialog-content>:first-child {
+        margin-top: 15px !important;
+      }
+
+      .mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+        border-radius: 0.5rem !important;
+      }
       
       .mat-mdc-dialog-content {
         max-height: none !important;
@@ -144,7 +153,7 @@ export interface DialogData {
       .copy-container {
         display: flex;
         justify-content: flex-end;
-        margin-bottom: 4px;
+        margin-bottom: -48px;
         margin-right: 20px;
       }
 
@@ -165,6 +174,8 @@ export interface DialogData {
         background-color: #f8f8f2;
         color: #282c34;
         border: 1px solid #e0e0e0;
+        max-height: 600px;
+        overflow-y: auto;
       }
 
       .dialog-message.text-message {
@@ -230,6 +241,10 @@ export interface DialogData {
         display: flex;
         align-items: center;
         margin-bottom: 0;
+      }
+
+      #copyButton {
+        border: none !important;
       }
     `,
   ],
