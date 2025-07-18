@@ -44,32 +44,45 @@
         </div>
       </ng-container>
 
-      <!-- Logo upload -->
-      <mat-form-field appearance="outline" class="upload-logo-label">
-        <mat-label>Upload Logo ({{ mode }})</mat-label>
+      <div class="form-group">
+        <mat-form-field appearance="outline" class="upload-logo-label">
+          <mat-label>Upload Logo ({{ mode }})</mat-label>
 
-        <input
-          matInput
-          [value]="selectedLogoFile?.name || 'No file chosen…'"
-          readonly
-        />
+          <input
+            matInput
+            [value]="selectedLogoFileName || 'No file chosen…'"
+            readonly
+          />
+          <div matSuffix class="logo-suffix">
+            <button
+              class="upload-button"
+              mat-icon-button
+              aria-label="Select logo file"
+              (click)="fileInput.click()"
+            >
+              <mat-icon>upload</mat-icon>
+            </button>
 
-        <button
-          mat-icon-button
-          matSuffix
-          aria-label="Select logo file"
-          (click)="fileInput.click()"
-        >
-          <mat-icon>upload</mat-icon>
-        </button>
+            <button
+              *ngIf="selectedLogoFileName"
+              class="reset-button"
+              mat-icon-button
+              aria-label="Reset to default"
+              (click)="onResetLogo()"
+            >
+              <mat-icon>autorenew</mat-icon>
+            </button>
+          </div>
 
-        <input
-          #fileInput
-          type="file"
-          hidden
-          (change)="onFileSelected($event)"
-        />
-      </mat-form-field>
+          <input
+            #fileInput
+            type="file"
+            accept="image/png"
+            hidden
+            (change)="onFileSelected($event)"
+          />
+        </mat-form-field>
+      </div>
 
       <div class="actions">
         <button mat-raised-button color="primary" (click)="apply()">
