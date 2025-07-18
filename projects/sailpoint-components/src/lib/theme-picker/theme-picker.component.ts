@@ -119,11 +119,25 @@ export class ThemePickerComponent implements OnInit {
 
   // Set selected logo file from file input
   selectedLogoFile?: File;
-  onFileSelected(event: Event) {
+  async onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
-    this.selectedLogoFile = input.files[0];
-    this.selectedLogoFileName = this.selectedLogoFile.name;
+    if (!input.files?.length) {
+      return;
+    }
+
+    const file = input.files[0];
+    if (
+      file.type !== 'image/png' &&
+      !file.name.toLowerCase().endsWith('.png')
+    ) {
+      // you could show a Snackbar / dialog here instead
+      alert('Please select a PNG image.');
+      input.value = ''; // clear the invalid selection
+      return;
+    }
+
+    this.selectedLogoFile = file;
+    this.selectedLogoFileName = file.name;
   }
 
   // Load both light and dark themes into memory (from config or default)
