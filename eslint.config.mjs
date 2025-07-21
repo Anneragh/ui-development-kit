@@ -18,12 +18,12 @@ export default [
   },
   {
     files: ['**/*.ts'],
+    env: {
+      browser: true,
+      node: true,
+      es6: true
+    },
     languageOptions: {
-      env: {
-        browser: true,
-        node: true,
-        es6: true
-      },
       parser: tsparser,
       globals: {
         console: 'readonly',
