@@ -61,7 +61,7 @@ export class AppComponent implements OnDestroy, OnInit {
   sessionStatusDisplay: string = 'Checking...';
 
   private subscriptions = new Subscription();
-  private timerInterval: any;
+  private timerInterval: NodeJS.Timeout | undefined = undefined;
 
   // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
@@ -227,7 +227,7 @@ export class AppComponent implements OnDestroy, OnInit {
   private clearExpiryTimer(): void {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
-      this.timerInterval = null;
+      this.timerInterval = undefined;
     }
   }
 

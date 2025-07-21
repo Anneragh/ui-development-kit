@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConnectionService } from '../services/connection.service';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.initializeComponent();
+    void this.initializeComponent();
   }
 
   // ===== INITIALIZATION =====
@@ -266,11 +266,13 @@ export class HomeComponent implements OnInit {
         }
       } catch (error) {
         console.error('Unified login failed:', error);
-        this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${error}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`);
       }
     } catch (error) {
       console.error('Error connecting to ISC:', error);
-      this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`);
     } finally {
       this.state.loading = false;
     }
