@@ -51,6 +51,7 @@ export class ConnectionService implements OnDestroy {
   async validateConnectionImmediately(environmentName: string): Promise<void> {
     try {
 
+      // This timeout is needed to avoid a race condition that can occur between this service and the data being checked on the backend.
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Use the lightweight token status check to avoid double validation
