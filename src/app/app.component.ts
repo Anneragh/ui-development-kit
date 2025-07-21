@@ -178,19 +178,15 @@ export class AppComponent implements OnInit {
     this.sidenavOpened = !this.sidenavOpened;
   }
 
-  /** Called whenever a nav link is clicked */
   onNavItemClick(event: MouseEvent) {
-    // 1) Prevent navigation if not connected
     if (!this.isConnected) {
       event.preventDefault();
       return;
     }
 
-    // 2) If on mobile (over mode), close the drawer
     if (this.isSmallScreen) {
-      this.sidenav.close();
+      void this.sidenav.close();
     }
-    // otherwise do nothing special and let the router navigate
   }
 
   /**
