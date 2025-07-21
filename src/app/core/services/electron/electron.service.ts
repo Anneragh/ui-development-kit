@@ -4,9 +4,10 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 
+
 export class ElectronService {
   isElectron: boolean = false;
-  electronAPI: typeof window.electronAPI;
+  electronAPI: any;
 
   constructor() {
     // Setup the electronAPI
