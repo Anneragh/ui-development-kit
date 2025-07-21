@@ -56,7 +56,7 @@
         routerLink="/home"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">home</mat-icon>
         Home
@@ -69,7 +69,7 @@
         routerLink="/transforms"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
@@ -81,7 +81,7 @@
         routerLink="/identities"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">assignment_ind</mat-icon>
         Identities
@@ -93,7 +93,7 @@
         routerLink="/theme-picker"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">palette</mat-icon>
         Theme Picker
@@ -105,7 +105,7 @@
         routerLink="/report-example"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">insert_chart</mat-icon>
         Report Example
@@ -116,7 +116,7 @@
         routerLink="/component-selector"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">settings</mat-icon>
         Component Selector
