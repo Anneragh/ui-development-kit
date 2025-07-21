@@ -59,6 +59,7 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@angular-eslint/directive-selector': 'off',
+      '@typescript-eslint/triple-slash-reference': 'off',
       '@angular-eslint/component-selector': [
         'error',
         {
