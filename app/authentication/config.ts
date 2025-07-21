@@ -33,8 +33,8 @@ export const getTenants = (): Tenant[] => {
     for (let environment of Object.keys(config.environments)) {
       const envConfig = config.environments[environment];
       const storedPATTokens = getStoredPATTokens(environment);
-      
-      console.log(`Loading tenant ${environment}:`, {
+
+      console.log(`Test Loading tenant ${environment}:`, {
         hasStoredTokens: !!storedPATTokens,
         hasClientId: !!storedPATTokens?.clientId,
         hasClientSecret: !!storedPATTokens?.clientSecret,
@@ -42,7 +42,7 @@ export const getTenants = (): Tenant[] => {
         clientIdLength: storedPATTokens?.clientId?.length || 0,
         clientSecretLength: storedPATTokens?.clientSecret?.length || 0
       });
-      
+
       tenants.push({
         active: environment === activeEnv,
         name: environment,
@@ -159,7 +159,7 @@ export const updateEnvironment = (
       hasClientId: !!configureRequest.clientId,
       hasClientSecret: !!configureRequest.clientSecret,
     });
-    
+
     if (configureRequest.clientId && configureRequest.clientSecret) {
       // Save new credentials
       setSecureValue('environments.pat.clientid', configureRequest.environmentName, configureRequest.clientId);
@@ -208,7 +208,7 @@ export const deleteEnvironment = (
     deleteSecureValue('environments.pat.clientsecret', environmentName);
     deleteSecureValue('environments.pat.accesstoken', environmentName);
     deleteSecureValue('environments.pat.expiry', environmentName);
-    
+
     // Delete OAuth tokens
     deleteSecureValue('environments.oauth.accesstoken', environmentName);
     deleteSecureValue('environments.oauth.expiry', environmentName);

@@ -1,8 +1,8 @@
-export interface TokenSet {
+export type TokenSet = {
     accessToken: string;
     accessExpiry: Date;
-    refreshToken: string;
-    refreshExpiry: Date;
+    refreshToken?: string;
+    refreshExpiry?: Date;
 }
 
 export interface TokenValidationResult {

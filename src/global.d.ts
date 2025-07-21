@@ -1,8 +1,10 @@
+export type AuthMethods = "oauth" | "pat";
+
 export type UpdateEnvironmentRequest = {
   environmentName: string;
   tenantUrl: string;
   baseUrl: string;
-  authType: 'oauth' | 'pat';
+  authType: AuthMethods;
   clientId?: string;
   clientSecret?: string;
 }
@@ -12,9 +14,9 @@ export type Tenant = {
   name: string;
   apiUrl: string;
   tenantUrl: string;
-  clientId: string | null;
-  clientSecret: string | null;
-  authType: "oauth" | "pat";
+  clientId?: string;
+  clientSecret?: string;
+  authType: AuthMethods;
   tenantName: string;
 }
 
@@ -25,12 +27,48 @@ export type TokenSet = {
   refreshExpiry: Date;
 }
 
+export type AccessTokenStatus = {
+  authType: AuthMethods;
+  accessTokenIsValid: boolean;
+  expiry?: Date;
+  needsRefresh: boolean;
+}
+
+export type RefreshTokenStatus = {
+  authType: "oauth";
+  refreshTokenIsValid: boolean;
+  expiry?: Date;
+  needsRefresh: boolean;
+}
+
+export type AuthPayload = {
+  tenant_id: string;
+  pod: string;
+  org: string;
+  identity_id: string;
+  user_name: string;
+  strong_auth: boolean;
+  authorities: string[];
+  client_id: string;
+  strong_auth_supported: boolean;
+  scope: string[];
+  exp: number;
+  jti: string;
+};
+
+export type TokenDetails = {
+  expiry: Date;
+} & AuthPayload;
+
 declare global {
   interface Window {
     electronAPI: {
       // Unified authentication and connection
       unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
       disconnectFromISC: () => Promise<void>;
+      checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
+      checkRefreshTokenStatus: (environment: string) => Promise<RefreshTokenStatus>;
+      getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
       
       // Token management
       refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
@@ -44,8 +82,8 @@ declare global {
       updateEnvironment: (config: UpdateEnvironmentRequest) => Promise<{ success: boolean, error?: string }>;
       deleteEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
       setActiveEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
-      getGlobalAuthType: () => Promise<"oauth" | "pat">;
-      setGlobalAuthType: (authType: "oauth" | "pat") => Promise<void>;
+      getGlobalAuthType: () => Promise<AuthMethods>;
+      setGlobalAuthType: (authType: AuthMethods) => Promise<void>;
       
       // Harbor Pilot
       harborPilotTransformChat: (chat: any) => Promise<any>;

@@ -1,5 +1,5 @@
 import { dialog, shell } from "electron";
-import { checkTokenExpired, parseJwt } from "./auth";
+import { getTokenDetails, parseJwt } from "./auth";
 import { getConfig, getSecureValue, setSecureValue } from "./config";
 import { LambdaUUIDResponse, RefreshResponse, TokenResponse, TokenSet } from "./types";
 
@@ -94,6 +94,10 @@ export function getStoredOAuthTokens(environment: string): TokenSet | undefined 
  * @param tokenSet - The token set to store
  */
 export function storeOAuthTokens(environment: string, tokenSet: TokenSet): void {
+    if (!tokenSet.refreshToken || !tokenSet.refreshExpiry) {
+        throw new Error('Invalid token set, missing refresh token or expiry');
+    }
+
     try {
         setSecureValue('environments.oauth.accesstoken', environment, tokenSet.accessToken);
         setSecureValue('environments.oauth.expiry', environment, tokenSet.accessExpiry.toISOString());
@@ -119,25 +123,32 @@ export function validateOAuthTokens(environment: string) {
             return { isValid: false, needsRefresh: false };
         }
 
+        if (!storedTokens.refreshToken || !storedTokens.refreshExpiry) {
+            return { isValid: false, needsRefresh: false };
+        }
+
         const now = new Date();
 
         // Check if refresh token is expired, the refresh token should always be the last thing to expire, so if its expired, we need a whole new OAuth session
-        if (checkTokenExpired(storedTokens.refreshToken)) {
+        const refreshTokenDetails = getTokenDetails(storedTokens.refreshToken);
+        if (refreshTokenDetails.expiry < now) {
             console.log('OAuth refresh token is expired');
-            return { isValid: false, needsRefresh: false };
+            return { isValid: false, needsRefresh: false, tokenDetails: refreshTokenDetails };
         }
 
         // Check if access token is expired or will expire soon (within 5 minutes)
         const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
-        if (storedTokens.accessExpiry <= fiveMinutesFromNow) {
+        const accessTokenDetails = getTokenDetails(storedTokens.accessToken);
+        if (accessTokenDetails.expiry <= fiveMinutesFromNow) {
             console.log('OAuth access token is expired or expiring soon, needs refresh');
             return {
                 isValid: false,
-                needsRefresh: true
+                needsRefresh: true,
+                tokenDetails: accessTokenDetails
             };
         }
 
-        return { isValid: true, needsRefresh: false };
+        return { isValid: true, needsRefresh: false, tokenDetails: accessTokenDetails };
     } catch (error) {
         console.error('Error validating OAuth tokens:', error);
         return { isValid: false, needsRefresh: false };

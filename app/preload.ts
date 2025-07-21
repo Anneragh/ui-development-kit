@@ -1,5 +1,4 @@
 import { UpdateEnvironmentRequest } from "./authentication/config";
-import { storeClientCredentials } from "./authentication/pat";
 
 const { contextBridge, ipcRenderer: ipcMain } = require('electron');
 const sdkPreloader = require('./sailpoint-sdk/sdk-preload');
@@ -8,6 +7,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Unified authentication and connection
   unifiedLogin: (environment: string) => ipcMain.invoke('unified-login', environment),
   disconnectFromISC: () => ipcMain.invoke('disconnect-from-isc'),
+  checkAccessTokenStatus: (environment: string) => ipcMain.invoke('check-access-token-status', environment),
+  checkRefreshTokenStatus: (environment: string) => ipcMain.invoke('check-refresh-token-status', environment),
+  getCurrentTokenDetails: (environment: string) => ipcMain.invoke('get-current-token-details', environment),
   
   // Token management
   refreshTokens: (environment: string) => ipcMain.invoke('refresh-tokens', environment),

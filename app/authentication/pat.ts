@@ -1,6 +1,5 @@
-import { checkTokenExpired, parseJwt } from "./auth";
+import { getTokenDetails, parseJwt } from "./auth";
 import { deleteSecureValue, getConfig, getSecureValue, setSecureValue } from "./config";
-import { TokenSet } from "./types";
 
 /**
  * Stores PAT tokens securely for a given environment
@@ -100,8 +99,12 @@ export function validatePATToken(environment: string) {
             return { isValid: false, needsRefresh: false };
         }
 
-        if (checkTokenExpired(storedTokens.accessToken)) {
-            return { isValid: false, needsRefresh: true };
+        const accessTokenDetails = getTokenDetails(storedTokens.accessToken);
+
+        const now = new Date();
+
+        if (accessTokenDetails.expiry < now) {
+            return { isValid: false, needsRefresh: true, tokenDetails: accessTokenDetails };
         }
 
         return {

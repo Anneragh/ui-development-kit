@@ -4,12 +4,13 @@ import * as fs from 'fs';
 import * as url from 'url';
 import { harborPilotTransformChat } from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
-import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType, unifiedLogin, validateTokens } from './authentication/auth';
+import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType, unifiedLogin, validateTokens, checkAccessTokenStatus, checkRefreshTokenStatus, getCurrentTokenDetails } from './authentication/auth';
 import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
 import { getStoredOAuthTokens } from './authentication/oauth';
 import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
 
-let win: BrowserWindow | null = null;
+let win: BrowserWindow | undefined
+
 const projectRoot = path.resolve(__dirname, '..', 'src'); // adjust if needed
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
@@ -90,7 +91,7 @@ function createWindow(): BrowserWindow {
     // Dereference the window object, usually you would store window
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win = null;
+    win = undefined;
   });
 
   return win;
@@ -128,6 +129,18 @@ try {
 
   ipcMain.handle('disconnect-from-isc', () => {
     return disconnectFromISC();
+  });
+
+  ipcMain.handle('check-access-token-status', async (event, environment: string) => {
+    return checkAccessTokenStatus(environment);
+  });
+
+  ipcMain.handle('check-refresh-token-status', async (event, environment: string) => {
+    return checkRefreshTokenStatus(environment);
+  });
+
+  ipcMain.handle('get-current-token-details', async (event, environment: string) => {
+    return getCurrentTokenDetails(environment);
   });
 
   // Token management

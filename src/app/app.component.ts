@@ -23,7 +23,7 @@ import { Subscription, combineLatest } from 'rxjs';
 import { ThemeConfig, ThemeService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ElectronService } from './core/services';
-import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './shared/connection.service';
+import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './services/connection.service';
 import {
   ComponentInfo,
   ComponentSelectorService,
@@ -55,10 +55,12 @@ export class AppComponent implements OnDestroy, OnInit {
   isConnected = false;
   isDarkTheme = false;
   connectionName: string = '';
-  sessionStatus: SessionStatus | null = null;
-  currentEnvironment: EnvironmentInfo | null = null;
+  sessionStatus: SessionStatus | undefined = undefined;
+  currentEnvironment: EnvironmentInfo | undefined = undefined;
+  sessionStatusDisplay: string = 'Checking...';
 
   private subscriptions = new Subscription();
+  private timerInterval: any;
 
   // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
@@ -68,11 +70,10 @@ export class AppComponent implements OnDestroy, OnInit {
     private electronService: ElectronService,
     private translate: TranslateService,
     private connectionService: ConnectionService,
-    private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
     private themeService: ThemeService,
-    private componentSelectorService: ComponentSelectorService
+    private componentSelectorService: ComponentSelectorService,
   ) {
     // Set default language
     this.translate.setDefaultLang('en');
@@ -113,27 +114,24 @@ export class AppComponent implements OnDestroy, OnInit {
 
     // Subscribe to session status changes
     this.subscriptions.add(
-      this.connectionService.sessionStatus$.subscribe((status: SessionStatus | null) => {
+      this.connectionService.sessionStatus$.subscribe((status: SessionStatus | undefined) => {
         console.log('App component received session status:', status);
         this.sessionStatus = status;
-      })
-    );
-
-    // Subscribe to countdown updates for real-time session display updates
-    this.subscriptions.add(
-      this.connectionService.countdown$.subscribe(() => {
-        // This triggers change detection for countdown display without logging
-        // The sessionStatusDisplay getter will recalculate the time automatically
+        this.sessionStatusDisplay = this.timeUntilExpiry || 'Checking...';
+        
+        // Start timer for countdown when we have an expiry date
+        this.setupExpiryTimer();
       })
     );
 
     // Subscribe to current environment changes
     this.subscriptions.add(
-      this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | null) => {
+      this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | undefined) => {
         console.log('App component received environment:', environment);
         this.currentEnvironment = environment;
       })
     );
+
     // Monitor connection state and redirect on disconnect
     this.subscriptions.add(
       this.connectionService.isConnected$.subscribe((connection) => {
@@ -193,6 +191,42 @@ export class AppComponent implements OnDestroy, OnInit {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.clearExpiryTimer();
+  }
+
+  private setupExpiryTimer(): void {
+    // Clear any existing timer
+    this.clearExpiryTimer();
+    
+    // Only setup timer if we have an expiry date
+    if (this.sessionStatus?.expiry) {
+      // Update every second to show countdown
+      this.timerInterval = setInterval(() => {
+        // Trigger change detection to update the display
+        if (!this.sessionStatus) {
+          this.sessionStatusDisplay = 'Checking...';
+        }
+    
+        if (!this.sessionStatus?.expiry) {
+          this.sessionStatusDisplay = 'Checking...';
+        }
+    
+        const timeUntilExpiry = this.timeUntilExpiry || 'Checking...';
+    
+        if (timeUntilExpiry === 'Expired') {
+          this.sessionStatusDisplay = 'Expired';
+        }
+    
+        this.sessionStatusDisplay = timeUntilExpiry;
+      }, 1000);
+    }
+  }
+
+  private clearExpiryTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
   }
 
   /**
@@ -245,7 +279,7 @@ export class AppComponent implements OnDestroy, OnInit {
    */
   async disconnectFromISC() {
     await window.electronAPI.disconnectFromISC();
-    this.connectionService.setConnectionState(false);
+    this.connectionService.connectedSubject$.next({ connected: false });
     this.router.navigate(['/home']).catch((error) => {
       console.error('Navigation error:', error);
     });
@@ -271,19 +305,44 @@ export class AppComponent implements OnDestroy, OnInit {
     return this.connectionService.isSessionValid;
   }
 
-  get sessionExpiryTime(): string | null {
+  get sessionExpiryTime(): string | undefined {
     return this.connectionService.sessionExpiryTime;
   }
 
-  get timeUntilExpiry(): string | null {
-    return this.connectionService.timeUntilExpiry;
+  get sessionExpiryDate(): Date | undefined {
+    return this.connectionService.sessionExpiryDate;
   }
 
-  get sessionStatusDisplay(): string {
-    return this.connectionService.sessionStatusDisplay;
+  get timeUntilExpiry(): string | undefined {
+    const expiryDate = this.sessionExpiryDate;
+    if (!expiryDate) {
+      return undefined;
+    }
+
+    const now = new Date();
+    const timeDiff = expiryDate.getTime() - now.getTime();
+
+    if (timeDiff <= 0) {
+      return 'Expired';
+    }
+
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
   }
 
   get isRefreshing(): boolean {
-    return this.connectionService.isRefreshing;
+    return this.connectionService.isSessionRefreshing;
   }
 }

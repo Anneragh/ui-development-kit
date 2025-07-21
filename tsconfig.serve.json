@@ -1,6 +1,6 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
-    "strict": true,
     "sourceMap": true,
     "outDir": "./electron-dist",
     "declaration": false,
@@ -8,28 +8,18 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "noImplicitAny": false,
-    "allowJs": true,
     "module": "commonjs",
-    "target": "es2015",
-    "baseUrl": "./",
-    "paths": {
-      "sailpoint-components": [
-        "projects/sailpoint-components/src/public-api"
-      ]
-    },
+    "target": "es2020",
     "types": [
       "node"
     ],
     "lib": [
-      "es2017",
-      "es2016",
-      "es2015",
+      "es2020",
       "dom"
     ],
   },
-  "files": [
-    "app/main.ts", "app/preload.ts", "app/sailpoint-sdk/sdk-preload.ts"
+  "include": [
+    "app/**/*.ts"
   ],
   "exclude": [
     "node_modules",

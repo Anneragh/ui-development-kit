@@ -1,16 +1,12 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { load, load as loadYaml } from 'js-yaml';
-import { safeStorage } from 'electron';
-import { homedir } from 'os';
-import path from 'path';
 import {
   Configuration,
   TenantV2024Api,
   ConfigurationParameters,
 } from 'sailpoint-api-client';
-import { CLIConfig, getConfig, setConfig } from './config';
+import { getConfig, setConfig } from './config';
 import { getStoredOAuthTokens, OAuthLogin, refreshOAuthToken, validateOAuthTokens } from './oauth';
-import { getStoredPATTokens, refreshPATToken, storeClientCredentials, validatePATToken } from './pat';
+import { getStoredPATTokens, refreshPATToken, validatePATToken } from './pat';
+import { TokenSet } from './types';
 
 export function formatErrorAsString(error: unknown): string {
   if (error instanceof Error) {
@@ -20,13 +16,6 @@ export function formatErrorAsString(error: unknown): string {
 }
 
 export let apiConfig: Configuration;
-
-export interface TokenSet {
-  accessToken: string;
-  accessExpiry: Date;
-  refreshToken: string;
-  refreshExpiry: Date;
-}
 
 export const disconnectFromISC = () => {
   try {
@@ -41,7 +30,22 @@ export const disconnectFromISC = () => {
   }
 };
 
-export function parseJwt(token: string) {
+export type AuthPayload = {
+  tenant_id: string;
+  pod: string;
+  org: string;
+  identity_id: string;
+  user_name: string;
+  strong_auth: boolean;
+  authorities: string[];
+  client_id: string;
+  strong_auth_supported: boolean;
+  scope: string[];
+  exp: number;
+  jti: string;
+};
+
+export function parseJwt(token: string): AuthPayload {
 
   // Split the JWT token into its three parts
   const parts = token.split('.');
@@ -58,7 +62,7 @@ export function parseJwt(token: string) {
   }).join(''));
 
   // Return the parsed JSON payload
-  return JSON.parse(jsonPayload);
+  return JSON.parse(jsonPayload) as AuthPayload;
 }
 
 /**
@@ -81,7 +85,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
       };
     }
 
-    const {tenanturl, baseurl} = config.environments[environment];
+    const { tenanturl, baseurl } = config.environments[environment];
 
     // Check for existing tokens and attempt refresh if needed
     const tokenStatus = validateTokens(environment);
@@ -169,7 +173,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
           switch (tokenStatus.authType) {
             case 'oauth':
               const oauthTokens = getStoredOAuthTokens(environment);
-              if (!oauthTokens) {
+              if (!oauthTokens || !oauthTokens.accessToken) {
                 return {
                   success: false,
                   error: 'No OAuth tokens found for environment: ' + environment
@@ -179,7 +183,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
               break;
             case 'pat':
               const patTokens = getStoredPATTokens(environment);
-              if (!patTokens) {
+              if (!patTokens || !patTokens.clientId || !patTokens.clientSecret) {
                 return {
                   success: false,
                   error: 'No PAT tokens found for environment: ' + environment
@@ -192,7 +196,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
           if (connectionResult && connectionResult.connected) {
             console.log('Successfully refreshed tokens and connected');
             return {
-              success: true,    
+              success: true,
             };
           } else {
             return {
@@ -317,19 +321,19 @@ export const refreshTokens = async (environment: string): Promise<{ success: boo
         if (!storedTokens || !storedTokens.refreshToken) {
           return { success: false, error: 'No refresh token available for OAuth refresh' };
         }
-        
+
         if (checkTokenExpired(storedTokens.refreshToken)) {
           return { success: false, error: 'Refresh token has expired' };
         }
-        
+
         await refreshOAuthToken(environment);
         return { success: true, error: undefined };
       }
-      
+
       case 'pat':
         await refreshPATToken(environment);
         return { success: true, error: undefined };
-        
+
       default:
         return { success: false, error: 'Unsupported auth type: ' + authType };
     }
@@ -359,7 +363,7 @@ export const connectToISCWithPAT = async (
     if (response.status !== 200) {
       return { connected: false, error: 'Failed to connect to ISC with PAT' };
     }
-    return { connected: true, error : undefined };
+    return { connected: true, error: undefined };
   } catch (error) {
     console.error('Error connecting to ISC:', error);
     return { connected: false, error: formatErrorAsString(error) };
@@ -422,7 +426,201 @@ export const setGlobalAuthType = (authType: "oauth" | "pat") => {
   }
 };
 
-async function testAccessToken(environment: string, authType: string) {
+export type AccessTokenStatus = {
+  authType: string;
+  accessTokenIsValid: boolean;
+  expiry?: Date;
+  needsRefresh: boolean;
+}
+
+export type RefreshTokenStatus = {
+  authType: "oauth";
+  refreshTokenIsValid: boolean;
+  expiry?: Date;
+  needsRefresh: boolean;
+}
+
+export type TokenDetails = {
+  expiry: Date;
+} & AuthPayload;
+
+export function getTokenDetails(token: string): TokenDetails {
+  const parsedToken = parseJwt(token);
+
+  const expiry = new Date(parsedToken.exp * 1000);
+
+  return {
+    expiry,
+    ...parsedToken
+  }
+}
+
+export function getCurrentTokenDetails(environment: string): { tokenDetails: TokenDetails | undefined, error?: string } {
+  try {
+    switch (getGlobalAuthType()) {
+      case 'oauth':
+        const oauthTokens = getStoredOAuthTokens(environment);
+        if (!oauthTokens) {
+          return {
+            tokenDetails: undefined,
+            error: 'No OAuth tokens found for environment: ' + environment
+          };
+        }
+        return {
+          tokenDetails: getTokenDetails(oauthTokens.accessToken),
+          error: undefined
+        };
+      case 'pat':
+        const patTokens = getStoredPATTokens(environment);
+        if (!patTokens) {
+          return {
+            tokenDetails: undefined,
+            error: 'No PAT tokens found for environment: ' + environment
+          };
+        }
+        return {
+          tokenDetails: getTokenDetails(patTokens.accessToken),
+          error: undefined
+        };
+        break;
+
+      default:
+        return {
+          tokenDetails: undefined,
+          error: 'Unsupported auth type: ' + getGlobalAuthType()
+        };
+    }
+  } catch (error) {
+    console.error('Error getting current token details:', error);
+    return {
+      tokenDetails: undefined,
+      error: formatErrorAsString(error)
+    };
+  }
+}
+
+/**
+ * Checks the access token status for a given environment.
+ * 
+ * If all token expiry times are valid, tests the access token against the API
+ * @param environment - The environment name to check access token status for
+ * @returns Access token status information
+ */
+export async function checkAccessTokenStatus(environment: string): Promise<AccessTokenStatus> {
+  try {
+    const authType = getGlobalAuthType();
+
+    let storedTokens: TokenSet | undefined;
+
+    switch (authType) {
+      case 'oauth':
+        storedTokens = getStoredOAuthTokens(environment);
+        break;
+      case 'pat':
+        storedTokens = getStoredPATTokens(environment);
+        break;
+      default:
+        return {
+          accessTokenIsValid: false,
+          authType,
+          needsRefresh: false
+        };
+    }
+
+    if (!storedTokens) {
+      return {
+        accessTokenIsValid: false,
+        authType,
+        needsRefresh: false
+      };
+    }
+
+    const parsedToken = parseJwt(storedTokens.accessToken);
+    const expiry = new Date(parsedToken.exp * 1000);
+    const now = new Date();
+
+    if (expiry < now) {
+      return {
+        accessTokenIsValid: false,
+        authType,
+        needsRefresh: true,
+        expiry
+      };
+    }
+
+    const tokenTest = await testAccessToken(environment, authType);
+
+    return {
+      accessTokenIsValid: tokenTest.isValid,
+      authType,
+      needsRefresh: tokenTest.needsRefresh,
+      expiry
+    };
+
+  } catch (error) {
+    console.error('Error checking token status:', error);
+    return {
+      accessTokenIsValid: false,
+      authType: 'unknown',
+      needsRefresh: false
+    };
+  }
+};
+
+/**
+ * Checks the refresh token status for a given environment
+ * @param environment - The environment name to check refresh token status for
+ * @returns Refresh token status information
+ */
+export function checkRefreshTokenStatus(environment: string): RefreshTokenStatus {
+  try {
+    const storedTokens = getStoredOAuthTokens(environment);
+
+    if (!storedTokens) {
+      return {
+        refreshTokenIsValid: false,
+        authType: 'oauth',
+        needsRefresh: false
+      };
+    }
+
+    if (!storedTokens.refreshToken) {
+      return {
+        refreshTokenIsValid: false,
+        authType: 'oauth',
+        needsRefresh: false
+      };
+    }
+
+    const parsedToken = parseJwt(storedTokens.refreshToken);
+    const expiry = new Date(parsedToken.exp * 1000);
+    const now = new Date();
+
+    if (expiry < now) {
+      return {
+        refreshTokenIsValid: false,
+        authType: 'oauth',
+        needsRefresh: true
+      };
+    }
+
+    return {
+      refreshTokenIsValid: true,
+      authType: 'oauth',
+      needsRefresh: false
+    };
+
+  } catch (error) {
+    console.error('Error checking refresh token status:', error);
+    return {
+      refreshTokenIsValid: false,
+      authType: 'oauth',
+      needsRefresh: false
+    };
+  }
+}
+
+export async function testAccessToken(environment: string, authType: string): Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }> {
 
   let accessToken;
 

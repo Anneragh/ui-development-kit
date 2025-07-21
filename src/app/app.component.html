@@ -25,7 +25,7 @@
     
     <!-- Session Status Info -->
     <div *ngIf="sessionStatus || currentEnvironment" class="session-info">
-      <span class="session-type">{{ (sessionStatus?.authType || currentEnvironment?.authType || 'UNKNOWN').toUpperCase() }}</span>
+      <span class="session-type">{{ (sessionStatus?.authType || currentEnvironment?.authType || 'UNKNOWN') }}</span>
       <span class="session-expiry" [ngClass]="{
         'expiry-warning': sessionStatusDisplay !== 'Valid' && sessionStatusDisplay !== 'Checking...' && !sessionStatusDisplay.includes('Expired'),
         'expiry-expired': sessionStatusDisplay === 'Expired' || sessionStatusDisplay === 'Invalid'
