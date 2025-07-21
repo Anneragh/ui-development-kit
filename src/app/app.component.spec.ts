@@ -3,7 +3,7 @@ import { AppComponent } from './app.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ElectronService } from './core/services';
 import { provideRouter, Routes } from '@angular/router';
-import { ConnectionService } from './shared/connection.service';
+import { ConnectionService } from './services/connection.service';
 import { of } from 'rxjs';
 
 (globalThis as any).structuredClone = <T>(obj: T): T =>
