@@ -72,7 +72,7 @@
         routerLink="/home"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">home</mat-icon>
         Home
@@ -85,7 +85,7 @@
         routerLink="/transforms"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
@@ -97,9 +97,9 @@
         routerLink="/identities"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
-        <mat-icon class="card-icon">dashboard</mat-icon>
+        <mat-icon class="card-icon">assignment_ind</mat-icon>
         Identities
       </a>
       <a
@@ -109,9 +109,9 @@
         routerLink="/theme-picker"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
-        <mat-icon class="card-icon">dashboard</mat-icon>
+        <mat-icon class="card-icon">palette</mat-icon>
         Theme Picker
       </a>
       <a
@@ -121,9 +121,9 @@
         routerLink="/report-example"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
-        <mat-icon class="card-icon">dashboard</mat-icon>
+        <mat-icon class="card-icon">insert_chart</mat-icon>
         Report Example
       </a>
       <a
@@ -132,22 +132,13 @@
         routerLink="/component-selector"
         routerLinkActive="active-link"
         [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
+        (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">settings</mat-icon>
         Component Selector
       </a>
 
-      <a
-        mat-list-item
-        routerLink="/builder"
-        routerLinkActive="active-link"
-        [class.disabled]="!isConnected"
-        (click)="!isConnected && $event.preventDefault()"
-      >
-        <mat-icon class="card-icon">transform</mat-icon>
-        Builder
-      </a>
+      
     </mat-nav-list>
   </mat-sidenav>
 

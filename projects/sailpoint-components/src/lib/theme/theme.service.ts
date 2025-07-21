@@ -7,6 +7,8 @@ export interface ThemeConfig {
   background: string;
   logoLight?: string;
   logoDark?: string;
+  logoLightFileName?: string;
+  logoDarkFileName?: string;
 }
 
 import { Injectable } from '@angular/core';

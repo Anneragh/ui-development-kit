@@ -28,6 +28,9 @@ import {
   ComponentInfo,
   ComponentSelectorService,
 } from './services/component-selector.service';
+import { MatSidenav } from '@angular/material/sidenav';
+
+declare const window: any;
 
 @Component({
   selector: 'app-root',
@@ -48,6 +51,7 @@ import {
 
 export class AppComponent implements OnDestroy, OnInit {
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
+  @ViewChild('sidenav') sidenav!: MatSidenav;
 
   // UI and state flags
   isSmallScreen: boolean = false;
@@ -260,17 +264,14 @@ export class AppComponent implements OnDestroy, OnInit {
     this.sidenavOpened = !this.sidenavOpened;
   }
 
-  // New method to handle link clicks
-  handleLinkClick(event: MouseEvent): void {
-    // If not connected, prevent the default action
+  onNavItemClick(event: MouseEvent) {
     if (!this.isConnected) {
       event.preventDefault();
       return;
     }
-    
-    // Close sidebar on small screens when a link is clicked
-    if (this.isSmallScreen && this.sidenavOpened) {
-      this.sidenavOpened = false;
+
+    if (this.isSmallScreen) {
+      void this.sidenav.close();
     }
   }
 

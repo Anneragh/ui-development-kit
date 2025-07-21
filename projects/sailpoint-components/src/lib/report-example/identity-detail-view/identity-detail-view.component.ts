@@ -29,10 +29,10 @@ import { ReportDataService } from '../report-data.service';
     MatSortModule,
     MatProgressSpinnerModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   templateUrl: './identity-detail-view.component.html',
-  styleUrl: './identity-detail-view.component.scss'
+  styleUrl: './identity-detail-view.component.scss',
 })
 export class IdentityDetailViewComponent implements OnInit {
   // Data properties
@@ -42,54 +42,68 @@ export class IdentityDetailViewComponent implements OnInit {
   filterCategory = '';
   filterValue = '';
   title = '';
-  
+
   // Table configuration
-  displayedColumns: string[] = ['name', 'alias', 'emailAddress', 'identityStatus', 'lifecycleState'];
+  displayedColumns: string[] = [
+    'name',
+    'alias',
+    'emailAddress',
+    'identityStatus',
+    'lifecycleState',
+  ];
   pageSize = 10;
   pageIndex = 0;
   totalCount = 0;
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private router: Router,
     private dataService: ReportDataService
   ) {}
 
   ngOnInit() {
     // Get the filter category and value from the route params
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.filterCategory = params['category'] || '';
       this.filterValue = params['value'] || '';
       this.title = this.generateTitle(this.filterCategory, this.filterValue);
-      
+
       this.loadFilteredIdentities();
     });
   }
 
   private loadFilteredIdentities() {
     this.loading = true;
-    
+
     // Get all identities from the service
     const allIdentities = this.dataService.getIdentities();
-    
+
     // Apply filtering based on category and value
     if (this.filterCategory && this.filterValue) {
-      this.allIdentities = this.filterIdentities(allIdentities, this.filterCategory, this.filterValue);
+      this.allIdentities = this.filterIdentities(
+        allIdentities,
+        this.filterCategory,
+        this.filterValue
+      );
     } else {
       this.allIdentities = [...allIdentities];
     }
-    
+
     this.totalCount = this.allIdentities.length;
     this.updateDisplayedIdentities();
     this.loading = false;
   }
 
-  private filterIdentities(identities: IdentityV2025[], category: string, value: string): IdentityV2025[] {
-    return identities.filter(identity => {
+  private filterIdentities(
+    identities: IdentityV2025[],
+    category: string,
+    value: string
+  ): IdentityV2025[] {
+    return identities.filter((identity) => {
       switch (category) {
         case 'status':
           return identity.identityStatus === value;
-        
+
         case 'manager':
           // For manager status (with/without)
           if (value === 'With Manager') {
@@ -97,16 +111,32 @@ export class IdentityDetailViewComponent implements OnInit {
           } else {
             return !identity.managerRef || !identity.managerRef.id;
           }
-        
+
         case 'lifecycle':
-          // Check for lifecycle state match
-          if (identity.lifecycleState && identity.lifecycleState.stateName) {
+          // special case for "Unknown" filter
+          if (value === 'Unknown') {
+            // neither a populated lifecycleState nor a cloudLifecycleState attribute
+            const hasStateName = !!identity.lifecycleState?.stateName;
+            const hasCloud = !!(
+              identity.attributes &&
+              'cloudLifecycleState' in identity.attributes &&
+              identity.attributes.cloudLifecycleState
+            );
+            return !hasStateName && !hasCloud;
+          }
+
+          // normal matching
+          if (identity.lifecycleState?.stateName) {
             return identity.lifecycleState.stateName === value;
-          } else if (identity.attributes && 'cloudLifecycleState' in identity.attributes) {
+          }
+          if (
+            identity.attributes &&
+            'cloudLifecycleState' in identity.attributes
+          ) {
             return identity.attributes.cloudLifecycleState === value;
           }
           return false;
-          
+
         default:
           return true;
       }
@@ -117,7 +147,7 @@ export class IdentityDetailViewComponent implements OnInit {
     if (!category || !value) {
       return 'All Identities';
     }
-    
+
     switch (category) {
       case 'status':
         return `Identities with Status: ${value}`;
@@ -132,7 +162,10 @@ export class IdentityDetailViewComponent implements OnInit {
 
   private updateDisplayedIdentities() {
     const startIndex = this.pageIndex * this.pageSize;
-    this.displayedIdentities = this.allIdentities.slice(startIndex, startIndex + this.pageSize);
+    this.displayedIdentities = this.allIdentities.slice(
+      startIndex,
+      startIndex + this.pageSize
+    );
   }
 
   onPageChange(event: PageEvent) {
@@ -149,20 +182,28 @@ export class IdentityDetailViewComponent implements OnInit {
     this.allIdentities = this.allIdentities.sort((a, b) => {
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
-        case 'name': 
+        case 'name':
           return this.compare(a.name || '', b.name || '', isAsc);
-        case 'alias': 
+        case 'alias':
           return this.compare(a.alias || '', b.alias || '', isAsc);
-        case 'emailAddress': 
-          return this.compare(a.emailAddress || '', b.emailAddress || '', isAsc);
-        case 'identityStatus': 
-          return this.compare(a.identityStatus || '', b.identityStatus || '', isAsc);
+        case 'emailAddress':
+          return this.compare(
+            a.emailAddress || '',
+            b.emailAddress || '',
+            isAsc
+          );
+        case 'identityStatus':
+          return this.compare(
+            a.identityStatus || '',
+            b.identityStatus || '',
+            isAsc
+          );
         case 'lifecycleState': {
           const aState = a.lifecycleState?.stateName || '';
           const bState = b.lifecycleState?.stateName || '';
           return this.compare(aState, bState, isAsc);
         }
-        default: 
+        default:
           return 0;
       }
     });
@@ -181,7 +222,10 @@ export class IdentityDetailViewComponent implements OnInit {
   formatLifecycleState(identity: IdentityV2025): string {
     if (identity.lifecycleState && identity.lifecycleState.stateName) {
       return identity.lifecycleState.stateName;
-    } else if (identity.attributes && 'cloudLifecycleState' in identity.attributes) {
+    } else if (
+      identity.attributes &&
+      'cloudLifecycleState' in identity.attributes
+    ) {
       return identity.attributes.cloudLifecycleState as string;
     }
     return 'Unknown';
