@@ -9,7 +9,6 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';

@@ -1,14 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export interface Connection {
+export type Connection = {
   connected: boolean;
   name?: string;
 }
 
 export type AuthMethods = "oauth" | "pat";
 
-export interface SessionStatus {
+export type SessionStatus = {
   isValid: boolean;
   needsRefresh: boolean;
   authType?: AuthMethods;
@@ -16,7 +16,7 @@ export interface SessionStatus {
   lastChecked: Date;
 }
 
-export interface EnvironmentInfo {
+export type EnvironmentInfo = {
   name: string;
   apiUrl: string;
   baseUrl: string;
