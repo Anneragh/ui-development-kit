@@ -22,7 +22,7 @@ export default [
     languageOptions: {
       parser: tsparser,
       globals: {
-        ...globals.browser,
+        ...Object.fromEntries(Object.keys(globals.browser).map(key => ([key.trim(), globals.browser[key]]))),
         ...globals.node,
         console: 'readonly',
         window: 'readonly',
