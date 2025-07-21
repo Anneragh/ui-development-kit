@@ -110,6 +110,12 @@ export class AppComponent implements OnDestroy, OnInit {
         console.log('App component received connection state:', connection);
         this.isConnected = connection.connected;
         this.connectionName = connection.name || '';
+        
+        if (!connection.connected) {
+          this.router.navigate(['/home']).catch((error) => {
+            console.error('Navigation error:', error);
+          });
+        }
       })
     );
 
@@ -130,18 +136,6 @@ export class AppComponent implements OnDestroy, OnInit {
       this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | undefined) => {
         console.log('App component received environment:', environment);
         this.currentEnvironment = environment;
-      })
-    );
-
-    // Monitor connection state and redirect on disconnect
-    this.subscriptions.add(
-      this.connectionService.isConnected$.subscribe((connection) => {
-        this.isConnected = connection.connected;
-        if (!connection.connected) {
-          this.router.navigate(['/home']).catch((error) => {
-            console.error('Navigation error:', error);
-          });
-        }
       })
     );
   }
