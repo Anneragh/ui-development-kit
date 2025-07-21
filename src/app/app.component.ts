@@ -27,6 +27,7 @@ import {
   ComponentSelectorService,
 } from './services/component-selector.service';
 import { ConnectionService } from './shared/connection.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 declare const window: any;
 
@@ -48,6 +49,7 @@ declare const window: any;
 })
 export class AppComponent implements OnInit {
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
+  @ViewChild('sidenav') sidenav!: MatSidenav;
 
   // UI and state flags
   isSmallScreen: boolean = false;
@@ -176,18 +178,19 @@ export class AppComponent implements OnInit {
     this.sidenavOpened = !this.sidenavOpened;
   }
 
-  // New method to handle link clicks
-  handleLinkClick(event: MouseEvent): void {
-    // If not connected, prevent the default action
+  /** Called whenever a nav link is clicked */
+  onNavItemClick(event: MouseEvent) {
+    // 1) Prevent navigation if not connected
     if (!this.isConnected) {
       event.preventDefault();
       return;
     }
-    
-    // Close sidebar on small screens when a link is clicked
-    if (this.isSmallScreen && this.sidenavOpened) {
-      this.sidenavOpened = false;
+
+    // 2) If on mobile (over mode), close the drawer
+    if (this.isSmallScreen) {
+      this.sidenav.close();
     }
+    // otherwise do nothing special and let the router navigate
   }
 
   /**
