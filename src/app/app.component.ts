@@ -1,3 +1,4 @@
+/*global setInterval, clearInterval */
 import {
   BreakpointObserver,
   Breakpoints,
@@ -61,7 +62,7 @@ export class AppComponent implements OnDestroy, OnInit {
   sessionStatusDisplay: string = 'Checking...';
 
   private subscriptions = new Subscription();
-  private timerInterval: NodeJS.Timeout | undefined = undefined;
+  private timerInterval: any;
 
   // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
