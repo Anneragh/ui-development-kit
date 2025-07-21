@@ -1,3 +1,4 @@
+/// <reference path="../../global.ts" />
 export interface ThemeConfig {
   primary: string;
   secondary: string;
