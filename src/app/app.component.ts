@@ -1,4 +1,3 @@
-/*global setInterval, clearInterval */
 import {
   BreakpointObserver,
   Breakpoints,
@@ -62,7 +61,7 @@ export class AppComponent implements OnDestroy, OnInit {
   sessionStatusDisplay: string = 'Checking...';
 
   private subscriptions = new Subscription();
-  private timerInterval: any;
+  private timerInterval: NodeJS.Timeout | undefined = undefined;
 
   // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
@@ -80,12 +79,12 @@ export class AppComponent implements OnDestroy, OnInit {
     // Set default language
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
-    
+
     this.breakpointObserver.observe([Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall]).subscribe((result) => {
       this.isSmallScreen = result.matches;
       this.sidenavOpened = !this.isSmallScreen;
     });
-    
+
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
 
@@ -120,7 +119,7 @@ export class AppComponent implements OnDestroy, OnInit {
         console.log('App component received session status:', status);
         this.sessionStatus = status;
         this.sessionStatusDisplay = this.timeUntilExpiry || 'Checking...';
-        
+
         // Start timer for countdown when we have an expiry date
         this.setupExpiryTimer();
       })
@@ -199,7 +198,7 @@ export class AppComponent implements OnDestroy, OnInit {
   private setupExpiryTimer(): void {
     // Clear any existing timer
     this.clearExpiryTimer();
-    
+
     // Only setup timer if we have an expiry date
     if (this.sessionStatus?.expiry) {
       // Update every second to show countdown
@@ -208,18 +207,18 @@ export class AppComponent implements OnDestroy, OnInit {
         if (!this.sessionStatus) {
           this.sessionStatusDisplay = 'Checking...';
         }
-    
+
         if (!this.sessionStatus?.expiry) {
           this.sessionStatusDisplay = 'Checking...';
         }
-    
+
         const timeUntilExpiry = this.timeUntilExpiry || 'Checking...';
-    
+
         if (timeUntilExpiry === 'Expired') {
           this.sessionStatusDisplay = 'Expired';
-          this.connectionService.handleSessionExpired();
+          void this.connectionService.handleSessionExpired();
         }
-    
+
         this.sessionStatusDisplay = timeUntilExpiry;
       }, 1000);
     }
@@ -291,7 +290,7 @@ export class AppComponent implements OnDestroy, OnInit {
       console.log('Current connection state:', this.isConnected);
       console.log('Current environment:', this.currentEnvironment);
       console.log('Current session status:', this.sessionStatus);
-      
+
       await this.connectionService.manualRefreshSession();
       console.log('Manual refresh completed successfully');
     } catch (error) {

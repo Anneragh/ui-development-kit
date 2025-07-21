@@ -19,6 +19,11 @@ export default [
   {
     files: ['**/*.ts'],
     languageOptions: {
+      env: {
+        browser: true,
+        node: true,
+        es6: true
+      },
       parser: tsparser,
       globals: {
         console: 'readonly',
