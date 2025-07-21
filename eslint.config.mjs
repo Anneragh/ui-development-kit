@@ -5,6 +5,7 @@ import tsparser from '@typescript-eslint/parser';
 import angular from '@angular-eslint/eslint-plugin';
 import angularTemplate from '@angular-eslint/eslint-plugin-template';
 import angularTemplateParser from '@angular-eslint/template-parser';
+import globals from "globals";
 
 export default [
   {
@@ -18,14 +19,11 @@ export default [
   },
   {
     files: ['**/*.ts'],
-    env: {
-      browser: true,
-      node: true,
-      es6: true
-    },
     languageOptions: {
       parser: tsparser,
       globals: {
+        ...globals.browser,
+        ...globals.node,
         console: 'readonly',
         window: 'readonly',
         document: 'readonly',
