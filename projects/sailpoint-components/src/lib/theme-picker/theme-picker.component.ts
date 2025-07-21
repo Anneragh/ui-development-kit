@@ -28,12 +28,6 @@ import { ThemeService, ThemeConfig } from '../theme/theme.service';
 // Required for deep cloning
 declare function structuredClone<T>(value: T): T;
 
-declare global {
-  interface Window {
-    electronAPI: any;
-  }
-}
-
 @Component({
   selector: 'app-theme-picker',
   standalone: true,

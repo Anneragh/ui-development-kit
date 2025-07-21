@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 
 export class ElectronService {
   isElectron: boolean = false;
-  electronAPI: undefined | typeof window.electronAPI;
+  electronAPI: typeof window.electronAPI;
 
   constructor() {
     // Setup the electronAPI
