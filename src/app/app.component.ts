@@ -29,8 +29,6 @@ import {
 } from './services/component-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 
-declare const window: any;
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -218,6 +216,7 @@ export class AppComponent implements OnDestroy, OnInit {
     
         if (timeUntilExpiry === 'Expired') {
           this.sessionStatusDisplay = 'Expired';
+          this.connectionService.handleSessionExpired();
         }
     
         this.sessionStatusDisplay = timeUntilExpiry;
