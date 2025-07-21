@@ -1,7 +1,7 @@
-import { bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideHttpClient } from '@angular/common/http';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -30,7 +30,9 @@ bootstrapApplication(AppComponent, {
         },
       }),
       CoreModule,
-      SharedModule,
+      BrowserModule,
+      BrowserAnimationsModule,
+      SharedModule
 
     )
   ],

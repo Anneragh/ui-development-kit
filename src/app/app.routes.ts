@@ -5,6 +5,7 @@ import { PageNotFoundComponent } from './shared/components';
 import { TransformBuilderComponent } from 'sailpoint-components';
 import { TransformsComponent } from 'sailpoint-components';
 import { HomeComponent } from './home/home.component';
+import { RulesComponent } from './rules/rules.component';
 
 import { SailPointImportsComponent } from './sailpoint-imports/sailpoint-imports.component';
 
@@ -33,6 +34,10 @@ export const appRoutes: Routes = [
   {
     path: 'transform-builder',
     component: TransformBuilderComponent
+  },
+  {
+    path: 'rules',
+    component: RulesComponent
   },
   {
     path: 'component',

@@ -13,6 +13,7 @@ import { ElectronService } from './core/services';
 import { ConnectionService } from './shared/connection.service';
 import { Router } from '@angular/router';
 import { ComponentInfo, ComponentSelectorService } from './services/component-selector.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 declare const window: any;
 
