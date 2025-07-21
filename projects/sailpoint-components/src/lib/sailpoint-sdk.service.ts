@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AxiosResponse } from 'axios';
 import * as sdk from 'sailpoint-api-client';
+declare global {
+  interface Window {
+    electronAPI: any;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
