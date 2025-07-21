@@ -1429,10 +1429,11 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    if (!obj.hasOwnProperty(oldKey) || oldKey === newKey) {
+    const branchKeys = Object.keys(obj);
+    if (!branchKeys.includes(oldKey) || oldKey === newKey) {
       return;
     }
-    if (obj.hasOwnProperty(newKey)) {
+    if (branchKeys.includes(newKey)) {
       this.snackBar.open(
         `A branch named "${newKey}" already exists.`,
         'Close',
