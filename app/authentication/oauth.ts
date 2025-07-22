@@ -96,6 +96,7 @@ export function getStoredOAuthTokens(environment: string): TokenSet | undefined 
  * @param tokenSet - The token set to store
  */
 export function storeOAuthTokens(environment: string, tokenSet: TokenSet): void {
+    console.log('Storing OAuth tokens for environment:', environment);
     if (!tokenSet.refreshToken || !tokenSet.refreshExpiry) {
         throw new Error('Invalid token set, missing refresh token or expiry');
     }
@@ -173,7 +174,7 @@ export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: 
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ tenant, baseAPIUrl }),
+            body: JSON.stringify({ tenant, apiBaseURL: baseAPIUrl }),
         });
 
         if (!response.ok) {
@@ -244,6 +245,7 @@ export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: 
                     };
 
                     storeOAuthTokens(environment, tokenSet);
+                    return { success: true, error: '' };
                 }
             } catch (err) {
                 console.error('Error polling for token:', err);
