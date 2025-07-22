@@ -94,9 +94,9 @@ export function getStoredPATTokens(environment: string): { accessToken: string, 
 export function validatePATToken(environment: string) {
     try {
         const storedTokens = getStoredPATTokens(environment);
-        if (!storedTokens) {
+        if (!storedTokens || !storedTokens.accessToken) {
             console.log(`No PAT tokens found for environment: ${environment}`);
-            return { isValid: false, needsRefresh: false };
+            return { isValid: false, needsRefresh: true };
         }
 
         const accessTokenDetails = getTokenDetails(storedTokens.accessToken);
