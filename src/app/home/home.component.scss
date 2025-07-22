@@ -200,8 +200,18 @@
       .connect-button {
         min-width: 200px;
         
-        mat-icon {
-          margin-right: 8px;
+        .button-content {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          mat-icon {
+            margin-right: 8px;
+          }
+          
+          .button-spinner {
+            margin-right: 8px;
+          }
         }
       }
     }
