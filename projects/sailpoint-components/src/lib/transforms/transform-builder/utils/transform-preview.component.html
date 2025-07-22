@@ -9,7 +9,7 @@
       <form [formGroup]="transformForm" (ngSubmit)="executeTransform()">
         <!-- Profile Selection -->
         <div class="form-section">
-          <h3>1. Select Identity Profile</h3>
+          <h3 class="section-header">1. Select Identity Profile</h3>
           
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Identity Profile</mat-label>
@@ -33,7 +33,7 @@
         
         <!-- Identity Search -->
         <div class="form-section">
-          <h3>2. Select Identities</h3>
+          <h3 class="section-header">2. Select Identities</h3>
           <app-identity-search 
             [profileId]="transformForm.get('profileId')?.value"
             [sdkService]="sdk"
@@ -61,7 +61,7 @@
         <!-- Transform Code -->
         <div class="form-section">
           <div class="code-header" (click)="toggleCodeEditor()">
-            <h3>Transform ({{transformName}})</h3>
+            <h3 class="section-header">Transform ({{transformName}})</h3>
             <button mat-icon-button type="button">
               <mat-icon>{{ codeExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
             </button>

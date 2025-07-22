@@ -3,12 +3,15 @@ import { createChoiceValueModel, createStepModel } from "sequential-workflow-edi
 import { BranchedStep, Step } from "sequential-workflow-model";
 import { deserializeToStep, serializeStep } from "../transform-builder.component";
 
+let description = 'Use the E.164 phone transform to convert an incoming phone number string into an E.164-compatible number.'
+
 export function createE164Phone(): E164PhoneStep {
     return {
       id: Uid.next(),
       componentType: 'switch',
       name: 'E.164 Phone',
       type: 'e164phone',
+      description: description,
       properties: {
         defaultRegion: 'US',
       },
@@ -21,6 +24,7 @@ export function createE164Phone(): E164PhoneStep {
 export interface E164PhoneStep extends BranchedStep {
     type: 'e164phone';
     componentType: 'switch';
+    description?: string;
     properties: {
         defaultRegion: string;
     };
@@ -63,7 +67,8 @@ export const E164PhoneModel = createStepModel<E164PhoneStep>(
                   ],
               })
         )
-        .label('defaultRegion');
+        .hint('This is an optional attribute used to define the phone number region to format into. If no defaultRegion is provided, the transform takes US as the default country. The format of the country code must be in ISO 3166-1 alpha-2 format.')
+        .label('Default Region');
     }
   );
 
@@ -92,6 +97,7 @@ export function deserializeE164Phone(data: any): E164PhoneStep {
         componentType: 'switch',
         name: data.name ?? 'E.164 Phone',
         type: 'e164phone',
+        description: description,
         properties: {
             defaultRegion: data.attributes?.defaultRegion ?? 'US',
         },

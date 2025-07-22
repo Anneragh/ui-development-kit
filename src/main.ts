@@ -11,7 +11,6 @@ import { CoreModule } from './app/core/core.module';
 import { SharedModule } from './app/shared/shared.module';
 import { appRoutes } from './app/app.routes';
 
-
 // AoT-compatible translate loader factory
 export const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader =>
   new TranslateHttpLoader(http, './assets/i18n/', '.json');

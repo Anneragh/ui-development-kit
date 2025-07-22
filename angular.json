@@ -1,9 +1,7 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ],
+    "schematicCollections": ["@angular-eslint/schematics"],
     "analytics": false
   },
   "version": 1,
@@ -33,11 +31,10 @@
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
+              "node_modules/prismjs/themes/prism-tomorrow.css",
+              "src/styles.scss",
               "@angular/material/prebuilt-themes/magenta-violet.css",
               "src/styles.scss"
             ],
@@ -145,16 +142,13 @@
           "options": {
             "polyfills": ["src/polyfills-test.ts"],
             "tsConfig": "src/tsconfig.spec.json",
-            "globalMocks": ["styleTransform", "matchMedia", "getComputedStyle"],
+            "globalMocks": ["styleTransform", "matchMedia", "getComputedStyle"]
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
@@ -166,46 +160,47 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "e2e/**/*.ts"
-            ]
+            "lintFilePatterns": ["e2e/**/*.ts"]
           }
         }
       }
     },
     "sailpoint-components": {
-    "projectType": "library",
-    "root": "projects/sailpoint-components",
-    "sourceRoot": "projects/sailpoint-components/src",
-    "prefix": "lib",
-    "architect": {
-      "build": {
-        "builder": "@angular-devkit/build-angular:ng-packagr",
-        "options": {
-          "project": "projects/sailpoint-components/ng-package.json"
-        },
-        "configurations": {
-          "production": {
-            "tsConfig": "projects/sailpoint-components/tsconfig.lib.prod.json"
+      "projectType": "library",
+      "root": "projects/sailpoint-components",
+      "sourceRoot": "projects/sailpoint-components/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/sailpoint-components/ng-package.json"
           },
-          "development": {
-            "tsConfig": "projects/sailpoint-components/tsconfig.lib.json"
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/sailpoint-components/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/sailpoint-components/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/sailpoint-components/tsconfig.spec.json",
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         },
-        "defaultConfiguration": "production"
-      },
-      "test": {
-        "builder": "@angular-devkit/build-angular:karma",
-        "options": {
-          "tsConfig": "projects/sailpoint-components/tsconfig.spec.json",
-          "polyfills": [
-            "zone.js",
-            "zone.js/testing"
-          ]
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/sailpoint-components/src/**/*.ts", "projects/sailpoint-components/src/**/*.html"]
+          }
         }
       }
     }
-  }
   },
   "schematics": {
     "@angular-eslint/schematics:application": {

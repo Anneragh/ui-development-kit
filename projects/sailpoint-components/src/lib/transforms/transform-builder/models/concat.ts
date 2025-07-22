@@ -10,10 +10,13 @@ import {
 } from 'sequential-workflow-editor-model';
 import { deserializeToStep, serializeStep } from '../transform-builder.component';
 
+let description = 'Use the concatenation transform to join two or more string values into a combined output. The concatenation transform often joins elements such as first and last name into a full display name, but it has many other uses';
+
 export function createConcat(): ConcatStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
+    description: description,
     name: 'Concatenate',
     type: 'concat',
     properties: {},
@@ -26,6 +29,7 @@ export function createConcat(): ConcatStep {
 
 export interface ConcatStep extends BranchedStep {
   type: 'concat';
+  description: string;
   componentType: 'switch';
   properties: Properties;
 }
@@ -70,6 +74,7 @@ export function deserializeConcat(data: any): ConcatStep {
   return {
     id: Uid.next(),
     componentType: 'switch',
+    description: description,
     type: 'concat',
     name: data.name ? `Concatenate (${data.name})` : 'Concatenate',
     properties: {},

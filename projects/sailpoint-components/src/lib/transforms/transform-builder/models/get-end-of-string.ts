@@ -6,12 +6,15 @@ import {
 import { createNumberValueModel, createStepModel } from 'sequential-workflow-editor-model';
 import { serializeStep } from '../transform-builder.component';
 
+let description = 'This transform allows you to get the rightmost N characters of a string.'
+
 export function createGetEndOfString(): GetEndOfStringStep  {
     return {
       id: Uid.next(),
       componentType: 'switch',
       name: 'Get End of String',
       type: 'getEndOfString',
+      description: description,
       properties: {
         numChars: 4,
       },
@@ -24,6 +27,7 @@ export function createGetEndOfString(): GetEndOfStringStep  {
   export interface GetEndOfStringStep extends BranchedStep {
     type: 'getEndOfString';
     componentType: 'switch';
+    description?: string;
     properties: {
         numChars: number;
     };
@@ -37,8 +41,9 @@ export function createGetEndOfString(): GetEndOfStringStep  {
         .value(createNumberValueModel({
           min: 1,
           max: 1000
-        })       
-      )
+        })  
+      ).label('Number of Characters')
+      .hint('This specifies how many of the rightmost characters within the incoming string the transform returns. If the value of numChars is greater than the string length, the transform returns null.');
     }
   );
 
@@ -68,6 +73,7 @@ export function createGetEndOfString(): GetEndOfStringStep  {
         componentType: 'switch',
         type: 'getEndOfString',
         name: data.name ?? 'Get End of String',
+        description: description,
         properties: {
             numChars: data.attributes.numChars,
         },

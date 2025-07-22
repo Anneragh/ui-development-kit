@@ -1,14 +1,16 @@
 import { BranchedStep, Step, Uid } from 'sequential-workflow-designer';
 import {
-    createBooleanValueModel,
-    createNumberValueModel,
-    createStepModel,
-    createStringValueModel,
+  createBooleanValueModel,
+  createNumberValueModel,
+  createStepModel,
+  createStringValueModel,
 } from 'sequential-workflow-editor-model';
 import {
-    deserializeToStep,
-    serializeStep,
+  deserializeToStep,
+  serializeStep,
 } from '../transform-builder.component';
+
+let description = 'Use the split transform to use a specific character or regex string as a delimiter and convert a single incoming string into an array of values. This transform then returns the Nth element of that array. This transform is often useful when you want to split combined names into their constituent parts or when you want to simplify an ordered list of values into a single attribute.'
 
 export function createSplit(): SplitStep {
   return {
@@ -16,6 +18,7 @@ export function createSplit(): SplitStep {
     componentType: 'switch',
     name: 'Split',
     type: 'split',
+    description: description,
     properties: {
       delimiter: '',
       index: 0,
@@ -30,6 +33,7 @@ export function createSplit(): SplitStep {
 export interface SplitStep extends BranchedStep {
   type: 'split';
   componentType: 'switch';
+  description?: string;
   properties: {
     delimiter: string;
     index: number;
@@ -99,6 +103,7 @@ export function deserializeSplit(data: any): SplitStep {
     componentType: 'switch',
     name: data.name ?? 'Split',
     type: 'split',
+    description: description,
     properties: {
       delimiter: data.attributes.delimiter,
       index: data.attributes.index,

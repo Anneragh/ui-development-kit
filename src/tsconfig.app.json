@@ -7,15 +7,14 @@
       "node"
     ]
   },
-  "files": [
-    "main.ts",
-    "polyfills.ts"
-  ],
-  "include": [
-    "**/*.d.ts",
-    "**/*.ts"
-  ],
-  "exclude": [
-    "**/*.spec.ts"
-  ]
+ "files": [
+   "main.ts",
+   "polyfills.ts"
+ ],
+ "include": [
+   "**/*.d.ts"
+ ],
+ "exclude": [
+   "**/*.spec.ts"
+ ]
 }

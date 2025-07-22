@@ -34,7 +34,9 @@ export default [
           './tsconfig.serve.json',
           './src/tsconfig.app.json',
           './src/tsconfig.spec.json',
-          './e2e/tsconfig.e2e.json'
+          './e2e/tsconfig.e2e.json',
+          './projects/sailpoint-components/tsconfig.lib.json',
+          './projects/sailpoint-components/tsconfig.spec.json'
         ],
         createDefaultProgram: true
       }
@@ -79,7 +81,8 @@ export default [
       },
       parserOptions: {
         project: [
-          './src/tsconfig.spec.json'
+          './src/tsconfig.spec.json',
+          './projects/sailpoint-components/tsconfig.spec.json'
         ],
         createDefaultProgram: true
       }

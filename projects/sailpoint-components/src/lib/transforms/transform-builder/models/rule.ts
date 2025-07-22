@@ -6,6 +6,7 @@ import {
 } from 'sequential-workflow-editor-model';
 import { SailPointSDKService } from '../../../sailpoint-sdk.service';
 
+let description = 'The rule transform allows you to reuse logic that has already been written for a previous use case. However, you can use the rule transform to reuse code contained within a Transform rule that either is not possible through only transforms';
 
 export function createRule(): RuleStep {
   return {
@@ -13,6 +14,7 @@ export function createRule(): RuleStep {
     componentType: 'task',
     name: 'Rule',
     type: 'rule',
+    description: description,
     properties: {
         name: '',
     },
@@ -22,6 +24,7 @@ export function createRule(): RuleStep {
 export interface RuleStep extends Step {
   type: 'rule';
   componentType: 'task';
+  description?: string;
   properties: {
     name: string;
   };
@@ -29,12 +32,14 @@ export interface RuleStep extends Step {
 
 export function createRuleStepModel(rules: string[]) {
     return createStepModel<RuleStep>('rule', 'task', step => {
-    step.property('name').value(
-        createChoiceValueModel({
-            choices: rules,
-        })
-      )
-      .label('Name of the Rule to Reference');
+      if(rules.length > 0) {
+        step.property('name').value(
+                createChoiceValueModel({
+                    choices: rules,
+                })
+              )
+              .label('Name of the Rule to Reference');
+      }
   });
 }
 
@@ -105,6 +110,7 @@ export function deserializeRule(data: any): RuleStep {
         componentType: 'task',
         name: 'Rule',
         type: 'rule',
+        description: description,
         properties: {
             name: data.attributes.name,
         },

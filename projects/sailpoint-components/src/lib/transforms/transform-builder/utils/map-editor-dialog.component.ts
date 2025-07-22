@@ -49,7 +49,7 @@ export class MapEditorDialogComponent {
       const key = row.key.trim();
       if (!key) continue; // skip empty keys
       if (seenKeys.has(key)) {
-        alert(`Duplicate key found: "${key}"`);
+        window.alert(`Duplicate key found: "${key}"`);
         return;
       }
       seenKeys.add(key);

@@ -1,18 +1,17 @@
 import { Routes } from '@angular/router';
-import { campaignsComponent } from './campaigns/campaigns.component';
-import { IdentitiesComponent } from './identities/identities.component';
-import { PageNotFoundComponent } from './shared/components';
-import { TransformBuilderComponent , AttachRuleComponent } from 'sailpoint-components';
-import { TransformsComponent } from 'sailpoint-components';
+import { AttachRuleComponent, IdentitiesComponent, REPORT_EXAMPLE_ROUTES, ThemePickerComponent, TransformBuilderComponent, TransformsComponent } from 'sailpoint-components';
 import { HomeComponent } from './home/home.component';
-
-import { SailPointImportsComponent } from './sailpoint-imports/sailpoint-imports.component';
+import { PageNotFoundComponent } from './shared/components';
 
 export const appRoutes: Routes = [
   {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'theme-picker',
+    component: ThemePickerComponent
   },
   {
     path: 'home',
@@ -23,20 +22,8 @@ export const appRoutes: Routes = [
     component: TransformsComponent
   },
   {
-    path: 'identities',
-    component: IdentitiesComponent
-  },
-  {
-    path: 'campaigns',
-    component: campaignsComponent
-  },
-  {
     path: 'transform-builder',
     component: TransformBuilderComponent
-  },
-  {
-    path: 'component',
-    component: SailPointImportsComponent
   },
   {
     path: 'component-selector',
@@ -45,6 +32,19 @@ export const appRoutes: Routes = [
   {
     path: 'attach-rule',
     component: AttachRuleComponent
+  },
+
+  {
+    path: 'theme-picker',
+    component: ThemePickerComponent
+  },
+  {
+    path: 'report-example',
+    children: REPORT_EXAMPLE_ROUTES
+  },
+  {
+    path: 'identities',
+    component: IdentitiesComponent
   },
 
   {
