@@ -366,11 +366,11 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
           } else if (directiveMatch[1] === 'end' || directiveMatch[1] === 'else') {
             // Simple directives without parameters
             directiveEnd = i + directiveMatch.length;
-            result.push(line.substring(i, directiveEnd));
+            result.push(line.substring(i, directiveEnd as number));
           } else {
             // Complex directives with parameters
             directiveEnd = this.findDirectiveEnd(line, i);
-            const directive = line.substring(i, directiveEnd).trim();
+            const directive = line.substring(i, directiveEnd as number).trim();
             result.push(directive);
           }
           

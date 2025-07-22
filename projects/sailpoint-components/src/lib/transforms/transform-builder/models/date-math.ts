@@ -191,7 +191,7 @@ export function parseExpressionToOperations(expression: string): { baseDate: 'in
       // For add/subtract operations, parse the value
       operations.push({
         operation: operation as '+' | '-' | '/',
-        value: parseInt(value, 10),
+        value: parseInt(value as string, 10),
         unit: unit as 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's'
       });
     }

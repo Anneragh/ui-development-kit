@@ -2169,7 +2169,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       const [, operation, value, unit] = match;
       operations.push({
         operation: operation as '+' | '-' | '/',
-        value: operation === '/' ? 1 : parseInt(value, 10) || 1,
+        value: operation === '/' ? 1 : parseInt(value as string, 10) || 1,
         unit: unit as 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's',
       });
     }

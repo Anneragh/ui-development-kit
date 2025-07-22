@@ -22,7 +22,7 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [24]
 
     # The type of runner that the job will run on
     runs-on: windows-2022
@@ -44,7 +44,7 @@ jobs:
           ${{ runner.os }}-
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -54,6 +54,9 @@ jobs:
         cd app
         npm i
         cd ..
+
+    - name: Install Angular CLI Globally
+      run: npm install -g @angular/cli
 
     - name: Check lint
       run: npm run lint

@@ -1,3 +1,5 @@
+/// <reference path="../../global.ts" />
+
 // Angular core and common modules
 import { CommonModule } from '@angular/common';
 import {
