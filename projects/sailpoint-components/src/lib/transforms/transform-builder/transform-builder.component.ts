@@ -349,6 +349,7 @@ export interface MyDefinition extends Definition {
   properties: {
     name: string;
     description: string;
+    requiresPeriodicRefresh: boolean;
   };
 }
 
@@ -492,6 +493,7 @@ export function createDefinitionFromTransform(data: any): Definition {
     properties: {
       name: data.name,
       description: data.attributes.description || '',
+      requiresPeriodicRefresh: data.attributes.requiresPeriodicRefresh || false,
     },
     sequence: [deserializeToStep(data)],
   };
@@ -1066,12 +1068,31 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     this.autoSaveSubject.next(definition);
   }
 
-  private updateDefinitionJSON() {
-    const transformedResult = this.definition?.sequence?.[0]
-      ? serializeStep(this.definition.sequence[0])
-      : undefined;
-    this.definitionJSON = JSON.stringify(transformedResult, null, 2);
+private updateDefinitionJSON() {
+  let transformedResult = this.definition?.sequence?.[0]
+    ? serializeStep(this.definition.sequence[0])
+    : undefined;
+
+  if (
+    transformedResult &&
+    typeof transformedResult === 'object' &&
+    this.definition?.properties !== undefined
+  ) {
+    const tr = transformedResult as Record<string, unknown>;
+    
+    // Ensure attributes exists as an object
+    if (typeof tr.attributes !== 'object' || tr.attributes === null) {
+      tr.attributes = {};
+    }
+    
+    // Set requiresPeriodicRefresh only if it exists and is true
+    if (this.definition.properties.requiresPeriodicRefresh === true) {
+      (tr.attributes as Record<string, unknown>).requiresPeriodicRefresh = "true";
+    }
   }
+
+  this.definitionJSON = JSON.stringify(transformedResult, null, 2);
+}
 
   public toggleToolboxClicked() {
     this.isToolboxCollapsed = !this.isToolboxCollapsed;

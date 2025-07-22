@@ -137,13 +137,17 @@ export class AutoSaveService {
     const normalizedCloud = this.normalizeDefinition(cloudVersion);
     const normalizedCurrent = this.normalizeDefinition(currentDefinition);
 
+    console.log(
+      '[AutoSave] Comparing cloud version to current definition:',
+      normalizedCloud,
+      normalizedCurrent
+    );
     const isDifferent = !isEqual(normalizedCloud, normalizedCurrent);
 
     return isDifferent;
   }
 
   private normalizeDefinition(def: any): any {
-    console.log('[AutoSave] Normalizing definition:', def);
     const clone = cloneDeep(def);
 
     if (typeof clone !== 'object' || clone === null) {
