@@ -3,7 +3,9 @@ import { getTokenDetails, parseJwt } from "./auth";
 import { getConfig, getSecureValue, setSecureValue } from "./config";
 import { LambdaUUIDResponse, RefreshResponse, TokenResponse, TokenSet } from "./types";
 
-const authLambdaURL = 'https://nug87yusrg.execute-api.us-east-1.amazonaws.com/Prod/sailapps/uuid'
+const AuthLambdaBaseURL = 'https://nug87yusrg.execute-api.us-east-1.amazonaws.com/Prod/sailapps'
+const authLambdaUUIDURL = `${AuthLambdaBaseURL}/uuid`
+const authLambdaRefreshURL = `${AuthLambdaBaseURL}/refresh`
 
 
 // The token decrypt function for the second half of the OAuth lambda flow
@@ -166,7 +168,7 @@ export function validateOAuthTokens(environment: string) {
 export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: string, baseAPIUrl: string, environment: string }): Promise<{ success: boolean, error: string }> => {
     try {
         // Step 1: Request UUID, encryption key, and Auth URL from Auth-Lambda
-        const response = await fetch(authLambdaURL, {
+        const response = await fetch(authLambdaUUIDURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -207,7 +209,7 @@ export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: 
 
         while (Date.now() - startTime < timeout) {
             try {
-                const tokenResponse = await fetch(`${authLambdaURL}/${authResponse.id}`);
+                const tokenResponse = await fetch(`${authLambdaUUIDURL}/${authResponse.id}`);
 
                 if (tokenResponse.ok) {
                     const tokenData: TokenResponse = await tokenResponse.json();
@@ -280,10 +282,7 @@ export const refreshOAuthToken = async (environment: string): Promise<void> => {
             throw new Error('No stored OAuth tokens found for environment');
         }
 
-        const apiUrl = envConfig.baseurl;
-
-        // Use the Lambda refresh endpoint
-        const authLambdaURL = 'https://nug87yusrg.execute-api.us-east-1.amazonaws.com/Prod/sailapps/refresh';
+        const apiUrl = envConfig.baseurl;;
 
         // Prepare the refresh request body
         const refreshRequestBody = {
@@ -292,7 +291,7 @@ export const refreshOAuthToken = async (environment: string): Promise<void> => {
             tenant: environment
         };
 
-        const response = await fetch(authLambdaURL, {
+        const response = await fetch(authLambdaRefreshURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
