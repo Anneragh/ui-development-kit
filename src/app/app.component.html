@@ -40,6 +40,11 @@
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
       </a>
+      <a *ngIf="isComponentEnabled('attach-rule')" mat-list-item class="sidebar-link" routerLink="/attach-rule" routerLinkActive="active-link"
+        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Attach Rule
+      </a>
       <a mat-list-item class="sidebar-link" routerLink="/identities" routerLinkActive="active-link"
         [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
         <mat-icon class="card-icon">home</mat-icon>
@@ -61,13 +66,6 @@
 <mat-icon class="card-icon">transform</mat-icon>
 Builder
 </a>
-
-<a mat-list-item routerLink="/rules" routerLinkActive="active-link" [class.disabled]="!isConnected"
-(click)="!isConnected && $event.preventDefault()">
-<mat-icon class="card-icon">transform</mat-icon>
-Rules
-</a>
-
    
 
     </mat-nav-list>

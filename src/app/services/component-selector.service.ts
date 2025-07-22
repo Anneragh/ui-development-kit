@@ -35,6 +35,14 @@ export class ComponentSelectorService {
             icon: 'transform',
             description: 'Manage data transformations for SailPoint.',
             enabled: true
+        },
+        {
+            name: 'attach-rule',
+            displayName: 'Attach Rule',
+            route: '/attach-rule',
+            icon: 'dashboard',
+            description: 'Manage attach rule in SailPoint.',
+            enabled: false
         }
     ];
 

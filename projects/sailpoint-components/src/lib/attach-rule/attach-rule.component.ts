@@ -179,10 +179,10 @@ const SLOTS: Slot[] = [ // rules and their location data is found (tested with P
     MatIconModule, MatProgressSpinnerModule, MatButtonModule,
     MatSnackBarModule, DragDropModule
   ],
-  templateUrl: './rules.component.html',
-  styleUrls: ['./rules.component.scss']
+  templateUrl: './attach-rule.component.html',
+  styleUrls: ['./attach-rule.component.scss']
 })
-export class RulesComponent implements OnInit {
+export class AttachRuleComponent implements OnInit {
   sources: SourceV2025[] = [];
   connectorRules: AvailableRule[] = [];
   availableRules: AvailableRule[] = [];
