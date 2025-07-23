@@ -15,6 +15,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
+import { ConnectedComponent } from './connected/connected.component';
 
 type AuthMethods = "oauth" | "pat";
 type OAuthValidationStatus = 'unknown' | 'valid' | 'invalid' | 'testing';
@@ -58,6 +59,7 @@ type ComponentState = {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   imports: [
+    ConnectedComponent,
     CommonModule,
     MatDialogModule,
     MatButtonModule,
