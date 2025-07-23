@@ -223,6 +223,8 @@ export class HomeComponent implements OnInit {
       this.showSnackbar('Cannot connect to ISC: No environment selected');
       return;
     }
+    
+    this.state.loading = true;
 
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);
     console.log('Authentication type:', this.state.actualTenant.authType);
