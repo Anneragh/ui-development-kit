@@ -3,8 +3,7 @@ import { ElectronService } from './electron.service';
 import { WebApiService, ElectronAPIInterface } from './web-api.service';
 
 /**
- * A simplified service that provides API access for both Electron and Web environments.
- * No longer attempts to modify window.electronAPI as that's handled by Electron's preload script.
+ * A simple service that provides API access for both Electron and Web environments.
  */
 @Injectable({
   providedIn: 'root'
