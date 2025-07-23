@@ -35,7 +35,7 @@ export class AutoSaveService {
     definition: any,
     isNew: boolean = false,
     cloudVersion?: any
-  ): void {  
+  ): void {
     const savedTransform: SavedTransform = {
       id: isNew ? undefined : transformId,
       name,
@@ -80,13 +80,12 @@ export class AutoSaveService {
    * Clear local save after successful cloud sync
    */
   clearLocalSave(transformId: string, isNew: boolean = false): void {
-    const key = this.getStorageKey(transformId, isNew);
-    localStorage.removeItem(key);
+    // const key = this.getStorageKey(transformId, isNew);
+    // localStorage.removeItem(key);
 
     // Remove from unsaved changes
     this.markAsSaved(transformId);
 
-    console.log(`Cleared local save for transform: ${transformId}`);
   }
 
   /**
@@ -124,26 +123,25 @@ export class AutoSaveService {
    */
   hasUnsavedChanges(transformId: string, currentDefinition: any): boolean {
     const localSave = this.getLocalSave(transformId);
-    const cloudVersion = localSave?.cloudVersion;
-
-    if (!cloudVersion) {
-      console.warn(
-        '[AutoSave] No cloud version found for transform:',
-        transformId
-      );
+    if (!localSave) {
+      console.warn('[AutoSave] ✖ no local save for:', transformId);
       return false;
     }
 
-    const normalizedCloud = this.normalizeDefinition(cloudVersion);
+    // 1) compare the flag against the _last‑saved_ definition
+    const savedDef = localSave.definition;
+    const savedFlag = !!savedDef.attributes?.requiresPeriodicRefresh;
+    const currentFlag = !!currentDefinition.attributes?.requiresPeriodicRefresh;
+    if (savedFlag !== currentFlag) {
+      return true;
+    }
+
+    // 2) deep‑compare the rest
+    const normalizedSaved = this.normalizeDefinition(savedDef);
     const normalizedCurrent = this.normalizeDefinition(currentDefinition);
 
-    console.log(
-      '[AutoSave] Comparing cloud version to current definition:',
-      normalizedCloud,
-      normalizedCurrent
-    );
-    const isDifferent = !isEqual(normalizedCloud, normalizedCurrent);
 
+    const isDifferent = !isEqual(normalizedSaved, normalizedCurrent);
     return isDifferent;
   }
 
@@ -152,6 +150,14 @@ export class AutoSaveService {
 
     if (typeof clone !== 'object' || clone === null) {
       return clone;
+    }
+
+    // — normalize requiresPeriodicRefresh into a boolean (default false) —
+    if (clone.attributes && typeof clone.attributes === 'object') {
+      const raw = (clone.attributes as Record<string, any>)
+        .requiresPeriodicRefresh;
+      (clone.attributes as Record<string, any>).requiresPeriodicRefresh =
+        raw === true || raw === 'true';
     }
 
     // Remove irrelevant top-level fields
@@ -180,7 +186,7 @@ export class AutoSaveService {
       } else if (typeof obj === 'object' && obj !== null) {
         delete obj.name;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-argument
-      Object.entries(obj).forEach(([_unusedKey, val]) => deepCleanNames(val));
+        Object.entries(obj).forEach(([_unusedKey, val]) => deepCleanNames(val));
       }
     }
 
@@ -275,6 +281,5 @@ export class AutoSaveService {
 
     this.unsavedChangesSubject.next(new Set());
 
-    console.log('Cleared all local saves');
   }
 }
