@@ -11,11 +11,15 @@ export class ElectronService {
 
   constructor() {
     // Setup the electronAPI
-    if (window.electronAPI) {
-      this.electronAPI = window.electronAPI;
+    if (typeof window !== 'undefined' && window.navigator && window.navigator.userAgent.indexOf('Electron') >= 0) {
       this.isElectron = true;
+      if (window.electronAPI) {
+        this.electronAPI = window.electronAPI;
+      } else {
+        console.error('Electron API is not available in Electron environment');
+      }
     } else {
-      console.error('Electron API is not available');
+      console.log('Running in web mode, Electron API not expected');
     }
   }
 }
