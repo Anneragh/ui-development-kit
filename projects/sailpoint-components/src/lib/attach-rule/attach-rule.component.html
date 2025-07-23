@@ -9,10 +9,7 @@
     <mat-card-content class="top-content">
       <mat-form-field appearance="fill" class="source-field">
         <mat-label>Choose Source</mat-label>
-        <mat-select
-          [(ngModel)]="selectedSource"
-          (selectionChange)="onSourceChange($event.value)"
-        >
+        <mat-select [(ngModel)]="selectedSource" (selectionChange)="onSourceChange($event.value)">
           <mat-option *ngFor="let s of sources" [value]="s">
             {{ s.name || s.id }}
           </mat-option>
@@ -28,20 +25,9 @@
           <mat-card-header>
             <mat-card-title>Available Connector Rules</mat-card-title>
           </mat-card-header>
-          <mat-card-content
-            cdkDropList
-            id="available"
-            class="list-container"
-            [cdkDropListData]="availableRules"
-            [cdkDropListConnectedTo]="slotDropListIds"
-            (cdkDropListDropped)="onDrop($event)"
-          >
-            <div
-              *ngFor="let rule of availableRules"
-              cdkDrag
-              [cdkDragData]="rule"
-              class="rule-card"
-            >
+          <mat-card-content cdkDropList id="available" class="list-container" [cdkDropListData]="availableRules"
+            [cdkDropListConnectedTo]="slotDropListIds" (cdkDropListDropped)="onDrop($event)">
+            <div *ngFor="let rule of availableRules" cdkDrag [cdkDragData]="rule" class="rule-card">
               <mat-icon>drag_handle</mat-icon>
               {{ rule.name }}
             </div>
@@ -62,36 +48,20 @@
                 <mat-card-header>
                   <mat-card-title>{{ slot.label }}</mat-card-title>
                 </mat-card-header>
-                <mat-card-content
-                  cdkDropList
-                  [id]="'assigned-' + slot.key"
-                  class="list-container slot-drop"
-                  [cdkDropListData]="assignedRulesMap[slot.key] ?? []"
-                  [cdkDropListConnectedTo]="availableConnectedTo"
-                  (cdkDropListDropped)="onDrop($event)"
-                >
-                  <div
-                    *ngFor="let assigned of assignedRulesMap[slot.key] ?? []"
-                    cdkDrag
-                    [cdkDragData]="assigned"
-                    class="rule-card"
-                  >
+                <mat-card-content cdkDropList [id]="'assigned-' + slot.key" class="list-container slot-drop"
+                  [cdkDropListData]="assignedRulesMap[slot.key] ?? []" [cdkDropListConnectedTo]="availableConnectedTo"
+                  (cdkDropListDropped)="onDrop($event)">
+                  <div *ngFor="let assigned of assignedRulesMap[slot.key] ?? []" cdkDrag [cdkDragData]="assigned"
+                    class="rule-card">
                     <mat-icon>drag_handle</mat-icon>
                     <span class="rule-name">{{ assigned.name }}</span>
-                    <button
-                      mat-icon-button
-                      color="warn"
-                      aria-label="Remove this rule"
-                      (click)="$event.stopPropagation(); removeAssignedRule(slot.key, assigned)"
-                    >
+                    <button mat-icon-button color="warn" aria-label="Remove this rule"
+                      (click)="$event.stopPropagation(); removeAssignedRule(slot.key, assigned)">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
 
-                  <div
-                    *ngIf="(assignedRulesMap[slot.key]?.length ?? 0) === 0"
-                    class="empty-slot"
-                  >
+                  <div *ngIf="(assignedRulesMap[slot.key]?.length ?? 0) === 0" class="empty-slot">
                     Drop rule here
                   </div>
                 </mat-card-content>
@@ -102,12 +72,7 @@
       </div>
     </div>
     <div class="action-bar">
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="applyPatches()"
-        [disabled]="!pendingOps.length || isSaving"
-      >
+      <button mat-raised-button color="primary" (click)="applyPatches()" [disabled]="!pendingOps.length || isSaving">
         {{ isSaving ? 'Saving…' : 'Save Changes' }}
       </button>
     </div>

@@ -79,11 +79,11 @@ export async function getAvailableRules(
 
       for (const obj of exportData.objects ?? []) {
         const t = obj.object?.type;
-         rules.push({
-            type: t,
-            id: obj.self?.id ?? '',
-            name: obj.self?.name ?? ''
-          });
+        rules.push({
+          type: t,
+          id: obj.self?.id ?? '',
+          name: obj.self?.name ?? ''
+        });
       }
 
       return rules;
@@ -95,77 +95,77 @@ export async function getAvailableRules(
 
 const SLOTS: Slot[] = [ // rules and their location data is found (tested with Postman)
   {
-    key:  'beforeProvisioningRule',
+    key: 'beforeProvisioningRule',
     label: 'BeforeProvisioning Rule',
     patchPath: '/beforeProvisioningRule',
-    patchOp:  'add',
-    wrap:     'object',
-    allowedTypes: ['BeforeProvisioning']
+    patchOp: 'add',
+    wrap: 'object',
+    allowedTypes: ['BeforeProvisioning', 'Transform']
   },
   {
-    key:  'nativeRules',
+    key: 'nativeRules',
     label: 'Native Rule',
     patchPath: '/connectorAttributes/nativeRules',
-    patchOp:  'add',
-    wrap:     'array',
+    patchOp: 'add',
+    wrap: 'array',
     allowedTypes: [
-      'ResourceObjectCustomization','ConnectorBeforeModify'
+      'ResourceObjectCustomization', 'ConnectorBeforeModify'
     ]
   },
   {
-    key:  'accountCorrelationRule',
+    key: 'accountCorrelationRule',
     label: 'accountCorrelation Rule',
     patchPath: '/accountCorrelationRule',
-    patchOp:  'add',
-    wrap:     'object',
-    allowedTypes: ['Transform']
+    patchOp: 'add',
+    wrap: 'object',
+    allowedTypes: ['Transform', 'BeforeProvisioning']
   },
   {
-    key:  'managerCorrelationRule',
+    key: 'managerCorrelationRule',
     label: 'managerCorrelation Rule',
     patchPath: '/managerCorrelationRule',
-    patchOp:  'replace',
-    wrap:     'object',
-    allowedTypes: ['RULE'] // No rule seems to be able to attach here. Defaulted at RULE
+    patchOp: 'replace',
+    wrap: 'object',
+    allowedTypes: ['Transform', 'BeforeProvisioning']
   },
   {
-    key:  'buildMapRule',
+    key: 'buildMapRule',
     label: 'buildMap Rule',
     patchPath: '/connectorAttributes/buildMapRule',
-    patchOp:  'add',
-    wrap:     'string',
-    allowedTypes: ['BuildMap','JDBCBuildMap']
+    patchOp: 'add',
+    wrap: 'string',
+    allowedTypes: ['BuildMap', 'JDBCBuildMap']
   },
   {
-    key:  'jdbcProvisionRule',
+    key: 'jdbcProvisionRule',
     label: 'jdbcProvision Rule',
     patchPath: '/connectorAttributes/jdbcProvisionRule',
-    patchOp:  'add',
-    wrap:     'string',
+    patchOp: 'add',
+    wrap: 'string',
     allowedTypes: ['JDBCProvision']
   },
   {
-    key:  'saphrModifyProvisioningRule',
+    key: 'saphrModifyProvisioningRule',
     label: 'saphrModifyProvisioning Rule',
     patchPath: '/connectorAttributes/saphrModifyProvisioningRule',
-    patchOp:  'add',
-    wrap:     'string',
+    patchOp: 'add',
+    wrap: 'string',
     allowedTypes: ['SapHrOperationProvisioning']
   },
   {
-    key:  'beforeRule',
+    key: 'beforeRule',
     label: 'Before Rule',
     patchPath: '/connectorAttributes/connectionParameters/{i}/beforeRule',
-    patchOp:  'replace',
-    wrap:     'string',
+    patchOp: 'replace',
+    wrap: 'string',
     allowedTypes: ['WebServiceBeforeOperationRule']
   },
   {
-    key:  'afterRule',
+    key: 'afterRule',
     label: 'After Rule',
     patchPath: '/connectorAttributes/connectionParameters/{i}/afterRule',
-    patchOp:  'replace',
-    wrap:     'string',
+    patchOp: 'replace',
+    wrap: 'string',
     allowedTypes: ['WebServiceAfterOperationRule']
   }
 ];
@@ -200,151 +200,154 @@ export class AttachRuleComponent implements OnInit {
 
   selectedSource: SourceV2025 | null = null;
   isLoading = false;
-  isSaving  = false;
+  isSaving = false;
 
   removeAssignedRule(slotKey: string, rule: ConnectorRuleResponseV2025) {
-  const slot = this.slots.find(s => s.key === slotKey);
-  if (!slot || !this.selectedSource) return;
+    const slot = this.slots.find(s => s.key === slotKey);
+    if (!slot || !this.selectedSource) return;
 
-  const wasOriginally = this.initialAssignedMap[slotKey]?.has(rule.id!) ?? false;
+    const wasOriginally = this.initialAssignedMap[slotKey]?.has(rule.id) ?? false;
 
-  let path = slot.patchPath;
-  if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
-    const idx = this.paramIndexMap[slot.key];
-    path = path.replace('{i}', `${idx}`);
-  } else {
-    path = path.replace('{i}', '');
-  }
+    let path = slot.patchPath;
+    if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
+      const idx = this.paramIndexMap[slot.key];
+      path = path.replace('{i}', `${idx}`);
+    } else {
+      path = path.replace('{i}', '');
+    }
 
-  const pendingIndex = this.pendingOps.findIndex(op => {
-    if (op.path !== path) return false;
+    const pendingIndex = this.pendingOps.findIndex(op => {
+      if (op.path !== path) return false;
 
-    if (slot.wrap === 'object'
+      if (slot.wrap === 'object'
         && typeof op.value === 'object'
         && op.value !== null
         && 'id' in op.value
         && (op.value as any).id === rule.id) {
-      return true;
-    }
+        return true;
+      }
 
-    if (slot.wrap === 'string' && op.value === rule.name) {
-      return true;
-    }
+      if (slot.wrap === 'string' && op.value === rule.name) {
+        return true;
+      }
 
-    if (slot.wrap === 'array'
+      if (slot.wrap === 'array'
         && Array.isArray(op.value)
         && op.value.includes(rule.name)) {
-      return true;
+        return true;
+      }
+
+      return false;
+    });
+
+    if (!wasOriginally && pendingIndex > -1) {
+      this.pendingOps.splice(pendingIndex, 1);
+    } else {
+      // queue a genuine remove
+      const rm = this.makeRuleRemovePatch(slot, rule);
+      this.pendingOps.push(rm);
     }
 
-    return false;
-  });
-
-  if (!wasOriginally && pendingIndex > -1) {
-    this.pendingOps.splice(pendingIndex, 1);
-  } else {
-    // queue a genuine remove
-    const rm = this.makeRuleRemovePatch(slot, rule);
-    this.pendingOps.push(rm);
+    // update the UI
+    this.assignedRulesMap[slotKey] = this.assignedRulesMap[slotKey]
+      .filter(r => r.id !== rule.id);
+    this.availableRules = [rule, ...this.availableRules];
   }
 
-  // update the UI
-  this.assignedRulesMap[slotKey] = this.assignedRulesMap[slotKey]
-    .filter(r => r.id !== rule.id);
-  this.availableRules = [rule, ...this.availableRules];
-}
+  private makeRulePatch(
+    slot: Slot,
+    rule: ConnectorRuleResponseV2025,
+    existingNames: string[]
+  ): JsonPatchOperation {
+    // pick op based solely on whether the slot was empty
+    const op: 'add' | 'replace' = existingNames.length ? 'replace' : 'add';
 
- private makeRulePatch(
-  slot: Slot,
-  rule: ConnectorRuleResponseV2025,
-  existingNames: string[],
-  _unused?: number
-): JsonPatchOperation {
-  // pick op based solely on whether the slot was empty
-  const op: 'add' | 'replace' = existingNames.length ? 'replace' : 'add';
+    // fill in {i} for before/after
+    let path = slot.patchPath;
+    if ((slot.key === 'beforeRule' || slot.key === 'afterRule') && this.paramIndexMap[slot.key] != null) {
+      path = path.replace('{i}', `${this.paramIndexMap[slot.key]}`);
+    } else {
+      path = path.replace('{i}', '');
+    }
 
-  // fill in {i} for before/after
-  let path = slot.patchPath;
-  if ((slot.key === 'beforeRule' || slot.key === 'afterRule') && this.paramIndexMap[slot.key] != null) {
-    path = path.replace('{i}', `${this.paramIndexMap[slot.key]}`);
-  } else {
-    path = path.replace('{i}', '');
-  }
+    // build the value wrapper
+    let value: any;
+    if (slot.wrap === 'object') {
+      const forceRuleSlots = [
+        'accountCorrelationRule',
+        'beforeProvisioningRule',
+        'managerCorrelationRule'
+      ];
+      const valueType = forceRuleSlots.includes(slot.key) ? 'RULE' : rule.type;
+      value = { type: valueType, id: rule.id, name: rule.name };
+    }
+    else if (slot.wrap === 'string') {
+      value = rule.name;
+    }
+    else { // array
+      value = existingNames.includes(rule.name)
+        ? existingNames
+        : [...existingNames, rule.name];
+    }
 
-  // build the value wrapper
-  let value: any;
-  if (slot.wrap === 'object') {
-    const forceRuleSlots = [
-      'accountCorrelationRule',
-      'beforeProvisioningRule',
-      'managerCorrelationRule'
-    ];
-    const valueType = forceRuleSlots.includes(slot.key) ? 'RULE' : rule.type;
-    value = { type: valueType, id: rule.id, name: rule.name };
+    return { op, path, value };
   }
-  else if (slot.wrap === 'string') {
-    value = rule.name;
-  }
-  else { // array
-    value = existingNames.includes(rule.name)
-      ? existingNames
-      : [...existingNames, rule.name];
-  }
-
-  return { op, path, value };
-}
 
   private makeRuleRemovePatch(
-  slot: Slot,
-  rule: ConnectorRuleResponseV2025
-): JsonPatchOperation {
-  // compute the correct path
-  let path: string;
-  if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
-    const idx = this.paramIndexMap[slot.key];
-    path = slot.patchPath.replace('{i}', `${idx}`);
-  } else {
-    // strip out any {i} for non‑param slots
-    path = slot.patchPath.replace('{i}', '');
-  }
+    slot: Slot,
+    rule: ConnectorRuleResponseV2025
+  ): JsonPatchOperation {
+    // compute the correct path
+    let path: string;
+    if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
+      const idx = this.paramIndexMap[slot.key];
+      path = slot.patchPath.replace('{i}', `${idx}`);
+    } else {
+      // strip out any {i} for non‑param slots
+      path = slot.patchPath.replace('{i}', '');
+    }
 
-  if (slot.wrap === 'array') {
-    // rebuild the array without this rule
-    const existingNames = this.assignedRulesMap[slot.key].map(r => r.name);
-    const newNames = existingNames.filter(n => n !== rule.name);
-    return { op: 'replace', path, value: newNames };
-  }
+    if (slot.wrap === 'array') {
+      // rebuild the array without this rule
+      const existingNames = this.assignedRulesMap[slot.key].map(r => r.name);
+      const newNames = existingNames.filter(n => n !== rule.name);
+      return { op: 'replace', path, value: newNames };
+    }
 
-  return { op: 'remove', path };
-}
+    return { op: 'remove', path };
+  }
 
   constructor(
     private sdk: SailPointSDKService,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
-  async ngOnInit() {
-  this.isLoading = true;
-  try {
-    const [sr, rules] = await Promise.all([
-      this.sdk.listSources(),
-      getAvailableRules(this.sdk)
-    ]);
-    this.sources        = sr.data.filter(s => (s.connectorAttributes as any)?.idnProxyType !== 'sp-connect');
-    this.connectorRules = rules;
-    this.availableRules = [...rules];
-  } finally {
-    this.isLoading = false;
+  ngOnInit(): void {
+    void this.loadInitialData();
   }
-}
 
- async onSourceChange(src: SourceV2025): Promise<void> {
+  private async loadInitialData(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const [sr, rules] = await Promise.all([
+        this.sdk.listSources(),
+        getAvailableRules(this.sdk)
+      ]);
+      this.sources = sr.data.filter(s => (s.connectorAttributes as any)?.idnProxyType !== 'sp-connect');
+      this.connectorRules = rules;
+      this.availableRules = [...rules];
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async onSourceChange(src: SourceV2025): Promise<void> {
     this.selectedSource = src;
     this.isLoading = true;
     this.pendingOps = [];
     this.availableRules = [...this.connectorRules];
 
-    const full2 = await this.sdk.getSource({id: src.id!})
+    const full2 = await this.sdk.getSource({ id: src.id! })
     const attrs2: any = full2.data.connectorAttributes || {};
 
     if (attrs2.idnProxyType === 'sp-connect') {
@@ -370,7 +373,7 @@ export class AttachRuleComponent implements OnInit {
 
     // build index map for beforeRule/afterRule
     this.paramIndexMap = {};
-    params.forEach((p, i) => {
+    params.forEach((p) => {
       if (p.sequenceNumberForEndpoint !== undefined) {
         const idx = p.sequenceNumberForEndpoint - 1;
         this.paramIndexMap['beforeRule'] = idx;
@@ -381,8 +384,8 @@ export class AttachRuleComponent implements OnInit {
     // populate assignedRulesMap from existing source data
     for (const slot of this.slots) {
       // object‑wrapped slots
-      if (['beforeProvisioningRule','accountCorrelationRule','managerCorrelationRule']
-          .includes(slot.key)) {
+      if (['beforeProvisioningRule', 'accountCorrelationRule', 'managerCorrelationRule']
+        .includes(slot.key)) {
         const raw = (full.data as any)[slot.key];
         if (raw && raw.id) {
           const match = this.connectorRules.find(r => r.id === raw.id);
@@ -407,11 +410,14 @@ export class AttachRuleComponent implements OnInit {
           if (attrs[slot.key]) names = [attrs[slot.key]];
           break;
         case 'beforeRule':
-        case 'afterRule':
+        case 'afterRule': {
           const idx = this.paramIndexMap[slot.key];
           const param = params[idx];
-          if (param && param[slot.key]) names = [param[slot.key]];
+          if (param && [param[slot.key]]) {
+            names = [param[slot.key]]
+          }
           break;
+        }
       }
 
       const found = names
@@ -428,191 +434,191 @@ export class AttachRuleComponent implements OnInit {
     this.initialAssignedMap = {};
     for (const slot of this.slots) {
       this.initialAssignedMap[slot.key] = new Set(
-        (this.assignedRulesMap[slot.key] || []).map(r => r.id!)
+        (this.assignedRulesMap[slot.key] || []).map(r => r.id)
       );
     }
 
     this.isLoading = false;
   }
- canEnter(slot: Slot) {
-  return (drag: CdkDrag<ConnectorRuleResponseV2025>) => {
-    if ((slot.key === 'beforeRule' || slot.key === 'afterRule')
+  canEnter(slot: Slot) {
+    return (drag: CdkDrag<ConnectorRuleResponseV2025>) => {
+      if ((slot.key === 'beforeRule' || slot.key === 'afterRule')
         && !this.hasConnectionParameters) {
-      return false;
-    }
-    const type = drag?.data?.type;
-    return !type || slot.allowedTypes.includes(type);
-  };
-}
- 
-
-async onDrop(event: CdkDragDrop<ConnectorRuleResponseV2025[]>): Promise<void> {
-  if (!this.selectedSource) return;
-
-  const dragged = event.item.data as ConnectorRuleResponseV2025;
-  const prevId  = event.previousContainer.id;
-  const currId  = event.container.id;
-
-  const fromKey = prevId.startsWith('assigned-')
-    ? prevId.replace('assigned-', '')
-    : undefined;
-  const toKey   = currId.startsWith('assigned-')
-    ? currId.replace('assigned-', '')
-    : undefined;
-
-  const fromSlot = this.slots.find(s => s.key === fromKey);
-  const toSlot   = this.slots.find(s => s.key === toKey);
-
-  if (toSlot && toSlot.wrap !== 'array') {
-    const count = this.assignedRulesMap[toSlot.key]?.length ?? 0;
-    if (count >= 1) {
-      this.snackBar.open(
-        `“${toSlot.label}” already has a rule. Remove it before adding another.`,
-        'Close',
-        { duration: 3000 }
-      );
-      return;
-    }
+        return false;
+      }
+      const type = drag?.data?.type;
+      return !type || slot.allowedTypes.includes(type);
+    };
   }
- 
-  if (!toSlot && fromSlot) {
-    const slot = fromSlot;
-    const wasOriginally = this.initialAssignedMap[slot.key]?.has(dragged.id!) ?? false;
 
-    // compute JSON‑Patch path
-    let path = slot.patchPath;
-    if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
-      const idx = this.paramIndexMap[slot.key];
-      path = path.replace('{i}', `${idx}`);
-    } else {
-      path = path.replace('{i}', '');
+
+  onDrop(event: CdkDragDrop<ConnectorRuleResponseV2025[]>): void {
+    if (!this.selectedSource) return;
+
+    const dragged = event.item.data as ConnectorRuleResponseV2025;
+    const prevId = event.previousContainer.id;
+    const currId = event.container.id;
+
+    const fromKey = prevId.startsWith('assigned-')
+      ? prevId.replace('assigned-', '')
+      : undefined;
+    const toKey = currId.startsWith('assigned-')
+      ? currId.replace('assigned-', '')
+      : undefined;
+
+    const fromSlot = this.slots.find(s => s.key === fromKey);
+    const toSlot = this.slots.find(s => s.key === toKey);
+
+    if (toSlot && toSlot.wrap !== 'array') {
+      const count = this.assignedRulesMap[toSlot.key]?.length ?? 0;
+      if (count >= 1) {
+        this.snackBar.open(
+          `“${toSlot.label}” already has a rule. Remove it before adding another.`,
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
     }
 
-    // detect a pending “add”/“replace” for this rule
-    const pendingIdx = this.pendingOps.findIndex(op => {
-      if (op.path !== path) return false;
-      if (slot.wrap === 'object'
+    if (!toSlot && fromSlot) {
+      const slot = fromSlot;
+      const wasOriginally = this.initialAssignedMap[slot.key]?.has(dragged.id) ?? false;
+
+      // compute JSON‑Patch path
+      let path = slot.patchPath;
+      if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
+        const idx = this.paramIndexMap[slot.key];
+        path = path.replace('{i}', `${idx}`);
+      } else {
+        path = path.replace('{i}', '');
+      }
+
+      // detect a pending “add”/“replace” for this rule
+      const pendingIdx = this.pendingOps.findIndex(op => {
+        if (op.path !== path) return false;
+        if (slot.wrap === 'object'
           && typeof op.value === 'object'
           && op.value !== null
           && 'id' in op.value
           && (op.value as any).id === dragged.id) {
-        return true;
-      }
-      if (slot.wrap === 'string' && op.value === dragged.name) {
-        return true;
-      }
-      if (slot.wrap === 'array'
+          return true;
+        }
+        if (slot.wrap === 'string' && op.value === dragged.name) {
+          return true;
+        }
+        if (slot.wrap === 'array'
           && Array.isArray(op.value)
           && op.value.includes(dragged.name)) {
-        return true;
+          return true;
+        }
+        return false;
+      });
+
+      if (!wasOriginally && pendingIdx > -1) {
+        // undo that “add” patch
+        this.pendingOps.splice(pendingIdx, 1);
+      } else {
+        // queue a remove
+        const rm = this.makeRuleRemovePatch(slot, dragged);
+        this.pendingOps.push(rm);
       }
-      return false;
-    });
-
-    if (!wasOriginally && pendingIdx > -1) {
-      // undo that “add” patch
-      this.pendingOps.splice(pendingIdx, 1);
-    } else {
-      // queue a remove
-      const rm = this.makeRuleRemovePatch(slot, dragged);
-      this.pendingOps.push(rm);
-    }
-  }
-
-  if (toSlot) {
-    // invalid before/after
-    if ((toSlot.key === 'beforeRule' || toSlot.key === 'afterRule') && !this.hasConnectionParameters) {
-      this.snackBar.open(
-        'Cannot assign a before-/after-rule: this source has no connectionParameters.',
-        'Close',
-        { duration: 3000 }
-      );
-      return;
-    }
-    // invalid type
-    if (!toSlot.allowedTypes.includes(dragged.type)) {
-      this.snackBar.open(
-        `“${dragged.name}” can’t go in ${toSlot.label}.`,
-        'Close',
-        { duration: 3000 }
-      );
-      return;
     }
 
-    const slot = toSlot;
-    const wasOriginally = this.initialAssignedMap[slot.key]?.has(dragged.id!) ?? false;
-
-    // compute JSON‑Patch path
-    let path = slot.patchPath;
-    let idx: number | undefined;
-    if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
-      idx = this.paramIndexMap[slot.key];
-      path = path.replace('{i}', `${idx}`);
-    } else {
-      path = path.replace('{i}', '');
-    }
-
-    // detect a pending “remove” for this rule
-    const pendingRemoveIdx = this.pendingOps.findIndex(op => {
-      if (op.path !== path) return false;
-      if (slot.wrap !== 'array' && op.op === 'remove') {
-        return true;
+    if (toSlot) {
+      // invalid before/after
+      if ((toSlot.key === 'beforeRule' || toSlot.key === 'afterRule') && !this.hasConnectionParameters) {
+        this.snackBar.open(
+          'Cannot assign a before-/after-rule: this source has no connectionParameters.',
+          'Close',
+          { duration: 3000 }
+        );
+        return;
       }
-      if (slot.wrap === 'array'
+      // invalid type
+      if (!toSlot.allowedTypes.includes(dragged.type)) {
+        this.snackBar.open(
+          `“${dragged.name}” can’t go in ${toSlot.label}.`,
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
+
+      const slot = toSlot;
+      const wasOriginally = this.initialAssignedMap[slot.key]?.has(dragged.id) ?? false;
+
+      // compute JSON‑Patch path
+      let path = slot.patchPath;
+      let idx: number | undefined;
+      if (slot.key === 'beforeRule' || slot.key === 'afterRule') {
+        idx = this.paramIndexMap[slot.key];
+        path = path.replace('{i}', `${idx}`);
+      } else {
+        path = path.replace('{i}', '');
+      }
+
+      // detect a pending “remove” for this rule
+      const pendingRemoveIdx = this.pendingOps.findIndex(op => {
+        if (op.path !== path) return false;
+        if (slot.wrap !== 'array' && op.op === 'remove') {
+          return true;
+        }
+        if (slot.wrap === 'array'
           && op.op === 'replace'
           && Array.isArray(op.value)
           && !op.value.includes(dragged.name)) {
-        return true;
+          return true;
+        }
+        return false;
+      });
+
+      if (wasOriginally && pendingRemoveIdx > -1) {
+        // cancel the remove
+        this.pendingOps.splice(pendingRemoveIdx, 1);
+      } else {
+        // queue an add/replace
+        const existingNames = this.assignedRulesMap[slot.key].map(r => r.name);
+        this.pendingOps.push(
+          this.makeRulePatch(slot, dragged, existingNames)
+        );
       }
-      return false;
-    });
+    }
 
-    if (wasOriginally && pendingRemoveIdx > -1) {
-      // cancel the remove
-      this.pendingOps.splice(pendingRemoveIdx, 1);
-    } else {
-      // queue an add/replace
-      const existingNames = this.assignedRulesMap[slot.key].map(r => r.name);
-      this.pendingOps.push(
-        this.makeRulePatch(slot, dragged, existingNames, idx)
-      );
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+
+    if (fromSlot) {
+      this.assignedRulesMap[fromSlot.key] = [...event.previousContainer.data];
+    }
+    if (toSlot) {
+      if (toSlot.wrap === 'array') {
+        this.assignedRulesMap[toSlot.key] = [...event.container.data];
+      } else {
+        // single‑item slot
+        const extras = event.container.data.filter(r => r !== dragged);
+        this.availableRules.push(...extras);
+        this.assignedRulesMap[toSlot.key] = [dragged];
+      }
     }
   }
 
-  transferArrayItem(
-    event.previousContainer.data,
-    event.container.data,
-    event.previousIndex,
-    event.currentIndex
-  );
-
-  if (fromSlot) {
-    this.assignedRulesMap[fromSlot.key] = [...event.previousContainer.data];
-  }
-  if (toSlot) {
-    if (toSlot.wrap === 'array') {
-      this.assignedRulesMap[toSlot.key] = [...event.container.data];
-    } else {
-      // single‑item slot
-      const extras = event.container.data.filter(r => r !== dragged);
-      this.availableRules.push(...extras);
-      this.assignedRulesMap[toSlot.key] = [dragged];
-    }
-  }
-}
-
-  async applyPatches() {
+  async applyPatches(): Promise<void> {
     if (!this.selectedSource || !this.pendingOps.length) return;
     this.isSaving = true;
 
     try {
       for (const op of this.pendingOps) {
         await this.sdk.updateSource({
-          id: this.selectedSource!.id!,
+          id: this.selectedSource.id!,
           jsonPatchOperationV2025: [op]
         });
       }
-      this.onSourceChange(this.selectedSource!);
+      await this.onSourceChange(this.selectedSource);
     } finally {
       this.isSaving = false;
       this.pendingOps = [];
