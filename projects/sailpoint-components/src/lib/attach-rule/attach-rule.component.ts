@@ -204,7 +204,7 @@ export class AttachRuleComponent implements OnInit {
   isLoading = false;
   isSaving = false;
 
-  removeAssignedRule(slotKey: string, rule: ConnectorRuleResponseV2025) {
+  removeAssignedRule(slotKey: string, rule: AvailableRule) {
     const slot = this.slots.find(s => s.key === slotKey);
     if (!slot || !this.selectedSource) return;
 
@@ -297,7 +297,7 @@ export class AttachRuleComponent implements OnInit {
 
   private makeRuleRemovePatch(
     slot: Slot,
-    rule: ConnectorRuleResponseV2025
+    rule: AvailableRule
   ): JsonPatchOperation {
     // compute the correct path
     let path: string;
