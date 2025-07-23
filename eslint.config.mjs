@@ -5,6 +5,7 @@ import tsparser from '@typescript-eslint/parser';
 import angular from '@angular-eslint/eslint-plugin';
 import angularTemplate from '@angular-eslint/eslint-plugin-template';
 import angularTemplateParser from '@angular-eslint/template-parser';
+import globals from "globals";
 
 export default [
   {
@@ -21,6 +22,8 @@ export default [
     languageOptions: {
       parser: tsparser,
       globals: {
+        ...Object.fromEntries(Object.keys(globals.browser).map(key => ([key.trim(), globals.browser[key]]))),
+        ...globals.node,
         console: 'readonly',
         window: 'readonly',
         document: 'readonly',
@@ -56,6 +59,7 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@angular-eslint/directive-selector': 'off',
+      '@typescript-eslint/triple-slash-reference': 'off',
       '@angular-eslint/component-selector': [
         'error',
         {

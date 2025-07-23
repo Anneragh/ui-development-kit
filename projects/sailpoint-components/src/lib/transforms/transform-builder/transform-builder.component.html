@@ -180,6 +180,7 @@
           style="display: block; margin-top: 1rem"
         >
           <mat-slide-toggle
+            style="margin-bottom: 1rem"
             [(ngModel)]="editor.step.properties[key]"
             matTooltip="{{getHintForProperty(editor.step.type, key)}}"
             name="{{ key }}"

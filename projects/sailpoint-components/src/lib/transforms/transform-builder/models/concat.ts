@@ -1,6 +1,7 @@
 import {
   BranchedStep,
   Properties,
+  PropertyValue,
   Sequence,
   Step,
   Uid
@@ -47,7 +48,7 @@ export function serializeConcat(step: ConcatStep): {
     values: any[];
   };
 } {
-  const arrayOfValues = [];
+  const arrayOfValues: PropertyValue[] = [];
 
   for (const [, sequence] of Object.entries(step.branches)) {
     for (const step of sequence) {

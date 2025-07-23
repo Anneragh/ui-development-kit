@@ -1,19 +1,30 @@
+import { UpdateEnvironmentRequest } from "./authentication/config";
+
 const { contextBridge, ipcRenderer: ipcMain } = require('electron');
 const sdkPreloader = require('./sailpoint-sdk/sdk-preload');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Authentication and connection
-  connectToISC: (apiUrl: any, baseUrl: any, clientId: any, clientSecret: any) => ipcMain.invoke('connect-to-isc', apiUrl, baseUrl, clientId, clientSecret),
-  connectToISCWithOAuth: (apiUrl: any, baseUrl: any, accessToken: any) => ipcMain.invoke('connect-to-isc-oauth', apiUrl, baseUrl, accessToken),
+  // Unified authentication and connection
+  unifiedLogin: (environment: string) => ipcMain.invoke('unified-login', environment),
   disconnectFromISC: () => ipcMain.invoke('disconnect-from-isc'),
-  oauthLogin: (tenant: any, baseAPIUrl: any) => ipcMain.invoke('oauth-login', tenant, baseAPIUrl),
+  checkAccessTokenStatus: (environment: string) => ipcMain.invoke('check-access-token-status', environment),
+  checkRefreshTokenStatus: (environment: string) => ipcMain.invoke('check-refresh-token-status', environment),
+  getCurrentTokenDetails: (environment: string) => ipcMain.invoke('get-current-token-details', environment),
   
+  // Token management
+  refreshTokens: (environment: string) => ipcMain.invoke('refresh-tokens', environment),
+  getStoredOAuthTokens: (environment: string) => ipcMain.invoke('get-stored-oauth-tokens', environment),
+  getStoredPATTokens: (environment: string) => ipcMain.invoke('get-stored-pat-tokens', environment),
+  validateTokens: (environment: string) => ipcMain.invoke('validate-tokens', environment),
+  storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => ipcMain.invoke('store-client-credentials', environment, clientId, clientSecret),
+
   // Environment management
   getTenants: () => ipcMain.invoke('get-tenants'),
-  createOrUpdateEnvironment: (config: any) => ipcMain.invoke('create-or-update-environment', config),
-  deleteEnvironment: (environmentName: any) => ipcMain.invoke('delete-environment', environmentName),
-  setActiveEnvironment: (environmentName: any) => ipcMain.invoke('set-active-environment', environmentName),
+  updateEnvironment: (config: UpdateEnvironmentRequest) => ipcMain.invoke('update-environment', config),
+  deleteEnvironment: (environment: string) => ipcMain.invoke('delete-environment', environment),
+  setActiveEnvironment: (environment: string) => ipcMain.invoke('set-active-environment', environment),
   getGlobalAuthType: () => ipcMain.invoke('get-global-auth-type'),
+  setGlobalAuthType: (authType: "oauth" | "pat") => ipcMain.invoke('set-global-auth-type', authType),
   
   // Harbor Pilot
   harborPilotTransformChat: (chat: any) => ipcMain.invoke('harbor-pilot-transform-chat', chat),
@@ -29,5 +40,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getLogoDataUrl: (fileName) => ipcMain.invoke('get-logo-data-url', fileName),
 
   // SDK functions
-  ...sdkPreloader
+  ...sdkPreloader,
 });

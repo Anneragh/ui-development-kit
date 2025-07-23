@@ -1,20 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-declare global {
-  interface Window {
-    electronAPI: {
-      readConfig: () => Promise<any>;
-      writeConfig: (config: any) => Promise<any>;
-      writeLogo: (buffer: Uint8Array, fileName: string) => Promise<void>;
-      checkLogoExists: (fileName: string) => Promise<boolean>;
-      getUserDataPath: () => string;
-      getLogoDataUrl: (fileName: string) => Promise<string>;
-    };
-  }
-}
-
-export interface ComponentInfo {
+export type ComponentInfo = {
   name: string;
   displayName: string;
   route: string;

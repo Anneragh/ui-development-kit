@@ -76,11 +76,13 @@ export async function getAvailableRules(sdk: SailPointSDKService): Promise<strin
             id: job.data.jobId
           };
           const { data: exportData } = await sdk.getSpConfigExport(downloadRequest);
-          const rules = [];
+          const rules: string[] = [];
 
           for (const obj of exportData.objects ?? []) {
             if (obj.object?.type === 'Transform') {
-              rules.push(obj.self?.name);
+              if (obj.self?.name) {
+                rules.push(obj.self.name);
+              }
             }
           }
 

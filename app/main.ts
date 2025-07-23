@@ -2,21 +2,15 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import {
-  connectToISC,
-  connectToISCWithOAuth,
-  disconnectFromISC,
-  getTenants,
-  harborPilotTransformChat,
-  OAuthLogin,
-  createOrUpdateEnvironment,
-  deleteEnvironment,
-  setActiveEnvironment,
-  getGlobalAuthType,
-} from './api';
+import { harborPilotTransformChat } from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
+import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType, unifiedLogin, validateTokens, checkAccessTokenStatus, checkRefreshTokenStatus, getCurrentTokenDetails } from './authentication/auth';
+import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
+import { getStoredOAuthTokens } from './authentication/oauth';
+import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
 
-let win: BrowserWindow | null = null;
+let win: BrowserWindow | undefined
+
 const projectRoot = path.resolve(__dirname, '..', 'src'); // adjust if needed
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
@@ -97,7 +91,7 @@ function createWindow(): BrowserWindow {
     // Dereference the window object, usually you would store window
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win = null;
+    win = undefined;
   });
 
   return win;
@@ -127,82 +121,89 @@ try {
     }
   });
 
-  ipcMain.handle(
-    'oauth-login',
-    async (event, tenant?: string, baseAPIUrl?: string) => {
-      if (!tenant || !baseAPIUrl) {
-        throw new Error('Tenant and baseAPIUrl are required');
-      }
-      return await OAuthLogin({ tenant, baseAPIUrl });
-    }
-  );
+  // Unified authentication and connection
 
-  // Handle fetching users via IPC
-  ipcMain.handle(
-    'connect-to-isc',
-    async (
-      event,
-      apiUrl: string,
-      baseUrl: string,
-      clientId: string,
-      clientSecret: string
-    ) => {
-      if (clientId.startsWith('go-keyring-base64:')) {
-        const base64 = clientId.split('go-keyring-base64:')[1];
-        clientId = atob(base64);
-      }
-
-      if (clientSecret.startsWith('go-keyring-base64:')) {
-        const base64 = clientSecret.split('go-keyring-base64:')[1];
-        clientSecret = atob(base64);
-      }
-
-      return await connectToISC(apiUrl, baseUrl, clientId, clientSecret);
-    }
-  );
-
-  ipcMain.handle(
-    'connect-to-isc-oauth',
-    async (event, apiUrl: string, baseUrl: string, accessToken: string) => {
-      return await connectToISCWithOAuth(apiUrl, baseUrl, accessToken);
-    }
-  );
-
-  ipcMain.handle('disconnect-from-isc', async () => {
-    return await disconnectFromISC();
+  ipcMain.handle('unified-login', async (event, environment: string) => {
+    return unifiedLogin(environment);
   });
 
-  ipcMain.handle('get-tenants', async () => {
-    return await getTenants();
+  ipcMain.handle('disconnect-from-isc', () => {
+    return disconnectFromISC();
   });
 
-  setupSailPointSDKHandlers();
-
-  ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
-    return await harborPilotTransformChat(chat);
+  ipcMain.handle('check-access-token-status', async (event, environment: string) => {
+    return checkAccessTokenStatus(environment);
   });
 
-  ipcMain.handle('create-or-update-environment', async (event, config) => {
-    return await createOrUpdateEnvironment(config);
+  ipcMain.handle('check-refresh-token-status', async (event, environment: string) => {
+    return checkRefreshTokenStatus(environment);
+  });
+
+  ipcMain.handle('get-current-token-details', async (event, environment: string) => {
+    return getCurrentTokenDetails(environment);
+  });
+
+  // Token management
+
+  ipcMain.handle('refresh-tokens', async (event, environment: string) => {
+    return refreshTokens(environment);
+  });
+
+  ipcMain.handle('get-stored-oauth-tokens', async (event, environment: string) => {
+    return getStoredOAuthTokens(environment);
+  });
+
+  ipcMain.handle('get-stored-pat-tokens', async (event, environment: string) => {
+    return getStoredPATTokens(environment);
+  });
+
+  ipcMain.handle('store-client-credentials', async (event, environment: string, clientId: string, clientSecret: string) => {
+    return storeClientCredentials(environment, clientId, clientSecret);
+  });
+
+  ipcMain.handle('validate-tokens', async (event, environment: string) => {
+    return validateTokens(environment);
+  });
+
+  // Environment management
+
+  ipcMain.handle('get-tenants', () => {
+    return getTenants();
+  });
+
+  ipcMain.handle('update-environment', (event, config: UpdateEnvironmentRequest) => {
+    return updateEnvironment(config);
   });
 
   ipcMain.handle(
     'delete-environment',
-    async (event, environmentName: string) => {
-      return await deleteEnvironment(environmentName);
+    (event, environment: string) => {
+      return deleteEnvironment(environment);
     }
   );
 
   ipcMain.handle(
     'set-active-environment',
-    async (event, environmentName: string) => {
-      return await setActiveEnvironment(environmentName);
+    (event, environment: string) => {
+      return setActiveEnvironment(environment);
     }
   );
 
   ipcMain.handle('get-global-auth-type', async () => {
-    return await getGlobalAuthType();
+    return getGlobalAuthType();
   });
+
+  ipcMain.handle('set-global-auth-type', async (event, authType: "oauth" | "pat") => {
+    return setGlobalAuthType(authType);
+  });
+
+  // Harbor Pilot
+
+  ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
+    return await harborPilotTransformChat(chat);
+  });
+
+  // Config file management
 
   ipcMain.handle('read-config', async () => {
     try {
@@ -239,6 +240,8 @@ try {
       throw new Error('Failed to write config file');
     }
   });
+
+  // Logo file management
 
   ipcMain.handle('write-logo', async (event, buffer, fileName) => {
     try {
@@ -282,6 +285,10 @@ try {
       return null;
     }
   });
+
+  // SDK Functions
+  setupSailPointSDKHandlers();
+
 } catch (e) {
   console.error('Error during app initialization', e);
 }

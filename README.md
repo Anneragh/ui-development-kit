@@ -152,7 +152,7 @@ npm run ng:serve
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ## Building the SailPoint SDK
+## Building the SailPoint SDK
 
 To build the SailPoint SDK with the latest API specifications:
 
@@ -173,17 +173,10 @@ To build the SailPoint SDK with the latest API specifications:
 
 4. Generate the SDK:
    ```bash
-   java -jar openapi-generator-cli-7.11.0.jar generate \
-     -i api-specs/idn/sailpoint-api.v2025.yaml \
-     -g typescript-axios \
-     -o ./app/sailpoint-sdk \
-     --global-property skipFormModel=false \
-     --config generator-config.yaml \
-     --api-name-suffix V2025Api \
-     --model-name-suffix V2025
+   java -jar openapi-generator-cli-7.11.0.jar generate  -i api-specs/idn/sailpoint-api.v2025.yaml -g typescript-axios  --global-property skipFormModel=false  --config generator-config.yaml  --api-name-suffix V2025Api  --model-name-suffix V2025
    ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Creating a new component
 

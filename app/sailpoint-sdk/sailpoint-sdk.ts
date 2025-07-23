@@ -61,7 +61,7 @@ function generateErrorResponse(error: unknown): ApiResponse<any> {
 
 /**
  * Get single Access Model Metadata Attribute
- * @summary Get Access Model Metadata Attribute
+ * @summary Get access model metadata attribute
  * @param {AccessModelMetadataV2025ApiGetAccessModelMetadataAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -72,7 +72,7 @@ export const getAccessModelMetadataAttribute = (requestParameters: sdk.AccessMod
 }
 /**
  * Get single Access Model Metadata Attribute Value
- * @summary Get Access Model Metadata Value
+ * @summary Get access model metadata value
  * @param {AccessModelMetadataV2025ApiGetAccessModelMetadataAttributeValueRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -83,7 +83,7 @@ export const getAccessModelMetadataAttributeValue = (requestParameters: sdk.Acce
 }
 /**
  * Get a list of Access Model Metadata Attributes
- * @summary List Access Model Metadata Attributes
+ * @summary List access model metadata attributes
  * @param {AccessModelMetadataV2025ApiListAccessModelMetadataAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -94,7 +94,7 @@ export const listAccessModelMetadataAttribute = (requestParameters: sdk.AccessMo
 }
 /**
  * Get a list of Access Model Metadata Attribute Values
- * @summary List Access Model Metadata Values
+ * @summary List access model metadata values
  * @param {AccessModelMetadataV2025ApiListAccessModelMetadataAttributeValueRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -106,7 +106,7 @@ export const listAccessModelMetadataAttributeValue = (requestParameters: sdk.Acc
 
 /**
  * Create an access profile. A user with `ROLE_SUBADMIN` or `SOURCE_SUBADMIN` authority must be associated with the access profile\'s source. The maximum supported length for the description field is 2000 characters. Longer descriptions will be preserved for existing access profiles. However, any new access profiles as well as any updates to existing descriptions are limited to 2000 characters. >**Note:** To use this endpoint, you need all the listed scopes.
- * @summary Create Access Profile
+ * @summary Create access profile
  * @param {AccessProfilesV2025ApiCreateAccessProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -117,7 +117,7 @@ export const createAccessProfile = (requestParameters: sdk.AccessProfilesV2025Ap
 }
 /**
  * This API deletes an existing Access Profile.  The Access Profile must not be in use, for example, Access Profile can not be deleted if they belong to an Application, Life Cycle State or a Role. If it is, a 400 error is returned.  A user with SOURCE_SUBADMIN must be able to administer the Source associated with the Access Profile.
- * @summary Delete the specified Access Profile
+ * @summary Delete the specified access profile
  * @param {AccessProfilesV2025ApiDeleteAccessProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -128,7 +128,7 @@ export const deleteAccessProfile = (requestParameters: sdk.AccessProfilesV2025Ap
 }
 /**
  * This endpoint initiates a bulk deletion of one or more access profiles. When the request is successful, the endpoint returns the bulk delete\'s task result ID.  To follow the task, you can use [Get Task Status by ID](https://developer.sailpoint.com/docs/api/beta/get-task-status), which will return the task result\'s status and information.  This endpoint can only bulk delete up to a limit of 50 access profiles per request.  By default, if any of the indicated access profiles are in use, no deletions will be performed and the **inUse** field of the response indicates the usages that must be removed first. If the request field **bestEffortOnly** is **true**, however, usages are reported in the **inUse** response field but all other indicated access profiles will be deleted. A SOURCE_SUBADMIN user can only use this endpoint to delete access profiles associated with sources they\'re able to administer.
- * @summary Delete Access Profile(s)
+ * @summary Delete access profile(s)
  * @param {AccessProfilesV2025ApiDeleteAccessProfilesInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -139,7 +139,7 @@ export const deleteAccessProfilesInBulk = (requestParameters: sdk.AccessProfiles
 }
 /**
  * This API returns an Access Profile by its ID.
- * @summary Get an Access Profile
+ * @summary Get an access profile
  * @param {AccessProfilesV2025ApiGetAccessProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -150,7 +150,7 @@ export const getAccessProfile = (requestParameters: sdk.AccessProfilesV2025ApiGe
 }
 /**
  * Use this API to get a list of an access profile\'s entitlements.  A SOURCE_SUBADMIN user must have access to the source associated with the specified access profile. >**Note:** When you filter for access profiles that have the \'+\' symbol in their names, the response is blank. 
- * @summary List Access Profile\'s Entitlements
+ * @summary List access profile\'s entitlements
  * @param {AccessProfilesV2025ApiGetAccessProfileEntitlementsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -161,7 +161,7 @@ export const getAccessProfileEntitlements = (requestParameters: sdk.AccessProfil
 }
 /**
  * Get a list of access profiles. >**Note:** When you filter for access profiles that have the \'+\' symbol in their names, the response is blank. 
- * @summary List Access Profiles
+ * @summary List access profiles
  * @param {AccessProfilesV2025ApiListAccessProfilesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -172,7 +172,7 @@ export const listAccessProfiles = (requestParameters: sdk.AccessProfilesV2025Api
 }
 /**
  * This API updates an existing Access Profile. The following fields are patchable:  **name**  **description**  **enabled**  **owner**  **requestable**  **accessRequestConfig**  **revokeRequestConfig**  **segments**  **entitlements**  **provisioningCriteria**  **source** (must be updated with entitlements belonging to new source in the same API call)  If you need to change the `source` of the access profile, you can do so only if you update the `entitlements` in the same API call.  The new entitlements can only come from the target source that you want to change to.  Look for the example \"Replace Source\" in the examples dropdown.  A user with SOURCE_SUBADMIN may only use this API to patch Access Profiles which are associated with Sources they are able to administer. >  The maximum supported length for the description field is 2000 characters. Longer descriptions will be preserved for existing access profiles, however, any new access profiles as well as any updates to existing descriptions will be limited to 2000 characters.  > You can only add or replace **entitlements** that exist on the source that the access profile is attached to. You can use the **list entitlements** endpoint with the **filters** query parameter to get a list of available entitlements on the access profile\'s source.
- * @summary Patch a specified Access Profile
+ * @summary Patch a specified access profile
  * @param {AccessProfilesV2025ApiPatchAccessProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -183,7 +183,7 @@ export const patchAccessProfile = (requestParameters: sdk.AccessProfilesV2025Api
 }
 /**
  * This API initiates a bulk update of field requestable for one or more Access Profiles.  >  If any of the indicated Access Profiles is exists in Organization,then those Access Profiles will be added in **updated**     list of the response.Requestable field of these Access Profiles marked as **true** or **false**.  >  If any of the indicated Access Profiles is not does not exists in Organization,then those Access Profiles will be added in **notFound** list of the response. Access Profiles marked as **notFound** will not be updated.  A SOURCE_SUBADMIN may only use this API to update Access Profiles which are associated with Sources they are able to administer.
- * @summary Update Access Profile(s) requestable field.
+ * @summary Update access profile(s) requestable field.
  * @param {AccessProfilesV2025ApiUpdateAccessProfilesInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -195,7 +195,7 @@ export const updateAccessProfilesInBulk = (requestParameters: sdk.AccessProfiles
 
 /**
  * Use this endpoint to approve an access request approval. Only the owner of the approval and ORG_ADMIN users are allowed to perform this action.
- * @summary Approve Access Request Approval
+ * @summary Approve access request approval
  * @param {AccessRequestApprovalsV2025ApiApproveAccessRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -206,7 +206,7 @@ export const approveAccessRequest = (requestParameters: sdk.AccessRequestApprova
 }
 /**
  * Use this API to forward an access request approval to a new owner. Only the owner of the approval and ORG_ADMIN users are allowed to perform this action. Only the owner of the approval and ORG_ADMIN users are allowed to perform this action.
- * @summary Forward Access Request Approval
+ * @summary Forward access request approval
  * @param {AccessRequestApprovalsV2025ApiForwardAccessRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -217,7 +217,7 @@ export const forwardAccessRequest = (requestParameters: sdk.AccessRequestApprova
 }
 /**
  * Use this API to return the number of pending, approved and rejected access requests approvals. See the \"owner-id\" query parameter for authorization information. info.
- * @summary Get Access Requests Approvals Number
+ * @summary Get access requests approvals number
  * @param {AccessRequestApprovalsV2025ApiGetAccessRequestApprovalSummaryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -228,7 +228,7 @@ export const getAccessRequestApprovalSummary = (requestParameters: sdk.AccessReq
 }
 /**
  * This API endpoint returns the list of approvers for the given access request id. 
- * @summary Access Request Approvers
+ * @summary Access request approvers
  * @param {AccessRequestApprovalsV2025ApiListAccessRequestApproversRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -239,7 +239,7 @@ export const listAccessRequestApprovers = (requestParameters: sdk.AccessRequestA
 }
 /**
  * This endpoint returns list of completed approvals. See *owner-id* query parameter below for authorization info.
- * @summary Completed Access Request Approvals List
+ * @summary Completed access request approvals list
  * @param {AccessRequestApprovalsV2025ApiListCompletedApprovalsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -250,7 +250,7 @@ export const listCompletedApprovals = (requestParameters: sdk.AccessRequestAppro
 }
 /**
  * This endpoint returns a list of pending approvals. See \"owner-id\" query parameter below for authorization info.
- * @summary Pending Access Request Approvals List
+ * @summary Pending access request approvals list
  * @param {AccessRequestApprovalsV2025ApiListPendingApprovalsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -261,7 +261,7 @@ export const listPendingApprovals = (requestParameters: sdk.AccessRequestApprova
 }
 /**
  * Use this API to reject an access request approval. Only the owner of the approval and admin users are allowed to perform this action.
- * @summary Reject Access Request Approval
+ * @summary Reject access request approval
  * @param {AccessRequestApprovalsV2025ApiRejectAccessRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -285,7 +285,7 @@ export const getAccessRequestIdentityMetrics = (requestParameters: sdk.AccessReq
 
 /**
  * This API endpoint allows approving pending access requests in bulk. Maximum of 50 approval ids can be  provided in the request for one single invocation.  ORG_ADMIN or users with rights \"idn:access-request-administration:write\" can approve the access requests in bulk.
- * @summary Bulk Approve Access Request
+ * @summary Bulk approve access request
  * @param {AccessRequestsV2025ApiApproveBulkAccessRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -296,7 +296,7 @@ export const approveBulkAccessRequest = (requestParameters: sdk.AccessRequestsV2
 }
 /**
  * This API endpoint cancels a pending access request. An access request can be cancelled only if it has not passed the approval step. In addition to users with ORG_ADMIN, any user who originally submitted the access request may cancel it.
- * @summary Cancel Access Request
+ * @summary Cancel access request
  * @param {AccessRequestsV2025ApiCancelAccessRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -307,7 +307,7 @@ export const cancelAccessRequest = (requestParameters: sdk.AccessRequestsV2025Ap
 }
 /**
  * This API endpoint allows cancelling pending access requests in bulk. Maximum of 50 access request ids can be  provided in the request for one single invocation.  Only ORG_ADMIN or users with rights \"idn:access-request-administration:write\" can cancel the access requests in  bulk.
- * @summary Bulk Cancel Access Request
+ * @summary Bulk cancel access request
  * @param {AccessRequestsV2025ApiCancelAccessRequestInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -318,7 +318,7 @@ export const cancelAccessRequestInBulk = (requestParameters: sdk.AccessRequestsV
 }
 /**
  * This endpoint closes access requests that are stuck in a pending state. It can be used throughout a request\'s lifecycle even after the approval state, unlike the [Cancel Access Request endpoint](https://developer.sailpoint.com/idn/api/v3/cancel-access-request/).  To find pending access requests with the UI, navigate to Search and use this query: status: Pending AND \"Access Request\". Use the Column Chooser to select \'Tracking Number\', and use the \'Download\' button to export a CSV containing the tracking numbers.  To find pending access requests with the API, use the [List Account Activities endpoint](https://developer.sailpoint.com/idn/api/v3/list-account-activities/).  Input the IDs from either source.  To track the status of endpoint requests, navigate to Search and use this query: name:\"Close Identity Requests\". Search will include \"Close Identity Requests Started\" audits when requests are initiated and \"Close Identity Requests Completed\" audits when requests are completed. The completion audit will list the identity request IDs that finished in error.  This API triggers the [Provisioning Completed event trigger](https://developer.sailpoint.com/idn/docs/event-triggers/triggers/provisioning-completed/) for each access request that is closed. 
- * @summary Close Access Request
+ * @summary Close access request
  * @param {AccessRequestsV2025ApiCloseAccessRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -328,8 +328,8 @@ export const closeAccessRequest = (requestParameters: sdk.AccessRequestsV2025Api
     return handleApiCall(() => accessrequestsv2025api.closeAccessRequest(requestParameters));
 }
 /**
- * Use this API to submit an access request in Identity Security Cloud (ISC), where it follows any ISC approval processes.  Access requests are processed asynchronously by ISC. A successful response from this endpoint means that the request has been submitted to ISC and is queued for processing. Because this endpoint is asynchronous, it doesn\'t return an error if you submit duplicate access requests in quick succession or submit an access request for access that is already in progress, approved, or rejected.  It\'s best practice to check for any existing access requests that reference the same access items before submitting a new access request. This can be accomplished by using the [List Access Request Status](https://developer.sailpoint.com/idn/api/v3/list-access-request-status) or the [Pending Access Request Approvals](https://developer.sailpoint.com/idn/api/v3/list-pending-approvals) APIs. You can also use the [Search API](https://developer.sailpoint.com/idn/api/v3/search) to check the existing access items an identity has before submitting an access request to ensure that you aren\'t requesting access that is already granted. If you use this API to request access that an identity already has, the API will ignore the request.  These ignored requests do not display when you use the [List Access Request Status](https://developer.sailpoint.com/idn/api/v3/list-access-request-status) API.  There are two types of access request:  __GRANT_ACCESS__ * Can be requested for multiple identities in a single request. * Supports self request and request on behalf of other users. Refer to the [Get Access Request Configuration](https://developer.sailpoint.com/idn/api/v3/get-access-request-config) endpoint for request configuration options.   * Allows any authenticated token (except API) to call this endpoint to request to grant access to themselves. Depending on the configuration, a user can request access for others. * Roles, access profiles and entitlements can be requested. * While requesting entitlements, maximum of 25 entitlements and 10 recipients are allowed in a request. * Now supports an alternate field \'requestedForWithRequestedItems\' for users to specify account selections while requesting items where they have more than one account on the source.   __REVOKE_ACCESS__ * Can only be requested for a single identity at a time. * You cannot use an access request to revoke access from an identity if that access has been granted by role membership or by birthright provisioning.  * Does not support self request. Only manager can request to revoke access for their directly managed employees. * If a `removeDate` is specified, then the access will be removed on that date and time only for roles, access profiles and entitlements. * Roles, access profiles, and entitlements can be requested for revocation. * Revoke requests for entitlements are limited to 1 entitlement per access request currently. * You can specify a `removeDate` if the access doesn\'t already have a sunset date. The `removeDate` must be a future date, in the UTC timezone.  * Allows a manager to request to revoke access for direct employees. A user with ORG_ADMIN authority can also request to revoke access from anyone. * Now supports REVOKE_ACCESS requests for identities with multiple accounts on a single source, with the help of \'assignmentId\' and \'nativeIdentity\' fields. 
- * @summary Submit Access Request
+ * Use this API to submit an access request in Identity Security Cloud (ISC), where it follows any ISC approval processes.  :::info The ability to request access using this API is constrained by the Access Request Segments defined in the API token’s user context. :::  Access requests are processed asynchronously by ISC. A successful response from this endpoint means that the request has been submitted to ISC and is queued for processing. Because this endpoint is asynchronous, it doesn\'t return an error if you submit duplicate access requests in quick succession or submit an access request for access that is already in progress, approved, or rejected.  It\'s best practice to check for any existing access requests that reference the same access items before submitting a new access request. This can be accomplished by using the [List Access Request Status](https://developer.sailpoint.com/idn/api/v3/list-access-request-status) or the [Pending Access Request Approvals](https://developer.sailpoint.com/idn/api/v3/list-pending-approvals) APIs. You can also use the [Search API](https://developer.sailpoint.com/idn/api/v3/search) to check the existing access items an identity has before submitting an access request to ensure that you aren\'t requesting access that is already granted. If you use this API to request access that an identity already has,  without changing the account details or end date information from the existing assignment,  the API will cancel the request as a duplicate.  There are two types of access request:  __GRANT_ACCESS__ * Can be requested for multiple identities in a single request. * Supports self request and request on behalf of other users. Refer to the [Get Access Request Configuration](https://developer.sailpoint.com/idn/api/v3/get-access-request-config) endpoint for request configuration options.   * Allows any authenticated token (except API) to call this endpoint to request to grant access to themselves. Depending on the configuration, a user can request access for others. * Roles, access profiles and entitlements can be requested. * You can specify a `removeDate` to set or alter a sunset date-time on an assignment. The removeDate must be a future date-time, in the UTC timezone. Additionally, if the user already has the access assigned with a sunset date, you can also submit a request without a `removeDate` to request removal of the sunset date and time. * If a `removeDate` is specified, then the requested role, access profile, or entitlement will be removed on that date and time. * Now supports an alternate field \'requestedForWithRequestedItems\' for users to specify account selections while requesting items where they have more than one account on the source.  :::caution  If any entitlements are being requested, then the maximum number of entitlements that can be requested is 25, and the maximum number of identities that can be requested for is 10. If you exceed these limits, the request will fail with a 400 error. If you are not requesting any entitlements, then there are no limits.  :::  __REVOKE_ACCESS__ * Can only be requested for a single identity at a time. * You cannot use an access request to revoke access from an identity if that access has been granted by role membership or by birthright provisioning.  * Does not support self request. Only manager can request to revoke access for their directly managed employees. * If a `removeDate` is specified, then the requested role, access profile, or entitlement will be removed on that date and time. * Roles, access profiles, and entitlements can be requested for revocation. * Revoke requests for entitlements are limited to 1 entitlement per access request currently. * You can specify a `removeDate` to add or alter a sunset date and time on an assignment. The `removeDate` must be a future date-time, in the UTC timezone. If the user already has the access assigned with a sunset date and time, the removeDate must be a date-time earlier than the existing sunset date and time.  * Allows a manager to request to revoke access for direct employees. A user with ORG_ADMIN authority can also request to revoke access from anyone. * Now supports REVOKE_ACCESS requests for identities with multiple accounts on a single source, with the help of \'assignmentId\' and \'nativeIdentity\' fields. These fields should be used within the \'requestedItems\' section for the revoke requests.  * Usage of \'requestedForWithRequestedItems\' field is not supported for revoke requests. 
+ * @summary Submit access request
  * @param {AccessRequestsV2025ApiCreateAccessRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -340,7 +340,7 @@ export const createAccessRequest = (requestParameters: sdk.AccessRequestsV2025Ap
 }
 /**
  * This endpoint returns the current access-request configuration.
- * @summary Get Access Request Configuration
+ * @summary Get access request configuration
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -350,7 +350,7 @@ export const getAccessRequestConfig = (apiConfig: sdk.Configuration): Promise<Ap
 }
 /**
  * Use this API to return the details for a entitlement on an identity including specific data relating to remove date and the ability to revoke the identity.
- * @summary Identity Entitlement Details
+ * @summary Identity entitlement details
  * @param {AccessRequestsV2025ApiGetEntitlementDetailsForIdentityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -361,7 +361,7 @@ export const getEntitlementDetailsForIdentity = (requestParameters: sdk.AccessRe
 }
 /**
  * Use this API to return a list of access request statuses based on the specified query parameters. If an access request was made for access that an identity already has, the API ignores the access request.  These ignored requests do not display in the list of access request statuses. Any user with any user level can get the status of their own access requests. A user with ORG_ADMIN is required to call this API to get a list of statuses for other users.
- * @summary Access Request Status
+ * @summary Access request status
  * @param {AccessRequestsV2025ApiListAccessRequestStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -372,7 +372,7 @@ export const listAccessRequestStatus = (requestParameters: sdk.AccessRequestsV20
 }
 /**
  * Use this API to get access request statuses of all the access requests in the org based on the specified query  parameters. Any user with user level ORG_ADMIN or scope idn:access-request-administration:read can access this endpoint to get  the  access request statuses
- * @summary Access Request Status for Administrators
+ * @summary Access request status for administrators
  * @param {AccessRequestsV2025ApiListAdministratorsAccessRequestStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -394,7 +394,7 @@ export const loadAccountSelections = (requestParameters: sdk.AccessRequestsV2025
 }
 /**
  * This endpoint replaces the current access-request configuration.
- * @summary Update Access Request Configuration
+ * @summary Update access request configuration
  * @param {AccessRequestsV2025ApiSetAccessRequestConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -406,7 +406,7 @@ export const setAccessRequestConfig = (requestParameters: sdk.AccessRequestsV202
 
 /**
  * This gets a single account activity by its id.
- * @summary Get an Account Activity
+ * @summary Get an account activity
  * @param {AccountActivitiesV2025ApiGetAccountActivityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -417,7 +417,7 @@ export const getAccountActivity = (requestParameters: sdk.AccountActivitiesV2025
 }
 /**
  * This gets a collection of account activities that satisfy the given query parameters.
- * @summary List Account Activities
+ * @summary List account activities
  * @param {AccountActivitiesV2025ApiListAccountActivitiesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -429,7 +429,7 @@ export const listAccountActivities = (requestParameters: sdk.AccountActivitiesV2
 
 /**
  * This API returns the status of an *in-progress* account aggregation, along with the total number of **NEW**, **CHANGED** and **DELETED** accounts found since the previous aggregation, and the number of those accounts that have been processed so far.  Accounts that have not changed since the previous aggregation are not included in **totalAccounts** and **processedAccounts** counts returned by this API. This is distinct from **Accounts Scanned** shown in the Aggregation UI, which indicates total accounts scanned regardless of whether they changed or not.  Since this endpoint reports on the status of an *in-progress* account aggregation, totalAccounts and processedAccounts may change between calls to this endpoint.  *Only available up to an hour after the aggregation completes. May respond with *404 Not Found* after that.* required to call this API.
- * @summary In-progress Account Aggregation status
+ * @summary In-progress account aggregation status
  * @param {AccountAggregationsV2025ApiGetAccountAggregationStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -453,7 +453,7 @@ export const getUsagesByAccountId = (requestParameters: sdk.AccountUsagesV2025Ap
 
 /**
  * Submit an account creation task - the API then returns the task ID.    You must include the `sourceId` where the account will be created in the `attributes` object.  This endpoint creates an account on the source record in your ISC tenant. This is useful for Flat File (`DelimitedFile`) type sources because it allows you to aggregate new accounts without needing to import a new CSV file every time.   However, if you use this endpoint to create an account for a Direct Connection type source, you must ensure that the account also exists on the target source.  The endpoint doesn\'t actually provision the account on the target source, which means that if the account doesn\'t also exist on the target source, an aggregation between the source and your tenant will remove it from your tenant.   By providing the account ID of an existing account in the request body, this API will function as a PATCH operation and update the account. 
- * @summary Create Account
+ * @summary Create account
  * @param {AccountsV2025ApiCreateAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -464,7 +464,7 @@ export const createAccount = (requestParameters: sdk.AccountsV2025ApiCreateAccou
 }
 /**
  * Use this API to delete an account.  This endpoint submits an account delete task and returns the task ID.  This endpoint only deletes the account from IdentityNow, not the source itself, which can result in the account\'s returning with the next aggregation between the source and IdentityNow.  To avoid this scenario, it is recommended that you [disable accounts](https://developer.sailpoint.com/idn/api/v3/disable-account) rather than delete them. This will also allow you to reenable the accounts in the future.  >**NOTE: You can only delete accounts from sources of the \"DelimitedFile\" type.**
- * @summary Delete Account
+ * @summary Delete account
  * @param {AccountsV2025ApiDeleteAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -475,7 +475,7 @@ export const deleteAccount = (requestParameters: sdk.AccountsV2025ApiDeleteAccou
 }
 /**
  * Use this endpoint to remove accounts from the system without provisioning changes to the source. Accounts that are removed could be re-created during the next aggregation.  This endpoint is good for: * Removing accounts that no longer exist on the source. * Removing accounts that won\'t be aggregated following updates to the source configuration. * Forcing accounts to be re-created following the next aggregation to re-run account processing, support testing, etc. 
- * @summary Remove Account
+ * @summary Remove account
  * @param {AccountsV2025ApiDeleteAccountAsyncRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -486,7 +486,7 @@ export const deleteAccountAsync = (requestParameters: sdk.AccountsV2025ApiDelete
 }
 /**
  * This API submits a task to disable the account and returns the task ID.      
- * @summary Disable Account
+ * @summary Disable account
  * @param {AccountsV2025ApiDisableAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -497,7 +497,7 @@ export const disableAccount = (requestParameters: sdk.AccountsV2025ApiDisableAcc
 }
 /**
  * This API submits a task to disable IDN account for a single identity.
- * @summary Disable IDN Account for Identity
+ * @summary Disable idn account for identity
  * @param {AccountsV2025ApiDisableAccountForIdentityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -508,7 +508,7 @@ export const disableAccountForIdentity = (requestParameters: sdk.AccountsV2025Ap
 }
 /**
  * This API submits tasks to disable IDN account for each identity provided in the request body.
- * @summary Disable IDN Accounts for Identities
+ * @summary Disable idn accounts for identities
  * @param {AccountsV2025ApiDisableAccountsForIdentitiesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -519,7 +519,7 @@ export const disableAccountsForIdentities = (requestParameters: sdk.AccountsV202
 }
 /**
  * This API submits a task to enable account and returns the task ID.      
- * @summary Enable Account
+ * @summary Enable account
  * @param {AccountsV2025ApiEnableAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -530,7 +530,7 @@ export const enableAccount = (requestParameters: sdk.AccountsV2025ApiEnableAccou
 }
 /**
  * This API submits a task to enable IDN account for a single identity.
- * @summary Enable IDN Account for Identity
+ * @summary Enable idn account for identity
  * @param {AccountsV2025ApiEnableAccountForIdentityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -541,7 +541,7 @@ export const enableAccountForIdentity = (requestParameters: sdk.AccountsV2025Api
 }
 /**
  * This API submits tasks to enable IDN account for each identity provided in the request body.
- * @summary Enable IDN Accounts for Identities
+ * @summary Enable idn accounts for identities
  * @param {AccountsV2025ApiEnableAccountsForIdentitiesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -552,7 +552,7 @@ export const enableAccountsForIdentities = (requestParameters: sdk.AccountsV2025
 }
 /**
  * Use this API to return the details for a single account by its ID.  
- * @summary Account Details
+ * @summary Account details
  * @param {AccountsV2025ApiGetAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -563,7 +563,7 @@ export const getAccount = (requestParameters: sdk.AccountsV2025ApiGetAccountRequ
 }
 /**
  * This API returns entitlements of the account.      
- * @summary Account Entitlements
+ * @summary Account entitlements
  * @param {AccountsV2025ApiGetAccountEntitlementsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -574,7 +574,7 @@ export const getAccountEntitlements = (requestParameters: sdk.AccountsV2025ApiGe
 }
 /**
  * List accounts. 
- * @summary Accounts List
+ * @summary Accounts list
  * @param {AccountsV2025ApiListAccountsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -585,7 +585,7 @@ export const listAccounts = (requestParameters: sdk.AccountsV2025ApiListAccounts
 }
 /**
  * Use this API to update an account with a PUT request.   This endpoint submits an account update task and returns the task ID.   >**Note: You can only use this PUT endpoint to update accounts from flat file sources.** 
- * @summary Update Account
+ * @summary Update account
  * @param {AccountsV2025ApiPutAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -596,7 +596,7 @@ export const putAccount = (requestParameters: sdk.AccountsV2025ApiPutAccountRequ
 }
 /**
  * This API asynchronously reloads the account directly from the connector and performs a one-time aggregation process.      
- * @summary Reload Account
+ * @summary Reload account
  * @param {AccountsV2025ApiSubmitReloadAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -607,7 +607,7 @@ export const submitReloadAccount = (requestParameters: sdk.AccountsV2025ApiSubmi
 }
 /**
  * This API submits a task to unlock an account and returns the task ID.   To use this endpoint to unlock an account that has the `forceProvisioning` option set to true, the `idn:accounts-provisioning:manage` scope is required. 
- * @summary Unlock Account
+ * @summary Unlock account
  * @param {AccountsV2025ApiUnlockAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -618,7 +618,7 @@ export const unlockAccount = (requestParameters: sdk.AccountsV2025ApiUnlockAccou
 }
 /**
  * Use this API to update account details.   This API supports updating an account\'s correlation by modifying the `identityId` and `manuallyCorrelated` fields.  To reassign an account from one identity to another, replace the current `identityId` with a new value.  If the account you\'re assigning was provisioned by Identity Security Cloud (ISC), it\'s possible for ISC to create a new account  for the previous identity as soon as the account is moved. If the account you\'re assigning is authoritative,  this causes the previous identity to become uncorrelated and can even result in its deletion. All accounts that are reassigned will be set to `manuallyCorrelated: true` unless you specify otherwise.  >**Note:** The `attributes` field can only be modified for flat file accounts.  
- * @summary Update Account
+ * @summary Update account
  * @param {AccountsV2025ApiUpdateAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -630,7 +630,7 @@ export const updateAccount = (requestParameters: sdk.AccountsV2025ApiUpdateAccou
 
 /**
  * Get a list of applications that have been identified within the environment. This includes details such as application names, discovery dates, potential correlated saas_vendors and related suggested connectors. 
- * @summary Get Discovered Applications for Tenant
+ * @summary Get discovered applications for tenant
  * @param {ApplicationDiscoveryV2025ApiGetDiscoveredApplicationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -641,7 +641,7 @@ export const getDiscoveredApplications = (requestParameters: sdk.ApplicationDisc
 }
 /**
  * Download an example CSV file with two columns `application_name` and `description`.  The CSV file contains a single row with the values \'Example Application\' and \'Example Description\'.  The downloaded template is specifically designed for use with the `/manual-discover-applications` endpoint. 
- * @summary Download CSV Template for Discovery
+ * @summary Download csv template for discovery
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -651,7 +651,7 @@ export const getManualDiscoverApplicationsCsvTemplate = (apiConfig: sdk.Configur
 }
 /**
  * Uploading a CSV file with application data for manual correlation to specific ISC connectors.  If a suitable ISC connector is unavailable, the system will recommend generic connectors instead.
- * @summary Upload CSV to Discover Applications
+ * @summary Upload csv to discover applications
  * @param {ApplicationDiscoveryV2025ApiSendManualDiscoverApplicationsCsvTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -674,7 +674,7 @@ export const getApproval = (requestParameters: sdk.ApprovalsV2025ApiGetApprovalR
 }
 /**
  * Retrieve a list of approvals, which can be filtered by requester ID, status, or reference type. \"Mine\" query parameter can be used and it will return all approvals for the current approver. This endpoint is for generic approvals, different than the access-request-approval endpoint and does not include access-request-approvals.  Absence of all query parameters will will default to mine=true.
- * @summary Get Approvals
+ * @summary Get approvals
  * @param {ApprovalsV2025ApiGetApprovalsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -708,7 +708,7 @@ export const deleteAccessProfilesFromSourceAppByBulk = (requestParameters: sdk.A
 }
 /**
  * Use this API to delete a specific source app
- * @summary Delete source app by ID
+ * @summary Delete source app by id
  * @param {AppsV2025ApiDeleteSourceAppRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -719,7 +719,7 @@ export const deleteSourceApp = (requestParameters: sdk.AppsV2025ApiDeleteSourceA
 }
 /**
  * This API returns a source app by its ID.
- * @summary Get source app by ID
+ * @summary Get source app by id
  * @param {AppsV2025ApiGetSourceAppRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -807,7 +807,7 @@ export const listOwnedUserApps = (requestParameters: sdk.AppsV2025ApiListOwnedUs
 }
 /**
  * This API updates an existing source app using [JSON Patch](https://tools.ietf.org/html/rfc6902) syntax. The following fields are patchable: **name**, **description**, **enabled**, **owner**, **provisionRequestEnabled**, **appCenterEnabled**, **accountSource**,  **matchAllAccounts** and **accessProfiles**. Name, description and owner can\'t be empty or null.
- * @summary Patch source app by ID
+ * @summary Patch source app by id
  * @param {AppsV2025ApiPatchSourceAppRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -818,7 +818,7 @@ export const patchSourceApp = (requestParameters: sdk.AppsV2025ApiPatchSourceApp
 }
 /**
  * This API updates an existing user app using [JSON Patch](https://tools.ietf.org/html/rfc6902) syntax. The following fields are patchable: **account**
- * @summary Patch user app by ID
+ * @summary Patch user app by id
  * @param {AppsV2025ApiPatchUserAppRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -841,7 +841,7 @@ export const updateSourceAppsInBulk = (requestParameters: sdk.AppsV2025ApiUpdate
 
 /**
  * This API returns auth profile information.
- * @summary Get Auth Profile
+ * @summary Get auth profile
  * @param {AuthProfileV2025ApiGetProfileConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -852,7 +852,7 @@ export const getProfileConfig = (requestParameters: sdk.AuthProfileV2025ApiGetPr
 }
 /**
  * This API returns a list of auth profiles.
- * @summary Get list of Auth Profiles
+ * @summary Get list of auth profiles
  * @param {AuthProfileV2025ApiGetProfileConfigListRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -863,7 +863,7 @@ export const getProfileConfigList = (requestParameters: sdk.AuthProfileV2025ApiG
 }
 /**
  * This API updates an existing Auth Profile. The following fields are patchable: **offNetwork**, **untrustedGeography**, **applicationId**, **applicationName**, **type**
- * @summary Patch a specified Auth Profile
+ * @summary Patch a specified auth profile
  * @param {AuthProfileV2025ApiPatchProfileConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -875,7 +875,7 @@ export const patchProfileConfig = (requestParameters: sdk.AuthProfileV2025ApiPat
 
 /**
  * Return the specified user\'s authentication system details.
- * @summary Auth User Details
+ * @summary Auth user details
  * @param {AuthUsersV2025ApiGetAuthUserRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -886,7 +886,7 @@ export const getAuthUser = (requestParameters: sdk.AuthUsersV2025ApiGetAuthUserR
 }
 /**
  * Use a PATCH request to update an existing user in the authentication system. Use this endpoint to modify these fields:    * `capabilities`  A \'400.1.1 Illegal update attempt\' detail code indicates that you attempted to PATCH a field that is not allowed.
- * @summary Auth User Update
+ * @summary Auth user update
  * @param {AuthUsersV2025ApiPatchAuthUserRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -953,7 +953,7 @@ export const setBrandingItem = (requestParameters: sdk.BrandingV2025ApiSetBrandi
 
 /**
  * Use this API to create a campaign filter based on filter details and criteria.
- * @summary Create Campaign Filter
+ * @summary Create campaign filter
  * @param {CertificationCampaignFiltersV2025ApiCreateCampaignFilterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -964,7 +964,7 @@ export const createCampaignFilter = (requestParameters: sdk.CertificationCampaig
 }
 /**
  * Deletes campaign filters whose Ids are specified in the provided list of campaign filter Ids. Authorized callers must be an ORG_ADMIN or a CERT_ADMIN.
- * @summary Deletes Campaign Filters
+ * @summary Deletes campaign filters
  * @param {CertificationCampaignFiltersV2025ApiDeleteCampaignFiltersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -975,7 +975,7 @@ export const deleteCampaignFilters = (requestParameters: sdk.CertificationCampai
 }
 /**
  * Retrieves information for an existing campaign filter using the filter\'s ID.
- * @summary Get Campaign Filter by ID
+ * @summary Get campaign filter by id
  * @param {CertificationCampaignFiltersV2025ApiGetCampaignFilterByIdRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -986,7 +986,7 @@ export const getCampaignFilterById = (requestParameters: sdk.CertificationCampai
 }
 /**
  * Use this API to list all campaign filters. You can reduce scope with standard V3 query parameters.
- * @summary List Campaign Filters
+ * @summary List campaign filters
  * @param {CertificationCampaignFiltersV2025ApiListCampaignFiltersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -997,7 +997,7 @@ export const listCampaignFilters = (requestParameters: sdk.CertificationCampaign
 }
 /**
  * Updates an existing campaign filter using the filter\'s ID.
- * @summary Updates a Campaign Filter
+ * @summary Updates a campaign filter
  * @param {CertificationCampaignFiltersV2025ApiUpdateCampaignFilterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1009,7 +1009,7 @@ export const updateCampaignFilter = (requestParameters: sdk.CertificationCampaig
 
 /**
  * :::caution  This endpoint will run successfully for any campaigns that are **past due**.  This endpoint will return a content error if the campaign is **not past due**.  :::  Use this API to complete a certification campaign. This functionality is provided to admins so that they can complete a certification even if all items have not been completed. 
- * @summary Complete a Campaign
+ * @summary Complete a campaign
  * @param {CertificationCampaignsV2025ApiCompleteCampaignRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1031,7 +1031,7 @@ export const createCampaign = (requestParameters: sdk.CertificationCampaignsV202
 }
 /**
  * Use this API to create a certification campaign template based on campaign. 
- * @summary Create a Campaign Template
+ * @summary Create a campaign template
  * @param {CertificationCampaignsV2025ApiCreateCampaignTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1042,7 +1042,7 @@ export const createCampaignTemplate = (requestParameters: sdk.CertificationCampa
 }
 /**
  * Use this API to delete a certification campaign template by ID. 
- * @summary Delete a Campaign Template
+ * @summary Delete a campaign template
  * @param {CertificationCampaignsV2025ApiDeleteCampaignTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1053,7 +1053,7 @@ export const deleteCampaignTemplate = (requestParameters: sdk.CertificationCampa
 }
 /**
  * Use this API to delete the schedule for a certification campaign template. The API returns a 404 if there is no schedule set. 
- * @summary Delete Campaign Template Schedule
+ * @summary Delete campaign template schedule
  * @param {CertificationCampaignsV2025ApiDeleteCampaignTemplateScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1064,7 +1064,7 @@ export const deleteCampaignTemplateSchedule = (requestParameters: sdk.Certificat
 }
 /**
  * Use this API to delete certification campaigns whose IDs are specified in the provided list of campaign IDs. 
- * @summary Delete Campaigns
+ * @summary Delete campaigns
  * @param {CertificationCampaignsV2025ApiDeleteCampaignsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1075,7 +1075,7 @@ export const deleteCampaigns = (requestParameters: sdk.CertificationCampaignsV20
 }
 /**
  * Use this API to get a list of campaigns. This API can provide increased level of detail for each campaign for the correct provided query. 
- * @summary List Campaigns
+ * @summary List campaigns
  * @param {CertificationCampaignsV2025ApiGetActiveCampaignsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1086,7 +1086,7 @@ export const getActiveCampaigns = (requestParameters: sdk.CertificationCampaigns
 }
 /**
  * Use this API to get information for an existing certification campaign by the campaign\'s ID. 
- * @summary Get Campaign
+ * @summary Get campaign
  * @param {CertificationCampaignsV2025ApiGetCampaignRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1097,7 +1097,7 @@ export const getCampaign = (requestParameters: sdk.CertificationCampaignsV2025Ap
 }
 /**
  * Use this API to fetch all reports for a certification campaign by campaign ID. 
- * @summary Get Campaign Reports
+ * @summary Get campaign reports
  * @param {CertificationCampaignsV2025ApiGetCampaignReportsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1108,7 +1108,7 @@ export const getCampaignReports = (requestParameters: sdk.CertificationCampaigns
 }
 /**
  * Use this API to fetch the configuration for certification campaign reports. The configuration includes only one element - identity attributes defined as custom report columns.  
- * @summary Get Campaign Reports Configuration
+ * @summary Get campaign reports configuration
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -1118,7 +1118,7 @@ export const getCampaignReportsConfig = (apiConfig: sdk.Configuration): Promise<
 }
 /**
  * Use this API to fetch a certification campaign template by ID. 
- * @summary Get a Campaign Template
+ * @summary Get a campaign template
  * @param {CertificationCampaignsV2025ApiGetCampaignTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1129,7 +1129,7 @@ export const getCampaignTemplate = (requestParameters: sdk.CertificationCampaign
 }
 /**
  * Use this API to get the schedule for a certification campaign template. The API returns a 404 if there is no schedule set. 
- * @summary Get Campaign Template Schedule
+ * @summary Get campaign template schedule
  * @param {CertificationCampaignsV2025ApiGetCampaignTemplateScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1140,7 +1140,7 @@ export const getCampaignTemplateSchedule = (requestParameters: sdk.Certification
 }
 /**
  * Use this API to get a list of all campaign templates. Scope can be reduced through standard V3 query params.  The API returns all campaign templates matching the query parameters.  
- * @summary List Campaign Templates
+ * @summary List campaign templates
  * @param {CertificationCampaignsV2025ApiGetCampaignTemplatesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1151,7 +1151,7 @@ export const getCampaignTemplates = (requestParameters: sdk.CertificationCampaig
 }
 /**
  * This API reassigns the specified certifications from one identity to another.     
- * @summary Reassign Certifications
+ * @summary Reassign certifications
  * @param {CertificationCampaignsV2025ApiMoveRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1162,7 +1162,7 @@ export const move = (requestParameters: sdk.CertificationCampaignsV2025ApiMoveRe
 }
 /**
  * Use this API to update individual fields on a certification campaign template, using the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard. 
- * @summary Update a Campaign Template
+ * @summary Update a campaign template
  * @param {CertificationCampaignsV2025ApiPatchCampaignTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1173,7 +1173,7 @@ export const patchCampaignTemplate = (requestParameters: sdk.CertificationCampai
 }
 /**
  * Use this API to overwrite the configuration for campaign reports.  
- * @summary Set Campaign Reports Configuration
+ * @summary Set campaign reports configuration
  * @param {CertificationCampaignsV2025ApiSetCampaignReportsConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1184,7 +1184,7 @@ export const setCampaignReportsConfig = (requestParameters: sdk.CertificationCam
 }
 /**
  * Use this API to set the schedule for a certification campaign template. If a schedule already exists, the API overwrites it with the new one. 
- * @summary Set Campaign Template Schedule
+ * @summary Set campaign template schedule
  * @param {CertificationCampaignsV2025ApiSetCampaignTemplateScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1195,7 +1195,7 @@ export const setCampaignTemplateSchedule = (requestParameters: sdk.Certification
 }
 /**
  * Use this API to submit a job to activate the certified campaign with the specified ID. The campaign must be staged. 
- * @summary Activate a Campaign
+ * @summary Activate a campaign
  * @param {CertificationCampaignsV2025ApiStartCampaignRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1206,7 +1206,7 @@ export const startCampaign = (requestParameters: sdk.CertificationCampaignsV2025
 }
 /**
  * Use this API to run a remediation scan task for a certification campaign. 
- * @summary Run Campaign Remediation Scan
+ * @summary Run campaign remediation scan
  * @param {CertificationCampaignsV2025ApiStartCampaignRemediationScanRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1217,7 +1217,7 @@ export const startCampaignRemediationScan = (requestParameters: sdk.Certificatio
 }
 /**
  * Use this API to run a report for a certification campaign. 
- * @summary Run Campaign Report
+ * @summary Run campaign report
  * @param {CertificationCampaignsV2025ApiStartCampaignReportRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1228,7 +1228,7 @@ export const startCampaignReport = (requestParameters: sdk.CertificationCampaign
 }
 /**
  * Use this API to generate a new certification campaign from a campaign template.  The campaign object contained in the template has special formatting applied to its name and description fields that determine the generated campaign\'s name/description. Placeholders in those fields are formatted with the current date and time upon generation.  Placeholders consist of a percent sign followed by a letter indicating what should be inserted. For example, \"%Y\" inserts the current year, and a campaign template named \"Campaign for %y\" generates a campaign called \"Campaign for 2020\" (assuming the year at generation time is 2020).  Valid placeholders are the date/time conversion suffix characters supported by [java.util.Formatter](https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html). 
- * @summary Generate a Campaign from Template
+ * @summary Generate a campaign from template
  * @param {CertificationCampaignsV2025ApiStartGenerateCampaignTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1239,7 +1239,7 @@ export const startGenerateCampaignTemplate = (requestParameters: sdk.Certificati
 }
 /**
  * Use this API to update individual fields on a certification campaign, using the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard. 
- * @summary Update a Campaign
+ * @summary Update a campaign
  * @param {CertificationCampaignsV2025ApiUpdateCampaignRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1251,7 +1251,7 @@ export const updateCampaign = (requestParameters: sdk.CertificationCampaignsV202
 
 /**
  * This API returns a list of access summaries for the specified identity campaign certification and type. Reviewers for this certification can also call this API.
- * @summary Access Summaries
+ * @summary Access summaries
  * @param {CertificationSummariesV2025ApiGetIdentityAccessSummariesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1262,7 +1262,7 @@ export const getIdentityAccessSummaries = (requestParameters: sdk.CertificationS
 }
 /**
  * This API returns a summary of the decisions made on an identity campaign certification. The decisions are summarized by type. Reviewers for this certification can also call this API.
- * @summary Summary of Certification Decisions
+ * @summary Summary of certification decisions
  * @param {CertificationSummariesV2025ApiGetIdentityDecisionSummaryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1273,7 +1273,7 @@ export const getIdentityDecisionSummary = (requestParameters: sdk.CertificationS
 }
 /**
  * This API returns a list of the identity summaries for a specific identity campaign certification. Reviewers for this certification can also call this API.
- * @summary Identity Summaries for Campaign Certification
+ * @summary Identity summaries for campaign certification
  * @param {CertificationSummariesV2025ApiGetIdentitySummariesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1284,7 +1284,7 @@ export const getIdentitySummaries = (requestParameters: sdk.CertificationSummari
 }
 /**
  * This API returns the summary for an identity on a specified identity campaign certification. Reviewers for this certification can also call this API.
- * @summary Summary for Identity
+ * @summary Summary for identity
  * @param {CertificationSummariesV2025ApiGetIdentitySummaryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1296,7 +1296,7 @@ export const getIdentitySummary = (requestParameters: sdk.CertificationSummaries
 
 /**
  * This API returns the certification task for the specified ID. Reviewers for the specified certification can also call this API.
- * @summary Certification Task by ID
+ * @summary Certification task by id
  * @param {CertificationsV2025ApiGetCertificationTaskRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1307,7 +1307,7 @@ export const getCertificationTask = (requestParameters: sdk.CertificationsV2025A
 }
 /**
  * This API returns a single identity campaign certification by its ID. Reviewers for this certification can also call this API. This API does not support requests for certifications assigned to Governance Groups.
- * @summary Identity Certification by ID
+ * @summary Identity certification by id
  * @param {CertificationsV2025ApiGetIdentityCertificationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1318,7 +1318,7 @@ export const getIdentityCertification = (requestParameters: sdk.CertificationsV2
 }
 /**
  * This API returns the permissions associated with an entitlement certification item based on the certification item\'s ID. Reviewers for this certification can also call this API.
- * @summary Permissions for Entitlement Certification Item
+ * @summary Permissions for entitlement certification item
  * @param {CertificationsV2025ApiGetIdentityCertificationItemPermissionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1329,7 +1329,7 @@ export const getIdentityCertificationItemPermissions = (requestParameters: sdk.C
 }
 /**
  * This API returns a list of pending (`QUEUED` or `IN_PROGRESS`) certification tasks. Any authenticated token can call this API, but only certification tasks you are authorized to review will be returned.
- * @summary List of Pending Certification Tasks
+ * @summary List of pending certification tasks
  * @param {CertificationsV2025ApiGetPendingCertificationTasksRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1340,7 +1340,7 @@ export const getPendingCertificationTasks = (requestParameters: sdk.Certificatio
 }
 /**
  * This API returns a list of reviewers for the certification. Reviewers for this certification can also call this API.
- * @summary List of Reviewers for certification
+ * @summary List of reviewers for certification
  * @param {CertificationsV2025ApiListCertificationReviewersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1351,7 +1351,7 @@ export const listCertificationReviewers = (requestParameters: sdk.Certifications
 }
 /**
  * This API returns a list of access review items for an identity campaign certification. Reviewers for this certification can also call this API. This API does not support requests for certifications assigned to Governance Groups.
- * @summary List of Access Review Items
+ * @summary List of access review items
  * @param {CertificationsV2025ApiListIdentityAccessReviewItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1362,7 +1362,7 @@ export const listIdentityAccessReviewItems = (requestParameters: sdk.Certificati
 }
 /**
  * Use this API to get a list of identity campaign certifications for the specified query parameters. Any authenticated token can call this API, but only certifications you are authorized to review will be returned. This API does not support requests for certifications assigned to governance groups.
- * @summary List Identity Campaign Certifications
+ * @summary List identity campaign certifications
  * @param {CertificationsV2025ApiListIdentityCertificationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1373,7 +1373,7 @@ export const listIdentityCertifications = (requestParameters: sdk.Certifications
 }
 /**
  * The API makes a decision to approve or revoke one or more identity campaign certification items. Reviewers for this certification can also call this API. This API does not support requests for certifications assigned to Governance Groups.
- * @summary Decide on a Certification Item
+ * @summary Decide on a certification item
  * @param {CertificationsV2025ApiMakeIdentityDecisionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1384,7 +1384,7 @@ export const makeIdentityDecision = (requestParameters: sdk.CertificationsV2025A
 }
 /**
  * This API reassigns up to 50 identities or items in an identity campaign certification to another reviewer. A token with ORG_ADMIN or CERT_ADMIN authority is required to call this API. Reviewers for this certification can also call this API. This API does not support requests for certifications assigned to Governance Groups.
- * @summary Reassign Identities or Items
+ * @summary Reassign identities or items
  * @param {CertificationsV2025ApiReassignIdentityCertificationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1395,7 +1395,7 @@ export const reassignIdentityCertifications = (requestParameters: sdk.Certificat
 }
 /**
  * This API finalizes all decisions made on an identity campaign certification and initiates any remediations required. Reviewers for this certification can also call this API. This API does not support requests for certifications assigned to Governance Groups.
- * @summary Finalize Identity Certification Decisions
+ * @summary Finalize identity certification decisions
  * @param {CertificationsV2025ApiSignOffIdentityCertificationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1406,7 +1406,7 @@ export const signOffIdentityCertification = (requestParameters: sdk.Certificatio
 }
 /**
  * This API initiates a task to reassign up to 500 identities or items in an identity campaign certification to another reviewer. The `certification-tasks` API can be used to get an updated status on the task and determine when the reassignment is complete.   Reviewers for this certification can also call this API. 
- * @summary Reassign Certifications Asynchronously
+ * @summary Reassign certifications asynchronously
  * @param {CertificationsV2025ApiSubmitReassignCertsAsyncRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1417,8 +1417,42 @@ export const submitReassignCertsAsync = (requestParameters: sdk.CertificationsV2
 }
 
 /**
+ * Use this API to cancel account classification process on a source. A token with API, ORG_ADMIN, ROLE_ADMIN, ROLE_SUBADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Cancel classify source\'s accounts process
+ * @param {ClassifySourceV2025ApiDeleteClassifyMachineAccountFromSourceRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const deleteClassifyMachineAccountFromSource = (requestParameters: sdk.ClassifySourceV2025ApiDeleteClassifyMachineAccountFromSourceRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<void>> => {
+    const classifysourcev2025api = new sdk.ClassifySourceV2025Api(apiConfig);
+    return handleApiCall(() => classifysourcev2025api.deleteClassifyMachineAccountFromSource(requestParameters));
+}
+/**
+ * Use this API to get the status of Machine Account Classification process for a source. A token with API, ORG_ADMIN, ROLE_ADMIN, ROLE_SUBADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Source accounts classification status
+ * @param {ClassifySourceV2025ApiGetClassifyMachineAccountFromSourceStatusRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const getClassifyMachineAccountFromSourceStatus = (requestParameters: sdk.ClassifySourceV2025ApiGetClassifyMachineAccountFromSourceStatusRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SourceClassificationStatusV2025>> => {
+    const classifysourcev2025api = new sdk.ClassifySourceV2025Api(apiConfig);
+    return handleApiCall(() => classifysourcev2025api.getClassifyMachineAccountFromSourceStatus(requestParameters));
+}
+/**
+ * Use this API to classify all the accounts from a source. A token with API, ORG_ADMIN, ROLE_ADMIN, ROLE_SUBADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Classify source\'s all accounts
+ * @param {ClassifySourceV2025ApiSendClassifyMachineAccountFromSourceRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const sendClassifyMachineAccountFromSource = (requestParameters: sdk.ClassifySourceV2025ApiSendClassifyMachineAccountFromSourceRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SendClassifyMachineAccountFromSource200ResponseV2025>> => {
+    const classifysourcev2025api = new sdk.ClassifySourceV2025Api(apiConfig);
+    return handleApiCall(() => classifysourcev2025api.sendClassifyMachineAccountFromSource(requestParameters));
+}
+
+/**
  * This API performs a deploy based on an existing daft.
- * @summary Create a Deploy
+ * @summary Create a deploy
  * @param {ConfigurationHubV2025ApiCreateDeployRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1451,7 +1485,7 @@ export const createObjectMappings = (requestParameters: sdk.ConfigurationHubV202
 }
 /**
  * This API creates a new scheduled action for the current tenant.
- * @summary Create Scheduled Action
+ * @summary Create scheduled action
  * @param {ConfigurationHubV2025ApiCreateScheduledActionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1462,7 +1496,7 @@ export const createScheduledAction = (requestParameters: sdk.ConfigurationHubV20
 }
 /**
  * This API uploads a JSON configuration file into a tenant.  Configuration files can be managed and deployed via Configuration Hub by uploading a json file which contains configuration data. The JSON file should be the same as the one used by our import endpoints. The object types supported by upload configuration file functionality are the same as the ones supported by our regular backup functionality.  Refer to [SaaS Configuration](https://developer.sailpoint.com/idn/docs/saas-configuration/#supported-objects) for more information about supported objects.
- * @summary Upload a Configuration
+ * @summary Upload a configuration
  * @param {ConfigurationHubV2025ApiCreateUploadedConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1473,7 +1507,7 @@ export const createUploadedConfiguration = (requestParameters: sdk.Configuration
 }
 /**
  * This API deletes an existing backup for the current tenant.  On success, this endpoint will return an empty response.  The backup id can be obtained from the response after a backup was successfully created, or from the list backups endpoint.
- * @summary Delete a Backup
+ * @summary Delete a backup
  * @param {ConfigurationHubV2025ApiDeleteBackupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1506,7 +1540,7 @@ export const deleteObjectMapping = (requestParameters: sdk.ConfigurationHubV2025
 }
 /**
  * This API deletes an existing scheduled action.
- * @summary Delete Scheduled Action
+ * @summary Delete scheduled action
  * @param {ConfigurationHubV2025ApiDeleteScheduledActionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1517,7 +1551,7 @@ export const deleteScheduledAction = (requestParameters: sdk.ConfigurationHubV20
 }
 /**
  * This API deletes an uploaded configuration based on Id.  On success, this endpoint will return an empty response.  The uploaded configuration id can be obtained from the response after a successful upload, or the list uploaded configurations endpoint.
- * @summary Delete an Uploaded Configuration
+ * @summary Delete an uploaded configuration
  * @param {ConfigurationHubV2025ApiDeleteUploadedConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1528,7 +1562,7 @@ export const deleteUploadedConfiguration = (requestParameters: sdk.Configuration
 }
 /**
  * This API gets an existing deploy for the current tenant.
- * @summary Get a Deploy
+ * @summary Get a deploy
  * @param {ConfigurationHubV2025ApiGetDeployRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1550,7 +1584,7 @@ export const getObjectMappings = (requestParameters: sdk.ConfigurationHubV2025Ap
 }
 /**
  * This API gets an existing uploaded configuration for the current tenant.
- * @summary Get an Uploaded Configuration
+ * @summary Get an uploaded configuration
  * @param {ConfigurationHubV2025ApiGetUploadedConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1561,7 +1595,7 @@ export const getUploadedConfiguration = (requestParameters: sdk.ConfigurationHub
 }
 /**
  * This API gets a list of existing backups for the current tenant.
- * @summary List Backups
+ * @summary List backups
  * @param {ConfigurationHubV2025ApiListBackupsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1572,7 +1606,7 @@ export const listBackups = (requestParameters: sdk.ConfigurationHubV2025ApiListB
 }
 /**
  * This API gets a list of deploys for the current tenant.
- * @summary List Deploys
+ * @summary List deploys
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -1582,7 +1616,7 @@ export const listDeploys = (apiConfig: sdk.Configuration): Promise<ApiResponse<s
 }
 /**
  * This API gets a list of existing drafts for the current tenant.
- * @summary List Drafts
+ * @summary List drafts
  * @param {ConfigurationHubV2025ApiListDraftsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1593,7 +1627,7 @@ export const listDrafts = (requestParameters: sdk.ConfigurationHubV2025ApiListDr
 }
 /**
  * This API gets a list of existing scheduled actions for the current tenant.
- * @summary List Scheduled Actions
+ * @summary List scheduled actions
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -1603,7 +1637,7 @@ export const listScheduledActions = (apiConfig: sdk.Configuration): Promise<ApiR
 }
 /**
  * This API gets a list of existing uploaded configurations for the current tenant.
- * @summary List Uploaded Configurations
+ * @summary List uploaded configurations
  * @param {ConfigurationHubV2025ApiListUploadedConfigurationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1625,7 +1659,7 @@ export const updateObjectMappings = (requestParameters: sdk.ConfigurationHubV202
 }
 /**
  * This API updates an existing scheduled action using JSON Patch format.
- * @summary Update Scheduled Action
+ * @summary Update scheduled action
  * @param {ConfigurationHubV2025ApiUpdateScheduledActionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1637,7 +1671,7 @@ export const updateScheduledAction = (requestParameters: sdk.ConfigurationHubV20
 
 /**
  * Create a connector customizer.
- * @summary Create Connector Customizer
+ * @summary Create connector customizer
  * @param {ConnectorCustomizersV2025ApiCreateConnectorCustomizerRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1659,7 +1693,7 @@ export const createConnectorCustomizerVersion = (requestParameters: sdk.Connecto
 }
 /**
  * Delete the connector customizer for the given ID.
- * @summary Delete Connector Customizer
+ * @summary Delete connector customizer
  * @param {ConnectorCustomizersV2025ApiDeleteConnectorCustomizerRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1681,7 +1715,7 @@ export const getConnectorCustomizer = (requestParameters: sdk.ConnectorCustomize
 }
 /**
  * List all connector customizers.
- * @summary List All Connector Customizers
+ * @summary List all connector customizers
  * @param {ConnectorCustomizersV2025ApiListConnectorCustomizersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1692,7 +1726,7 @@ export const listConnectorCustomizers = (requestParameters: sdk.ConnectorCustomi
 }
 /**
  * Update an existing connector customizer with the one provided in the request body. These fields are immutable: `id`, `name`, `type`.
- * @summary Update Connector Customizer
+ * @summary Update connector customizer
  * @param {ConnectorCustomizersV2025ApiPutConnectorCustomizerRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1704,7 +1738,7 @@ export const putConnectorCustomizer = (requestParameters: sdk.ConnectorCustomize
 
 /**
  * Create a connector rule from the available types.
- * @summary Create Connector Rule
+ * @summary Create connector rule
  * @param {ConnectorRuleManagementV2025ApiCreateConnectorRuleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1715,7 +1749,7 @@ export const createConnectorRule = (requestParameters: sdk.ConnectorRuleManageme
 }
 /**
  * Delete the connector rule for the given ID.
- * @summary Delete Connector Rule
+ * @summary Delete connector rule
  * @param {ConnectorRuleManagementV2025ApiDeleteConnectorRuleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1726,7 +1760,7 @@ export const deleteConnectorRule = (requestParameters: sdk.ConnectorRuleManageme
 }
 /**
  * Get a connector rule by ID.
- * @summary Get Connector Rule
+ * @summary Get connector rule
  * @param {ConnectorRuleManagementV2025ApiGetConnectorRuleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1737,7 +1771,7 @@ export const getConnectorRule = (requestParameters: sdk.ConnectorRuleManagementV
 }
 /**
  * List existing connector rules.
- * @summary List Connector Rules
+ * @summary List connector rules
  * @param {ConnectorRuleManagementV2025ApiGetConnectorRuleListRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1748,7 +1782,7 @@ export const getConnectorRuleList = (requestParameters: sdk.ConnectorRuleManagem
 }
 /**
  * Update an existing connector rule with the one provided in the request body. These fields are immutable: `id`, `name`, `type`
- * @summary Update Connector Rule
+ * @summary Update connector rule
  * @param {ConnectorRuleManagementV2025ApiPutConnectorRuleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1759,7 +1793,7 @@ export const putConnectorRule = (requestParameters: sdk.ConnectorRuleManagementV
 }
 /**
  * Detect issues within the connector rule\'s code to fix and list them.
- * @summary Validate Connector Rule
+ * @summary Validate connector rule
  * @param {ConnectorRuleManagementV2025ApiTestConnectorRuleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1771,7 +1805,7 @@ export const testConnectorRule = (requestParameters: sdk.ConnectorRuleManagement
 
 /**
  * Create custom connector.    
- * @summary Create Custom Connector
+ * @summary Create custom connector
  * @param {ConnectorsV2025ApiCreateCustomConnectorRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1782,7 +1816,7 @@ export const createCustomConnector = (requestParameters: sdk.ConnectorsV2025ApiC
 }
 /**
  * Delete a custom connector that using its script name.
- * @summary Delete Connector by Script Name
+ * @summary Delete connector by script name
  * @param {ConnectorsV2025ApiDeleteCustomConnectorRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1793,7 +1827,7 @@ export const deleteCustomConnector = (requestParameters: sdk.ConnectorsV2025ApiD
 }
 /**
  * Fetches a connector that using its script name.    
- * @summary Get Connector by Script Name
+ * @summary Get connector by script name
  * @param {ConnectorsV2025ApiGetConnectorRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1804,7 +1838,7 @@ export const getConnector = (requestParameters: sdk.ConnectorsV2025ApiGetConnect
 }
 /**
  * Fetches a connector\'s correlation config using its script name.    
- * @summary Get Connector Correlation Configuration
+ * @summary Get connector correlation configuration
  * @param {ConnectorsV2025ApiGetConnectorCorrelationConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1815,7 +1849,7 @@ export const getConnectorCorrelationConfig = (requestParameters: sdk.ConnectorsV
 }
 /**
  * Fetches list of connectors that have \'RELEASED\' status using filtering and pagination.
- * @summary Get Connector List
+ * @summary Get connector list
  * @param {ConnectorsV2025ApiGetConnectorListRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1826,7 +1860,7 @@ export const getConnectorList = (requestParameters: sdk.ConnectorsV2025ApiGetCon
 }
 /**
  * Fetches a connector\'s source config using its script name.    
- * @summary Get Connector Source Configuration
+ * @summary Get connector source configuration
  * @param {ConnectorsV2025ApiGetConnectorSourceConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1837,7 +1871,7 @@ export const getConnectorSourceConfig = (requestParameters: sdk.ConnectorsV2025A
 }
 /**
  * Fetches a connector\'s source template using its script name.    
- * @summary Get Connector Source Template
+ * @summary Get connector source template
  * @param {ConnectorsV2025ApiGetConnectorSourceTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1848,7 +1882,7 @@ export const getConnectorSourceTemplate = (requestParameters: sdk.ConnectorsV202
 }
 /**
  * Fetches a connector\'s translations using its script name.    
- * @summary Get Connector Translations
+ * @summary Get connector translations
  * @param {ConnectorsV2025ApiGetConnectorTranslationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1859,7 +1893,7 @@ export const getConnectorTranslations = (requestParameters: sdk.ConnectorsV2025A
 }
 /**
  * Update a connector\'s correlation config using its script name.    
- * @summary Update Connector Correlation Configuration
+ * @summary Update connector correlation configuration
  * @param {ConnectorsV2025ApiPutConnectorCorrelationConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1870,7 +1904,7 @@ export const putConnectorCorrelationConfig = (requestParameters: sdk.ConnectorsV
 }
 /**
  * Update a connector\'s source config using its script name.    
- * @summary Update Connector Source Configuration
+ * @summary Update connector source configuration
  * @param {ConnectorsV2025ApiPutConnectorSourceConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1881,7 +1915,7 @@ export const putConnectorSourceConfig = (requestParameters: sdk.ConnectorsV2025A
 }
 /**
  * Update a connector\'s source template using its script name.    
- * @summary Update Connector Source Template
+ * @summary Update connector source template
  * @param {ConnectorsV2025ApiPutConnectorSourceTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1892,7 +1926,7 @@ export const putConnectorSourceTemplate = (requestParameters: sdk.ConnectorsV202
 }
 /**
  * Update a connector\'s translations using its script name.    
- * @summary Update Connector Translations
+ * @summary Update connector translations
  * @param {ConnectorsV2025ApiPutConnectorTranslationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1903,7 +1937,7 @@ export const putConnectorTranslations = (requestParameters: sdk.ConnectorsV2025A
 }
 /**
  * This API updates a custom connector by script name using [JSON Patch](https://tools.ietf.org/html/rfc6902) syntax.  The following fields are patchable:   * connectorMetadata  * applicationXml  * correlationConfigXml  * sourceConfigXml 
- * @summary Update Connector by Script Name
+ * @summary Update connector by script name
  * @param {ConnectorsV2025ApiUpdateConnectorRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1926,7 +1960,7 @@ export const createFormDefinition = (requestParameters: sdk.CustomFormsV2025ApiC
 }
 /**
  * 
- * @summary Generate JSON Schema dynamically.
+ * @summary Generate json schema dynamically.
  * @param {CustomFormsV2025ApiCreateFormDefinitionDynamicSchemaRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -1981,7 +2015,7 @@ export const exportFormDefinitionsByTenant = (requestParameters: sdk.CustomForms
 }
 /**
  * 
- * @summary Download definition file by fileId.
+ * @summary Download definition file by fileid.
  * @param {CustomFormsV2025ApiGetFileFromS3Request} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2014,7 +2048,7 @@ export const getFormInstanceByKey = (requestParameters: sdk.CustomFormsV2025ApiG
 }
 /**
  * 
- * @summary Download instance file by fileId.
+ * @summary Download instance file by fileid.
  * @param {CustomFormsV2025ApiGetFormInstanceFileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2112,7 +2146,7 @@ export const showPreviewDataSource = (requestParameters: sdk.CustomFormsV2025Api
 
 /**
  * This API creates the custom password instructions for the specified page ID.
- * @summary Create Custom Password Instructions
+ * @summary Create custom password instructions
  * @param {CustomPasswordInstructionsV2025ApiCreateCustomPasswordInstructionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2123,7 +2157,7 @@ export const createCustomPasswordInstructions = (requestParameters: sdk.CustomPa
 }
 /**
  * This API delete the custom password instructions for the specified page ID.
- * @summary Delete Custom Password Instructions by page ID
+ * @summary Delete custom password instructions by page id
  * @param {CustomPasswordInstructionsV2025ApiDeleteCustomPasswordInstructionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2134,7 +2168,7 @@ export const deleteCustomPasswordInstructions = (requestParameters: sdk.CustomPa
 }
 /**
  * This API returns the custom password instructions for the specified page ID.
- * @summary Get Custom Password Instructions by Page ID
+ * @summary Get custom password instructions by page id
  * @param {CustomPasswordInstructionsV2025ApiGetCustomPasswordInstructionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2146,7 +2180,7 @@ export const getCustomPasswordInstructions = (requestParameters: sdk.CustomPassw
 
 /**
  * This API creates a segment.  >**Note:** Segment definitions may take time to propagate to all identities.
- * @summary Create Segment
+ * @summary Create segment
  * @param {DataSegmentationV2025ApiCreateDataSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2157,7 +2191,7 @@ export const createDataSegment = (requestParameters: sdk.DataSegmentationV2025Ap
 }
 /**
  * This API deletes the segment specified by the given ID.
- * @summary Delete Segment by ID
+ * @summary Delete segment by id
  * @param {DataSegmentationV2025ApiDeleteDataSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2168,7 +2202,7 @@ export const deleteDataSegment = (requestParameters: sdk.DataSegmentationV2025Ap
 }
 /**
  * This API returns the segment specified by the given ID.
- * @summary Get Segment by ID
+ * @summary Get segment by id
  * @param {DataSegmentationV2025ApiGetDataSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2179,7 +2213,7 @@ export const getDataSegment = (requestParameters: sdk.DataSegmentationV2025ApiGe
 }
 /**
  * This API returns the segment membership specified by the given identity ID.
- * @summary Get SegmentMembership by Identity ID
+ * @summary Get segmentmembership by identity id
  * @param {DataSegmentationV2025ApiGetDataSegmentIdentityMembershipRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2190,7 +2224,7 @@ export const getDataSegmentIdentityMembership = (requestParameters: sdk.DataSegm
 }
 /**
  * This API returns whether or not segmentation is enabled for the identity.
- * @summary Is Segmentation enabled by Identity
+ * @summary Is segmentation enabled by identity
  * @param {DataSegmentationV2025ApiGetDataSegmentationEnabledForUserRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2201,7 +2235,7 @@ export const getDataSegmentationEnabledForUser = (requestParameters: sdk.DataSeg
 }
 /**
  * This API returns the segment specified by the given ID.
- * @summary Get Segments
+ * @summary Get segments
  * @param {DataSegmentationV2025ApiListDataSegmentsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2212,7 +2246,7 @@ export const listDataSegments = (requestParameters: sdk.DataSegmentationV2025Api
 }
 /**
  * Use this API to update segment fields by using the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard.
- * @summary Update Segment
+ * @summary Update segment
  * @param {DataSegmentationV2025ApiPatchDataSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2223,7 +2257,7 @@ export const patchDataSegment = (requestParameters: sdk.DataSegmentationV2025Api
 }
 /**
  * This will publish the segment so that it starts applying the segmentation to the desired users if enabled
- * @summary Publish segment by ID
+ * @summary Publish segment by id
  * @param {DataSegmentationV2025ApiPublishDataSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2235,7 +2269,7 @@ export const publishDataSegment = (requestParameters: sdk.DataSegmentationV2025A
 
 /**
  * This API creates a dimension. You must have a token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority to call this API.  Additionally, a ROLE_SUBADMIN cannot create a dimension that includes an access profile or entitlement if that access profile or entitlement is linked to a source that the ROLE_SUBADMIN is not associated with.  The maximum supported length for the description field is 2000 characters.
- * @summary Create a Dimension
+ * @summary Create a dimension
  * @param {DimensionsV2025ApiCreateDimensionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2246,7 +2280,7 @@ export const createDimension = (requestParameters: sdk.DimensionsV2025ApiCreateD
 }
 /**
  * This endpoint initiates a bulk deletion of one or more dimensions. When the request is successful, the endpoint returns the bulk delete\'s task result ID.  To follow the task, you can use [Get Task Status by ID](https://developer.sailpoint.com/docs/api/beta/get-task-status), which will return the task result\'s status and information.  This endpoint can only bulk delete up to a limit of 50 roles per request.  A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this endpoint. In addition, a token with ROLE_SUBADMIN authority can only call this endpoint if all dimensions included in the request are associated with sources with management workgroups the ROLE_SUBADMIN is a member of.
- * @summary Delete Dimension(s)
+ * @summary Delete dimension(s)
  * @param {DimensionsV2025ApiDeleteBulkDimensionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2257,7 +2291,7 @@ export const deleteBulkDimensions = (requestParameters: sdk.DimensionsV2025ApiDe
 }
 /**
  * This API deletes a Dimension by its ID. A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API. In addition, a token with ROLE_SUBADMIN authority may only call this API if all Access Profiles/Entitlements included in the Dimension are associated to Sources with management workgroups of which the ROLE_SUBADMIN is a member.
- * @summary Delete a Dimension
+ * @summary Delete a dimension
  * @param {DimensionsV2025ApiDeleteDimensionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2268,7 +2302,7 @@ export const deleteDimension = (requestParameters: sdk.DimensionsV2025ApiDeleteD
 }
 /**
  * This API returns a Dimension by its ID.  A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API. In addition, a token with ROLE_SUBADMIN authority may only call this API if all Access Profiles or Entitlements included in the Dimension or Parent Role are associated to Sources with management workgroups of which the ROLE_SUBADMIN is a member.
- * @summary Get a Dimension under Role.
+ * @summary Get a dimension under role.
  * @param {DimensionsV2025ApiGetDimensionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2279,7 +2313,7 @@ export const getDimension = (requestParameters: sdk.DimensionsV2025ApiGetDimensi
 }
 /**
  * This API lists the Entitlements associated with a given dimension.  A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API.
- * @summary List Dimension\'s Entitlements
+ * @summary List dimension\'s entitlements
  * @param {DimensionsV2025ApiGetDimensionEntitlementsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2290,7 +2324,7 @@ export const getDimensionEntitlements = (requestParameters: sdk.DimensionsV2025A
 }
 /**
  * This API lists the Access Profiles associated with a given Dimension  A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API. In addition, a token with ROLE_SUBADMIN authority may only call this API if all Access Profiles included in the Role are associated to Sources with management workgroups of which the ROLE_SUBADMIN is a member.
- * @summary List Dimension\'s Access Profiles
+ * @summary List dimension\'s access profiles
  * @param {DimensionsV2025ApiListDimensionAccessProfilesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2301,7 +2335,7 @@ export const listDimensionAccessProfiles = (requestParameters: sdk.DimensionsV20
 }
 /**
  * This API returns a list of dimensions under a specified role.  A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API.
- * @summary List Dimensions
+ * @summary List dimensions
  * @param {DimensionsV2025ApiListDimensionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2312,7 +2346,7 @@ export const listDimensions = (requestParameters: sdk.DimensionsV2025ApiListDime
 }
 /**
  * This API updates an existing dimension using [JSON Patch](https://tools.ietf.org/html/rfc6902) syntax. The following fields are patchable: **name** **description** **owner** **accessProfiles** **entitlements** **membership** A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API. In addition, a token with ROLE_SUBADMIN authority may only call this API if all access profiles/entitlements included in the dimension are associated to Sources with management workgroups of which the ROLE_SUBADMIN is a member. The maximum supported length for the description field is 2000 characters. When you use this API to modify a dimension\'s membership identities, you can only modify up to a limit of 500 membership identities at a time.
- * @summary Patch a specified Dimension
+ * @summary Patch a specified dimension
  * @param {DimensionsV2025ApiPatchDimensionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2357,7 +2391,7 @@ export const getEntitlement = (requestParameters: sdk.EntitlementsV2025ApiGetEnt
 }
 /**
  * This API returns the entitlement request config for a specified entitlement.
- * @summary Get Entitlement Request Config
+ * @summary Get entitlement request config
  * @param {EntitlementsV2025ApiGetEntitlementRequestConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2368,7 +2402,7 @@ export const getEntitlementRequestConfig = (requestParameters: sdk.EntitlementsV
 }
 /**
  * Starts an entitlement aggregation on the specified source. Though this endpoint has been deprecated, you can find its Beta equivalent [here](https://developer.sailpoint.com/docs/api/beta/import-entitlements).  If the target source is a direct connection, then the request body must be empty. You will also need to make sure the Content-Type header is not set. If you set the Content-Type header without specifying a body, then you will receive a 500 error.  If the target source is a delimited file source, then the CSV file needs to be included in the request body. You will also need to set the Content-Type header to `multipart/form-data`.
- * @summary Aggregate Entitlements
+ * @summary Aggregate entitlements
  * @param {EntitlementsV2025ApiImportEntitlementsBySourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @deprecated
@@ -2424,7 +2458,7 @@ export const patchEntitlement = (requestParameters: sdk.EntitlementsV2025ApiPatc
 }
 /**
  * This API replaces the entitlement request config for a specified entitlement.
- * @summary Replace Entitlement Request Config
+ * @summary Replace entitlement request config
  * @param {EntitlementsV2025ApiPutEntitlementRequestConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2435,7 +2469,7 @@ export const putEntitlementRequestConfig = (requestParameters: sdk.EntitlementsV
 }
 /**
  * Remove all entitlements from a specific source. To reload the accounts along with the entitlements you removed, you must run an unoptimized aggregation.  To do so, use [Account Aggregation](https://developer.sailpoint.com/docs/api/v2024/import-accounts/) with `disableOptimization` = `true`. 
- * @summary Reset Source Entitlements
+ * @summary Reset source entitlements
  * @param {EntitlementsV2025ApiResetSourceEntitlementsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2469,7 +2503,7 @@ export const createAuthOrgNetworkConfig = (requestParameters: sdk.GlobalTenantSe
 }
 /**
  * This API returns the details of an org\'s lockout auth configuration.
- * @summary Get Auth Org Lockout Configuration.
+ * @summary Get auth org lockout configuration.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -2489,7 +2523,7 @@ export const getAuthOrgNetworkConfig = (apiConfig: sdk.Configuration): Promise<A
 }
 /**
  * This API returns the details of an org\'s service provider auth configuration.
- * @summary Get Service Provider Configuration.
+ * @summary Get service provider configuration.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -2499,7 +2533,7 @@ export const getAuthOrgServiceProviderConfig = (apiConfig: sdk.Configuration): P
 }
 /**
  * This API returns the details of an org\'s session auth configuration.
- * @summary Get Auth Org Session Configuration.
+ * @summary Get auth org session configuration.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -2509,7 +2543,7 @@ export const getAuthOrgSessionConfig = (apiConfig: sdk.Configuration): Promise<A
 }
 /**
  * This API updates an existing lockout configuration for an org using PATCH 
- * @summary Update Auth Org Lockout Configuration
+ * @summary Update auth org lockout configuration
  * @param {GlobalTenantSecuritySettingsV2025ApiPatchAuthOrgLockoutConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2531,7 +2565,7 @@ export const patchAuthOrgNetworkConfig = (requestParameters: sdk.GlobalTenantSec
 }
 /**
  * This API updates an existing service provider configuration for an org using PATCH.
- * @summary Update Service Provider Configuration
+ * @summary Update service provider configuration
  * @param {GlobalTenantSecuritySettingsV2025ApiPatchAuthOrgServiceProviderConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2542,7 +2576,7 @@ export const patchAuthOrgServiceProviderConfig = (requestParameters: sdk.GlobalT
 }
 /**
  * This API updates an existing session configuration for an org using PATCH.
- * @summary Update Auth Org Session Configuration
+ * @summary Update auth org session configuration
  * @param {GlobalTenantSecuritySettingsV2025ApiPatchAuthOrgSessionConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2554,7 +2588,7 @@ export const patchAuthOrgSessionConfig = (requestParameters: sdk.GlobalTenantSec
 
 /**
  * This API creates a new Governance Group.
- * @summary Create a new Governance Group.
+ * @summary Create a new governance group.
  * @param {GovernanceGroupsV2025ApiCreateWorkgroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2565,7 +2599,7 @@ export const createWorkgroup = (requestParameters: sdk.GovernanceGroupsV2025ApiC
 }
 /**
  * This API deletes a Governance Group by its ID.
- * @summary Delete a Governance Group
+ * @summary Delete a governance group
  * @param {GovernanceGroupsV2025ApiDeleteWorkgroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2576,7 +2610,7 @@ export const deleteWorkgroup = (requestParameters: sdk.GovernanceGroupsV2025ApiD
 }
 /**
  * This API removes one or more  members from a Governance Group.  A >  **Following field of Identity is an optional field in the request.**  >  **name**
- * @summary Remove members from Governance Group
+ * @summary Remove members from governance group
  * @param {GovernanceGroupsV2025ApiDeleteWorkgroupMembersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2587,7 +2621,7 @@ export const deleteWorkgroupMembers = (requestParameters: sdk.GovernanceGroupsV2
 }
 /**
  *  This API initiates a bulk deletion of one or more Governance Groups.  >  If any of the indicated Governance Groups have one or more connections associated with it,then those Governance Groups will be added in  **inUse** list of the response. Governance Group(s) marked as **inUse** can not be deleted.  >  If any of the indicated Governance Groups is not does not exists in Organization,then those Governance Groups will be added in **notFound** list of the response. Governance Groups marked as **notFound** will not be deleted.  >  If any of the indicated Governance Groups does not have any connections associated with it,then those Governance Groups will be added in **deleted** list of the response. A Governance Group marked as **deleted** will be deleted from current Organization.  >  If the request contains any **inUse** or **notFound** Governance Group IDs then it skips only these Governance Groups for deletion and deletes the rest of Governance Groups which have no connections associated with it.   >  **This API has limit number of Governance Groups can be deleted at one time. If the request contains more then 100 Governance Groups IDs to be deleted then the API will throw an exception.**
- * @summary Delete Governance Group(s)
+ * @summary Delete governance group(s)
  * @param {GovernanceGroupsV2025ApiDeleteWorkgroupsInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2598,7 +2632,7 @@ export const deleteWorkgroupsInBulk = (requestParameters: sdk.GovernanceGroupsV2
 }
 /**
  * This API returns a Governance Groups by its ID.
- * @summary Get Governance Group by Id
+ * @summary Get governance group by id
  * @param {GovernanceGroupsV2025ApiGetWorkgroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2609,7 +2643,7 @@ export const getWorkgroup = (requestParameters: sdk.GovernanceGroupsV2025ApiGetW
 }
 /**
  * This API returns list of connections associated with a Governance Group.
- * @summary List connections for Governance Group
+ * @summary List connections for governance group
  * @param {GovernanceGroupsV2025ApiListConnectionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2620,7 +2654,7 @@ export const listConnections = (requestParameters: sdk.GovernanceGroupsV2025ApiL
 }
 /**
  * This API returns list of members associated with a Governance Group.
- * @summary List Governance Group Members
+ * @summary List governance group members
  * @param {GovernanceGroupsV2025ApiListWorkgroupMembersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2631,7 +2665,7 @@ export const listWorkgroupMembers = (requestParameters: sdk.GovernanceGroupsV202
 }
 /**
  * This API returns list of Governance Groups
- * @summary List Governance Groups
+ * @summary List governance groups
  * @param {GovernanceGroupsV2025ApiListWorkgroupsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2642,7 +2676,7 @@ export const listWorkgroups = (requestParameters: sdk.GovernanceGroupsV2025ApiLi
 }
 /**
  * This API updates an existing governance group by ID. The following fields and objects are patchable: * name * description * owner
- * @summary Patch a Governance Group
+ * @summary Patch a governance group
  * @param {GovernanceGroupsV2025ApiPatchWorkgroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2653,7 +2687,7 @@ export const patchWorkgroup = (requestParameters: sdk.GovernanceGroupsV2025ApiPa
 }
 /**
  * This API adds one or more members to a Governance Group.  A token with API, ORG_ADMIN authority is required to call this API.  >  **Following field of Identity is an optional field in the request.**  >  **name**
- * @summary Add members to Governance Group
+ * @summary Add members to governance group
  * @param {GovernanceGroupsV2025ApiUpdateWorkgroupMembersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2665,7 +2699,7 @@ export const updateWorkgroupMembers = (requestParameters: sdk.GovernanceGroupsV2
 
 /**
  * This API ignores a recommended access request item. Once an item is ignored, it will be marked as ignored=true if it is still a recommended item. The consumer can decide to hide ignored recommendations.
- * @summary Ignore Access Request Recommendation
+ * @summary Ignore access request recommendation
  * @param {IAIAccessRequestRecommendationsV2025ApiAddAccessRequestRecommendationsIgnoredItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2676,7 +2710,7 @@ export const addAccessRequestRecommendationsIgnoredItem = (requestParameters: sd
 }
 /**
  * This API consumes a notification that a recommended access request item was requested. This API does not actually make the request, it is just a notification. This will help provide feedback in order to improve our recommendations.
- * @summary Accept Access Request Recommendation
+ * @summary Accept access request recommendation
  * @param {IAIAccessRequestRecommendationsV2025ApiAddAccessRequestRecommendationsRequestedItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2687,7 +2721,7 @@ export const addAccessRequestRecommendationsRequestedItem = (requestParameters: 
 }
 /**
  * This API consumes a notification that a recommended access request item was viewed. Future recommendations with this item will be marked with viewed=true. This can be useful for the consumer to determine if there are any new/unviewed recommendations.
- * @summary Mark Viewed Access Request Recommendations
+ * @summary Mark viewed access request recommendations
  * @param {IAIAccessRequestRecommendationsV2025ApiAddAccessRequestRecommendationsViewedItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2698,7 +2732,7 @@ export const addAccessRequestRecommendationsViewedItem = (requestParameters: sdk
 }
 /**
  * This API consumes a notification that a set of recommended access request item were viewed. Future recommendations with these items will be marked with viewed=true. This can be useful for the consumer to determine if there are any new/unviewed recommendations.
- * @summary Bulk Mark Viewed Access Request Recommendations
+ * @summary Bulk mark viewed access request recommendations
  * @param {IAIAccessRequestRecommendationsV2025ApiAddAccessRequestRecommendationsViewedItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2709,7 +2743,7 @@ export const addAccessRequestRecommendationsViewedItems = (requestParameters: sd
 }
 /**
  * This API returns the access request recommendations for the specified identity. The default identity is *me* which indicates the current user.
- * @summary Identity Access Request Recommendations
+ * @summary Identity access request recommendations
  * @param {IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2720,7 +2754,7 @@ export const getAccessRequestRecommendations = (requestParameters: sdk.IAIAccess
 }
 /**
  * This API returns the configurations for Access Request Recommender for the tenant.
- * @summary Get Access Request Recommendations config
+ * @summary Get access request recommendations config
  * @param {IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2731,7 +2765,7 @@ export const getAccessRequestRecommendationsConfig = (requestParameters: sdk.IAI
 }
 /**
  * This API returns the list of ignored access request recommendations.
- * @summary List Ignored Access Request Recommendations
+ * @summary List ignored access request recommendations
  * @param {IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsIgnoredItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2742,7 +2776,7 @@ export const getAccessRequestRecommendationsIgnoredItems = (requestParameters: s
 }
 /**
  * This API returns a list of requested access request recommendations.
- * @summary List Accepted Access Request Recommendations
+ * @summary List accepted access request recommendations
  * @param {IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsRequestedItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2753,7 +2787,7 @@ export const getAccessRequestRecommendationsRequestedItems = (requestParameters:
 }
 /**
  * This API returns the list of viewed access request recommendations.
- * @summary List Viewed Access Request Recommendations
+ * @summary List viewed access request recommendations
  * @param {IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsViewedItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2764,7 +2798,7 @@ export const getAccessRequestRecommendationsViewedItems = (requestParameters: sd
 }
 /**
  * This API updates the configurations for Access Request Recommender for the tenant.
- * @summary Update Access Request Recommendations config
+ * @summary Update access request recommendations config
  * @param {IAIAccessRequestRecommendationsV2025ApiSetAccessRequestRecommendationsConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2810,7 +2844,7 @@ export const updateCommonAccessStatusInBulk = (requestParameters: sdk.IAICommonA
 
 /**
  * This API exports a list of ignored outliers to a CSV as well as list of non-ignored outliers to a CSV. These two CSVs will be zipped and exported.  Columns will include: identityId, type, firstDetectionDate, latestDetectionDate, ignored, & attributes (defined set of identity attributes). 
- * @summary IAI Identity Outliers Export
+ * @summary Iai identity outliers export
  * @param {IAIOutliersV2025ApiExportOutliersZipRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2821,7 +2855,7 @@ export const exportOutliersZip = (requestParameters: sdk.IAIOutliersV2025ApiExpo
 }
 /**
  * This API returns a summary containing the number of identities that customer has, the number of outliers, and the type of outlier.
- * @summary IAI Identity Outliers Summary
+ * @summary Iai identity outliers summary
  * @param {IAIOutliersV2025ApiGetIdentityOutlierSnapshotsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2832,7 +2866,7 @@ export const getIdentityOutlierSnapshots = (requestParameters: sdk.IAIOutliersV2
 }
 /**
  * This API returns a list of outliers, containing data such as identity ID, outlier type, detection dates, identity attributes, if identity is ignored, and certification information.
- * @summary IAI Get Identity Outliers
+ * @summary Iai get identity outliers
  * @param {IAIOutliersV2025ApiGetIdentityOutliersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2843,7 +2877,7 @@ export const getIdentityOutliers = (requestParameters: sdk.IAIOutliersV2025ApiGe
 }
 /**
  * This API returns a most recent snapshot of each outlier type, each containing the number of identities that customer has, the number of outliers, and the type of outlier.
- * @summary IAI Identity Outliers Latest Summary
+ * @summary Iai identity outliers latest summary
  * @param {IAIOutliersV2025ApiGetLatestIdentityOutlierSnapshotsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2876,7 +2910,7 @@ export const getPeerGroupOutliersContributingFeatures = (requestParameters: sdk.
 }
 /**
  * This API receives a list of identity IDs in the request, changes the outliers to be ignored.
- * @summary IAI Identity Outliers Ignore
+ * @summary Iai identity outliers ignore
  * @param {IAIOutliersV2025ApiIgnoreIdentityOutliersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2898,7 +2932,7 @@ export const listOutliersContributingFeatureAccessItems = (requestParameters: sd
 }
 /**
  * This API receives a list of identity IDs in the request, changes the outliers to be un-ignored.
- * @summary IAI Identity Outliers Unignore
+ * @summary Iai identity outliers unignore
  * @param {IAIOutliersV2025ApiUnIgnoreIdentityOutliersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -2910,7 +2944,7 @@ export const unIgnoreIdentityOutliers = (requestParameters: sdk.IAIOutliersV2025
 
 /**
  * -- Deprecated : See \'IAI Outliers\' This API will be used by Identity Governance systems to identify identities that are not included in an organization\'s peer groups. By default, 250 identities are returned. You can specify between 1 and 1000 number of identities that can be returned.
- * @summary Identity Outliers List
+ * @summary Identity outliers list
  * @param {IAIPeerGroupStrategiesV2025ApiGetPeerGroupOutliersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @deprecated
@@ -2923,7 +2957,7 @@ export const getPeerGroupOutliers = (requestParameters: sdk.IAIPeerGroupStrategi
 
 /**
  * The getRecommendations API returns recommendations based on the requested object. The recommendations are invoked by IdentityIQ and IdentityNow plug-ins that retrieve recommendations based on the performed calculations.
- * @summary Returns Recommendation Based on Object
+ * @summary Returns recommendation based on object
  * @param {IAIRecommendationsV2025ApiGetRecommendationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3267,7 +3301,7 @@ export const deleteIdentity = (requestParameters: sdk.IdentitiesV2025ApiDeleteId
 }
 /**
  * This API returns a single identity using the Identity ID.
- * @summary Identity Details
+ * @summary Identity details
  * @param {IdentitiesV2025ApiGetIdentityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3311,7 +3345,7 @@ export const getRoleAssignments = (requestParameters: sdk.IdentitiesV2025ApiGetR
 }
 /**
  * This API returns a list of identities.
- * @summary List Identities
+ * @summary List identities
  * @param {IdentitiesV2025ApiListIdentitiesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3355,7 +3389,7 @@ export const startIdentitiesInvite = (requestParameters: sdk.IdentitiesV2025ApiS
 }
 /**
  * This operation should not be used to schedule your own identity processing or to perform system wide identity refreshes. The system will use a combination of [event-based processing](https://documentation.sailpoint.com/saas/help/setup/identity_processing.html?h=process#event-based-processing) and [scheduled processing](https://documentation.sailpoint.com/saas/help/setup/identity_processing.html?h=process#scheduled-processing) that runs every day at 8:00 AM and 8:00 PM in the tenant\'s timezone to keep your identities synchronized.   This endpoint will perform the following tasks: 1. Calculate identity attributes, including applying or running any rules or transforms (e.g. calculate Lifecycle State at a point-in-time it\'s expected to change). 2. Evaluate role assignments, leading to assignment of new roles and removal of existing roles. 3. Enforce provisioning for any assigned accesses that haven\'t been fulfilled (e.g. failure due to source health). 4. Recalculate manager relationships. 5. Potentially clean-up identity processing errors, assuming the error has been resolved.
- * @summary Process a list of identityIds
+ * @summary Process a list of identityids
  * @param {IdentitiesV2025ApiStartIdentityProcessingRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3378,7 +3412,7 @@ export const synchronizeAttributesForIdentity = (requestParameters: sdk.Identiti
 
 /**
  * Use this API to create a new identity attribute.
- * @summary Create Identity Attribute
+ * @summary Create identity attribute
  * @param {IdentityAttributesV2025ApiCreateIdentityAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3389,7 +3423,7 @@ export const createIdentityAttribute = (requestParameters: sdk.IdentityAttribute
 }
 /**
  * This deletes an identity attribute with the given name.  The `system` and `standard` properties must be set to false before you can delete an identity attribute.
- * @summary Delete Identity Attribute
+ * @summary Delete identity attribute
  * @param {IdentityAttributesV2025ApiDeleteIdentityAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3400,7 +3434,7 @@ export const deleteIdentityAttribute = (requestParameters: sdk.IdentityAttribute
 }
 /**
  * Use this API to bulk delete identity attributes for a given set of names. Attributes that are currently mapped in an identity profile cannot be deleted.  The `system` and `standard` properties must be set to \'false\' before you can delete an identity attribute.
- * @summary Bulk delete Identity Attributes
+ * @summary Bulk delete identity attributes
  * @param {IdentityAttributesV2025ApiDeleteIdentityAttributesInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3411,7 +3445,7 @@ export const deleteIdentityAttributesInBulk = (requestParameters: sdk.IdentityAt
 }
 /**
  * This gets an identity attribute for a given technical name.
- * @summary Get Identity Attribute
+ * @summary Get identity attribute
  * @param {IdentityAttributesV2025ApiGetIdentityAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3422,7 +3456,7 @@ export const getIdentityAttribute = (requestParameters: sdk.IdentityAttributesV2
 }
 /**
  * Use this API to get a collection of identity attributes.
- * @summary List Identity Attributes
+ * @summary List identity attributes
  * @param {IdentityAttributesV2025ApiListIdentityAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3433,7 +3467,7 @@ export const listIdentityAttributes = (requestParameters: sdk.IdentityAttributes
 }
 /**
  * This updates an existing identity attribute.  Making an attribute searchable requires that the `system`, `standard`, and `multi` properties be set to false.
- * @summary Update Identity Attribute
+ * @summary Update identity attribute
  * @param {IdentityAttributesV2025ApiPutIdentityAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3456,7 +3490,7 @@ export const compareIdentitySnapshots = (requestParameters: sdk.IdentityHistoryV
 }
 /**
  * This method gets a list of differences of specific accessType for the given identity between 2 snapshots Requires authorization scope of \'idn:identity-history:read\' 
- * @summary Gets a list of differences of specific accessType for the given identity between 2 snapshots
+ * @summary Gets a list of differences of specific accesstype for the given identity between 2 snapshots
  * @param {IdentityHistoryV2025ApiCompareIdentitySnapshotsAccessTypeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3533,7 +3567,7 @@ export const listHistoricalIdentities = (requestParameters: sdk.IdentityHistoryV
 }
 /**
  * This method retrieves a list of access item for the identity filtered by the access item type 
- * @summary List Access Items by Identity
+ * @summary List access items by identity
  * @param {IdentityHistoryV2025ApiListIdentityAccessItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3567,7 +3601,7 @@ export const listIdentitySnapshots = (requestParameters: sdk.IdentityHistoryV202
 
 /**
  * Creates an identity profile.    
- * @summary Create Identity Profile
+ * @summary Create identity profile
  * @param {IdentityProfilesV2025ApiCreateIdentityProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3578,7 +3612,7 @@ export const createIdentityProfile = (requestParameters: sdk.IdentityProfilesV20
 }
 /**
  * Delete an identity profile by ID. On success, this endpoint will return a reference to the bulk delete task result.
- * @summary Delete Identity Profile
+ * @summary Delete identity profile
  * @param {IdentityProfilesV2025ApiDeleteIdentityProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3589,7 +3623,7 @@ export const deleteIdentityProfile = (requestParameters: sdk.IdentityProfilesV20
 }
 /**
  * This deletes multiple Identity Profiles via a list of supplied IDs.  On success, this endpoint will return a reference to the bulk delete task result.  The following rights are required to access this endpoint: idn:identity-profile:delete
- * @summary Delete Identity Profiles
+ * @summary Delete identity profiles
  * @param {IdentityProfilesV2025ApiDeleteIdentityProfilesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3600,7 +3634,7 @@ export const deleteIdentityProfiles = (requestParameters: sdk.IdentityProfilesV2
 }
 /**
  * This exports existing identity profiles in the format specified by the sp-config service.
- * @summary Export Identity Profiles
+ * @summary Export identity profiles
  * @param {IdentityProfilesV2025ApiExportIdentityProfilesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3611,7 +3645,7 @@ export const exportIdentityProfiles = (requestParameters: sdk.IdentityProfilesV2
 }
 /**
  * This generates a non-persisted IdentityDetails object that will represent as the preview of the identities attribute when the given policy\'\'s attribute config is applied.
- * @summary Generate Identity Profile Preview
+ * @summary Generate identity profile preview
  * @param {IdentityProfilesV2025ApiGenerateIdentityPreviewRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3622,7 +3656,7 @@ export const generateIdentityPreview = (requestParameters: sdk.IdentityProfilesV
 }
 /**
  * This returns the default identity attribute config.
- * @summary Get default Identity Attribute Config
+ * @summary Get default identity attribute config
  * @param {IdentityProfilesV2025ApiGetDefaultIdentityAttributeConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3633,7 +3667,7 @@ export const getDefaultIdentityAttributeConfig = (requestParameters: sdk.Identit
 }
 /**
  * Get a single identity profile by ID.
- * @summary Get Identity Profile
+ * @summary Get identity profile
  * @param {IdentityProfilesV2025ApiGetIdentityProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3644,7 +3678,7 @@ export const getIdentityProfile = (requestParameters: sdk.IdentityProfilesV2025A
 }
 /**
  * This imports previously exported identity profiles.
- * @summary Import Identity Profiles
+ * @summary Import identity profiles
  * @param {IdentityProfilesV2025ApiImportIdentityProfilesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3655,7 +3689,7 @@ export const importIdentityProfiles = (requestParameters: sdk.IdentityProfilesV2
 }
 /**
  * Get a list of identity profiles, based on the specified query parameters.
- * @summary List Identity Profiles
+ * @summary List identity profiles
  * @param {IdentityProfilesV2025ApiListIdentityProfilesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3677,7 +3711,7 @@ export const syncIdentityProfile = (requestParameters: sdk.IdentityProfilesV2025
 }
 /**
  * Update a specified identity profile with this PATCH request.    You cannot update these fields: * id * created * modified * identityCount * identityRefreshRequired * Authoritative Source and Identity Attribute Configuration cannot be modified at the same time.
- * @summary Update Identity Profile
+ * @summary Update identity profile
  * @param {IdentityProfilesV2025ApiUpdateIdentityProfileRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3689,7 +3723,7 @@ export const updateIdentityProfile = (requestParameters: sdk.IdentityProfilesV20
 
 /**
  * Use this endpoint to create a lifecycle state.
- * @summary Create Lifecycle State
+ * @summary Create lifecycle state
  * @param {LifecycleStatesV2025ApiCreateLifecycleStateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3699,8 +3733,8 @@ export const createLifecycleState = (requestParameters: sdk.LifecycleStatesV2025
     return handleApiCall(() => lifecyclestatesv2025api.createLifecycleState(requestParameters));
 }
 /**
- * Use this endpoint to delete the lifecycle state by its ID. 
- * @summary Delete Lifecycle State
+ * Use this endpoint to delete the lifecycle state by its ID.
+ * @summary Delete lifecycle state
  * @param {LifecycleStatesV2025ApiDeleteLifecycleStateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3710,8 +3744,8 @@ export const deleteLifecycleState = (requestParameters: sdk.LifecycleStatesV2025
     return handleApiCall(() => lifecyclestatesv2025api.deleteLifecycleState(requestParameters));
 }
 /**
- * Use this endpoint to get a lifecycle state by its ID and its associated identity profile ID. 
- * @summary Get Lifecycle State
+ * Use this endpoint to get a lifecycle state by its ID and its associated identity profile ID.
+ * @summary Get lifecycle state
  * @param {LifecycleStatesV2025ApiGetLifecycleStateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3722,7 +3756,7 @@ export const getLifecycleState = (requestParameters: sdk.LifecycleStatesV2025Api
 }
 /**
  * Use this endpoint to list all lifecycle states by their associated identity profiles. 
- * @summary Lists LifecycleStates
+ * @summary Lists lifecyclestates
  * @param {LifecycleStatesV2025ApiGetLifecycleStatesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3733,7 +3767,7 @@ export const getLifecycleStates = (requestParameters: sdk.LifecycleStatesV2025Ap
 }
 /**
  * Use this API to set/update an identity\'s lifecycle state to the one provided and update the corresponding identity profile.
- * @summary Set Lifecycle State
+ * @summary Set lifecycle state
  * @param {LifecycleStatesV2025ApiSetLifecycleStateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3744,7 +3778,7 @@ export const setLifecycleState = (requestParameters: sdk.LifecycleStatesV2025Api
 }
 /**
  * Use this endpoint to update individual lifecycle state fields, using the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard.
- * @summary Update Lifecycle State
+ * @summary Update lifecycle state
  * @param {LifecycleStatesV2025ApiUpdateLifecycleStatesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3756,7 +3790,7 @@ export const updateLifecycleStates = (requestParameters: sdk.LifecycleStatesV202
 
 /**
  * This API returns the configuration of an Duo MFA method.
- * @summary Configuration of Duo MFA method
+ * @summary Configuration of duo mfa method
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -3766,7 +3800,7 @@ export const getMFADuoConfig = (apiConfig: sdk.Configuration): Promise<ApiRespon
 }
 /**
  * This API returns the KBA configuration for MFA.
- * @summary Configuration of KBA MFA method
+ * @summary Configuration of kba mfa method
  * @param {MFAConfigurationV2025ApiGetMFAKbaConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3777,7 +3811,7 @@ export const getMFAKbaConfig = (requestParameters: sdk.MFAConfigurationV2025ApiG
 }
 /**
  * This API returns the configuration of an Okta MFA method.
- * @summary Configuration of Okta MFA method
+ * @summary Configuration of okta mfa method
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -3787,7 +3821,7 @@ export const getMFAOktaConfig = (apiConfig: sdk.Configuration): Promise<ApiRespo
 }
 /**
  * This API sets the configuration of an Duo MFA method.
- * @summary Set Duo MFA configuration
+ * @summary Set duo mfa configuration
  * @param {MFAConfigurationV2025ApiSetMFADuoConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3798,7 +3832,7 @@ export const setMFADuoConfig = (requestParameters: sdk.MFAConfigurationV2025ApiS
 }
 /**
  * This API sets answers to challenge questions.  Any configured questions omitted from the request are removed from user KBA configuration.    
- * @summary Set MFA KBA configuration
+ * @summary Set mfa kba configuration
  * @param {MFAConfigurationV2025ApiSetMFAKBAConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3809,7 +3843,7 @@ export const setMFAKBAConfig = (requestParameters: sdk.MFAConfigurationV2025ApiS
 }
 /**
  * This API sets the configuration of an Okta MFA method.
- * @summary Set Okta MFA configuration
+ * @summary Set okta mfa configuration
  * @param {MFAConfigurationV2025ApiSetMFAOktaConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3820,7 +3854,7 @@ export const setMFAOktaConfig = (requestParameters: sdk.MFAConfigurationV2025Api
 }
 /**
  * This API validates that the configuration is valid and will properly authenticate with the MFA provider identified by the method path parameter.
- * @summary MFA method\'s test configuration
+ * @summary Mfa method\'s test configuration
  * @param {MFAConfigurationV2025ApiTestMFAConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3831,8 +3865,65 @@ export const testMFAConfig = (requestParameters: sdk.MFAConfigurationV2025ApiTes
 }
 
 /**
+ * Use this API to classify a single machine account. A token with API, ORG_ADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Classify a Single Machine Account
+ * @param {MachineAccountClassifyV2025ApiSendClassifyMachineAccountRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const sendClassifyMachineAccount = (requestParameters: sdk.MachineAccountClassifyV2025ApiSendClassifyMachineAccountRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SendClassifyMachineAccount200ResponseV2025>> => {
+    const machineaccountclassifyv2025api = new sdk.MachineAccountClassifyV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountclassifyv2025api.sendClassifyMachineAccount(requestParameters));
+}
+
+/**
+ * Creates Machine Account Mappings for both identities and accounts for a source. A token with API, ORG_ADMIN, ROLE_ADMIN, ROLE_SUBADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Create machine account mappings
+ * @param {MachineAccountMappingsV2025ApiCreateMachineAccountMappingsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const createMachineAccountMappings = (requestParameters: sdk.MachineAccountMappingsV2025ApiCreateMachineAccountMappingsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AttributeMappingsV2025>>> => {
+    const machineaccountmappingsv2025api = new sdk.MachineAccountMappingsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountmappingsv2025api.createMachineAccountMappings(requestParameters));
+}
+/**
+ * Use this API to remove machine account attribute mappings for a Source.  A token with ORG_ADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Delete source\'s machine account mappings
+ * @param {MachineAccountMappingsV2025ApiDeleteMachineAccountMappingsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const deleteMachineAccountMappings = (requestParameters: sdk.MachineAccountMappingsV2025ApiDeleteMachineAccountMappingsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<void>> => {
+    const machineaccountmappingsv2025api = new sdk.MachineAccountMappingsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountmappingsv2025api.deleteMachineAccountMappings(requestParameters));
+}
+/**
+ * Retrieves Machine account mappings for a specified source using Source ID.
+ * @summary Machine account mapping for source
+ * @param {MachineAccountMappingsV2025ApiListMachineAccountMappingsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const listMachineAccountMappings = (requestParameters: sdk.MachineAccountMappingsV2025ApiListMachineAccountMappingsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AttributeMappingsV2025>>> => {
+    const machineaccountmappingsv2025api = new sdk.MachineAccountMappingsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountmappingsv2025api.listMachineAccountMappings(requestParameters));
+}
+/**
+ * Use this API to update Machine Account Attribute Mapping for a Source. A token with ORG_ADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Update Source\'s Machine Account Mappings
+ * @param {MachineAccountMappingsV2025ApiSetMachineAccountMappingsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const setMachineAccountMappings = (requestParameters: sdk.MachineAccountMappingsV2025ApiSetMachineAccountMappingsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AttributeMappingsV2025>>> => {
+    const machineaccountmappingsv2025api = new sdk.MachineAccountMappingsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountmappingsv2025api.setMachineAccountMappings(requestParameters));
+}
+
+/**
  * Use this API to return the details for a single machine account by its ID.  
- * @summary Machine Account Details
+ * @summary Machine account details
  * @param {MachineAccountsV2025ApiGetMachineAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3843,7 +3934,7 @@ export const getMachineAccount = (requestParameters: sdk.MachineAccountsV2025Api
 }
 /**
  * This returns a list of machine accounts.  
- * @summary Machine Accounts List
+ * @summary Machine accounts list
  * @param {MachineAccountsV2025ApiListMachineAccountsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3854,7 +3945,7 @@ export const listMachineAccounts = (requestParameters: sdk.MachineAccountsV2025A
 }
 /**
  * Use this API to update machine accounts details.  
- * @summary Update a Machine Account
+ * @summary Update a machine account
  * @param {MachineAccountsV2025ApiUpdateMachineAccountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3865,8 +3956,42 @@ export const updateMachineAccount = (requestParameters: sdk.MachineAccountsV2025
 }
 
 /**
+ * Use this API to remove Classification Config for a Source.  A token with ORG_ADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Delete source\'s classification config
+ * @param {MachineClassificationConfigV2025ApiDeleteMachineClassificationConfigRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const deleteMachineClassificationConfig = (requestParameters: sdk.MachineClassificationConfigV2025ApiDeleteMachineClassificationConfigRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<void>> => {
+    const machineclassificationconfigv2025api = new sdk.MachineClassificationConfigV2025Api(apiConfig);
+    return handleApiCall(() => machineclassificationconfigv2025api.deleteMachineClassificationConfig(requestParameters));
+}
+/**
+ * This API returns a Machine Classification Config for a Source using Source ID.
+ * @summary Machine classification config for source
+ * @param {MachineClassificationConfigV2025ApiGetMachineClassificationConfigRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const getMachineClassificationConfig = (requestParameters: sdk.MachineClassificationConfigV2025ApiGetMachineClassificationConfigRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.MachineClassificationConfigV2025>> => {
+    const machineclassificationconfigv2025api = new sdk.MachineClassificationConfigV2025Api(apiConfig);
+    return handleApiCall(() => machineclassificationconfigv2025api.getMachineClassificationConfig(requestParameters));
+}
+/**
+ * Use this API to update Classification Config for a Source. A token with ORG_ADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Update source\'s classification config
+ * @param {MachineClassificationConfigV2025ApiSetMachineClassificationConfigRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const setMachineClassificationConfig = (requestParameters: sdk.MachineClassificationConfigV2025ApiSetMachineClassificationConfigRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.MachineClassificationConfigV2025>> => {
+    const machineclassificationconfigv2025api = new sdk.MachineClassificationConfigV2025Api(apiConfig);
+    return handleApiCall(() => machineclassificationconfigv2025api.setMachineClassificationConfig(requestParameters));
+}
+
+/**
  * Use this API to create a machine identity. The maximum supported length for the description field is 2000 characters.
- * @summary Create Machine Identities
+ * @summary Create machine identities
  * @param {MachineIdentitiesV2025ApiCreateMachineIdentityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3888,7 +4013,7 @@ export const deleteMachineIdentity = (requestParameters: sdk.MachineIdentitiesV2
 }
 /**
  * This API returns a single machine identity using the Machine Identity ID.
- * @summary Machine Identity Details
+ * @summary Machine identity details
  * @param {MachineIdentitiesV2025ApiGetMachineIdentityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3899,7 +4024,7 @@ export const getMachineIdentity = (requestParameters: sdk.MachineIdentitiesV2025
 }
 /**
  * This API returns a list of machine identities.
- * @summary List Machine Identities
+ * @summary List machine identities
  * @param {MachineIdentitiesV2025ApiListMachineIdentitiesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3910,7 +4035,7 @@ export const listMachineIdentities = (requestParameters: sdk.MachineIdentitiesV2
 }
 /**
  * Use this API to update machine identity details. 
- * @summary Update a Machine Identity
+ * @summary Update a machine identity
  * @param {MachineIdentitiesV2025ApiUpdateMachineIdentityRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3922,7 +4047,7 @@ export const updateMachineIdentity = (requestParameters: sdk.MachineIdentitiesV2
 
 /**
  * Create a new managed client. The API returns a result that includes the managed client ID.
- * @summary Create Managed Client
+ * @summary Create managed client
  * @param {ManagedClientsV2025ApiCreateManagedClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3933,7 +4058,7 @@ export const createManagedClient = (requestParameters: sdk.ManagedClientsV2025Ap
 }
 /**
  * Delete an existing managed client.
- * @summary Delete Managed Client
+ * @summary Delete managed client
  * @param {ManagedClientsV2025ApiDeleteManagedClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3944,7 +4069,7 @@ export const deleteManagedClient = (requestParameters: sdk.ManagedClientsV2025Ap
 }
 /**
  * Get managed client by ID. 
- * @summary Get Managed Client
+ * @summary Get managed client
  * @param {ManagedClientsV2025ApiGetManagedClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3955,7 +4080,7 @@ export const getManagedClient = (requestParameters: sdk.ManagedClientsV2025ApiGe
 }
 /**
  * Get a managed client\'s status, using its ID.
- * @summary Get Managed Client Status
+ * @summary Get managed client status
  * @param {ManagedClientsV2025ApiGetManagedClientStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3966,7 +4091,7 @@ export const getManagedClientStatus = (requestParameters: sdk.ManagedClientsV202
 }
 /**
  * List managed clients.
- * @summary Get Managed Clients
+ * @summary Get managed clients
  * @param {ManagedClientsV2025ApiGetManagedClientsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3977,7 +4102,7 @@ export const getManagedClients = (requestParameters: sdk.ManagedClientsV2025ApiG
 }
 /**
  * Update an existing managed client.
- * @summary Update Managed Client
+ * @summary Update managed client
  * @param {ManagedClientsV2025ApiUpdateManagedClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3989,7 +4114,7 @@ export const updateManagedClient = (requestParameters: sdk.ManagedClientsV2025Ap
 
 /**
  * Create a new Managed Cluster Type.  The API returns a result that includes the Managed Cluster Type ID
- * @summary Create new Managed Cluster Type
+ * @summary Create new managed cluster type
  * @param {ManagedClusterTypesV2025ApiCreateManagedClusterTypeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4000,7 +4125,7 @@ export const createManagedClusterType = (requestParameters: sdk.ManagedClusterTy
 }
 /**
  * Delete an existing Managed Cluster Type.
- * @summary Delete a Managed Cluster Type
+ * @summary Delete a managed cluster type
  * @param {ManagedClusterTypesV2025ApiDeleteManagedClusterTypeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4011,7 +4136,7 @@ export const deleteManagedClusterType = (requestParameters: sdk.ManagedClusterTy
 }
 /**
  * Get a Managed Cluster Type.
- * @summary Get a Managed Cluster Type
+ * @summary Get a managed cluster type
  * @param {ManagedClusterTypesV2025ApiGetManagedClusterTypeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4022,7 +4147,7 @@ export const getManagedClusterType = (requestParameters: sdk.ManagedClusterTypes
 }
 /**
  * Get a list of Managed Cluster Types.
- * @summary List Managed Cluster Types
+ * @summary List managed cluster types
  * @param {ManagedClusterTypesV2025ApiGetManagedClusterTypesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4033,7 +4158,7 @@ export const getManagedClusterTypes = (requestParameters: sdk.ManagedClusterType
 }
 /**
  * Update an existing Managed Cluster Type.
- * @summary Update a Managed Cluster Type
+ * @summary Update a managed cluster type
  * @param {ManagedClusterTypesV2025ApiUpdateManagedClusterTypeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4045,7 +4170,7 @@ export const updateManagedClusterType = (requestParameters: sdk.ManagedClusterTy
 
 /**
  * Create a new Managed Cluster. The API returns a result that includes the managed cluster ID.
- * @summary Create Create Managed Cluster
+ * @summary Create create managed cluster
  * @param {ManagedClustersV2025ApiCreateManagedClusterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4056,7 +4181,7 @@ export const createManagedCluster = (requestParameters: sdk.ManagedClustersV2025
 }
 /**
  * Delete an existing managed cluster.
- * @summary Delete Managed Cluster
+ * @summary Delete managed cluster
  * @param {ManagedClustersV2025ApiDeleteManagedClusterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4067,7 +4192,7 @@ export const deleteManagedCluster = (requestParameters: sdk.ManagedClustersV2025
 }
 /**
  * Get a managed cluster\'s log configuration.
- * @summary Get Managed Cluster Log Configuration
+ * @summary Get managed cluster log configuration
  * @param {ManagedClustersV2025ApiGetClientLogConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4078,7 +4203,7 @@ export const getClientLogConfiguration = (requestParameters: sdk.ManagedClusters
 }
 /**
  * Get a managed cluster by ID.
- * @summary Get Managed Cluster
+ * @summary Get managed cluster
  * @param {ManagedClustersV2025ApiGetManagedClusterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4089,7 +4214,7 @@ export const getManagedCluster = (requestParameters: sdk.ManagedClustersV2025Api
 }
 /**
  * List current organization\'s managed clusters, based on request context.
- * @summary Get Managed Clusters
+ * @summary Get managed clusters
  * @param {ManagedClustersV2025ApiGetManagedClustersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4100,7 +4225,7 @@ export const getManagedClusters = (requestParameters: sdk.ManagedClustersV2025Ap
 }
 /**
  * Update a managed cluster\'s log configuration. You may only specify one of `durationMinutes` or `expiration`, up to 1440 minutes (24 hours) in the future. If neither is specified, the default value for `durationMinutes` is 240.
- * @summary Update Managed Cluster Log Configuration
+ * @summary Update managed cluster log configuration
  * @param {ManagedClustersV2025ApiPutClientLogConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4111,7 +4236,7 @@ export const putClientLogConfiguration = (requestParameters: sdk.ManagedClusters
 }
 /**
  * Trigger Manual Upgrade for Managed Cluster. AMS Security: API, Internal A token with SYSTEM_ADMINISTRATOR authority is required to call this API.
- * @summary Trigger Manual Upgrade for Managed Cluster
+ * @summary Trigger manual upgrade for managed cluster
  * @param {ManagedClustersV2025ApiUpdateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4122,7 +4247,7 @@ export const update = (requestParameters: sdk.ManagedClustersV2025ApiUpdateReque
 }
 /**
  * Update an existing managed cluster.
- * @summary Update Managed Cluster
+ * @summary Update managed cluster
  * @param {ManagedClustersV2025ApiUpdateManagedClusterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4134,7 +4259,7 @@ export const updateManagedCluster = (requestParameters: sdk.ManagedClustersV2025
 
 /**
  * This API is used to create Multi-Host Integration. Multi-host Integration holds similar types of sources.  A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary Create Multi-Host Integration
+ * @summary Create multi-host integration
  * @param {MultiHostIntegrationV2025ApiCreateMultiHostIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4145,7 +4270,7 @@ export const createMultiHostIntegration = (requestParameters: sdk.MultiHostInteg
 }
 /**
  * This API is used to create sources within Multi-Host Integration. Multi-Host Integration holds similar types of sources.  A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary Create Sources Within Multi-Host Integration
+ * @summary Create sources within multi-host integration
  * @param {MultiHostIntegrationV2025ApiCreateSourcesWithinMultiHostRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4156,7 +4281,7 @@ export const createSourcesWithinMultiHost = (requestParameters: sdk.MultiHostInt
 }
 /**
  * Delete an existing Multi-Host Integration by ID.    A token with Org Admin or Multi Host Admin authority is required to access this endpoint.
- * @summary Delete Multi-Host Integration
+ * @summary Delete multi-host integration
  * @param {MultiHostIntegrationV2025ApiDeleteMultiHostRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4167,7 +4292,7 @@ export const deleteMultiHost = (requestParameters: sdk.MultiHostIntegrationV2025
 }
 /**
  * This API will return array of account aggregation groups within provided Multi-Host Integration ID. A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary List Account-Aggregation-Groups by Multi-Host ID
+ * @summary List account-aggregation-groups by multi-host id
  * @param {MultiHostIntegrationV2025ApiGetAcctAggregationGroupsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4178,7 +4303,7 @@ export const getAcctAggregationGroups = (requestParameters: sdk.MultiHostIntegra
 }
 /**
  * This API will return array of aggregation groups within provided Multi-Host Integration ID.    A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary List Entitlement-Aggregation-Groups by Integration ID
+ * @summary List entitlement-aggregation-groups by integration id
  * @param {MultiHostIntegrationV2025ApiGetEntitlementAggregationGroupsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4189,7 +4314,7 @@ export const getEntitlementAggregationGroups = (requestParameters: sdk.MultiHost
 }
 /**
  * Get an existing Multi-Host Integration.   A token with Org Admin or Multi-Host Integration Admin authority is required to access this endpoint.
- * @summary Get Multi-Host Integration By ID
+ * @summary Get multi-host integration by id
  * @param {MultiHostIntegrationV2025ApiGetMultiHostIntegrationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4200,7 +4325,7 @@ export const getMultiHostIntegrations = (requestParameters: sdk.MultiHostIntegra
 }
 /**
  * Get a list of Multi-Host Integrations.    A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary List All Existing Multi-Host Integrations
+ * @summary List all existing multi-host integrations
  * @param {MultiHostIntegrationV2025ApiGetMultiHostIntegrationsListRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4211,7 +4336,7 @@ export const getMultiHostIntegrationsList = (requestParameters: sdk.MultiHostInt
 }
 /**
  * Get a list of sources creation errors within Multi-Host Integration ID.    A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary List Multi-Host Source Creation Errors
+ * @summary List multi-host source creation errors
  * @param {MultiHostIntegrationV2025ApiGetMultiHostSourceCreationErrorsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4222,7 +4347,7 @@ export const getMultiHostSourceCreationErrors = (requestParameters: sdk.MultiHos
 }
 /**
  * This API endpoint returns the current list of supported Multi-Host Integration types.    A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary List Multi-Host Integration Types
+ * @summary List multi-host integration types
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -4232,7 +4357,7 @@ export const getMultihostIntegrationTypes = (apiConfig: sdk.Configuration): Prom
 }
 /**
  * Get a list of sources within Multi-Host Integration ID.    A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary List Sources Within Multi-Host Integration
+ * @summary List sources within multi-host integration
  * @param {MultiHostIntegrationV2025ApiGetSourcesWithinMultiHostRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4243,7 +4368,7 @@ export const getSourcesWithinMultiHost = (requestParameters: sdk.MultiHostIntegr
 }
 /**
  * This endpoint performs a more detailed validation of the Multi-Host Integration\'s configuration.  A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary Test Configuration For Multi-Host Integration
+ * @summary Test configuration for multi-host integration
  * @param {MultiHostIntegrationV2025ApiTestConnectionMultiHostSourcesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4254,7 +4379,7 @@ export const testConnectionMultiHostSources = (requestParameters: sdk.MultiHostI
 }
 /**
  * This endpoint performs a more detailed validation of the source\'s configuration.    A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary Test Configuration For Multi-Host Integration\'s Single Source
+ * @summary Test configuration for multi-host integration\'s single source
  * @param {MultiHostIntegrationV2025ApiTestSourceConnectionMultihostRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4265,7 +4390,7 @@ export const testSourceConnectionMultihost = (requestParameters: sdk.MultiHostIn
 }
 /**
  * Update existing sources within Multi-Host Integration.  A token with Org Admin or Multi-Host Admin authority is required to access this endpoint.
- * @summary Update Multi-Host Integration
+ * @summary Update multi-host integration
  * @param {MultiHostIntegrationV2025ApiUpdateMultiHostSourcesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4277,7 +4402,7 @@ export const updateMultiHostSources = (requestParameters: sdk.MultiHostIntegrati
 
 /**
  * Approves a non-employee approval request and notifies the next approver. The current user must be the requested approver.
- * @summary Approve a Non-Employee Request
+ * @summary Approve a non-employee request
  * @param {NonEmployeeLifecycleManagementV2025ApiApproveNonEmployeeRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4288,7 +4413,7 @@ export const approveNonEmployeeRequest = (requestParameters: sdk.NonEmployeeLife
 }
 /**
  * This request will create a non-employee record. Requires role context of `idn:nesr:create`
- * @summary Create Non-Employee Record
+ * @summary Create non-employee record
  * @param {NonEmployeeLifecycleManagementV2025ApiCreateNonEmployeeRecordRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4299,7 +4424,7 @@ export const createNonEmployeeRecord = (requestParameters: sdk.NonEmployeeLifecy
 }
 /**
  * This request will create a non-employee request and notify the approver. Requires role context of `idn:nesr:create` or the user must own the source.
- * @summary Create Non-Employee Request
+ * @summary Create non-employee request
  * @param {NonEmployeeLifecycleManagementV2025ApiCreateNonEmployeeRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4310,7 +4435,7 @@ export const createNonEmployeeRequest = (requestParameters: sdk.NonEmployeeLifec
 }
 /**
  * Create a non-employee source. 
- * @summary Create Non-Employee Source
+ * @summary Create non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiCreateNonEmployeeSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4321,7 +4446,7 @@ export const createNonEmployeeSource = (requestParameters: sdk.NonEmployeeLifecy
 }
 /**
  * This API creates a new schema attribute for Non-Employee Source. The schema technical name must be unique in the source. Attempts to create a schema attribute with an existing name will result in a \"400.1.409 Reference conflict\" response. At most, 10 custom attributes can be created per schema. Attempts to create more than 10 will result in a \"400.1.4 Limit violation\" response. Requires role context of `idn:nesr:create`
- * @summary Create a new Schema Attribute for Non-Employee Source
+ * @summary Create a new schema attribute for non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiCreateNonEmployeeSourceSchemaAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4332,7 +4457,7 @@ export const createNonEmployeeSourceSchemaAttributes = (requestParameters: sdk.N
 }
 /**
  * This request will delete a non-employee record. Requires role context of `idn:nesr:delete`
- * @summary Delete Non-Employee Record
+ * @summary Delete non-employee record
  * @param {NonEmployeeLifecycleManagementV2025ApiDeleteNonEmployeeRecordRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4343,7 +4468,7 @@ export const deleteNonEmployeeRecord = (requestParameters: sdk.NonEmployeeLifecy
 }
 /**
  * This request will delete multiple non-employee records based on the non-employee ids provided. Requires role context of `idn:nesr:delete`
- * @summary Delete Multiple Non-Employee Records
+ * @summary Delete multiple non-employee records
  * @param {NonEmployeeLifecycleManagementV2025ApiDeleteNonEmployeeRecordsInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4354,7 +4479,7 @@ export const deleteNonEmployeeRecordsInBulk = (requestParameters: sdk.NonEmploye
 }
 /**
  * This request will delete a non-employee request.  Requires role context of `idn:nesr:delete`
- * @summary Delete Non-Employee Request
+ * @summary Delete non-employee request
  * @param {NonEmployeeLifecycleManagementV2025ApiDeleteNonEmployeeRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4365,7 +4490,7 @@ export const deleteNonEmployeeRequest = (requestParameters: sdk.NonEmployeeLifec
 }
 /**
  * This end-point deletes a specific schema attribute for a non-employee source. Requires role context of `idn:nesr:delete` 
- * @summary Delete a Schema Attribute for Non-Employee Source
+ * @summary Delete a schema attribute for non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiDeleteNonEmployeeSchemaAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4376,7 +4501,7 @@ export const deleteNonEmployeeSchemaAttribute = (requestParameters: sdk.NonEmplo
 }
 /**
  * This request will delete a non-employee source. Requires role context of `idn:nesr:delete`.
- * @summary Delete Non-Employee Source
+ * @summary Delete non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiDeleteNonEmployeeSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4387,7 +4512,7 @@ export const deleteNonEmployeeSource = (requestParameters: sdk.NonEmployeeLifecy
 }
 /**
  * This end-point deletes all custom schema attributes for a non-employee source. Requires role context of `idn:nesr:delete`
- * @summary Delete all custom schema attributes for Non-Employee Source
+ * @summary Delete all custom schema attributes for non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiDeleteNonEmployeeSourceSchemaAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4398,7 +4523,7 @@ export const deleteNonEmployeeSourceSchemaAttributes = (requestParameters: sdk.N
 }
 /**
  * This requests a CSV download for all non-employees from a provided source. Requires role context of `idn:nesr:read`
- * @summary Exports Non-Employee Records to CSV
+ * @summary Exports non-employee records to csv
  * @param {NonEmployeeLifecycleManagementV2025ApiExportNonEmployeeRecordsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4409,7 +4534,7 @@ export const exportNonEmployeeRecords = (requestParameters: sdk.NonEmployeeLifec
 }
 /**
  * This requests a download for the Source Schema Template for a provided source. Requires role context of `idn:nesr:read`
- * @summary Exports Source Schema Template
+ * @summary Exports source schema template
  * @param {NonEmployeeLifecycleManagementV2025ApiExportNonEmployeeSourceSchemaTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4431,7 +4556,7 @@ export const getNonEmployeeApproval = (requestParameters: sdk.NonEmployeeLifecyc
 }
 /**
  * This request will retrieve a summary of non-employee approval requests. There are two contextual uses for the `requested-for` path parameter:   1. The user has the role context of `idn:nesr:read`, in which case he or she may request a summary of all non-employee approval requests assigned to a particular approver by passing in that approver\'s id.   2. The current user is an approver, in which case \"me\" should be provided as the `requested-for` value. This will provide the approver with a summary of the approval items assigned to him or her.
- * @summary Get Summary of Non-Employee Approval Requests
+ * @summary Get summary of non-employee approval requests
  * @param {NonEmployeeLifecycleManagementV2025ApiGetNonEmployeeApprovalSummaryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4453,7 +4578,7 @@ export const getNonEmployeeBulkUploadStatus = (requestParameters: sdk.NonEmploye
 }
 /**
  * This gets a non-employee record. Requires role context of `idn:nesr:read`
- * @summary Get a Non-Employee Record
+ * @summary Get a non-employee record
  * @param {NonEmployeeLifecycleManagementV2025ApiGetNonEmployeeRecordRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4464,7 +4589,7 @@ export const getNonEmployeeRecord = (requestParameters: sdk.NonEmployeeLifecycle
 }
 /**
  * This gets a non-employee request. There are two contextual uses for this endpoint:   1. The user has the role context of `idn:nesr:read`, in this case the user can get the non-employee request for any user.   2. The user must be the owner of the non-employee request.
- * @summary Get a Non-Employee Request
+ * @summary Get a non-employee request
  * @param {NonEmployeeLifecycleManagementV2025ApiGetNonEmployeeRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4475,7 +4600,7 @@ export const getNonEmployeeRequest = (requestParameters: sdk.NonEmployeeLifecycl
 }
 /**
  * This request will retrieve a summary of non-employee requests. There are two contextual uses for the `requested-for` path parameter:   1. The user has the role context of `idn:nesr:read`, in which case he or she may request a summary of all non-employee approval requests assigned to a particular account manager by passing in that manager\'s id.   2. The current user is an account manager, in which case \"me\" should be provided as the `requested-for` value. This will provide the user with a summary of the non-employee requests in the source(s) he or she manages.
- * @summary Get Summary of Non-Employee Requests
+ * @summary Get summary of non-employee requests
  * @param {NonEmployeeLifecycleManagementV2025ApiGetNonEmployeeRequestSummaryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4486,7 +4611,7 @@ export const getNonEmployeeRequestSummary = (requestParameters: sdk.NonEmployeeL
 }
 /**
  * This API gets a schema attribute by Id for the specified Non-Employee SourceId. Requires role context of `idn:nesr:read` or the user must be an account manager of the source.
- * @summary Get Schema Attribute Non-Employee Source
+ * @summary Get schema attribute non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiGetNonEmployeeSchemaAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4497,7 +4622,7 @@ export const getNonEmployeeSchemaAttribute = (requestParameters: sdk.NonEmployee
 }
 /**
  * This gets a non-employee source. There are two contextual uses for the requested-for path parameter:    1. The user has the role context of `idn:nesr:read`, in which case he or she may request any source.   2. The current user is an account manager, in which case the user can only request sources that they own.
- * @summary Get a Non-Employee Source
+ * @summary Get a non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiGetNonEmployeeSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4508,7 +4633,7 @@ export const getNonEmployeeSource = (requestParameters: sdk.NonEmployeeLifecycle
 }
 /**
  * This API gets the list of schema attributes for the specified Non-Employee SourceId. There are 8 mandatory attributes added to each new Non-Employee Source automatically. Additionaly, user can add up to 10 custom attributes. This interface returns all the mandatory attributes followed by any custom attributes. At most, a total of 18 attributes will be returned. Requires role context of `idn:nesr:read` or the user must be an account manager of the source.
- * @summary List Schema Attributes Non-Employee Source
+ * @summary List schema attributes non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiGetNonEmployeeSourceSchemaAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4519,7 +4644,7 @@ export const getNonEmployeeSourceSchemaAttributes = (requestParameters: sdk.NonE
 }
 /**
  * This post will import, or update, Non-Employee records found in the CSV. Requires role context of `idn:nesr:create`
- * @summary Imports, or Updates, Non-Employee Records
+ * @summary Imports, or updates, non-employee records
  * @param {NonEmployeeLifecycleManagementV2025ApiImportNonEmployeeRecordsInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4530,7 +4655,7 @@ export const importNonEmployeeRecordsInBulk = (requestParameters: sdk.NonEmploye
 }
 /**
  * This gets a list of non-employee approval requests. There are two contextual uses for this endpoint:   1. The user has the role context of `idn:nesr:read`, in which case they can list the approvals for any approver.   2. The user owns the requested approval.
- * @summary Get List of Non-Employee Approval Requests
+ * @summary Get list of non-employee approval requests
  * @param {NonEmployeeLifecycleManagementV2025ApiListNonEmployeeApprovalsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4541,7 +4666,7 @@ export const listNonEmployeeApprovals = (requestParameters: sdk.NonEmployeeLifec
 }
 /**
  * This gets a list of non-employee records. There are two contextual uses for this endpoint:   1. The user has the role context of `idn:nesr:read`, in which case they can get a list of all of the non-employees.   2. The user is an account manager, in which case they can get a list of the non-employees that they manage.
- * @summary List Non-Employee Records
+ * @summary List non-employee records
  * @param {NonEmployeeLifecycleManagementV2025ApiListNonEmployeeRecordsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4552,7 +4677,7 @@ export const listNonEmployeeRecords = (requestParameters: sdk.NonEmployeeLifecyc
 }
 /**
  * This gets a list of non-employee requests. There are two contextual uses for the `requested-for` path parameter:   1. The user has the role context of `idn:nesr:read`, in which case he or she may request a list non-employee requests assigned to a particular account manager by passing in that manager\'s id.   2. The current user is an account manager, in which case \"me\" should be provided as the `requested-for` value. This will provide the user with a list of the non-employee requests in the source(s) he or she manages.
- * @summary List Non-Employee Requests
+ * @summary List non-employee requests
  * @param {NonEmployeeLifecycleManagementV2025ApiListNonEmployeeRequestsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4563,7 +4688,7 @@ export const listNonEmployeeRequests = (requestParameters: sdk.NonEmployeeLifecy
 }
 /**
  * Get a list of non-employee sources. There are two contextual uses for the `requested-for` path parameter:    1. If the user has the role context of `idn:nesr:read`, he or she may request a list sources assigned to a particular account manager by passing in that manager\'s `id`.   2. If the current user is an account manager, the user should provide \'me\' as the `requested-for` value. Doing so provide the user with a list of the sources he or she owns.
- * @summary List Non-Employee Sources
+ * @summary List non-employee sources
  * @param {NonEmployeeLifecycleManagementV2025ApiListNonEmployeeSourcesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4574,7 +4699,7 @@ export const listNonEmployeeSources = (requestParameters: sdk.NonEmployeeLifecyc
 }
 /**
  * This request will patch a non-employee record. There are two contextual uses for this endpoint:   1. The user has the role context of `idn:nesr:update`, in which case they update all available fields.   2. The user is owner of the source, in this case they can only update the end date.
- * @summary Patch Non-Employee Record
+ * @summary Patch non-employee record
  * @param {NonEmployeeLifecycleManagementV2025ApiPatchNonEmployeeRecordRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4585,7 +4710,7 @@ export const patchNonEmployeeRecord = (requestParameters: sdk.NonEmployeeLifecyc
 }
 /**
  * This end-point patches a specific schema attribute for a non-employee SourceId. Requires role context of `idn:nesr:update` 
- * @summary Patch a Schema Attribute for Non-Employee Source
+ * @summary Patch a schema attribute for non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiPatchNonEmployeeSchemaAttributeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4596,7 +4721,7 @@ export const patchNonEmployeeSchemaAttribute = (requestParameters: sdk.NonEmploy
 }
 /**
  * patch a non-employee source. (partial update) <br/> Patchable field: **name, description, approvers, accountManagers** Requires role context of `idn:nesr:update`.
- * @summary Patch a Non-Employee Source
+ * @summary Patch a non-employee source
  * @param {NonEmployeeLifecycleManagementV2025ApiPatchNonEmployeeSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4607,7 +4732,7 @@ export const patchNonEmployeeSource = (requestParameters: sdk.NonEmployeeLifecyc
 }
 /**
  * This endpoint will reject an approval item request and notify user. The current user must be the requested approver.
- * @summary Reject a Non-Employee Request
+ * @summary Reject a non-employee request
  * @param {NonEmployeeLifecycleManagementV2025ApiRejectNonEmployeeRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4618,7 +4743,7 @@ export const rejectNonEmployeeRequest = (requestParameters: sdk.NonEmployeeLifec
 }
 /**
  * This request will update a non-employee record. There are two contextual uses for this endpoint:   1. The user has the role context of `idn:nesr:update`, in which case they update all available fields.   2. The user is owner of the source, in this case they can only update the end date.
- * @summary Update Non-Employee Record
+ * @summary Update non-employee record
  * @param {NonEmployeeLifecycleManagementV2025ApiUpdateNonEmployeeRecordRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4630,7 +4755,7 @@ export const updateNonEmployeeRecord = (requestParameters: sdk.NonEmployeeLifecy
 
 /**
  * Create a domain to be verified via DKIM (DomainKeys Identified Mail)
- * @summary Verify domain address via DKIM
+ * @summary Verify domain address via dkim
  * @param {NotificationsV2025ApiCreateDomainDkimRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4640,8 +4765,8 @@ export const createDomainDkim = (requestParameters: sdk.NotificationsV2025ApiCre
     return handleApiCall(() => notificationsv2025api.createDomainDkim(requestParameters));
 }
 /**
- * This creates a template for your site.   You can also use this endpoint to update a template.  First, copy the response body from the [get notification template endpoint](https://developer.sailpoint.com/idn/api/beta/get-notification-template) for a template you wish to update and paste it into the request body for this endpoint.   Modify the fields you want to change and submit the POST request when ready.
- * @summary Create Notification Template
+ * This will update notification templates that are available in your tenant.  Note that you cannot create new templates in your tenant, but you can use this to create custom notifications from existing templates.  First, copy the response body from the [get notification template endpoint](https://developer.sailpoint.com/idn/api/beta/get-notification-template) for a template you wish to update and paste it into the request body for this endpoint.   Modify the fields you want to change and submit the POST request when ready. 
+ * @summary Create notification template
  * @param {NotificationsV2025ApiCreateNotificationTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4652,7 +4777,7 @@ export const createNotificationTemplate = (requestParameters: sdk.NotificationsV
 }
 /**
  * Create a new sender email address and initiate verification process.
- * @summary Create Verified From Address
+ * @summary Create verified from address
  * @param {NotificationsV2025ApiCreateVerifiedFromAddressRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4663,7 +4788,7 @@ export const createVerifiedFromAddress = (requestParameters: sdk.NotificationsV2
 }
 /**
  * This lets you bulk delete templates that you previously created for your site. Since this is a beta feature, please contact support to enable usage.
- * @summary Bulk Delete Notification Templates
+ * @summary Bulk delete notification templates
  * @param {NotificationsV2025ApiDeleteNotificationTemplatesInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4674,7 +4799,7 @@ export const deleteNotificationTemplatesInBulk = (requestParameters: sdk.Notific
 }
 /**
  * Delete a verified sender email address
- * @summary Delete Verified From Address
+ * @summary Delete verified from address
  * @param {NotificationsV2025ApiDeleteVerifiedFromAddressRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4685,7 +4810,7 @@ export const deleteVerifiedFromAddress = (requestParameters: sdk.NotificationsV2
 }
 /**
  * Retrieve DKIM (DomainKeys Identified Mail) attributes for all your tenants\' AWS SES identities. Limits retrieval to 100 identities per call.
- * @summary Get DKIM Attributes
+ * @summary Get dkim attributes
  * @param {NotificationsV2025ApiGetDkimAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4696,7 +4821,7 @@ export const getDkimAttributes = (requestParameters: sdk.NotificationsV2025ApiGe
 }
 /**
  * Retrieve MAIL FROM attributes for a given AWS SES identity.
- * @summary Get MAIL FROM Attributes
+ * @summary Get mail from attributes
  * @param {NotificationsV2025ApiGetMailFromAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4707,7 +4832,7 @@ export const getMailFromAttributes = (requestParameters: sdk.NotificationsV2025A
 }
 /**
  * This gets a template that you have modified for your site by Id.
- * @summary Get Notification Template By Id
+ * @summary Get notification template by id
  * @param {NotificationsV2025ApiGetNotificationTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4718,7 +4843,7 @@ export const getNotificationTemplate = (requestParameters: sdk.NotificationsV202
 }
 /**
  * The notification service maintains metadata to construct the notification templates or supply any information during the event propagation. The data-store where this information is retrieved is called \"Global Context\" (a.k.a. notification template context). It defines a set of attributes  that will be available per tenant (organization).
- * @summary Get Notification Template Context
+ * @summary Get notification template context
  * @param {NotificationsV2025ApiGetNotificationsTemplateContextRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4729,7 +4854,7 @@ export const getNotificationsTemplateContext = (requestParameters: sdk.Notificat
 }
 /**
  * Retrieve a list of sender email addresses and their verification statuses
- * @summary List From Addresses
+ * @summary List from addresses
  * @param {NotificationsV2025ApiListFromAddressesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4740,7 +4865,7 @@ export const listFromAddresses = (requestParameters: sdk.NotificationsV2025ApiLi
 }
 /**
  * Returns a list of notification preferences for tenant.
- * @summary List Notification Preferences for tenant.
+ * @summary List notification preferences for tenant.
  * @param {NotificationsV2025ApiListNotificationPreferencesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4751,7 +4876,7 @@ export const listNotificationPreferences = (requestParameters: sdk.Notifications
 }
 /**
  * This lists the default templates used for notifications, such as emails from IdentityNow.
- * @summary List Notification Template Defaults
+ * @summary List notification template defaults
  * @param {NotificationsV2025ApiListNotificationTemplateDefaultsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4762,7 +4887,7 @@ export const listNotificationTemplateDefaults = (requestParameters: sdk.Notifica
 }
 /**
  * This lists the templates that you have modified for your site.
- * @summary List Notification Templates
+ * @summary List notification templates
  * @param {NotificationsV2025ApiListNotificationTemplatesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4773,7 +4898,7 @@ export const listNotificationTemplates = (requestParameters: sdk.NotificationsV2
 }
 /**
  * Change the MAIL FROM domain of an AWS SES email identity and provide the MX and TXT records to be placed in the caller\'s DNS
- * @summary Change MAIL FROM domain
+ * @summary Change mail from domain
  * @param {NotificationsV2025ApiPutMailFromAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4784,7 +4909,7 @@ export const putMailFromAttributes = (requestParameters: sdk.NotificationsV2025A
 }
 /**
  * Send a Test Notification
- * @summary Send Test Notification
+ * @summary Send test notification
  * @param {NotificationsV2025ApiSendTestNotificationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4796,7 +4921,7 @@ export const sendTestNotification = (requestParameters: sdk.NotificationsV2025Ap
 
 /**
  * This creates an OAuth client.
- * @summary Create OAuth Client
+ * @summary Create oauth client
  * @param {OAuthClientsV2025ApiCreateOauthClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4807,7 +4932,7 @@ export const createOauthClient = (requestParameters: sdk.OAuthClientsV2025ApiCre
 }
 /**
  * This deletes an OAuth client.
- * @summary Delete OAuth Client
+ * @summary Delete oauth client
  * @param {OAuthClientsV2025ApiDeleteOauthClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4818,7 +4943,7 @@ export const deleteOauthClient = (requestParameters: sdk.OAuthClientsV2025ApiDel
 }
 /**
  * This gets details of an OAuth client.
- * @summary Get OAuth Client
+ * @summary Get oauth client
  * @param {OAuthClientsV2025ApiGetOauthClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4829,7 +4954,7 @@ export const getOauthClient = (requestParameters: sdk.OAuthClientsV2025ApiGetOau
 }
 /**
  * This gets a list of OAuth clients.
- * @summary List OAuth Clients
+ * @summary List oauth clients
  * @param {OAuthClientsV2025ApiListOauthClientsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4840,7 +4965,7 @@ export const listOauthClients = (requestParameters: sdk.OAuthClientsV2025ApiList
 }
 /**
  * This performs a targeted update to the field(s) of an OAuth client.
- * @summary Patch OAuth Client
+ * @summary Patch oauth client
  * @param {OAuthClientsV2025ApiPatchOauthClientRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4852,18 +4977,17 @@ export const patchOauthClient = (requestParameters: sdk.OAuthClientsV2025ApiPatc
 
 /**
  * Get the current organization\'s configuration settings, only external accessible properties.
- * @summary Get Org Config Settings
- * @param {OrgConfigV2025ApiGetOrgConfigRequest} requestParameters Request parameters.
+ * @summary Get org config settings
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getOrgConfig = (requestParameters: sdk.OrgConfigV2025ApiGetOrgConfigRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.OrgConfigV2025>> => {
+export const getOrgConfig = (apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.OrgConfigV2025>> => {
     const orgconfigv2025api = new sdk.OrgConfigV2025Api(apiConfig);
-    return handleApiCall(() => orgconfigv2025api.getOrgConfig(requestParameters));
+    return handleApiCall(() => orgconfigv2025api.getOrgConfig());
 }
 /**
  * List the valid time zones that can be set in organization configurations.
- * @summary Get Valid Time Zones
+ * @summary Get valid time zones
  * @param {OrgConfigV2025ApiGetValidTimeZonesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4874,7 +4998,7 @@ export const getValidTimeZones = (requestParameters: sdk.OrgConfigV2025ApiGetVal
 }
 /**
  * Patch the current organization\'s configuration, using http://jsonpatch.com/ syntax. This is commonly used to changing an organization\'s time zone.
- * @summary Patch Org Config
+ * @summary Patch org config
  * @param {OrgConfigV2025ApiPatchOrgConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4886,7 +5010,7 @@ export const patchOrgConfig = (requestParameters: sdk.OrgConfigV2025ApiPatchOrgC
 
 /**
  * This API creates the password org config. Unspecified fields will use default value. To be able to use the custom password instructions, you must set the `customInstructionsEnabled` field to \"true\". Requires ORG_ADMIN, API role or authorization scope of \'idn:password-org-config:write\'
- * @summary Create Password Org Config
+ * @summary Create password org config
  * @param {PasswordConfigurationV2025ApiCreatePasswordOrgConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4897,7 +5021,7 @@ export const createPasswordOrgConfig = (requestParameters: sdk.PasswordConfigura
 }
 /**
  * This API returns the password org config . Requires ORG_ADMIN, API role or authorization scope of \'idn:password-org-config:read\'
- * @summary Get Password Org Config
+ * @summary Get password org config
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -4907,7 +5031,7 @@ export const getPasswordOrgConfig = (apiConfig: sdk.Configuration): Promise<ApiR
 }
 /**
  * This API updates the password org config for specified fields. Other fields will keep original value. You must set the `customInstructionsEnabled` field to \"true\" to be able to use custom password instructions.  Requires ORG_ADMIN, API role or authorization scope of \'idn:password-org-config:write\'
- * @summary Update Password Org Config
+ * @summary Update password org config
  * @param {PasswordConfigurationV2025ApiPutPasswordOrgConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4919,7 +5043,7 @@ export const putPasswordOrgConfig = (requestParameters: sdk.PasswordConfiguratio
 
 /**
  * This gets password dictionary for the organization. The password dictionary file can contain lines that are: 1. comment lines - the first character is \'#\', can be 128 Unicode codepoints in length, and are ignored during processing 2. empty lines 3. locale line - the first line that starts with \"locale=\" is considered to be locale line, the rest are treated as normal content lines 4. line containing the password dictionary word - it must start with non-whitespace character and only non-whitespace characters are allowed;         maximum length of the line is 128 Unicode codepoints   Password dictionary file may not contain more than 2,500 lines (not counting whitespace lines, comment lines and locale line).   Password dict file must contain UTF-8 characters only.  # Sample password text file  ```  # Password dictionary small test file  locale=en_US  # Password dictionary prohibited words  qwerty abcd aaaaa password qazxsws  ```
- * @summary Get Password Dictionary
+ * @summary Get password dictionary
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -4929,7 +5053,7 @@ export const getPasswordDictionary = (apiConfig: sdk.Configuration): Promise<Api
 }
 /**
  * This updates password dictionary for the organization. The password dictionary file can contain lines that are: 1. comment lines - the first character is \'#\', can be 128 Unicode codepoints in length, and are ignored during processing 2. empty lines 3. locale line - the first line that starts with \"locale=\" is considered to be locale line, the rest are treated as normal content lines 4. line containing the password dictionary word - it must start with non-whitespace character and only non-whitespace characters are allowed;         maximum length of the line is 128 Unicode codepoints   Password dictionary file may not contain more than 2,500 lines (not counting whitespace lines, comment lines and locale line).   Password dict file must contain UTF-8 characters only.  # Sample password text file  ```  # Password dictionary small test file  locale=en_US  # Password dictionary prohibited words  qwerty abcd aaaaa password qazxsws  ```
- * @summary Update Password Dictionary
+ * @summary Update password dictionary
  * @param {PasswordDictionaryV2025ApiPutPasswordDictionaryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4952,7 +5076,7 @@ export const createDigitToken = (requestParameters: sdk.PasswordManagementV2025A
 }
 /**
  * This API returns the status of a password change request.
- * @summary Get Password Change Request Status
+ * @summary Get password change request status
  * @param {PasswordManagementV2025ApiGetPasswordChangeStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4963,7 +5087,7 @@ export const getPasswordChangeStatus = (requestParameters: sdk.PasswordManagemen
 }
 /**
  * This API is used to query password related information.  
- * @summary Query Password Info
+ * @summary Query password info
  * @param {PasswordManagementV2025ApiQueryPasswordInfoRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4974,7 +5098,7 @@ export const queryPasswordInfo = (requestParameters: sdk.PasswordManagementV2025
 }
 /**
  * This API is used to set a password for an identity.   An identity can change their own password (as well as any of their accounts\' passwords) if they use a token generated by their ISC user, such as a [personal access token](https://developer.sailpoint.com/idn/api/authentication#personal-access-tokens) or [\"authorization_code\" derived OAuth token](https://developer.sailpoint.com/idn/api/authentication#authorization-code-grant-flow).  >**Note: If you want to set an identity\'s source account password, you must enable `PASSWORD` as one of the source\'s features. You can use the [PATCH Source endpoint](https://developer.sailpoint.com/docs/api/v3/update-source) to add the `PASSWORD` feature.**  To generate the encryptedPassword (RSA encrypted using publicKey) for the request body, run the following command:  ```bash echo -n \"myPassword\" | openssl pkeyutl -encrypt -inkey public_key.pem -pubin | base64 ```  In this example, myPassword is the plain text password being set and encrypted, and public_key.pem is the path to the public key file. You can retrieve the required publicKey, along with other information like identityId, sourceId, publicKeyId, accounts, and policies, using the Query Password Info endpoint.  To successfully run this command, you must have OpenSSL installed on your machine. If OpenSSL is unavailable, consider using the Virtual Appliance (VA), which has OpenSSL pre-installed and configured.  If you are using a Windows machine, refer to this [guide](https://tecadmin.net/install-openssl-on-windows/) for instructions on installing OpenSSL.  You can then use [Get Password Change Request Status](https://developer.sailpoint.com/idn/api/v3/get-password-change-status) to check the password change request status. To do so, you must provide the `requestId` from your earlier request to set the password.  
- * @summary Set Identity\'s Password
+ * @summary Set identity\'s password
  * @param {PasswordManagementV2025ApiSetPasswordRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4986,7 +5110,7 @@ export const setPassword = (requestParameters: sdk.PasswordManagementV2025ApiSet
 
 /**
  * This API creates the specified password policy.
- * @summary Create Password Policy
+ * @summary Create password policy
  * @param {PasswordPoliciesV2025ApiCreatePasswordPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -4997,7 +5121,7 @@ export const createPasswordPolicy = (requestParameters: sdk.PasswordPoliciesV202
 }
 /**
  * This API deletes the specified password policy.
- * @summary Delete Password Policy by ID
+ * @summary Delete password policy by id
  * @param {PasswordPoliciesV2025ApiDeletePasswordPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5008,7 +5132,7 @@ export const deletePasswordPolicy = (requestParameters: sdk.PasswordPoliciesV202
 }
 /**
  * This API returns the password policy for the specified ID.
- * @summary Get Password Policy by ID
+ * @summary Get password policy by id
  * @param {PasswordPoliciesV2025ApiGetPasswordPolicyByIdRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5019,7 +5143,7 @@ export const getPasswordPolicyById = (requestParameters: sdk.PasswordPoliciesV20
 }
 /**
  * This gets list of all Password Policies. Requires role of ORG_ADMIN
- * @summary List Password Policies
+ * @summary List password policies
  * @param {PasswordPoliciesV2025ApiListPasswordPoliciesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5030,7 +5154,7 @@ export const listPasswordPolicies = (requestParameters: sdk.PasswordPoliciesV202
 }
 /**
  * This API updates the specified password policy.
- * @summary Update Password Policy by ID
+ * @summary Update password policy by id
  * @param {PasswordPoliciesV2025ApiSetPasswordPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5042,7 +5166,7 @@ export const setPasswordPolicy = (requestParameters: sdk.PasswordPoliciesV2025Ap
 
 /**
  * This API creates a password sync group based on the specifications provided.
- * @summary Create Password Sync Group
+ * @summary Create password sync group
  * @param {PasswordSyncGroupsV2025ApiCreatePasswordSyncGroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5053,7 +5177,7 @@ export const createPasswordSyncGroup = (requestParameters: sdk.PasswordSyncGroup
 }
 /**
  * This API deletes the specified password sync group.
- * @summary Delete Password Sync Group by ID
+ * @summary Delete password sync group by id
  * @param {PasswordSyncGroupsV2025ApiDeletePasswordSyncGroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5064,7 +5188,7 @@ export const deletePasswordSyncGroup = (requestParameters: sdk.PasswordSyncGroup
 }
 /**
  * This API returns the sync group for the specified ID.
- * @summary Get Password Sync Group by ID
+ * @summary Get password sync group by id
  * @param {PasswordSyncGroupsV2025ApiGetPasswordSyncGroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5075,7 +5199,7 @@ export const getPasswordSyncGroup = (requestParameters: sdk.PasswordSyncGroupsV2
 }
 /**
  * This API returns a list of password sync groups.
- * @summary Get Password Sync Group List
+ * @summary Get password sync group list
  * @param {PasswordSyncGroupsV2025ApiGetPasswordSyncGroupsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5086,7 +5210,7 @@ export const getPasswordSyncGroups = (requestParameters: sdk.PasswordSyncGroupsV
 }
 /**
  * This API updates the specified password sync group.
- * @summary Update Password Sync Group by ID
+ * @summary Update password sync group by id
  * @param {PasswordSyncGroupsV2025ApiUpdatePasswordSyncGroupRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5098,7 +5222,7 @@ export const updatePasswordSyncGroup = (requestParameters: sdk.PasswordSyncGroup
 
 /**
  * This creates a personal access token.
- * @summary Create Personal Access Token
+ * @summary Create personal access token
  * @param {PersonalAccessTokensV2025ApiCreatePersonalAccessTokenRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5109,7 +5233,7 @@ export const createPersonalAccessToken = (requestParameters: sdk.PersonalAccessT
 }
 /**
  * This deletes a personal access token.
- * @summary Delete Personal Access Token
+ * @summary Delete personal access token
  * @param {PersonalAccessTokensV2025ApiDeletePersonalAccessTokenRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5120,7 +5244,7 @@ export const deletePersonalAccessToken = (requestParameters: sdk.PersonalAccessT
 }
 /**
  * This gets a collection of personal access tokens associated with the optional `owner-id`.  query parameter. If the `owner-id` query parameter is omitted, all personal access tokens  for a tenant will be retrieved, but the caller must have the \'idn:all-personal-access-tokens:read\' right.
- * @summary List Personal Access Tokens
+ * @summary List personal access tokens
  * @param {PersonalAccessTokensV2025ApiListPersonalAccessTokensRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5131,7 +5255,7 @@ export const listPersonalAccessTokens = (requestParameters: sdk.PersonalAccessTo
 }
 /**
  * This performs a targeted update to the field(s) of a Personal Access Token. Changing scopes for a Personal Access Token does not impact existing bearer tokens. You will need to create a new bearer token to have the new scopes. Please note that it can take up to 20 minutes for scope changes to be seen on new bearer tokens.
- * @summary Patch Personal Access Token
+ * @summary Patch personal access token
  * @param {PersonalAccessTokensV2025ApiPatchPersonalAccessTokenRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5155,7 +5279,7 @@ export const getPublicIdentities = (requestParameters: sdk.PublicIdentitiesV2025
 
 /**
  * Returns the publicly visible attributes of an identity available to request approvers for Access Requests and Certification Campaigns.
- * @summary Get the Public Identities Configuration
+ * @summary Get the public identities configuration
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -5165,7 +5289,7 @@ export const getPublicIdentityConfig = (apiConfig: sdk.Configuration): Promise<A
 }
 /**
  * Updates the publicly visible attributes of an identity available to request approvers for Access Requests and Certification Campaigns.
- * @summary Update the Public Identities Configuration
+ * @summary Update the public identities configuration
  * @param {PublicIdentitiesConfigV2025ApiUpdatePublicIdentityConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5177,7 +5301,7 @@ export const updatePublicIdentityConfig = (requestParameters: sdk.PublicIdentiti
 
 /**
  * Cancels a running report.
- * @summary Cancel Report
+ * @summary Cancel report
  * @param {ReportsDataExtractionV2025ApiCancelReportRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5188,7 +5312,7 @@ export const cancelReport = (requestParameters: sdk.ReportsDataExtractionV2025Ap
 }
 /**
  * Gets a report in file format.
- * @summary Get Report File
+ * @summary Get report file
  * @param {ReportsDataExtractionV2025ApiGetReportRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5199,7 +5323,7 @@ export const getReport = (requestParameters: sdk.ReportsDataExtractionV2025ApiGe
 }
 /**
  * Get the report results for a report that was run or is running. Returns empty report result in case there are no active task definitions with used in payload task definition name.
- * @summary Get Report Result
+ * @summary Get report result
  * @param {ReportsDataExtractionV2025ApiGetReportResultRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5210,7 +5334,7 @@ export const getReportResult = (requestParameters: sdk.ReportsDataExtractionV202
 }
 /**
  * Use this API to run a report according to report input details. If non-concurrent task is already running then it returns, otherwise new task creates and returns.
- * @summary Run Report
+ * @summary Run report
  * @param {ReportsDataExtractionV2025ApiStartReportRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5221,8 +5345,8 @@ export const startReport = (requestParameters: sdk.ReportsDataExtractionV2025Api
 }
 
 /**
- * Get a list of acccess items that can be requested through the [Access Request endpoints](https://developer.sailpoint.com/docs/api/v2024/access-requests). Access items are marked with `AVAILABLE`, `PENDING` or `ASSIGNED` with respect to the identity provided using `identity-id` query parameter. Any authenticated token can call this endpoint to see their requestable access items.
- * @summary Requestable Objects List
+ * Get a list of acccess items that can be requested through the [Access Request endpoints](https://developer.sailpoint.com/docs/api/v2024/access-requests). Access items are marked with `AVAILABLE`, `PENDING` or `ASSIGNED` with respect to the identity provided using `identity-id` query parameter. This endpoint only lists roles and access profiles. For gathering requestable entitlements, the [Entitlements List API](https://developer.sailpoint.com/docs/api/v2025/list-entitlements) can be used with the segmented-for-identity parameter. Any authenticated token can call this endpoint to see their requestable access items.
+ * @summary Requestable objects list
  * @param {RequestableObjectsV2025ApiListRequestableObjectsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5336,7 +5460,7 @@ export const getRoleInsightsSummary = (requestParameters: sdk.RoleInsightsV2025A
 
 /**
  * This API creates a role.  You must have a token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority to call this API.   In addition, a ROLE_SUBADMIN may not create a role including an access profile if that access profile is associated with a source the ROLE_SUBADMIN is not associated with themselves.   The maximum supported length for the description field is 2000 characters. Longer descriptions will be preserved for existing roles. However, any new roles as well as any updates to existing descriptions will be limited to 2000 characters.
- * @summary Create a Role
+ * @summary Create a role
  * @param {RolesV2025ApiCreateRoleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5347,7 +5471,7 @@ export const createRole = (requestParameters: sdk.RolesV2025ApiCreateRoleRequest
 }
 /**
  * This endpoint initiates a bulk deletion of one or more roles. When the request is successful, the endpoint returns the bulk delete\'s task result ID.  To follow the task, you can use [Get Task Status by ID](https://developer.sailpoint.com/docs/api/beta/get-task-status), which will return the task result\'s status and information.  This endpoint can only bulk delete up to a limit of 50 roles per request.  A user with ROLE_SUBADMIN authority can only call this endpoint if all roles included in the request are associated with sources with management workgroups the ROLE_SUBADMIN is a member of.
- * @summary Delete Role(s)
+ * @summary Delete role(s)
  * @param {RolesV2025ApiDeleteBulkRolesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5358,7 +5482,7 @@ export const deleteBulkRoles = (requestParameters: sdk.RolesV2025ApiDeleteBulkRo
 }
 /**
  * This API initialize a request to remove a single Access Model Metadata from a role by attribute key and value. A token with ORG_ADMIN, ROLE_ADMIN ROLE_SUBADMIN authority is required to call this API.
- * @summary Remove a Metadata From Role.
+ * @summary Remove a metadata from role.
  * @param {RolesV2025ApiDeleteMetadataFromRoleByKeyAndValueRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5369,7 +5493,7 @@ export const deleteMetadataFromRoleByKeyAndValue = (requestParameters: sdk.Roles
 }
 /**
  * This API deletes a Role by its ID.  A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API. In addition, a token with ROLE_SUBADMIN authority may only call this API if all Access Profiles included in the Role are associated to Sources with management workgroups of which the ROLE_SUBADMIN is a member.
- * @summary Delete a Role
+ * @summary Delete a role
  * @param {RolesV2025ApiDeleteRoleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5380,7 +5504,7 @@ export const deleteRole = (requestParameters: sdk.RolesV2025ApiDeleteRoleRequest
 }
 /**
  * This API returns a list of all unfinished bulk update process status of the tenant.
- * @summary Get Bulk-Update Statuses
+ * @summary Get bulk-update statuses
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -5390,7 +5514,7 @@ export const getBulkUpdateStatus = (apiConfig: sdk.Configuration): Promise<ApiRe
 }
 /**
  *  This API initial a request for one bulk update\'s status by bulk update Id returns the status of the bulk update process. A token with ORG_ADMIN, ROLE_ADMIN ROLE_SUBADMIN authority is required to call this API. 
- * @summary Get Bulk-Update Status by ID
+ * @summary Get bulk-update status by id
  * @param {RolesV2025ApiGetBulkUpdateStatusByIdRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5401,7 +5525,7 @@ export const getBulkUpdateStatusById = (requestParameters: sdk.RolesV2025ApiGetB
 }
 /**
  * This API returns a Role by its ID. A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API. In addition, a token with ROLE_SUBADMIN authority may only call this API if all Access Profiles included in the Role are associated to Sources with management workgroups of which the ROLE_SUBADMIN is a member.
- * @summary Get a Role
+ * @summary Get a role
  * @param {RolesV2025ApiGetRoleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5412,7 +5536,7 @@ export const getRole = (requestParameters: sdk.RolesV2025ApiGetRoleRequest, apiC
 }
 /**
  * 
- * @summary List Identities assigned a Role
+ * @summary List identities assigned a role
  * @param {RolesV2025ApiGetRoleAssignedIdentitiesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5423,7 +5547,7 @@ export const getRoleAssignedIdentities = (requestParameters: sdk.RolesV2025ApiGe
 }
 /**
  * Get a list of entitlements associated with a specified role.
- * @summary List Role\'s Entitlements
+ * @summary List role\'s entitlements
  * @param {RolesV2025ApiGetRoleEntitlementsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5434,7 +5558,7 @@ export const getRoleEntitlements = (requestParameters: sdk.RolesV2025ApiGetRoleE
 }
 /**
  * This API returns a list of Roles.  A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API.
- * @summary List Roles
+ * @summary List roles
  * @param {RolesV2025ApiListRolesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5445,7 +5569,7 @@ export const listRoles = (requestParameters: sdk.RolesV2025ApiListRolesRequest =
 }
 /**
  * This API updates an existing role using [JSON Patch](https://tools.ietf.org/html/rfc6902) syntax.  The following fields are patchable:  * name * description * enabled * owner * accessProfiles * entitlements * membership * requestable * accessRequestConfig * revokeRequestConfig * segments * accessModelMetadata    A token with API, ORG_ADMIN, ROLE_ADMIN, or ROLE_SUBADMIN authority is required to call this API. In addition, a token with ROLE_SUBADMIN authority may only call this API if all access profiles included in the role are associated to Sources with management workgroups of which the ROLE_SUBADMIN is a member.  The maximum supported length for the description field is 2000 characters. Longer descriptions will be preserved for existing roles, however, any new roles as well as any updates to existing descriptions will be limited to 2000 characters.  When you use this API to modify a role\'s membership identities, you can only modify up to a limit of 500 membership identities at a time.
- * @summary Patch a specified Role
+ * @summary Patch a specified role
  * @param {RolesV2025ApiPatchRoleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5456,7 +5580,7 @@ export const patchRole = (requestParameters: sdk.RolesV2025ApiPatchRoleRequest, 
 }
 /**
  * This API returns a list of Role that filter by metadata and filter, it support filter by  both path parameter and attribute key and values. A token with API, ORG_ADMIN, ROLE_ADMIN, ROLE_SUBADMIN, HELPDESK, CERT_ADMIN, REPORT_ADMIN or SOURCE_ADMIN  authority is required to call this API. 
- * @summary Filter Roles by Metadata
+ * @summary Filter roles by metadata
  * @param {RolesV2025ApiSearchRolesByFilterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5467,7 +5591,7 @@ export const searchRolesByFilter = (requestParameters: sdk.RolesV2025ApiSearchRo
 }
 /**
  * This API initialize a request to add a single Access Model Metadata to a role by attribute key and attribute value. A token with ORG_ADMIN, ROLE_ADMIN ROLE_SUBADMIN authority is required to call this API. The maximum number of attributes in one role is 25. Custom metadata update, including ADD and REPLACE need suit licensed.
- * @summary Add a Metadata to Role.
+ * @summary Add a metadata to role.
  * @param {RolesV2025ApiUpdateAttributeKeyAndValueToRoleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5478,7 +5602,7 @@ export const updateAttributeKeyAndValueToRole = (requestParameters: sdk.RolesV20
 }
 /**
  * This API initiates a bulk update of metadata for one or more Roles by filter. A token with ORG_ADMIN, ROLE_ADMIN ROLE_SUBADMIN authority is required to call this API. The maximum metadata value count for a single role is 25. Custom metadata update, including add, replace need suit licensed.
- * @summary Bulk-Update Roles\' Metadata by Filters
+ * @summary Bulk-update roles\' metadata by filters
  * @param {RolesV2025ApiUpdateRolesMetadataByFilterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5489,7 +5613,7 @@ export const updateRolesMetadataByFilter = (requestParameters: sdk.RolesV2025Api
 }
 /**
  * This API initiates a bulk update of metadata for one or more Roles by a list of Role Ids. A token with ORG_ADMIN, ROLE_ADMIN ROLE_SUBADMIN authority is required to call this API. The maximum role count in a single update request is 3000. The maximum metadata value count for a single role is 25. Custom metadata update, including add, replace need suit licensed.
- * @summary Bulk-Update Roles\' Metadata by ID
+ * @summary Bulk-update roles\' metadata by id
  * @param {RolesV2025ApiUpdateRolesMetadataByIdsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5500,7 +5624,7 @@ export const updateRolesMetadataByIds = (requestParameters: sdk.RolesV2025ApiUpd
 }
 /**
  * This API initiates a bulk update of metadata for one or more Roles by query. A token with ORG_ADMIN, ROLE_ADMIN ROLE_SUBADMIN authority is required to call this API. The maximum metadata value count for a single role is 25. Custom metadata update, including add, replace need suit licensed.
- * @summary Bulk-Update Roles\' Metadata by Query
+ * @summary Bulk-update roles\' metadata by query
  * @param {RolesV2025ApiUpdateRolesMetadataByQueryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5512,7 +5636,7 @@ export const updateRolesMetadataByQuery = (requestParameters: sdk.RolesV2025ApiU
 
 /**
  * Create a new SIM Integrations.
- * @summary Create new SIM integration
+ * @summary Create new sim integration
  * @param {SIMIntegrationsV2025ApiCreateSIMIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5523,7 +5647,7 @@ export const createSIMIntegration = (requestParameters: sdk.SIMIntegrationsV2025
 }
 /**
  * Get the details of a SIM integration.
- * @summary Delete a SIM integration
+ * @summary Delete a sim integration
  * @param {SIMIntegrationsV2025ApiDeleteSIMIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5534,7 +5658,7 @@ export const deleteSIMIntegration = (requestParameters: sdk.SIMIntegrationsV2025
 }
 /**
  * Get the details of a SIM integration.
- * @summary Get a SIM integration details.
+ * @summary Get a sim integration details.
  * @param {SIMIntegrationsV2025ApiGetSIMIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5545,7 +5669,7 @@ export const getSIMIntegration = (requestParameters: sdk.SIMIntegrationsV2025Api
 }
 /**
  * List the existing SIM integrations.
- * @summary List the existing SIM integrations.
+ * @summary List the existing sim integrations.
  * @param {SIMIntegrationsV2025ApiGetSIMIntegrationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5556,7 +5680,7 @@ export const getSIMIntegrations = (requestParameters: sdk.SIMIntegrationsV2025Ap
 }
 /**
  * Patch a SIM beforeProvisioningRule attribute given a JsonPatch object.
- * @summary Patch a SIM beforeProvisioningRule attribute.
+ * @summary Patch a sim beforeprovisioningrule attribute.
  * @param {SIMIntegrationsV2025ApiPatchBeforeProvisioningRuleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5567,7 +5691,7 @@ export const patchBeforeProvisioningRule = (requestParameters: sdk.SIMIntegratio
 }
 /**
  * Patch a SIM attribute given a JsonPatch object.
- * @summary Patch a SIM attribute.
+ * @summary Patch a sim attribute.
  * @param {SIMIntegrationsV2025ApiPatchSIMAttributesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5578,7 +5702,7 @@ export const patchSIMAttributes = (requestParameters: sdk.SIMIntegrationsV2025Ap
 }
 /**
  * Update an existing SIM integration.
- * @summary Update an existing SIM integration
+ * @summary Update an existing sim integration
  * @param {SIMIntegrationsV2025ApiPutSIMIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5590,7 +5714,7 @@ export const putSIMIntegration = (requestParameters: sdk.SIMIntegrationsV2025Api
 
 /**
  * This creates both General and Conflicting Access Based policy, with a limit of 50 entitlements for each (left & right) criteria for Conflicting Access Based SOD policy. Requires role of ORG_ADMIN.
- * @summary Create SOD policy
+ * @summary Create sod policy
  * @param {SODPoliciesV2025ApiCreateSodPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5601,7 +5725,7 @@ export const createSodPolicy = (requestParameters: sdk.SODPoliciesV2025ApiCreate
 }
 /**
  * This deletes a specified SOD policy. Requires role of ORG_ADMIN.
- * @summary Delete SOD policy by ID
+ * @summary Delete sod policy by id
  * @param {SODPoliciesV2025ApiDeleteSodPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5612,7 +5736,7 @@ export const deleteSodPolicy = (requestParameters: sdk.SODPoliciesV2025ApiDelete
 }
 /**
  * This deletes schedule for a specified SOD policy by ID.
- * @summary Delete SOD policy schedule
+ * @summary Delete sod policy schedule
  * @param {SODPoliciesV2025ApiDeleteSodPolicyScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5655,7 +5779,7 @@ export const getSodAllReportRunStatus = (apiConfig: sdk.Configuration): Promise<
 }
 /**
  * This gets specified SOD policy. Requires role of ORG_ADMIN.
- * @summary Get SOD policy by ID
+ * @summary Get sod policy by id
  * @param {SODPoliciesV2025ApiGetSodPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5666,7 +5790,7 @@ export const getSodPolicy = (requestParameters: sdk.SODPoliciesV2025ApiGetSodPol
 }
 /**
  * This endpoint gets a specified SOD policy\'s schedule.
- * @summary Get SOD policy schedule
+ * @summary Get sod policy schedule
  * @param {SODPoliciesV2025ApiGetSodPolicyScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5688,7 +5812,7 @@ export const getSodViolationReportRunStatus = (requestParameters: sdk.SODPolicie
 }
 /**
  * This gets the status for a violation report run task that has already been invoked.
- * @summary Get SOD violation report status
+ * @summary Get sod violation report status
  * @param {SODPoliciesV2025ApiGetSodViolationReportStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5699,7 +5823,7 @@ export const getSodViolationReportStatus = (requestParameters: sdk.SODPoliciesV2
 }
 /**
  * This gets list of all SOD policies. Requires role of ORG_ADMIN
- * @summary List SOD policies
+ * @summary List sod policies
  * @param {SODPoliciesV2025ApiListSodPoliciesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5710,7 +5834,7 @@ export const listSodPolicies = (requestParameters: sdk.SODPoliciesV2025ApiListSo
 }
 /**
  * Allows updating SOD Policy fields other than [\"id\",\"created\",\"creatorId\",\"policyQuery\",\"type\"] using the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard. Requires role of ORG_ADMIN. This endpoint can only patch CONFLICTING_ACCESS_BASED type policies. Do not use this endpoint to patch general policies - doing so will build an API exception. 
- * @summary Patch SOD policy by ID
+ * @summary Patch sod policy by id
  * @param {SODPoliciesV2025ApiPatchSodPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5721,7 +5845,7 @@ export const patchSodPolicy = (requestParameters: sdk.SODPoliciesV2025ApiPatchSo
 }
 /**
  * This updates schedule for a specified SOD policy.
- * @summary Update SOD Policy schedule
+ * @summary Update sod policy schedule
  * @param {SODPoliciesV2025ApiPutPolicyScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5732,7 +5856,7 @@ export const putPolicySchedule = (requestParameters: sdk.SODPoliciesV2025ApiPutP
 }
 /**
  * This updates a specified SOD policy. Requires role of ORG_ADMIN.
- * @summary Update SOD policy by ID
+ * @summary Update sod policy by id
  * @param {SODPoliciesV2025ApiPutSodPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5743,7 +5867,7 @@ export const putSodPolicy = (requestParameters: sdk.SODPoliciesV2025ApiPutSodPol
 }
 /**
  * Runs the scheduled report for the policy retrieved by passed policy ID.  The report schedule is fetched from the policy retrieved by ID.
- * @summary Evaluate one policy by ID
+ * @summary Evaluate one policy by id
  * @param {SODPoliciesV2025ApiStartEvaluateSodPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5765,7 +5889,7 @@ export const startSodAllPoliciesForOrg = (requestParameters: sdk.SODPoliciesV202
 }
 /**
  * This invokes processing of violation report for given SOD policy. If the policy reports more than 5000 violations, the report returns with violation limit exceeded message.
- * @summary Runs SOD policy violation report
+ * @summary Runs sod policy violation report
  * @param {SODPoliciesV2025ApiStartSodPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5777,7 +5901,7 @@ export const startSodPolicy = (requestParameters: sdk.SODPoliciesV2025ApiStartSo
 
 /**
  * This API is used to check if granting some additional accesses would cause the subject to be in violation of any SOD policies. Returns the violations that would be caused.
- * @summary Predict SOD violations for identity.
+ * @summary Predict sod violations for identity.
  * @param {SODViolationsV2025ApiStartPredictSodViolationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5788,7 +5912,7 @@ export const startPredictSodViolations = (requestParameters: sdk.SODViolationsV2
 }
 /**
  * This API initiates a SOD policy verification asynchronously.
- * @summary Check SOD violations
+ * @summary Check sod violations
  * @param {SODViolationsV2025ApiStartViolationCheckRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5866,7 +5990,7 @@ export const importSpConfig = (requestParameters: sdk.SPConfigV2025ApiImportSpCo
 }
 /**
  * Get a list of object configurations that the tenant export/import service knows.
- * @summary List Config Objects
+ * @summary List config objects
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -5888,7 +6012,7 @@ export const createSavedSearch = (requestParameters: sdk.SavedSearchV2025ApiCrea
 }
 /**
  * Deletes the specified saved search. 
- * @summary Delete document by ID
+ * @summary Delete document by id
  * @param {SavedSearchV2025ApiDeleteSavedSearchRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5899,7 +6023,7 @@ export const deleteSavedSearch = (requestParameters: sdk.SavedSearchV2025ApiDele
 }
 /**
  * Executes the specified saved search. 
- * @summary Execute a saved search by ID
+ * @summary Execute a saved search by id
  * @param {SavedSearchV2025ApiExecuteSavedSearchRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5910,7 +6034,7 @@ export const executeSavedSearch = (requestParameters: sdk.SavedSearchV2025ApiExe
 }
 /**
  * Returns the specified saved search. 
- * @summary Return saved search by ID
+ * @summary Return saved search by id
  * @param {SavedSearchV2025ApiGetSavedSearchRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5921,7 +6045,7 @@ export const getSavedSearch = (requestParameters: sdk.SavedSearchV2025ApiGetSave
 }
 /**
  * Returns a list of saved searches. 
- * @summary A list of Saved Searches
+ * @summary A list of saved searches
  * @param {SavedSearchV2025ApiListSavedSearchesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5955,7 +6079,7 @@ export const createScheduledSearch = (requestParameters: sdk.ScheduledSearchV202
 }
 /**
  * Deletes the specified scheduled search. 
- * @summary Delete a Scheduled Search
+ * @summary Delete a scheduled search
  * @param {ScheduledSearchV2025ApiDeleteScheduledSearchRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5966,7 +6090,7 @@ export const deleteScheduledSearch = (requestParameters: sdk.ScheduledSearchV202
 }
 /**
  * Returns the specified scheduled search.
- * @summary Get a Scheduled Search
+ * @summary Get a scheduled search
  * @param {ScheduledSearchV2025ApiGetScheduledSearchRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5988,7 +6112,7 @@ export const listScheduledSearch = (requestParameters: sdk.ScheduledSearchV2025A
 }
 /**
  * Unsubscribes a recipient from the specified scheduled search. 
- * @summary Unsubscribe a recipient from Scheduled Search
+ * @summary Unsubscribe a recipient from scheduled search
  * @param {ScheduledSearchV2025ApiUnsubscribeScheduledSearchRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -5999,7 +6123,7 @@ export const unsubscribeScheduledSearch = (requestParameters: sdk.ScheduledSearc
 }
 /**
  * Updates an existing scheduled search. 
- * @summary Update an existing Scheduled Search
+ * @summary Update an existing scheduled search
  * @param {ScheduledSearchV2025ApiUpdateScheduledSearchRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6011,7 +6135,7 @@ export const updateScheduledSearch = (requestParameters: sdk.ScheduledSearchV202
 
 /**
  * Performs a search query aggregation and returns the aggregation result. By default, you can page a maximum of 10,000 search result records.  To page past 10,000 records, you can use searchAfter paging.  Refer to [Paginating Search Queries](https://developer.sailpoint.com/idn/api/standard-collection-parameters#paginating-search-queries) for more information about how to implement searchAfter paging. 
- * @summary Perform a Search Query Aggregation
+ * @summary Perform a search query aggregation
  * @param {SearchV2025ApiSearchAggregateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6022,7 +6146,7 @@ export const searchAggregate = (requestParameters: sdk.SearchV2025ApiSearchAggre
 }
 /**
  * Performs a search with a provided query and returns the count of results in the X-Total-Count header.
- * @summary Count Documents Satisfying a Query
+ * @summary Count documents satisfying a query
  * @param {SearchV2025ApiSearchCountRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6033,7 +6157,7 @@ export const searchCount = (requestParameters: sdk.SearchV2025ApiSearchCountRequ
 }
 /**
  * Fetches a single document from the specified index, using the specified document ID.
- * @summary Get a Document by ID
+ * @summary Get a document by id
  * @param {SearchV2025ApiSearchGetRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6044,7 +6168,7 @@ export const searchGet = (requestParameters: sdk.SearchV2025ApiSearchGetRequest,
 }
 /**
  * Perform a search with the provided query and return a matching result collection. To page past 10,000 records, you can use `searchAfter` paging.  Refer to [Paginating Search Queries](https://developer.sailpoint.com/idn/api/standard-collection-parameters#paginating-search-queries) for more information about how to implement `searchAfter` paging. 
- * @summary Perform Search
+ * @summary Perform search
  * @param {SearchV2025ApiSearchPostRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6056,7 +6180,7 @@ export const searchPost = (requestParameters: sdk.SearchV2025ApiSearchPostReques
 
 /**
  * Create and configure extended search attributes.  This API accepts an attribute name, an attribute display name and a list of name/value pair associates of application IDs to attribute names.  It will then validate the inputs and configure/create the attribute promotion configuration in the Link ObjectConfig. >**Note: Give searchable attributes unique names.  Do not give them the same names used for account attributes or source attributes.  Also, do not give them the same names present in account schema for a current or future source, regardless of whether that source is included in the searchable attributes\' `applicationAttributes`.**
- * @summary Create Extended Search Attributes
+ * @summary Create extended search attributes
  * @param {SearchAttributeConfigurationV2025ApiCreateSearchAttributeConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6067,7 +6191,7 @@ export const createSearchAttributeConfig = (requestParameters: sdk.SearchAttribu
 }
 /**
  * Delete an extended attribute configuration by name.
- * @summary Delete Extended Search Attribute
+ * @summary Delete extended search attribute
  * @param {SearchAttributeConfigurationV2025ApiDeleteSearchAttributeConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6078,7 +6202,7 @@ export const deleteSearchAttributeConfig = (requestParameters: sdk.SearchAttribu
 }
 /**
  * Get a list of attribute/application attributes currently configured in Identity Security Cloud (ISC).
- * @summary List Extended Search Attributes
+ * @summary List extended search attributes
  * @param {SearchAttributeConfigurationV2025ApiGetSearchAttributeConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6089,7 +6213,7 @@ export const getSearchAttributeConfig = (requestParameters: sdk.SearchAttributeC
 }
 /**
  * Get an extended attribute configuration by name.
- * @summary Get Extended Search Attribute
+ * @summary Get extended search attribute
  * @param {SearchAttributeConfigurationV2025ApiGetSingleSearchAttributeConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6100,7 +6224,7 @@ export const getSingleSearchAttributeConfig = (requestParameters: sdk.SearchAttr
 }
 /**
  * Update an existing search attribute configuration.  You can patch these fields: * name  * displayName * applicationAttributes
- * @summary Update Extended Search Attribute
+ * @summary Update extended search attribute
  * @param {SearchAttributeConfigurationV2025ApiPatchSearchAttributeConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6112,7 +6236,7 @@ export const patchSearchAttributeConfig = (requestParameters: sdk.SearchAttribut
 
 /**
  * This API creates a segment.  >**Note:** Segment definitions may take time to propagate to all identities.
- * @summary Create Segment
+ * @summary Create segment
  * @param {SegmentsV2025ApiCreateSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6123,7 +6247,7 @@ export const createSegment = (requestParameters: sdk.SegmentsV2025ApiCreateSegme
 }
 /**
  * This API deletes the segment specified by the given ID. >**Note:** that segment deletion may take some time to become effective.    
- * @summary Delete Segment by ID
+ * @summary Delete segment by id
  * @param {SegmentsV2025ApiDeleteSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6134,7 +6258,7 @@ export const deleteSegment = (requestParameters: sdk.SegmentsV2025ApiDeleteSegme
 }
 /**
  * This API returns the segment specified by the given ID.
- * @summary Get Segment by ID
+ * @summary Get segment by id
  * @param {SegmentsV2025ApiGetSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6145,7 +6269,7 @@ export const getSegment = (requestParameters: sdk.SegmentsV2025ApiGetSegmentRequ
 }
 /**
  * This API returns a list of all segments. 
- * @summary List Segments
+ * @summary List segments
  * @param {SegmentsV2025ApiListSegmentsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6156,7 +6280,7 @@ export const listSegments = (requestParameters: sdk.SegmentsV2025ApiListSegments
 }
 /**
  * Use this API to update segment fields by using the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard. >**Note:** Changes to a segment may take some time to propagate to all identities.
- * @summary Update Segment
+ * @summary Update segment
  * @param {SegmentsV2025ApiPatchSegmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6168,7 +6292,7 @@ export const patchSegment = (requestParameters: sdk.SegmentsV2025ApiPatchSegment
 
 /**
  * Create a new Service Desk integration.
- * @summary Create new Service Desk integration
+ * @summary Create new service desk integration
  * @param {ServiceDeskIntegrationV2025ApiCreateServiceDeskIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6179,7 +6303,7 @@ export const createServiceDeskIntegration = (requestParameters: sdk.ServiceDeskI
 }
 /**
  * Delete an existing Service Desk integration by ID.
- * @summary Delete a Service Desk integration
+ * @summary Delete a service desk integration
  * @param {ServiceDeskIntegrationV2025ApiDeleteServiceDeskIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6190,7 +6314,7 @@ export const deleteServiceDeskIntegration = (requestParameters: sdk.ServiceDeskI
 }
 /**
  * Get an existing Service Desk integration by ID.
- * @summary Get a Service Desk integration
+ * @summary Get a service desk integration
  * @param {ServiceDeskIntegrationV2025ApiGetServiceDeskIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6201,7 +6325,7 @@ export const getServiceDeskIntegration = (requestParameters: sdk.ServiceDeskInte
 }
 /**
  * This API endpoint returns an existing Service Desk integration template by scriptName.
- * @summary Service Desk integration template by scriptName
+ * @summary Service desk integration template by scriptname
  * @param {ServiceDeskIntegrationV2025ApiGetServiceDeskIntegrationTemplateRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6212,7 +6336,7 @@ export const getServiceDeskIntegrationTemplate = (requestParameters: sdk.Service
 }
 /**
  * This API endpoint returns the current list of supported Service Desk integration types.
- * @summary List Service Desk integration types
+ * @summary List service desk integration types
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -6222,7 +6346,7 @@ export const getServiceDeskIntegrationTypes = (apiConfig: sdk.Configuration): Pr
 }
 /**
  * Get a list of Service Desk integration objects.
- * @summary List existing Service Desk integrations
+ * @summary List existing service desk integrations
  * @param {ServiceDeskIntegrationV2025ApiGetServiceDeskIntegrationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6243,7 +6367,7 @@ export const getStatusCheckDetails = (apiConfig: sdk.Configuration): Promise<Api
 }
 /**
  * Update an existing Service Desk integration by ID with a PATCH request.
- * @summary Patch a Service Desk Integration
+ * @summary Patch a service desk integration
  * @param {ServiceDeskIntegrationV2025ApiPatchServiceDeskIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6254,7 +6378,7 @@ export const patchServiceDeskIntegration = (requestParameters: sdk.ServiceDeskIn
 }
 /**
  * Update an existing Service Desk integration by ID.
- * @summary Update a Service Desk integration
+ * @summary Update a service desk integration
  * @param {ServiceDeskIntegrationV2025ApiPutServiceDeskIntegrationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6300,7 +6424,7 @@ export const getUsagesBySourceId = (requestParameters: sdk.SourceUsagesV2025ApiG
 
 /**
  * This API generates a create policy/template based on field value transforms. This API is intended for use when setting up JDBC Provisioning type sources, but it will also work on other source types. Transforms can be used in the provisioning policy to create a new attribute that you only need during provisioning. Refer to [Transforms in Provisioning Policies](https://developer.sailpoint.com/idn/docs/transforms/guides/transforms-in-provisioning-policies) for more information.
- * @summary Create Provisioning Policy
+ * @summary Create provisioning policy
  * @param {SourcesV2025ApiCreateProvisioningPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6311,7 +6435,7 @@ export const createProvisioningPolicy = (requestParameters: sdk.SourcesV2025ApiC
 }
 /**
  * This creates a specific source with a full source JSON representation. Any passwords are submitted as plain-text and encrypted upon receipt in IdentityNow.
- * @summary Creates a source in IdentityNow.
+ * @summary Creates a source in identitynow.
  * @param {SourcesV2025ApiCreateSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6322,7 +6446,7 @@ export const createSource = (requestParameters: sdk.SourcesV2025ApiCreateSourceR
 }
 /**
  * Use this API to create a new schedule for a type on the specified source in Identity Security Cloud (ISC). 
- * @summary Create Schedule on Source
+ * @summary Create schedule on source
  * @param {SourcesV2025ApiCreateSourceScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6333,7 +6457,7 @@ export const createSourceSchedule = (requestParameters: sdk.SourcesV2025ApiCreat
 }
 /**
  * Use this API to create a new schema on the specified source in Identity Security Cloud (ISC). 
- * @summary Create Schema on Source
+ * @summary Create schema on source
  * @param {SourcesV2025ApiCreateSourceSchemaRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6344,7 +6468,7 @@ export const createSourceSchema = (requestParameters: sdk.SourcesV2025ApiCreateS
 }
 /**
  * Use this endpoint to remove all accounts from the system without provisioning changes to the source. Accounts that are removed could be re-created during the next aggregation.  This endpoint is good for: * Removing accounts that no longer exist on the source. * Removing accounts that won\'t be aggregated following updates to the source configuration. * Forcing accounts to be re-created following the next aggregation to re-run account processing, support testing, etc. 
- * @summary Remove All Accounts in a Source
+ * @summary Remove all accounts in source
  * @param {SourcesV2025ApiDeleteAccountsAsyncRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6355,7 +6479,7 @@ export const deleteAccountsAsync = (requestParameters: sdk.SourcesV2025ApiDelete
 }
 /**
  * Deletes the native change detection configuration for the source specified by the given ID.
- * @summary Delete Native Change Detection Configuration
+ * @summary Delete native change detection configuration
  * @param {SourcesV2025ApiDeleteNativeChangeDetectionConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6366,7 +6490,7 @@ export const deleteNativeChangeDetectionConfig = (requestParameters: sdk.Sources
 }
 /**
  * Deletes the provisioning policy with the specified usage on an application.
- * @summary Delete Provisioning Policy by UsageType
+ * @summary Delete provisioning policy by usagetype
  * @param {SourcesV2025ApiDeleteProvisioningPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6377,7 +6501,7 @@ export const deleteProvisioningPolicy = (requestParameters: sdk.SourcesV2025ApiD
 }
 /**
  * Use this API to delete a specific source in Identity Security Cloud (ISC). The API removes all the accounts on the source first, and then it deletes the source. You can retrieve the actual task execution status with this method: GET `/task-status/{id}`
- * @summary Delete Source by ID
+ * @summary Delete source by id
  * @param {SourcesV2025ApiDeleteSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6388,7 +6512,7 @@ export const deleteSource = (requestParameters: sdk.SourcesV2025ApiDeleteSourceR
 }
 /**
  * 
- * @summary Delete Source Schedule by type.
+ * @summary Delete source schedule by type.
  * @param {SourcesV2025ApiDeleteSourceScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6399,7 +6523,7 @@ export const deleteSourceSchedule = (requestParameters: sdk.SourcesV2025ApiDelet
 }
 /**
  * 
- * @summary Delete Source Schema by ID
+ * @summary Delete source schema by id
  * @param {SourcesV2025ApiDeleteSourceSchemaRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6421,7 +6545,7 @@ export const getAccountsSchema = (requestParameters: sdk.SourcesV2025ApiGetAccou
 }
 /**
  * This API returns the existing correlation configuration for a source specified by the given ID.
- * @summary Get Source Correlation Configuration
+ * @summary Get source correlation configuration
  * @param {SourcesV2025ApiGetCorrelationConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6443,7 +6567,7 @@ export const getEntitlementsSchema = (requestParameters: sdk.SourcesV2025ApiGetE
 }
 /**
  * This API returns the existing native change detection configuration for a source specified by the given ID.
- * @summary Native Change Detection Configuration
+ * @summary Native change detection configuration
  * @param {SourcesV2025ApiGetNativeChangeDetectionConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6454,7 +6578,7 @@ export const getNativeChangeDetectionConfig = (requestParameters: sdk.SourcesV20
 }
 /**
  * This end-point retrieves the ProvisioningPolicy with the specified usage on the specified Source in IdentityNow.
- * @summary Get Provisioning Policy by UsageType
+ * @summary Get provisioning policy by usagetype
  * @param {SourcesV2025ApiGetProvisioningPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6465,7 +6589,7 @@ export const getProvisioningPolicy = (requestParameters: sdk.SourcesV2025ApiGetP
 }
 /**
  * Use this API to get a source by a specified ID in Identity Security Cloud (ISC).
- * @summary Get Source by ID
+ * @summary Get source by id
  * @param {SourcesV2025ApiGetSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6476,7 +6600,7 @@ export const getSource = (requestParameters: sdk.SourcesV2025ApiGetSourceRequest
 }
 /**
  * This API returns the existing attribute synchronization configuration for a source specified by the given ID. The response contains all attributes, regardless of whether they enabled or not.
- * @summary Attribute Sync Config
+ * @summary Attribute sync config
  * @param {SourcesV2025ApiGetSourceAttrSyncConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6498,7 +6622,7 @@ export const getSourceConfig = (requestParameters: sdk.SourcesV2025ApiGetSourceC
 }
 /**
  * Use this API to get all dependent Profiles, Attributes, Applications and Custom Transforms for a source by a specified ID in Identity Security Cloud (ISC).
- * @summary Get Source Connections by ID
+ * @summary Get source connections by id
  * @param {SourcesV2025ApiGetSourceConnectionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6509,7 +6633,7 @@ export const getSourceConnections = (requestParameters: sdk.SourcesV2025ApiGetSo
 }
 /**
  * This API gets the current entitlement request configuration for a source. This source-level configuration should apply for all the entitlements in the source.  Access request to any entitlements in the source should follow this configuration unless a separate entitlement-level configuration is defined. - During access request, this source-level entitlement request configuration overrides the global organization-level configuration. - However, the entitlement-level configuration (if defined) overrides this source-level configuration.
- * @summary Get Source Entitlement Request Configuration
+ * @summary Get source entitlement request configuration
  * @param {SourcesV2025ApiGetSourceEntitlementRequestConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6531,7 +6655,7 @@ export const getSourceHealth = (requestParameters: sdk.SourcesV2025ApiGetSourceH
 }
 /**
  * Get the source schedule by type in Identity Security Cloud (ISC). 
- * @summary Get Source Schedule by Type
+ * @summary Get source schedule by type
  * @param {SourcesV2025ApiGetSourceScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6542,7 +6666,7 @@ export const getSourceSchedule = (requestParameters: sdk.SourcesV2025ApiGetSourc
 }
 /**
  * Use this API to list the schedules that exist on the specified source in Identity Security Cloud (ISC). :::info This endpoint uses a **cron expression** to schedule a task, following standard **cron job syntax**.  For example, `0 0 12 1/1 * ? *` runs the task **daily at 12:00 PM**.  **Days of the week are represented as 1-7 (Sunday-Saturday).** ::: 
- * @summary List Schedules on Source
+ * @summary List schedules on source
  * @param {SourcesV2025ApiGetSourceSchedulesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6553,7 +6677,7 @@ export const getSourceSchedules = (requestParameters: sdk.SourcesV2025ApiGetSour
 }
 /**
  * Get the Source Schema by ID in IdentityNow. 
- * @summary Get Source Schema by ID
+ * @summary Get source schema by id
  * @param {SourcesV2025ApiGetSourceSchemaRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6564,7 +6688,7 @@ export const getSourceSchema = (requestParameters: sdk.SourcesV2025ApiGetSourceS
 }
 /**
  * Use this API to list the schemas that exist on the specified source in Identity Security Cloud (ISC).
- * @summary List Schemas on Source
+ * @summary List schemas on source
  * @param {SourcesV2025ApiGetSourceSchemasRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6575,7 +6699,7 @@ export const getSourceSchemas = (requestParameters: sdk.SourcesV2025ApiGetSource
 }
 /**
  * Starts an account aggregation on the specified source.  If the target source is a delimited file source, then the CSV file needs to be included in the request body. You will also need to set the Content-Type header to `multipart/form-data`.
- * @summary Account Aggregation
+ * @summary Account aggregation
  * @param {SourcesV2025ApiImportAccountsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6607,6 +6731,17 @@ export const importConnectorFile = (requestParameters: sdk.SourcesV2025ApiImport
     return handleApiCall(() => sourcesv2025api.importConnectorFile(requestParameters));
 }
 /**
+ * Starts an entitlement aggregation on the specified source.  If the target source is a delimited file source, then the CSV file needs to be included in the request body.  You will also need to set the Content-Type header to `multipart/form-data`. A token with ORG_ADMIN, SOURCE_ADMIN, or SOURCE_SUBADMIN authority is required to call this API.
+ * @summary Entitlement aggregation
+ * @param {SourcesV2025ApiImportEntitlementsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const importEntitlements = (requestParameters: sdk.SourcesV2025ApiImportEntitlementsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.LoadEntitlementTaskV2025>> => {
+    const sourcesv2025api = new sdk.SourcesV2025Api(apiConfig);
+    return handleApiCall(() => sourcesv2025api.importEntitlements(requestParameters));
+}
+/**
  * This API uploads a source schema template file to configure a source\'s entitlement attributes.  To retrieve the file to modify and upload, log into Identity Now.   Click **Admin** -> **Connections** -> **Sources** -> **`{SourceName}`** -> **Import Data** -> **Import Entitlements** -> **Download**  >**NOTE: This API is designated only for Delimited File sources.**
  * @summary Uploads source entitlements schema template
  * @param {SourcesV2025ApiImportEntitlementsSchemaRequest} requestParameters Request parameters.
@@ -6619,7 +6754,7 @@ export const importEntitlementsSchema = (requestParameters: sdk.SourcesV2025ApiI
 }
 /**
  * File is required for upload. You will also need to set the Content-Type header to `multipart/form-data`
- * @summary Process Uncorrelated Accounts
+ * @summary Process uncorrelated accounts
  * @param {SourcesV2025ApiImportUncorrelatedAccountsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6630,7 +6765,7 @@ export const importUncorrelatedAccounts = (requestParameters: sdk.SourcesV2025Ap
 }
 /**
  * This end-point lists all the ProvisioningPolicies in IdentityNow.
- * @summary Lists ProvisioningPolicies
+ * @summary Lists provisioningpolicies
  * @param {SourcesV2025ApiListProvisioningPoliciesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6641,7 +6776,7 @@ export const listProvisioningPolicies = (requestParameters: sdk.SourcesV2025ApiL
 }
 /**
  * This end-point lists all the sources in IdentityNow.
- * @summary Lists all sources in IdentityNow.
+ * @summary Lists all sources in identitynow.
  * @param {SourcesV2025ApiListSourcesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6663,7 +6798,7 @@ export const pingCluster = (requestParameters: sdk.SourcesV2025ApiPingClusterReq
 }
 /**
  * Replaces the correlation configuration for the source specified by the given ID with the configuration provided in the request body.
- * @summary Update Source Correlation Configuration
+ * @summary Update source correlation configuration
  * @param {SourcesV2025ApiPutCorrelationConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6674,7 +6809,7 @@ export const putCorrelationConfig = (requestParameters: sdk.SourcesV2025ApiPutCo
 }
 /**
  * Replaces the native change detection configuration for the source specified by the given ID with the configuration provided in the request body.
- * @summary Update Native Change Detection Configuration
+ * @summary Update native change detection configuration
  * @param {SourcesV2025ApiPutNativeChangeDetectionConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6685,7 +6820,7 @@ export const putNativeChangeDetectionConfig = (requestParameters: sdk.SourcesV20
 }
 /**
  * This end-point updates the provisioning policy with the specified usage on the specified source in IdentityNow. Transforms can be used in the provisioning policy to create a new attribute that you only need during provisioning. Refer to [Transforms in Provisioning Policies](https://developer.sailpoint.com/idn/docs/transforms/guides/transforms-in-provisioning-policies) for more information.
- * @summary Update Provisioning Policy by UsageType
+ * @summary Update provisioning policy by usagetype
  * @param {SourcesV2025ApiPutProvisioningPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6696,7 +6831,7 @@ export const putProvisioningPolicy = (requestParameters: sdk.SourcesV2025ApiPutP
 }
 /**
  * Use this API to update a source in Identity Security Cloud (ISC), using a full object representation. This means that when you use this API, it completely replaces the existing source configuration.  These fields are immutable, so they cannot be changed:  * id * type * authoritative * connector * connectorClass * passwordPolicies  Attempts to modify these fields will result in a 400 error. 
- * @summary Update Source (Full)
+ * @summary Update source (full)
  * @param {SourcesV2025ApiPutSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6707,7 +6842,7 @@ export const putSource = (requestParameters: sdk.SourcesV2025ApiPutSourceRequest
 }
 /**
  * Replaces the attribute synchronization configuration for the source specified by the given ID with the configuration provided in the request body. Only the \"enabled\" field of the values in the \"attributes\" array is mutable. Attempting to change other attributes or add new values to the \"attributes\" array will result in an error. 
- * @summary Update Attribute Sync Config
+ * @summary Update attribute sync config
  * @param {SourcesV2025ApiPutSourceAttrSyncConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6718,7 +6853,7 @@ export const putSourceAttrSyncConfig = (requestParameters: sdk.SourcesV2025ApiPu
 }
 /**
  * This API will completely replace an existing Schema with the submitted payload. Some fields of the Schema cannot be updated. These fields are listed below.  * id * name * created * modified  Any attempt to modify these fields will result in an error response with a status code of 400.  > `id` must remain in the request body, but it cannot be changed.  If `id` is omitted from the request body, the result will be a 400 error. 
- * @summary Update Source Schema (Full)
+ * @summary Update source schema (full)
  * @param {SourcesV2025ApiPutSourceSchemaRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6773,7 +6908,7 @@ export const testSourceConnection = (requestParameters: sdk.SourcesV2025ApiTestS
 }
 /**
  * This API can be used to set up or update Password Policy in IdentityNow for the specified Source. Source must support PASSWORD feature. 
- * @summary Update Password Policy
+ * @summary Update password policy
  * @param {SourcesV2025ApiUpdatePasswordPolicyHoldersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6784,7 +6919,7 @@ export const updatePasswordPolicyHolders = (requestParameters: sdk.SourcesV2025A
 }
 /**
  * This end-point updates a list of provisioning policies on the specified source in IdentityNow.
- * @summary Bulk Update Provisioning Policies
+ * @summary Bulk update provisioning policies
  * @param {SourcesV2025ApiUpdateProvisioningPoliciesInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6795,7 +6930,7 @@ export const updateProvisioningPoliciesInBulk = (requestParameters: sdk.SourcesV
 }
 /**
  * This API selectively updates an existing Provisioning Policy using a JSONPatch payload. Transforms can be used in the provisioning policy to create a new attribute that you only need during provisioning. Refer to [Transforms in Provisioning Policies](https://developer.sailpoint.com/idn/docs/transforms/guides/transforms-in-provisioning-policies) for more information.
- * @summary Partial update of Provisioning Policy
+ * @summary Partial update of provisioning policy
  * @param {SourcesV2025ApiUpdateProvisioningPolicyRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6806,7 +6941,7 @@ export const updateProvisioningPolicy = (requestParameters: sdk.SourcesV2025ApiU
 }
 /**
  * Use this API to partially update a source in Identity Security Cloud (ISC), using a list of patch operations according to the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard.  These fields are immutable, so they cannot be changed:  * id * type * authoritative * created * modified * connector * connectorClass * passwordPolicies  Attempts to modify these fields will result in a 400 error. 
- * @summary Update Source (Partial)
+ * @summary Update source (partial)
  * @param {SourcesV2025ApiUpdateSourceRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6817,7 +6952,7 @@ export const updateSource = (requestParameters: sdk.SourcesV2025ApiUpdateSourceR
 }
 /**
  * This API replaces the current entitlement request configuration for a source. This source-level configuration should apply for all the entitlements in the source.  Access request to any entitlements in the source should follow this configuration unless a separate entitlement-level configuration is defined. - During access request, this source-level entitlement request configuration overrides the global organization-level configuration. - However, the entitlement-level configuration (if defined) overrides this source-level configuration.
- * @summary Update Source Entitlement Request Configuration
+ * @summary Update source entitlement request configuration
  * @param {SourcesV2025ApiUpdateSourceEntitlementRequestConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6828,7 +6963,7 @@ export const updateSourceEntitlementRequestConfig = (requestParameters: sdk.Sour
 }
 /**
  * Use this API to selectively update an existing Schedule using a JSONPatch payload.   The following schedule fields are immutable and cannot be updated:  - type 
- * @summary Update Source Schedule (Partial)
+ * @summary Update source schedule (partial)
  * @param {SourcesV2025ApiUpdateSourceScheduleRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6839,7 +6974,7 @@ export const updateSourceSchedule = (requestParameters: sdk.SourcesV2025ApiUpdat
 }
 /**
  * Use this API to selectively update an existing Schema using a JSONPatch payload.   The following schema fields are immutable and cannot be updated:  - id - name - created - modified   To switch an account attribute to a group entitlement, you need to have the following in place:  - `isEntitlement: true` - Must define a schema for the group and [add it to the source](https://developer.sailpoint.com/idn/api/v3/create-source-schema) before updating the `isGroup` flag.  For example, here is the `group` account attribute referencing a schema that defines the group: ```json {     \"name\": \"groups\",     \"type\": \"STRING\",     \"schema\": {         \"type\": \"CONNECTOR_SCHEMA\",         \"id\": \"2c9180887671ff8c01767b4671fc7d60\",         \"name\": \"group\"     },     \"description\": \"The groups, roles etc. that reference account group objects\",     \"isMulti\": true,     \"isEntitlement\": true,     \"isGroup\": true } ``` 
- * @summary Update Source Schema (Partial)
+ * @summary Update source schema (partial)
  * @param {SourcesV2025ApiUpdateSourceSchemaRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6851,7 +6986,7 @@ export const updateSourceSchema = (requestParameters: sdk.SourcesV2025ApiUpdateS
 
 /**
  * \'Submit Sed Batch Stats Request.   Submits batchId in the path param `(e.g. {batchId}/stats)`. API responses with stats  of the batchId.\' 
- * @summary Submit Sed Batch Stats Request
+ * @summary Submit sed batch stats request
  * @param {SuggestedEntitlementDescriptionV2025ApiGetSedBatchStatsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6861,18 +6996,19 @@ export const getSedBatchStats = (requestParameters: sdk.SuggestedEntitlementDesc
     return handleApiCall(() => suggestedentitlementdescriptionv2025api.getSedBatchStats(requestParameters));
 }
 /**
- * List Sed Batches. API responses with Sed Batch Status
- * @summary List Sed Batch Request
+ * List Sed Batches. API responses with Sed Batch Records
+ * @summary List Sed Batch Record
+ * @param {SuggestedEntitlementDescriptionV2025ApiGetSedBatchesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getSedBatches = (apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SedBatchStatusV2025>> => {
+export const getSedBatches = (requestParameters: sdk.SuggestedEntitlementDescriptionV2025ApiGetSedBatchesRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.SedBatchRecordV2025>>> => {
     const suggestedentitlementdescriptionv2025api = new sdk.SuggestedEntitlementDescriptionV2025Api(apiConfig);
-    return handleApiCall(() => suggestedentitlementdescriptionv2025api.getSedBatches());
+    return handleApiCall(() => suggestedentitlementdescriptionv2025api.getSedBatches(requestParameters));
 }
 /**
  * List of Suggested Entitlement Descriptions (SED)  SED field descriptions:  **batchId**: the ID of the batch of entitlements that are submitted for description generation  **displayName**: the display name of the entitlement that we are generating a description for  **sourceName**: the name of the source associated with the entitlement that we are generating the description for  **sourceId**: the ID of the source associated with the entitlement that we are generating the description for  **status**: the status of the suggested entitlement description, valid status options: \"requested\", \"suggested\", \"not_suggested\", \"failed\", \"assigned\", \"approved\", \"denied\"  **fullText**: will filter suggested entitlement description records by text found in any of the following fields: entitlement name, entitlement display name, suggested description, source name
- * @summary List Suggested Entitlement Descriptions
+ * @summary List suggested entitlement descriptions
  * @param {SuggestedEntitlementDescriptionV2025ApiListSedsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6883,7 +7019,7 @@ export const listSeds = (requestParameters: sdk.SuggestedEntitlementDescriptionV
 }
 /**
  * Patch Suggested Entitlement Description
- * @summary Patch Suggested Entitlement Description
+ * @summary Patch suggested entitlement description
  * @param {SuggestedEntitlementDescriptionV2025ApiPatchSedRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6894,7 +7030,7 @@ export const patchSed = (requestParameters: sdk.SuggestedEntitlementDescriptionV
 }
 /**
  * Submit Bulk Approval Request for SED. Request body takes list of SED Ids. API responses with list of SED Approval Status
- * @summary Submit Bulk Approval Request
+ * @summary Submit bulk approval request
  * @param {SuggestedEntitlementDescriptionV2025ApiSubmitSedApprovalRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6905,7 +7041,7 @@ export const submitSedApproval = (requestParameters: sdk.SuggestedEntitlementDes
 }
 /**
  * Submit Assignment Request. Request body has an assignee, and list of SED Ids that are assigned to that assignee API responses with batchId that groups all approval requests together
- * @summary Submit Sed Assignment Request
+ * @summary Submit sed assignment request
  * @param {SuggestedEntitlementDescriptionV2025ApiSubmitSedAssignmentRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6916,7 +7052,7 @@ export const submitSedAssignment = (requestParameters: sdk.SuggestedEntitlementD
 }
 /**
  * Submit Sed Batch Request. Request body has one of the following: - a list of entitlement Ids - a list of SED Ids that user wants to have description generated by LLM. API responses with batchId that groups Ids together
- * @summary Submit Sed Batch Request
+ * @summary Submit sed batch request
  * @param {SuggestedEntitlementDescriptionV2025ApiSubmitSedBatchRequestRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6928,7 +7064,7 @@ export const submitSedBatchRequest = (requestParameters: sdk.SuggestedEntitlemen
 
 /**
  * Delete all tags from a tagged object.
- * @summary Delete Object Tags
+ * @summary Delete object tags
  * @param {TaggedObjectsV2025ApiDeleteTaggedObjectRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6939,7 +7075,7 @@ export const deleteTaggedObject = (requestParameters: sdk.TaggedObjectsV2025ApiD
 }
 /**
  * This API removes tags from multiple objects.
- * @summary Remove Tags from Multiple Objects
+ * @summary Remove tags from multiple objects
  * @param {TaggedObjectsV2025ApiDeleteTagsToManyObjectRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6950,7 +7086,7 @@ export const deleteTagsToManyObject = (requestParameters: sdk.TaggedObjectsV2025
 }
 /**
  * This gets a tagged object for the specified type.
- * @summary Get Tagged Object
+ * @summary Get tagged object
  * @param {TaggedObjectsV2025ApiGetTaggedObjectRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6961,7 +7097,7 @@ export const getTaggedObject = (requestParameters: sdk.TaggedObjectsV2025ApiGetT
 }
 /**
  * This API returns a list of all tagged objects.  Any authenticated token may be used to call this API.
- * @summary List Tagged Objects
+ * @summary List tagged objects
  * @param {TaggedObjectsV2025ApiListTaggedObjectsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6972,7 +7108,7 @@ export const listTaggedObjects = (requestParameters: sdk.TaggedObjectsV2025ApiLi
 }
 /**
  * This API returns a list of all tagged objects by type.  Any authenticated token may be used to call this API.
- * @summary List Tagged Objects by Type
+ * @summary List tagged objects by type
  * @param {TaggedObjectsV2025ApiListTaggedObjectsByTypeRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6983,7 +7119,7 @@ export const listTaggedObjectsByType = (requestParameters: sdk.TaggedObjectsV202
 }
 /**
  * This updates a tagged object for the specified type.
- * @summary Update Tagged Object
+ * @summary Update tagged object
  * @param {TaggedObjectsV2025ApiPutTaggedObjectRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -6994,7 +7130,7 @@ export const putTaggedObject = (requestParameters: sdk.TaggedObjectsV2025ApiPutT
 }
 /**
  * This adds a tag to an object.  Any authenticated token may be used to call this API.
- * @summary Add Tag to Object
+ * @summary Add tag to object
  * @param {TaggedObjectsV2025ApiSetTagToObjectRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7005,7 +7141,7 @@ export const setTagToObject = (requestParameters: sdk.TaggedObjectsV2025ApiSetTa
 }
 /**
  * This API adds tags to multiple objects.
- * @summary Tag Multiple Objects
+ * @summary Tag multiple objects
  * @param {TaggedObjectsV2025ApiSetTagsToManyObjectsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7017,7 +7153,7 @@ export const setTagsToManyObjects = (requestParameters: sdk.TaggedObjectsV2025Ap
 
 /**
  * Responds with headers only for list of task statuses for pending tasks.
- * @summary Retrieve Pending Task List Headers
+ * @summary Retrieve pending task list headers
  * @param {TaskManagementV2025ApiGetPendingTaskHeadersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7028,7 +7164,7 @@ export const getPendingTaskHeaders = (requestParameters: sdk.TaskManagementV2025
 }
 /**
  * Retrieve a list of statuses for pending tasks. Types of tasks include account and entitlement aggregation and other general background processing tasks.  Data for tasks older than 90 days will not be returned.
- * @summary Retrieve Pending Task Status List
+ * @summary Retrieve pending task status list
  * @param {TaskManagementV2025ApiGetPendingTasksRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7039,7 +7175,7 @@ export const getPendingTasks = (requestParameters: sdk.TaskManagementV2025ApiGet
 }
 /**
  * Get task status by task ID. Types of tasks include account and entitlement aggregation and other general background processing tasks.  Data for tasks older than 90 days will not be returned.
- * @summary Get Task Status by ID
+ * @summary Get task status by id
  * @param {TaskManagementV2025ApiGetTaskStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7050,7 +7186,7 @@ export const getTaskStatus = (requestParameters: sdk.TaskManagementV2025ApiGetTa
 }
 /**
  * Use this endpoint to get a list of statuses for **completed** tasks. Types of tasks include account and entitlement aggregation and other general background processing tasks.  Data for tasks older than 90 days will not be returned. To get a list of statuses for **in-progress** tasks, please use the [retrieve pending task status list](https://developer.sailpoint.com/docs/api/v2024/get-pending-tasks) endpoint. 
- * @summary Retrieve Task Status List
+ * @summary Retrieve task status list
  * @param {TaskManagementV2025ApiGetTaskStatusListRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7061,7 +7197,7 @@ export const getTaskStatusList = (requestParameters: sdk.TaskManagementV2025ApiG
 }
 /**
  * Update a current task status by task ID. Use this API to clear a pending task by updating the completionStatus and completed attributes.
- * @summary Update Task Status by ID
+ * @summary Update task status by id
  * @param {TaskManagementV2025ApiUpdateTaskStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7073,7 +7209,7 @@ export const updateTaskStatus = (requestParameters: sdk.TaskManagementV2025ApiUp
 
 /**
  * This rest endpoint can be used to retrieve tenant details.
- * @summary Get Tenant Information.
+ * @summary Get tenant information.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -7129,7 +7265,7 @@ export const deleteTransform = (requestParameters: sdk.TransformsV2025ApiDeleteT
 }
 /**
  * This API returns the transform specified by the given ID.
- * @summary Transform by ID
+ * @summary Transform by id
  * @param {TransformsV2025ApiGetTransformRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7163,7 +7299,7 @@ export const updateTransform = (requestParameters: sdk.TransformsV2025ApiUpdateT
 
 /**
  * Completes an invocation to a REQUEST_RESPONSE type trigger.
- * @summary Complete Trigger Invocation
+ * @summary Complete trigger invocation
  * @param {TriggersV2025ApiCompleteTriggerInvocationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7174,7 +7310,7 @@ export const completeTriggerInvocation = (requestParameters: sdk.TriggersV2025Ap
 }
 /**
  * This API creates a new subscription to a trigger and defines trigger invocation details. The type of subscription determines which config object is required: * HTTP subscriptions require httpConfig * EventBridge subscriptions require eventBridgeConfig
- * @summary Create a Subscription
+ * @summary Create a subscription
  * @param {TriggersV2025ApiCreateSubscriptionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7185,7 +7321,7 @@ export const createSubscription = (requestParameters: sdk.TriggersV2025ApiCreate
 }
 /**
  * Deletes an existing subscription to a trigger.
- * @summary Delete a Subscription
+ * @summary Delete a subscription
  * @param {TriggersV2025ApiDeleteSubscriptionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7196,7 +7332,7 @@ export const deleteSubscription = (requestParameters: sdk.TriggersV2025ApiDelete
 }
 /**
  * Gets a list of all trigger subscriptions.
- * @summary List Subscriptions
+ * @summary List subscriptions
  * @param {TriggersV2025ApiListSubscriptionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7207,7 +7343,7 @@ export const listSubscriptions = (requestParameters: sdk.TriggersV2025ApiListSub
 }
 /**
  * Gets a list of latest invocation statuses. Statuses of successful invocations are available for up to 24 hours. Statuses of failed invocations are available for up to 48 hours. This endpoint may only fetch up to 2000 invocations, and should not be treated as a representation of the full history of invocations.
- * @summary List Latest Invocation Statuses
+ * @summary List latest invocation statuses
  * @param {TriggersV2025ApiListTriggerInvocationStatusRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7218,7 +7354,7 @@ export const listTriggerInvocationStatus = (requestParameters: sdk.TriggersV2025
 }
 /**
  * Gets a list of triggers that are available in the tenant.
- * @summary List Triggers
+ * @summary List triggers
  * @param {TriggersV2025ApiListTriggersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7229,7 +7365,7 @@ export const listTriggers = (requestParameters: sdk.TriggersV2025ApiListTriggers
 }
 /**
  * This API updates a trigger subscription in IdentityNow, using a set of instructions to modify a subscription partially. The following fields are patchable:  **name**, **description**, **enabled**, **type**, **filter**, **responseDeadline**, **httpConfig**, **eventBridgeConfig**, **workflowConfig**
- * @summary Patch a Subscription
+ * @summary Patch a subscription
  * @param {TriggersV2025ApiPatchSubscriptionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7240,7 +7376,7 @@ export const patchSubscription = (requestParameters: sdk.TriggersV2025ApiPatchSu
 }
 /**
  * Initiate a test event for all subscribers of the specified event trigger.  If there are no subscribers to the specified trigger in the tenant, then no test event will be sent.
- * @summary Start a Test Invocation
+ * @summary Start a test invocation
  * @param {TriggersV2025ApiStartTestTriggerInvocationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7251,7 +7387,7 @@ export const startTestTriggerInvocation = (requestParameters: sdk.TriggersV2025A
 }
 /**
  * Validates a JSONPath filter expression against a provided mock input. Request requires a security scope of: 
- * @summary Validate a Subscription Filter
+ * @summary Validate a subscription filter
  * @param {TriggersV2025ApiTestSubscriptionFilterRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7262,7 +7398,7 @@ export const testSubscriptionFilter = (requestParameters: sdk.TriggersV2025ApiTe
 }
 /**
  * This API updates a trigger subscription in IdentityNow, using a full object representation. In other words, the existing   Subscription is completely replaced. The following fields are immutable:     * id    * triggerId     Attempts to modify these fields result in 400.
- * @summary Update a Subscription
+ * @summary Update a subscription
  * @param {TriggersV2025ApiUpdateSubscriptionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7274,7 +7410,7 @@ export const updateSubscription = (requestParameters: sdk.TriggersV2025ApiUpdate
 
 /**
  * This API endpoint retrieves UI metadata configured for your tenant.
- * @summary Get a tenant UI metadata
+ * @summary Get a tenant ui metadata
  * @param {UIMetadataV2025ApiGetTenantUiMetadataRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7285,7 +7421,7 @@ export const getTenantUiMetadata = (requestParameters: sdk.UIMetadataV2025ApiGet
 }
 /**
  * This API endpoint updates UI metadata for your tenant. These changes may require up to 5 minutes to take effect on the UI.
- * @summary Update tenant UI metadata
+ * @summary Update tenant ui metadata
  * @param {UIMetadataV2025ApiSetTenantUiMetadataRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7297,7 +7433,7 @@ export const setTenantUiMetadata = (requestParameters: sdk.UIMetadataV2025ApiSet
 
 /**
  * Create a new mapping between a SaaS vendor and an ISC connector to establish correlation paths. 
- * @summary Create Vendor Connector Mapping
+ * @summary Create vendor connector mapping
  * @param {VendorConnectorMappingsV2025ApiCreateVendorConnectorMappingRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7308,7 +7444,7 @@ export const createVendorConnectorMapping = (requestParameters: sdk.VendorConnec
 }
 /**
  * Soft delete a mapping between a SaaS vendor and an ISC connector, removing the established correlation. 
- * @summary Delete Vendor Connector Mapping
+ * @summary Delete vendor connector mapping
  * @param {VendorConnectorMappingsV2025ApiDeleteVendorConnectorMappingRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7319,7 +7455,7 @@ export const deleteVendorConnectorMapping = (requestParameters: sdk.VendorConnec
 }
 /**
  * Get a list of mappings between SaaS vendors and ISC connectors, detailing the connections established for correlation. 
- * @summary List Vendor Connector Mappings
+ * @summary List vendor connector mappings
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -7330,7 +7466,7 @@ export const getVendorConnectorMappings = (apiConfig: sdk.Configuration): Promis
 
 /**
  * This API approves an Approval Item. Either an admin, or the owning/current user must make this request.
- * @summary Approve an Approval Item
+ * @summary Approve an approval item
  * @param {WorkItemsV2025ApiApproveApprovalItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7341,7 +7477,7 @@ export const approveApprovalItem = (requestParameters: sdk.WorkItemsV2025ApiAppr
 }
 /**
  * This API bulk approves Approval Items. Either an admin, or the owning/current user must make this request.
- * @summary Bulk approve Approval Items
+ * @summary Bulk approve approval items
  * @param {WorkItemsV2025ApiApproveApprovalItemsInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7352,7 +7488,7 @@ export const approveApprovalItemsInBulk = (requestParameters: sdk.WorkItemsV2025
 }
 /**
  * This API completes a work item. Either an admin, or the owning/current user must make this request.
- * @summary Complete a Work Item
+ * @summary Complete a work item
  * @param {WorkItemsV2025ApiCompleteWorkItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7363,7 +7499,7 @@ export const completeWorkItem = (requestParameters: sdk.WorkItemsV2025ApiComplet
 }
 /**
  * This API forwards a work item to a new owner. Either an admin, or the owning/current user must make this request.
- * @summary Forward a Work Item
+ * @summary Forward a work item
  * @param {WorkItemsV2025ApiForwardWorkItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7374,7 +7510,7 @@ export const forwardWorkItem = (requestParameters: sdk.WorkItemsV2025ApiForwardW
 }
 /**
  * This gets a collection of completed work items belonging to either the specified user(admin required), or the current user.
- * @summary Completed Work Items
+ * @summary Completed work items
  * @param {WorkItemsV2025ApiGetCompletedWorkItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7385,7 +7521,7 @@ export const getCompletedWorkItems = (requestParameters: sdk.WorkItemsV2025ApiGe
 }
 /**
  * This gets a count of completed work items belonging to either the specified user(admin required), or the current user.
- * @summary Count Completed Work Items
+ * @summary Count completed work items
  * @param {WorkItemsV2025ApiGetCountCompletedWorkItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7396,7 +7532,7 @@ export const getCountCompletedWorkItems = (requestParameters: sdk.WorkItemsV2025
 }
 /**
  * This gets a count of work items belonging to either the specified user(admin required), or the current user.
- * @summary Count Work Items
+ * @summary Count work items
  * @param {WorkItemsV2025ApiGetCountWorkItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7407,7 +7543,7 @@ export const getCountWorkItems = (requestParameters: sdk.WorkItemsV2025ApiGetCou
 }
 /**
  * This gets the details of a Work Item belonging to either the specified user(admin required), or the current user.
- * @summary Get a Work Item
+ * @summary Get a work item
  * @param {WorkItemsV2025ApiGetWorkItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7418,7 +7554,7 @@ export const getWorkItem = (requestParameters: sdk.WorkItemsV2025ApiGetWorkItemR
 }
 /**
  * This gets a summary of work items belonging to either the specified user(admin required), or the current user.
- * @summary Work Items Summary
+ * @summary Work items summary
  * @param {WorkItemsV2025ApiGetWorkItemsSummaryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7429,7 +7565,7 @@ export const getWorkItemsSummary = (requestParameters: sdk.WorkItemsV2025ApiGetW
 }
 /**
  * This gets a collection of work items belonging to either the specified user(admin required), or the current user.
- * @summary List Work Items
+ * @summary List work items
  * @param {WorkItemsV2025ApiListWorkItemsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7440,7 +7576,7 @@ export const listWorkItems = (requestParameters: sdk.WorkItemsV2025ApiListWorkIt
 }
 /**
  * This API rejects an Approval Item. Either an admin, or the owning/current user must make this request.
- * @summary Reject an Approval Item
+ * @summary Reject an approval item
  * @param {WorkItemsV2025ApiRejectApprovalItemRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7451,7 +7587,7 @@ export const rejectApprovalItem = (requestParameters: sdk.WorkItemsV2025ApiRejec
 }
 /**
  * This API bulk rejects Approval Items. Either an admin, or the owning/current user must make this request.
- * @summary Bulk reject Approval Items
+ * @summary Bulk reject approval items
  * @param {WorkItemsV2025ApiRejectApprovalItemsInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7462,7 +7598,7 @@ export const rejectApprovalItemsInBulk = (requestParameters: sdk.WorkItemsV2025A
 }
 /**
  * This API submits account selections. Either an admin, or the owning/current user must make this request.
- * @summary Submit Account Selections
+ * @summary Submit account selections
  * @param {WorkItemsV2025ApiSubmitAccountSelectionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7474,7 +7610,7 @@ export const submitAccountSelection = (requestParameters: sdk.WorkItemsV2025ApiS
 
 /**
  * Creates a new Reassignment Configuration for the specified identity.
- * @summary Create a Reassignment Configuration
+ * @summary Create a reassignment configuration
  * @param {WorkReassignmentV2025ApiCreateReassignmentConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7485,7 +7621,7 @@ export const createReassignmentConfiguration = (requestParameters: sdk.WorkReass
 }
 /**
  * Deletes a single reassignment configuration for the specified identity
- * @summary Delete Reassignment Configuration
+ * @summary Delete reassignment configuration
  * @param {WorkReassignmentV2025ApiDeleteReassignmentConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7496,7 +7632,7 @@ export const deleteReassignmentConfiguration = (requestParameters: sdk.WorkReass
 }
 /**
  * Evaluates the Reassignment Configuration for an `Identity` to determine if work items for the specified type should be reassigned. If a valid Reassignment Configuration is found for the identity & work type, then a lookup is initiated which recursively fetches the Reassignment Configuration for the next `TargetIdentity` until no more results are found or a max depth of 5. That lookup trail is provided in the response and the final reassigned identity in the lookup list is returned as the `reassignToId` property. If no Reassignment Configuration is found for the specified identity & config type then the requested Identity ID will be used as the `reassignToId` value and the lookupTrail node will be empty.
- * @summary Evaluate Reassignment Configuration
+ * @summary Evaluate reassignment configuration
  * @param {WorkReassignmentV2025ApiGetEvaluateReassignmentConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7507,7 +7643,7 @@ export const getEvaluateReassignmentConfiguration = (requestParameters: sdk.Work
 }
 /**
  * Gets a collection of types which are available in the Reassignment Configuration UI.
- * @summary List Reassignment Config Types
+ * @summary List reassignment config types
  * @param {WorkReassignmentV2025ApiGetReassignmentConfigTypesRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7518,7 +7654,7 @@ export const getReassignmentConfigTypes = (requestParameters: sdk.WorkReassignme
 }
 /**
  * Gets the Reassignment Configuration for an identity.
- * @summary Get Reassignment Configuration
+ * @summary Get reassignment configuration
  * @param {WorkReassignmentV2025ApiGetReassignmentConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7529,7 +7665,7 @@ export const getReassignmentConfiguration = (requestParameters: sdk.WorkReassign
 }
 /**
  * Gets the global Reassignment Configuration settings for the requestor\'s tenant.
- * @summary Get Tenant-wide Reassignment Configuration settings
+ * @summary Get tenant-wide reassignment configuration settings
  * @param {WorkReassignmentV2025ApiGetTenantConfigConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7540,7 +7676,7 @@ export const getTenantConfigConfiguration = (requestParameters: sdk.WorkReassign
 }
 /**
  * Gets all Reassignment configuration for the current org.
- * @summary List Reassignment Configurations
+ * @summary List reassignment configurations
  * @param {WorkReassignmentV2025ApiListReassignmentConfigurationsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7551,7 +7687,7 @@ export const listReassignmentConfigurations = (requestParameters: sdk.WorkReassi
 }
 /**
  * Replaces existing Reassignment configuration for an identity with the newly provided configuration.
- * @summary Update Reassignment Configuration
+ * @summary Update reassignment configuration
  * @param {WorkReassignmentV2025ApiPutReassignmentConfigRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7562,7 +7698,7 @@ export const putReassignmentConfig = (requestParameters: sdk.WorkReassignmentV20
 }
 /**
  * Replaces existing Tenant-wide Reassignment Configuration settings with the newly provided settings.
- * @summary Update Tenant-wide Reassignment Configuration settings
+ * @summary Update tenant-wide reassignment configuration settings
  * @param {WorkReassignmentV2025ApiPutTenantConfigurationRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7574,7 +7710,7 @@ export const putTenantConfiguration = (requestParameters: sdk.WorkReassignmentV2
 
 /**
  * Use this API to cancel a running workflow execution.
- * @summary Cancel Workflow Execution by ID
+ * @summary Cancel workflow execution by id
  * @param {WorkflowsV2025ApiCancelWorkflowExecutionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7585,7 +7721,7 @@ export const cancelWorkflowExecution = (requestParameters: sdk.WorkflowsV2025Api
 }
 /**
  * This endpoint allows a service outside of IdentityNow to initiate a workflow that uses the \"External Trigger\" step.  The external service will invoke this endpoint with the input data it wants to send to the workflow in the body.
- * @summary Execute Workflow via External Trigger
+ * @summary Execute workflow via external trigger
  * @param {WorkflowsV2025ApiCreateExternalExecuteWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7596,7 +7732,7 @@ export const createExternalExecuteWorkflow = (requestParameters: sdk.WorkflowsV2
 }
 /**
  * Create a new workflow with the desired trigger and steps specified in the request body.
- * @summary Create Workflow
+ * @summary Create workflow
  * @param {WorkflowsV2025ApiCreateWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7607,7 +7743,7 @@ export const createWorkflow = (requestParameters: sdk.WorkflowsV2025ApiCreateWor
 }
 /**
  * Create OAuth client ID, client secret, and callback URL for use in an external trigger.  External triggers will need this information to generate an access token to authenticate to the callback URL and submit a trigger payload that will initiate the workflow.
- * @summary Generate External Trigger OAuth Client
+ * @summary Generate external trigger oauth client
  * @param {WorkflowsV2025ApiCreateWorkflowExternalTriggerRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7618,7 +7754,7 @@ export const createWorkflowExternalTrigger = (requestParameters: sdk.WorkflowsV2
 }
 /**
  * Delete a workflow.  **Enabled workflows cannot be deleted**.  They must first be disabled.
- * @summary Delete Workflow By Id
+ * @summary Delete workflow by id
  * @param {WorkflowsV2025ApiDeleteWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7629,7 +7765,7 @@ export const deleteWorkflow = (requestParameters: sdk.WorkflowsV2025ApiDeleteWor
 }
 /**
  * Get a single workflow by id.
- * @summary Get Workflow By Id
+ * @summary Get workflow by id
  * @param {WorkflowsV2025ApiGetWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7640,7 +7776,7 @@ export const getWorkflow = (requestParameters: sdk.WorkflowsV2025ApiGetWorkflowR
 }
 /**
  * Use this API to get a single workflow execution. Workflow executions are available for up to 90 days before being archived. If you attempt to access a workflow execution that has been archived, you will receive a \"404 Not Found\" response.
- * @summary Get Workflow Execution
+ * @summary Get workflow execution
  * @param {WorkflowsV2025ApiGetWorkflowExecutionRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7651,7 +7787,7 @@ export const getWorkflowExecution = (requestParameters: sdk.WorkflowsV2025ApiGet
 }
 /**
  * Get a detailed history of a single workflow execution.  Workflow executions are available for up to 90 days before being archived.  If you attempt to access a workflow execution that has been archived, you will receive a 404 Not Found.
- * @summary Get Workflow Execution History
+ * @summary Get workflow execution history
  * @param {WorkflowsV2025ApiGetWorkflowExecutionHistoryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7662,7 +7798,7 @@ export const getWorkflowExecutionHistory = (requestParameters: sdk.WorkflowsV202
 }
 /**
  * Use this API to list a specified workflow\'s executions. Workflow executions are available for up to 90 days before being archived. By default, you can get a maximum of 250 executions. To get executions past the first 250 records, you can do the following: 1. Use the [Get Workflows](https://developer.sailpoint.com/idn/api/beta/list-workflows) endpoint to get your workflows. 2. Get your workflow ID from the response. 3. You can then do either of the following:    - Filter to find relevant workflow executions.   For example, you can filter for failed workflow executions: `GET /workflows/:workflowID/executions?filters=status eq \"Failed\"`    - Paginate through results with the `offset` parameter.   For example, you can page through 50 executions per page and use that as a way to get to the records past the first 250.   Refer to [Paginating Results](https://developer.sailpoint.com/idn/api/standard-collection-parameters#paginating-results) for more information about the query parameters you can use to achieve pagination.
- * @summary List Workflow Executions
+ * @summary List workflow executions
  * @param {WorkflowsV2025ApiGetWorkflowExecutionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7673,7 +7809,7 @@ export const getWorkflowExecutions = (requestParameters: sdk.WorkflowsV2025ApiGe
 }
 /**
  * This lists all triggers, actions, and operators in the library
- * @summary List Complete Workflow Library
+ * @summary List complete workflow library
  * @param {WorkflowsV2025ApiListCompleteWorkflowLibraryRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7684,7 +7820,7 @@ export const listCompleteWorkflowLibrary = (requestParameters: sdk.WorkflowsV202
 }
 /**
  * This lists the workflow actions available to you.
- * @summary List Workflow Library Actions
+ * @summary List workflow library actions
  * @param {WorkflowsV2025ApiListWorkflowLibraryActionsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7695,7 +7831,7 @@ export const listWorkflowLibraryActions = (requestParameters: sdk.WorkflowsV2025
 }
 /**
  * This lists the workflow operators available to you
- * @summary List Workflow Library Operators
+ * @summary List workflow library operators
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -7705,7 +7841,7 @@ export const listWorkflowLibraryOperators = (apiConfig: sdk.Configuration): Prom
 }
 /**
  * This lists the workflow triggers available to you
- * @summary List Workflow Library Triggers
+ * @summary List workflow library triggers
  * @param {WorkflowsV2025ApiListWorkflowLibraryTriggersRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7716,7 +7852,7 @@ export const listWorkflowLibraryTriggers = (requestParameters: sdk.WorkflowsV202
 }
 /**
  * List all workflows in the tenant.
- * @summary List Workflows
+ * @summary List workflows
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
@@ -7726,7 +7862,7 @@ export const listWorkflows = (apiConfig: sdk.Configuration): Promise<ApiResponse
 }
 /**
  * Partially update an existing Workflow using [JSON Patch](https://tools.ietf.org/html/rfc6902) syntax.
- * @summary Patch Workflow
+ * @summary Patch workflow
  * @param {WorkflowsV2025ApiPatchWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7737,7 +7873,7 @@ export const patchWorkflow = (requestParameters: sdk.WorkflowsV2025ApiPatchWorkf
 }
 /**
  * Perform a full update of a workflow.  The updated workflow object is returned in the response.
- * @summary Update Workflow
+ * @summary Update workflow
  * @param {WorkflowsV2025ApiPutWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7748,7 +7884,7 @@ export const putWorkflow = (requestParameters: sdk.WorkflowsV2025ApiPutWorkflowR
 }
 /**
  * Validate a workflow with an \"External Trigger\" can receive input.  The response includes the input that the workflow received, which can be used to validate that the input is intact when it reaches the workflow.
- * @summary Test Workflow via External Trigger
+ * @summary Test workflow via external trigger
  * @param {WorkflowsV2025ApiTestExternalExecuteWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -7758,8 +7894,8 @@ export const testExternalExecuteWorkflow = (requestParameters: sdk.WorkflowsV202
     return handleApiCall(() => workflowsv2025api.testExternalExecuteWorkflow(requestParameters));
 }
 /**
- * Test a workflow with the provided input data.  The input data should resemble the input that the trigger will send the workflow.  See the [event trigger documentation](https://developer.sailpoint.com/idn/docs/event-triggers/available) for an example input for the trigger that initiates this workflow. This endpoint will return an execution ID, which can be used to lookup more information about the execution using the `Get a Workflow Execution` endpoint. **This will cause a live run of the workflow, which could result in unintended modifications to your IDN tenant.**
- * @summary Test Workflow By Id
+ * :::info  Workflow must be disabled in order to use this endpoint.  :::  Test a workflow with the provided input data.  The input data should resemble the input that the trigger will send the workflow.  See the [event trigger documentation](https://developer.sailpoint.com/idn/docs/event-triggers/available) for an example input for the trigger that initiates this workflow.  This endpoint will return an execution ID, which can be used to lookup more information about the execution using the `Get a Workflow Execution` endpoint.  **This will cause a live run of the workflow, which could result in unintended modifications to your IDN tenant.** 
+ * @summary Test workflow by id
  * @param {WorkflowsV2025ApiTestWorkflowRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}

@@ -22,20 +22,36 @@
   <div *ngIf="isConnected" class="connection-status-navbar">
     <mat-icon class="connected-icon">check_circle</mat-icon>
     <span class="connection-text">Connected</span>
+    
+    <!-- Session Status Info -->
+    <div *ngIf="sessionStatus || currentEnvironment" class="session-info">
+      <span class="session-type">{{ (sessionStatus?.authType || currentEnvironment?.authType || 'UNKNOWN') }}</span>
+      <span class="session-expiry" [ngClass]="{
+        'expiry-warning': sessionStatusDisplay !== 'Valid' && sessionStatusDisplay !== 'Checking...' && !sessionStatusDisplay.includes('Expired'),
+        'expiry-expired': sessionStatusDisplay === 'Expired' || sessionStatusDisplay === 'Invalid'
+      }">
+        {{ sessionStatusDisplay }}
+      </span>
+    </div>
+  </div>  
+  <!-- Session Actions -->
+  <div *ngIf="isConnected" class="session-actions">
+    <button mat-icon-button 
+            (click)="manualRefreshSession()" 
+            [disabled]="isRefreshing"
+            title="Refresh Session"
+            class="refresh-button">
+      <mat-icon [class.spinning]="isRefreshing">{{ isRefreshing ? 'sync' : 'refresh' }}</mat-icon>
+    </button>
+    
+    <button mat-icon-button 
+            (click)="disconnectFromISC()" 
+            aria-label="Disconnect from tenant" 
+            title="Disconnect"
+            class="disconnect-button">
+      <mat-icon>logout</mat-icon>
+    </button>
   </div>
-
-  <!-- Disconnect Button -->
-  <button
-    id="disconnectButton"
-    *ngIf="isConnected"
-    mat-icon-button
-    (click)="disconnectFromISC()"
-    aria-label="Disconnect from tenant"
-    title="Disconnect"
-  >
-    <mat-icon>logout</mat-icon>
-  </button>
-
   <button mat-icon-button (click)="toggleTheme()" aria-label="Toggle theme">
     <mat-icon>{{ isDarkTheme ? "dark_mode" : "light_mode" }}</mat-icon>
   </button>

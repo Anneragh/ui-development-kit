@@ -1464,22 +1464,55 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     newKey: string,
     context: StepEditorContext
   ): void {
-    if (!Object.prototype.hasOwnProperty.call(obj, oldKey) || oldKey === newKey)
+    // 1) Same validation as before
+    const validBranchName = /^(?!\d)\S+$/;
+    if (!validBranchName.test(newKey)) {
+      this.snackBar.open(
+        'Branch names must not start with a number and may not contain spaces.',
+        'Close',
+        { duration: 5000 }
+      );
       return;
-
-    if (Object.prototype.hasOwnProperty.call(obj, newKey)) {
-      throw new Error(`Key "${newKey}" already exists.`);
+    }
+    const branchKeys = Object.keys(obj);
+    if (!branchKeys.includes(oldKey) || oldKey === newKey) {
+      return;
+    }
+    if (branchKeys.includes(newKey)) {
+      this.snackBar.open(
+        `A branch named "${newKey}" already exists.`,
+        'Close',
+        { duration: 5000 }
+      );
+      return;
     }
 
-    obj[newKey] = obj[oldKey];
-    delete obj[oldKey];
+    // 2) Grab the existing keys in order, and their corresponding values
+    const keys = Object.keys(obj);
+    const values = keys.map((k) => obj[k]);
 
+    // 3) Build a new array of [key,value] pairs, swapping only your renamed one
+    const updatedEntries: Array<[string, T[]]> = keys.map((k, i) =>
+      k === oldKey ? [newKey, values[i]] : [k, values[i]]
+    );
+
+    // 4) Clear the original object
+    for (const k of keys) {
+      delete obj[k];
+    }
+
+    // 5) Re‑insert each entry in the exact same order
+    for (const [k, v] of updatedEntries) {
+      obj[k] = v;
+    }
+
+    // 6) Notify the designer to re‑render
     context.notifyChildrenChanged();
   }
 
   public addBranch(branches: Branches, context: StepEditorContext) {
     const index = Object.keys(branches || {}).length + 1;
-    branches['New Branch ' + index] = [];
+    branches['New_Branch_' + index] = [];
     context.notifyChildrenChanged();
   }
 
@@ -2167,7 +2200,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       const [, operation, value, unit] = match;
       operations.push({
         operation: operation as '+' | '-' | '/',
-        value: operation === '/' ? 1 : parseInt(value, 10) || 1,
+        value: operation === '/' ? 1 : parseInt(value as string, 10) || 1,
         unit: unit as 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's',
       });
     }
