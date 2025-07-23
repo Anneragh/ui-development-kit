@@ -9,7 +9,7 @@ import { AppComponent } from './app.component';
 
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
-import { ElectronApiFactoryService } from './services/electron-api-factory.service';
+import { ElectronApiFactoryService } from 'sailpoint-components';
 import { environment } from '../environments/environment';
 
 /**

@@ -14,6 +14,7 @@ export interface ThemeConfig {
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { ElectronService } from '../services/electron.service';
 
 // Needed for deep cloning objects
 declare function structuredClone<T>(value: T): T;
@@ -21,7 +22,7 @@ declare function structuredClone<T>(value: T): T;
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   // Check if the app is running inside Electron
-  private isElectron = typeof window !== 'undefined' && !!window.electronAPI;
+  private isElectron = false;
 
   // Observable for dark mode status
   private isDarkSubject = new BehaviorSubject<boolean>(false);
@@ -37,7 +38,9 @@ export class ThemeService {
   // Last raw configuration read from disk
   private lastRawConfig: any = {};
 
-  constructor() {
+  constructor(private electronService: ElectronService) {
+    // Check if we're running in Electron
+    this.isElectron = this.electronService.isElectron;
     // Load theme on startup
     void this.loadTheme();
   }
@@ -60,7 +63,7 @@ export class ThemeService {
     let config: ThemeConfig;
 
     if (this.isElectron) {
-      const raw = await window.electronAPI.readConfig();
+      const raw = await this.electronService.electronAPI.readConfig();
       this.lastRawConfig = raw;
       config =
         raw[`theme-${currentMode}`] ??
@@ -87,10 +90,10 @@ export class ThemeService {
     const themeToSave = structuredClone(config);
 
     if (this.isElectron) {
-      const raw = await window.electronAPI.readConfig();
+      const raw = await this.electronService.electronAPI.readConfig();
       raw[`theme-${mode}`] = themeToSave;
       this.lastRawConfig = raw;
-      await window.electronAPI.writeConfig(raw);
+      await this.electronService.electronAPI.writeConfig(raw);
     } else {
       localStorage.setItem(`theme-${mode}`, JSON.stringify(themeToSave));
     }
@@ -165,16 +168,16 @@ export class ThemeService {
     let logoLight = fallbackLight;
     let logoDark = fallbackDark;
 
-    if (this.isElectron && window.electronAPI.checkLogoExists) {
-      const userLogoLightExists = await window.electronAPI.checkLogoExists('logo.png');
-      const userLogoDarkExists = await window.electronAPI.checkLogoExists('logo-dark.png');
+    if (this.isElectron && this.electronService.electronAPI.checkLogoExists) {
+      const userLogoLightExists = await this.electronService.electronAPI.checkLogoExists('logo.png');
+      const userLogoDarkExists = await this.electronService.electronAPI.checkLogoExists('logo-dark.png');
 
       if (userLogoLightExists) {
-        logoLight = await window.electronAPI.getLogoDataUrl('logo.png');
+        logoLight = await this.electronService.electronAPI.getLogoDataUrl('logo.png');
       }
 
       if (userLogoDarkExists) {
-        logoDark = await window.electronAPI.getLogoDataUrl('logo-dark.png');
+        logoDark = await this.electronService.electronAPI.getLogoDataUrl('logo-dark.png');
       }
     }
 
@@ -198,7 +201,7 @@ export class ThemeService {
     const retries = timeout / interval;
 
     for (let i = 0; i < retries; i++) {
-      const exists = await window.electronAPI.checkLogoExists(
+      const exists = await this.electronService.electronAPI.checkLogoExists(
         path.split('/').pop()!
       );
       if (exists) return true;

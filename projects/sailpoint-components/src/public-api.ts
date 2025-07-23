@@ -12,6 +12,9 @@ export * from './lib/sailpoint-components.service';
 export * from './lib/sailpoint-sdk.service';
 export * from './lib/theme-picker/theme-picker.component';
 export * from './lib/theme/theme.service';
+
+// Services
+export * from './lib/services';
 export * from './lib/transforms/transform-builder/transform-builder.component';
 export * from './lib/transforms/transforms.component';
 

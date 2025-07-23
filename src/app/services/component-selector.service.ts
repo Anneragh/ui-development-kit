@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { ElectronApiFactoryService } from 'sailpoint-components';
 
 export type ComponentInfo = {
   name: string;
@@ -15,7 +16,7 @@ export type ComponentInfo = {
 })
 export class ComponentSelectorService {
   private STORAGE_KEY = 'enabledComponents';
-  private isElectron = typeof window !== 'undefined' && !!window.electronAPI;
+  private isElectron = false;
 
   private availableComponents: ComponentInfo[] = [
     {
@@ -55,7 +56,8 @@ export class ComponentSelectorService {
   private enabledComponentsSubject = new BehaviorSubject<ComponentInfo[]>([]);
   enabledComponents$ = this.enabledComponentsSubject.asObservable();
 
-  constructor() {
+  constructor(private apiFactoryService: ElectronApiFactoryService) {
+    this.isElectron = this.apiFactoryService.getApi() === window.electronAPI;
     this.loadEnabledComponents()
       .then(() => {
         console.log('Components Loaded');
@@ -103,9 +105,9 @@ export class ComponentSelectorService {
         .filter((component) => component.enabled)
         .map((component) => component.name);
       if (this.isElectron) {
-        const config = await window.electronAPI.readConfig();
+        const config = await this.apiFactoryService.getApi().readConfig();
         config.components = { enabled: enabledNames };
-        await window.electronAPI.writeConfig(config);
+        await this.apiFactoryService.getApi().writeConfig(config);
       } else {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(enabledNames));
       }
@@ -118,7 +120,7 @@ export class ComponentSelectorService {
     try {
       let enabledNames: string[] = [];
       if (this.isElectron) {
-        const config = await window.electronAPI.readConfig();
+        const config = await this.apiFactoryService.getApi().readConfig();
         enabledNames = config.components?.enabled || [];
       } else {
         const stored = localStorage.getItem(this.STORAGE_KEY);
