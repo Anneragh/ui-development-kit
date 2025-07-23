@@ -193,7 +193,7 @@ export class AttachRuleComponent implements OnInit {
   slotDropListIds = this.slots.map(s => 'assigned-' + s.key);
   availableConnectedTo = ['available', ...this.slotDropListIds];
 
-  assignedRulesMap: Record<string, ConnectorRuleResponseV2025[]> = {};
+  assignedRulesMap: Record<string, AvailableRule[]> = {};
   pendingOps: JsonPatchOperation[] = [];
   hasConnectionParameters = false;
   initialAssignedMap: Record<string, Set<string>> = {};
@@ -454,7 +454,7 @@ export class AttachRuleComponent implements OnInit {
   }
 
 
-  onDrop(event: CdkDragDrop<ConnectorRuleResponseV2025[]>): void {
+  onDrop(event: CdkDragDrop<AvailableRule[]>): void {
     if (!this.selectedSource) return;
 
     const dragged = event.item.data as ConnectorRuleResponseV2025;
