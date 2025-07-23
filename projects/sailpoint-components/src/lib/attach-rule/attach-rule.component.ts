@@ -23,7 +23,9 @@ import {
   SPConfigV2025ApiGetSpConfigExportStatusRequest,
   SPConfigV2025ApiGetSpConfigExportRequest
 } from 'sailpoint-api-client';
-import { SailPointSDKService } from 'sailpoint-components';
+
+import { SailPointSDKService } from '../sailpoint-sdk.service';
+
 
 interface Slot {
   key: string;
