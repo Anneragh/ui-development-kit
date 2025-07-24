@@ -1316,7 +1316,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
 
     // make sure it's an object and inject the flag
-    if (typeof obj === 'object' && obj !== null) {
+    if (typeof obj === 'object' && obj !== null && definition.properties.requiresPeriodicRefresh === "true") {
       obj.attributes = obj.attributes ?? {};
       obj.attributes.requiresPeriodicRefresh =
         definition.properties.requiresPeriodicRefresh;
