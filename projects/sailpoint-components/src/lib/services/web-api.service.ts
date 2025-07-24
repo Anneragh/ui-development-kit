@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { PATTokenSet } from 'src/global';
 
 /**
  * Interface that defines all the methods used from window.electronAPI
@@ -15,7 +16,7 @@ export interface ElectronAPIInterface {
   // Token management
   refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
   getStoredOAuthTokens: (environment: string) => Promise<TokenSet | undefined>;
-  getStoredPATTokens: (environment: string) => Promise<{ accessToken: string, accessExpiry: Date, clientId: string, clientSecret: string } | undefined>;
+  getStoredPATTokens: (environment: string) => Promise< PATTokenSet| undefined>;
   validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
   storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => Promise<void>;
   
@@ -32,10 +33,10 @@ export interface ElectronAPIInterface {
   writeConfig: (config: any) => Promise<any>;
 
   // Logo file management
-  writeLogo: (buffer: any, fileName: any) => Promise<any>;
-  checkLogoExists: (fileName: any) => Promise<any>;
+  writeLogo: (buffer: Blob, fileName: string) => Promise<any>;
+  checkLogoExists: (fileName: string) => Promise<any>;
   getUserDataPath: () => Promise<any>;
-  getLogoDataUrl: (fileName: any) => Promise<any>;
+  getLogoDataUrl: (fileName: string) => Promise<any>;
   
   // SailPoint SDK functions
   // These are dynamically added and would need to be proxied through the web service
@@ -198,12 +199,13 @@ export class WebApiService implements ElectronAPIInterface {
     }
   }
 
-  async getStoredPATTokens(environment: string): Promise<{ accessToken: string, accessExpiry: Date, clientId: string, clientSecret: string } | undefined> {
+  async getStoredPATTokens(environment: string): Promise<PATTokenSet | undefined> {
     try {
-      const result = await this.apiCall<any>(`auth/pat-tokens/${environment}`, 'GET');
+      const result = await this.apiCall<PATTokenSet>(`auth/pat-tokens/${environment}`, 'GET');
       if (result) {
         // Convert string dates to Date objects
         result.accessExpiry = new Date(result.accessExpiry);
+
         return result;
       }
       return undefined;
@@ -264,7 +266,7 @@ export class WebApiService implements ElectronAPIInterface {
   }
 
   // Logo Management methods
-  async writeLogo(buffer: any, fileName: any): Promise<any> {
+  async writeLogo(buffer: Blob, fileName: string): Promise<any> {
     const formData = new FormData();
     formData.append('logo', buffer, fileName);
     
@@ -282,7 +284,7 @@ export class WebApiService implements ElectronAPIInterface {
     return response.json();
   }
 
-  async checkLogoExists(fileName: any): Promise<any> {
+  async checkLogoExists(fileName: string): Promise<any> {
     return this.apiCall<boolean>(`logos/${encodeURIComponent(fileName)}/exists`, 'GET');
   }
 
@@ -290,7 +292,7 @@ export class WebApiService implements ElectronAPIInterface {
     return this.apiCall<string>('user-data-path', 'GET');
   }
 
-  async getLogoDataUrl(fileName: any): Promise<any> {
+  async getLogoDataUrl(fileName: string): Promise<any> {
     return this.apiCall<string>(`logos/${encodeURIComponent(fileName)}`, 'GET');
   }
 

@@ -9,7 +9,7 @@ import {
   ChangeDetectorRef,
   OnInit,
 } from '@angular/core';
-import { ElectronService } from '../services/electron.service';
+import { ElectronApiFactoryService } from '../services/electron-api-factory.service';
 
 // Angular Material UI modules
 import { MatButtonModule } from '@angular/material/button';
@@ -179,7 +179,7 @@ export class ThemePickerComponent implements OnInit {
     private themeService: ThemeService,
     private cdr: ChangeDetectorRef,
     private snackBar: MatSnackBar,
-    private electronService: ElectronService
+    private electronService: ElectronApiFactoryService
   ) {}
 
   // Utility: Read file input into Uint8Array buffer
@@ -223,13 +223,16 @@ export class ThemePickerComponent implements OnInit {
         const buffer = await this.readFileAsBuffer(this.selectedLogoFile);
         const originalFileName = this.selectedLogoFile.name;
         const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
-
+    
+        // Convert buffer to Blob
+        const blob = new Blob([buffer], { type: this.selectedLogoFile.type });
+    
         // Save the logo image to disk and wait for it to be ready
-        await this.electronService.electronAPI?.writeLogo(buffer, fileName);
+        await this.electronService.getApi().writeLogo(blob, fileName);
         await this.themeService.waitForFile(fileName);
 
         // Retrieve the base64 image URL for display
-        const base64 = await this.electronService.electronAPI.getLogoDataUrl(fileName);
+        const base64 = await this.electronService.getApi().getLogoDataUrl(fileName);
         const updatedColors = structuredClone(this.colors);
 
         // Assign the base64 image as the logo

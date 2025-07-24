@@ -14,7 +14,7 @@ export class ElectronApiFactoryService {
    */
   public getApi(): ElectronAPIInterface {
     if (this.electronService.isElectron) {
-      return this.electronService.electronAPI;
+      return this.electronService.electronAPI as ElectronAPIInterface;
     } else {
       return this.webApiService;
     }
