@@ -1133,7 +1133,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       ? serializeStep(this.definition.sequence[0])
       : undefined;
 
-
     if (transformedResult && typeof transformedResult === 'object') {
       const tr = transformedResult as any;
       tr.attributes = tr.attributes ?? {};
@@ -1292,42 +1291,39 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     });
   }
 
-  viewTransformDefinition(): void {
+  public viewTransformDefinition(): void {
     const selectedStepId = this.designer?.getSelectedStepId();
     const definition = this.designer?.getDefinition();
+    if (!definition) {
+      this.openMessageDialog('Definition not found', 'Error');
+      return;
+    }
 
-    let serializedTransform: string | undefined;
-
+    // grab the raw object
+    let obj: any;
     if (selectedStepId) {
-      if (!definition) {
-        this.openMessageDialog('Definition not found', 'Error');
-        return;
-      }
-
-      const selectedStep = this.findStepById(definition, selectedStepId);
-
-      if (!selectedStep) {
+      const step = this.findStepById(definition, selectedStepId);
+      if (!step) {
         this.openMessageDialog('Selected step not found', 'Error');
         return;
       }
-
-      serializedTransform = JSON.stringify(
-        serializeStep(selectedStep),
-        null,
-        2
-      );
-    } else if (definition?.sequence[0]) {
-      serializedTransform = JSON.stringify(
-        serializeStep(definition.sequence[0]),
-        null,
-        2
-      );
-    }
-
-    if (!serializedTransform) {
+      obj = serializeStep(step);
+    } else if (definition.sequence?.[0]) {
+      obj = serializeStep(definition.sequence[0]);
+    } else {
       this.openMessageDialog('No transform found to display.', 'Warning');
       return;
     }
+
+    // make sure it's an object and inject the flag
+    if (typeof obj === 'object' && obj !== null) {
+      obj.attributes = obj.attributes ?? {};
+      obj.attributes.requiresPeriodicRefresh =
+        definition.properties.requiresPeriodicRefresh;
+    }
+
+    // then stringify
+    const serializedTransform = JSON.stringify(obj, null, 2);
 
     this.dialog.open(GenericDialogComponent, {
       minWidth: '800px',
