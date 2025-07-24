@@ -28,7 +28,7 @@
     "ng": "ng",
     "start": "concurrently \"npm run ng:serve\" \"npm run electron:tsc\" \"npm run electron:dev\" --names \"angular,tsc,electron\" --prefix-colors \"#5C44E4,#3178C6,#FF3E00\"",
     "ng:serve": "ng serve -c web",
-    "build": "npm run build:components && npm run electron:serve-tsc && ng build --base-href ./",
+    "build": "npm run build:components && npm run electron:tsc && ng build --base-href ./",
     "build:components": "ng build sailpoint-components",
     "build:dev": "npm run build -- -c dev",
     "build:prod": "npm run build:components && npm run build -- -c production",
