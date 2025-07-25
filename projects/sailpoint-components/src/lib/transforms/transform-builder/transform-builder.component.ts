@@ -1011,7 +1011,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
         this.transform = response.data;
         this.isNewTransform = false;
-        this.autoSaveService.clearLocalSave('new_transform', true);
+        this.autoSaveService.clearLocalSave('new_transform');
         this.snackBar.open('Transform created successfully', 'Close', {
           duration: 3000,
         });
@@ -1059,7 +1059,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       const transformId = this.isNewTransform
         ? 'new_transform'
         : this.transform?.id || 'unknown';
-      this.autoSaveService.clearLocalSave(transformId, this.isNewTransform);
+      this.autoSaveService.clearLocalSave(transformId);
 
       if (this.transform) {
         this.definition = createDefinitionFromTransform(this.transform);
@@ -1116,14 +1116,14 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       definition.properties.requiresPeriodicRefresh;
 
     const hasChanges = this.autoSaveService.hasUnsavedChanges(
-      this.transform.id!,
+      this.transform.id,
       currentObj
     );
 
     this.hasUnsavedChanges = hasChanges;
 
     if (!hasChanges) {
-      this.autoSaveService.clearLocalSave(this.transform.id!);
+      this.autoSaveService.clearLocalSave(this.transform.id);
     }
 
     this.autoSaveSubject.next(definition);
@@ -1160,7 +1160,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     this.isReadonly = !this.isReadonly;
   }
 
-  public onSelectedStepIdChanged(selectedStepId: string | null) {
+  public onSelectedStepIdChanged() {
     this.isEditorCollapsed = false;
   }
 

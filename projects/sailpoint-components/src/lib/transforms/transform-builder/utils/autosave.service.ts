@@ -79,7 +79,7 @@ export class AutoSaveService {
   /**
    * Clear local save after successful cloud sync
    */
-  clearLocalSave(transformId: string, isNew: boolean = false): void {
+  clearLocalSave(transformId: string): void {
     // const key = this.getStorageKey(transformId, isNew);
     // localStorage.removeItem(key);
 
