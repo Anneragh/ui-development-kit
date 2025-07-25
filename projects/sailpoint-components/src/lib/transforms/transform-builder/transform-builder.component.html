@@ -131,6 +131,22 @@
       "
     />
   </mat-form-field>
+   <mat-slide-toggle
+            [(ngModel)]="editor.definition.properties.requiresPeriodicRefresh"
+            matTooltip="This is a true or false value indicating whether the transform logic must be reevaluated every evening as part of the identity refresh process."
+            name="requiresPeriodicRefresh"
+            [disabled]="editor.isReadonly"
+            (change)="
+              updateProperty(
+                editor.definition.properties,
+                'requiresPeriodicRefresh',
+                $event,
+                editor.context
+              )
+            "
+          >
+    <mat-label>Requires Periodic Refresh</mat-label>
+    </mat-slide-toggle>
     <!-- <mat-form-field class="full-width">
     <mat-label>Description</mat-label>
     <textarea

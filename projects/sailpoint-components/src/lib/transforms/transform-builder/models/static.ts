@@ -76,7 +76,7 @@ export function serializeStatic(step: StaticStep): {
     
     const attributes = data.attributes as Record<string, unknown>;
     Object.keys(attributes).forEach((key) => {
-      if (key !== 'value') {
+      if (key !== 'value' && key !== 'requiresPeriodicRefresh') {
         branches[key] = [deserializeToStep(attributes[key])];
       }
     });
