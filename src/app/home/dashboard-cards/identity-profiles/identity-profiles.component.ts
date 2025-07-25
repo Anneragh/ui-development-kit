@@ -19,7 +19,7 @@ export class IdentityProfilesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getIdentityProfiles();
+    void this.getIdentityProfiles();
   }
 
   async getIdentityProfiles() {

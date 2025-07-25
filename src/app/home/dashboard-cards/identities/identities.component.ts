@@ -19,7 +19,7 @@ export class IdentitiesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getIdentities();
+   void this.getIdentities();
   }
 
   async getIdentities() {

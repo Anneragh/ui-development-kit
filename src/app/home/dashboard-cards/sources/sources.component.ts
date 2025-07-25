@@ -19,7 +19,7 @@ export class SourcesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getSources();
+    void this.getSources();
   }
 
   async getSources() {

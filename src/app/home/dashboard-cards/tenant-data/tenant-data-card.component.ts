@@ -19,7 +19,7 @@ export class TenantDataCardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getTenantDetails();
+    void this.getTenantDetails();
   }
 
   async getTenantDetails() {
