@@ -180,9 +180,16 @@
           </mat-form-field>
           <!-- Connection Button -->
           <div class="connection-action">
-            <button mat-raised-button color="primary" (click)="connectToISC()" class="connect-button">
-              <mat-icon>login</mat-icon>
-              Connect to Environment
+            <button mat-raised-button 
+                    color="primary"
+                    (click)="connectToISC()" 
+                    class="connect-button"
+                    [disabled]="state.loading">
+              <div class="button-content">
+                <mat-icon *ngIf="!state.loading">login</mat-icon>
+                <mat-spinner *ngIf="state.loading" diameter="20" class="button-spinner"></mat-spinner>
+                <span>Connect to Environment</span>
+              </div>
             </button>
           </div>
         </div>
