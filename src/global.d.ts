@@ -100,7 +100,7 @@ declare global {
       writeConfig: (config: any) => Promise<any>;
     
       // Logo file management
-      writeLogo: (buffer: Blob, fileName: string) => Promise<any>;
+      writeLogo: (buffer: Uint8Array<ArrayBufferLike>, fileName: string) => Promise<any>;
       checkLogoExists: (fileName: string) => Promise<any>;
       getUserDataPath: () => Promise<any>;
       getLogoDataUrl: (fileName: string) => Promise<any>;

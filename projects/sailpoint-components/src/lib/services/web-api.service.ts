@@ -33,7 +33,7 @@ export interface ElectronAPIInterface {
   writeConfig: (config: any) => Promise<any>;
 
   // Logo file management
-  writeLogo: (buffer: Blob, fileName: string) => Promise<any>;
+  writeLogo: (buffer: Uint8Array<ArrayBufferLike>, fileName: string) => Promise<any>;
   checkLogoExists: (fileName: string) => Promise<any>;
   getUserDataPath: () => Promise<any>;
   getLogoDataUrl: (fileName: string) => Promise<any>;
@@ -266,9 +266,12 @@ export class WebApiService implements ElectronAPIInterface {
   }
 
   // Logo Management methods
-  async writeLogo(buffer: Blob, fileName: string): Promise<any> {
+  async writeLogo(buffer: Uint8Array<ArrayBufferLike>, fileName: string): Promise<any> {
     const formData = new FormData();
-    formData.append('logo', buffer, fileName);
+    // Convert buffer to Blob
+    const blob = new Blob([buffer], { type: this.selectedLogoFile.type });
+    
+    formData.append('logo', blob, fileName);
     
     const response = await fetch(`${this.apiUrl}/logos`, {
       method: 'POST',

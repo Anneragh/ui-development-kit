@@ -224,11 +224,8 @@ export class ThemePickerComponent implements OnInit {
         const originalFileName = this.selectedLogoFile.name;
         const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
     
-        // Convert buffer to Blob
-        const blob = new Blob([buffer], { type: this.selectedLogoFile.type });
-    
         // Save the logo image to disk and wait for it to be ready
-        await this.electronService.getApi().writeLogo(blob, fileName);
+        await this.electronService.getApi().writeLogo(buffer, fileName);
         await this.themeService.waitForFile(fileName);
 
         // Retrieve the base64 image URL for display
