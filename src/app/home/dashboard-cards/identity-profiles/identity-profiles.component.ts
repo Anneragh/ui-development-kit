@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AxiosResponse } from 'axios';
 import { IdentityProfile } from 'sailpoint-api-client';
 import { SailPointSDKService } from 'sailpoint-components';
@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './identity-profiles.component.html',
   styleUrl: './identity-profiles.component.scss'
 })
-export class IdentityProfilesComponent {
+export class IdentityProfilesComponent implements OnInit {
   sdk: SailPointSDKService;
   identityProfiles: AxiosResponse<Array<IdentityProfile>, any> | undefined;
 

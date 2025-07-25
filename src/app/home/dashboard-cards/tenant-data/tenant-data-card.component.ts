@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SailPointSDKService } from 'sailpoint-components';
 import { TenantV2025 } from 'sailpoint-api-client';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
   styleUrl: './tenant-data-card.component.scss'
 })
 
-export class TenantDataCardComponent {
+export class TenantDataCardComponent implements OnInit {
   sdk: SailPointSDKService;
   tenantDetails: TenantV2025 | undefined;
 
