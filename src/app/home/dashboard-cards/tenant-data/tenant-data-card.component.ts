@@ -1,15 +1,16 @@
 import { Component } from '@angular/core';
 import { SailPointSDKService } from 'sailpoint-components';
 import { TenantV2025 } from 'sailpoint-api-client';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  selector: 'app-connected',
-  imports: [],
-  templateUrl: './connected.component.html',
-  styleUrl: './connected.component.scss'
+  selector: 'app-tenant-data',
+  imports: [MatCardModule],
+  templateUrl: './tenant-data-card.component.html',
+  styleUrl: './tenant-data-card.component.scss'
 })
 
-export class ConnectedComponent {
+export class TenantDataCardComponent {
   sdk: SailPointSDKService;
   tenantDetails: TenantV2025 | undefined;
 
@@ -23,7 +24,6 @@ export class ConnectedComponent {
 
   async getTenantDetails() {
     const tenant = await this.sdk.getTenant();
-    console.log(tenant.data);
     this.tenantDetails = tenant.data;
   }
 }

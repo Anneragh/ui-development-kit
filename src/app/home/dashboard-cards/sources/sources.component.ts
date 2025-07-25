@@ -1,0 +1,31 @@
+import { Component } from '@angular/core';
+import { SourceV2025 } from 'sailpoint-api-client';
+import { SailPointSDKService } from 'sailpoint-components';
+import { MatCardModule } from '@angular/material/card';
+import { AxiosResponse } from 'axios';
+
+@Component({
+  selector: 'app-sources',
+  imports: [MatCardModule],
+  templateUrl: './sources.component.html',
+  styleUrl: './sources.component.scss'
+})
+export class SourcesComponent {
+  sdk: SailPointSDKService;
+  sources: AxiosResponse<Array<SourceV2025>, any> | undefined;
+
+  constructor() {
+    this.sdk = new SailPointSDKService();
+  }
+
+  ngOnInit() {
+    this.getSources();
+  }
+
+  async getSources() {
+    const sources = await this.sdk.listSources({
+      count: true
+    });
+    this.sources = sources;
+  }
+}

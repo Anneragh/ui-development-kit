@@ -1,3 +1,10 @@
+.dashboard-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .home-container {
   max-width: 800px;
   margin: 0 auto;

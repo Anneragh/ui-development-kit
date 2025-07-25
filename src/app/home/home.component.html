@@ -200,6 +200,11 @@
 </div>
 
 <!-- Connected State -->
-<div *ngIf="state.isConnected" class="connected-container">
-  <app-connected></app-connected>
+<div *ngIf="state.isConnected">
+  <div class="dashboard-container">
+    <app-tenant-data></app-tenant-data>
+    <app-sources></app-sources>
+    <app-identities></app-identities>
+    <app-identity-profiles></app-identity-profiles>
+  </div>
 </div>
