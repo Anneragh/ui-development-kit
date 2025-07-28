@@ -67,7 +67,7 @@ export class ComponentSelectorService {
       name: 'attach-rule',
       displayName: 'Attach Rule',
       route: '/attach-rule',
-      icon: 'dashboard',
+      icon: 'attachment',
       description: 'Manage attach rule in SailPoint.',
       enabled: false
     }
