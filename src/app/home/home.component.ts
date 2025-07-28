@@ -15,6 +15,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
+import { ElectronApiFactoryService } from 'sailpoint-components';
 
 type AuthMethods = "oauth" | "pat";
 type OAuthValidationStatus = 'unknown' | 'valid' | 'invalid' | 'testing';
@@ -97,10 +98,9 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private router: Router,
-
     private connectionService: ConnectionService,
-
     private snackBar: MatSnackBar,
+    private electronService: ElectronApiFactoryService
   ) { }
 
   ngOnInit(): void {
@@ -122,7 +122,7 @@ export class HomeComponent implements OnInit {
 
   async initializeGlobalAuthMethod(): Promise<void> {
     try {
-      const authMethod = await window.electronAPI.getGlobalAuthType();
+      const authMethod = await this.electronService.getApi().getGlobalAuthType();
       this.state.globalAuthMethod = authMethod as AuthMethods;
     } catch (error) {
       console.error('Error loading global auth method:', error);
@@ -133,7 +133,7 @@ export class HomeComponent implements OnInit {
   // Tenant Methods:
   async loadTenants(): Promise<void> {
     try {
-      const tenants = await window.electronAPI.getTenants();
+      const tenants = await this.electronService.getApi().getTenants();
       this.state.tenants = tenants;
 
       const activeTenant = tenants.find(tenant => tenant.active === true);
@@ -181,7 +181,7 @@ export class HomeComponent implements OnInit {
   }
 
   async resetConfig(): Promise<void> {
-    const currentAuthType = await window.electronAPI.getGlobalAuthType();
+    const currentAuthType = await this.electronService.getApi().getGlobalAuthType();
 
     const config: EnvironmentConfig = {
       environmentName: '',
@@ -196,7 +196,7 @@ export class HomeComponent implements OnInit {
 
   async refreshCurrentTenantAuthType(): Promise<void> {
     try {
-      const currentAuthType = await window.electronAPI.getGlobalAuthType();
+      const currentAuthType = await this.electronService.getApi().getGlobalAuthType();
 
       if (this.state.actualTenant) {
         this.state.actualTenant.authType = currentAuthType;
@@ -231,7 +231,7 @@ export class HomeComponent implements OnInit {
 
     try {
       console.log("Validating tokens");
-      const tokenStatus = await window.electronAPI.validateTokens(this.state.actualTenant.name);
+      const tokenStatus = await this.electronService.getApi().validateTokens(this.state.actualTenant.name);
 
       console.log('tokenStatus', tokenStatus);
 
@@ -242,10 +242,10 @@ export class HomeComponent implements OnInit {
       }
 
       try {
-        const loginResult = await window.electronAPI.unifiedLogin(this.state.actualTenant.name);
+        const loginResult = await this.electronService.getApi().unifiedLogin(this.state.actualTenant.name);
 
         if (loginResult.success) {
-          const tokenDetails = await window.electronAPI.getCurrentTokenDetails(this.state.actualTenant.name);
+          const tokenDetails = await this.electronService.getApi().getCurrentTokenDetails(this.state.actualTenant.name);
           if (tokenDetails.error || !tokenDetails.tokenDetails) {
             this.showSnackbar(`Failed to get token details. Please check your configuration and try again. \n\n${tokenDetails.error}`);
             return;
@@ -281,7 +281,7 @@ export class HomeComponent implements OnInit {
   }
 
   async disconnectFromISC(): Promise<void> {
-    await window.electronAPI.disconnectFromISC();
+    await this.electronService.getApi().disconnectFromISC();
     this.state.isConnected = false;
     this.connectionService.connectedSubject$.next({ connected: false });
   }
@@ -392,7 +392,7 @@ export class HomeComponent implements OnInit {
 
   async setActiveEnvironment(environmentName: string): Promise<void> {
     try {
-      const result = await window.electronAPI.setActiveEnvironment(environmentName);
+      const result = await this.electronService.getApi().setActiveEnvironment(environmentName);
       if (result.success) {
         console.log(`Successfully set ${environmentName} as active environment`);
       } else {
@@ -421,7 +421,7 @@ export class HomeComponent implements OnInit {
         hasClientSecret: !!clientSecret
       });
 
-      const result = await window.electronAPI.updateEnvironment({
+      const result = await this.electronService.getApi().updateEnvironment({
         environmentName: this.state.config.environmentName,
         tenantUrl: this.state.config.tenantUrl,
         baseUrl: this.state.config.baseUrl,
@@ -455,7 +455,7 @@ export class HomeComponent implements OnInit {
     }
 
     try {
-      const deleteResult = await window.electronAPI.deleteEnvironment(this.state.actualTenant.name);
+      const deleteResult = await this.electronService.getApi().deleteEnvironment(this.state.actualTenant.name);
       if (deleteResult.success) {
         // this.showSuccess('Environment deleted successfully!');
         await this.loadTenants();
@@ -478,7 +478,7 @@ export class HomeComponent implements OnInit {
 
   async onGlobalAuthMethodChange(): Promise<void> {
     try {
-      await window.electronAPI.setGlobalAuthType(this.state.globalAuthMethod);
+      await this.electronService.getApi().setGlobalAuthType(this.state.globalAuthMethod);
       console.log('Global auth method updated to:', this.state.globalAuthMethod);
 
       // Update the config to match the new global auth method
@@ -507,7 +507,7 @@ export class HomeComponent implements OnInit {
 
     // Update the global auth type in the backend
     try {
-      await window.electronAPI.setGlobalAuthType(this.state.config.authType);
+      await this.electronService.getApi().setGlobalAuthType(this.state.config.authType);
     } catch (error) {
       console.error('Error updating global auth method:', error);
     }
