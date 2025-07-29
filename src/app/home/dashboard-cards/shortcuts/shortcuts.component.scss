@@ -26,80 +26,127 @@ mat-card {
   }
 }
 
-.shortcuts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  
-  .shortcut-item {
+.shortcuts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.category-section {
+  .category-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px;
-    border-radius: 8px;
-    background-color: var(--surface-variant);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    white-space: nowrap;
-    
-    &:hover {
-      background-color: var(--primary-color);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      
-      mat-icon {
-        color: white;
-      }
-    }
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--divider-color);
     
     mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
       color: var(--primary-color);
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
     
-    span {
-      font-weight: 500;
-      font-size: 14px;
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  }
+  
+  .shortcuts-grid {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    
+    .shortcut-item {
+      padding: 16px;
+      background-color: var(--primary-color);
+      color: white;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+      text-align: center;
+      margin-top: auto;
+      margin-bottom: auto;
+
+      /* Center icon and label vertically */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px; /* space between icon and label */
+
+      &:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: white;
+        /* Ensure icon is centered with text */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 }
 
 // Responsive design
 @media (max-width: 768px) {
-  .shortcuts-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    
-    .shortcut-item {
-      padding: 12px;
-      
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
+  .category-section {
+    .category-header {
+      h3 {
+        font-size: 14px;
       }
+    }
+    
+    .shortcuts-grid {
+      gap: 12px;
       
-      span {
-        font-size: 13px;
+      .shortcut-item {
+        padding: 12px;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
       }
     }
   }
 }
 
 @media (max-width: 480px) {
-  .shortcuts-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  .shortcuts-container {
+    gap: 16px;
+  }
+  
+  .category-section {
+    .category-header {
+      h3 {
+        font-size: 13px;
+      }
+    }
     
-    .shortcut-item {
-      flex-direction: column;
-      text-align: center;
+    .shortcuts-grid {
       gap: 8px;
       
-      span {
-        font-size: 12px;
+      .shortcut-item {
+        padding: 8px;
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
       }
     }
   }
