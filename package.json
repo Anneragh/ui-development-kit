@@ -65,6 +65,7 @@
     "codemirror": "6.0.2",
     "d3": "7.9.0",
     "js-yaml": "4.1.0",
+    "jsonpointer": "5.0.1",
     "keytar": "7.9.0",
     "lodash-es": "4.17.21",
     "prismjs": "1.30.0",
