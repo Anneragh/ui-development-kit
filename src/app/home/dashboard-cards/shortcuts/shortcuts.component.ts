@@ -98,7 +98,7 @@ export class ShortcutsComponent {
         {
           icon: 'functions',
           label: 'Transform Guides',
-          url: 'https://community.sailpoint.com/t5/forums/searchpage/tab/message?q=IdentityNow%20Transforms&noSynonym=false&collapse_discussion=true'
+          url: 'https://developer.sailpoint.com/docs/extensibility/transforms/'
         },
         {
           icon: 'library_books',
