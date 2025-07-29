@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import { IdentityProfilesComponent } from './identity-profiles.component';
 
@@ -10,7 +11,7 @@ describe('IdentityProfilesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [IdentityProfilesComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(IdentityProfilesComponent);
     component = fixture.componentInstance;

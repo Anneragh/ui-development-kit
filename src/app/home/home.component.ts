@@ -19,6 +19,7 @@ import { TenantDataCardComponent } from './dashboard-cards/tenant-data/tenant-da
 import { SourcesComponent } from './dashboard-cards/sources/sources.component';
 import { IdentitiesComponent } from './dashboard-cards/identities/identities.component';
 import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/identity-profiles.component';
+import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 
 type AuthMethods = "oauth" | "pat";
 type OAuthValidationStatus = 'unknown' | 'valid' | 'invalid' | 'testing';
@@ -66,6 +67,7 @@ type ComponentState = {
     SourcesComponent,
     IdentitiesComponent,
     IdentityProfilesComponent,
+    ShortcutsComponent,
     CommonModule,
     MatDialogModule,
     MatButtonModule,
@@ -231,7 +233,7 @@ export class HomeComponent implements OnInit {
       this.showSnackbar('Cannot connect to ISC: No environment selected');
       return;
     }
-    
+
     this.state.loading = true;
 
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);

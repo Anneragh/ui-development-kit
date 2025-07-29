@@ -200,11 +200,36 @@
 </div>
 
 <!-- Connected State -->
-<div *ngIf="state.isConnected">
-  <div class="dashboard-container">
-    <app-tenant-data></app-tenant-data>
-    <app-sources></app-sources>
-    <app-identities></app-identities>
-    <app-identity-profiles></app-identity-profiles>
+<div *ngIf="state.isConnected" class="dashboard-page">
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p>Welcome to your SailPoint environment</p>
+  </div>
+
+  <!-- Main Dashboard Grid -->
+  <div class="dashboard-grid">
+    <!-- Top Row - Stats Cards -->
+    <div class="dashboard-row">
+      <div class="dashboard-card stats-card">
+        <app-tenant-data></app-tenant-data>
+      </div>
+      <div class="dashboard-card stats-card">
+        <app-sources></app-sources>
+      </div>
+      <div class="dashboard-card stats-card">
+        <app-identities></app-identities>
+      </div>
+      <div class="dashboard-card stats-card">
+        <app-identity-profiles></app-identity-profiles>
+      </div>
+    </div>
+
+    <!-- Bottom Row - Shortcuts Card -->
+    <div class="dashboard-row">
+      <div class="dashboard-card shortcuts-card">
+        <app-shortcuts></app-shortcuts>
+      </div>
+    </div>
   </div>
 </div>
