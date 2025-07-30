@@ -156,6 +156,12 @@ npm run ng:serve
 
 To build the SailPoint SDK with the latest API specifications:
 
+```
+npm run build:sdk
+```
+
+Nothing else needs to be done, but in case you want to update manually, you can use the steps below:
+
 1. Download the OpenAPI Generator CLI (version 7.11+):
    ```bash
    wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.11.0/openapi-generator-cli-7.11.0.jar
