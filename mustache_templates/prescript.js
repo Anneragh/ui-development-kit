@@ -28,8 +28,8 @@ const updateYamlFiles = (directoryPath) => {
                             return;
                         }
                         
-                          const updatedData = data.replace(
-                            /(- name: X-SailPoint-Experimental[\s\S]*?required: )true/,
+                          const updatedData = data.replaceAll(
+                            /(- name: X-SailPoint-Experimental[\s\S]*?required: )true/g,
                             '$1false'
                           );
 
