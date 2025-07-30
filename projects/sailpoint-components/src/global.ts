@@ -1,3 +1,5 @@
+import { PATTokenSet } from "src/global";
+
 export type AuthMethods = "oauth" | "pat";
 
 export type UpdateEnvironmentRequest = {
@@ -73,7 +75,7 @@ declare global {
       // Token management
       refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
       getStoredOAuthTokens: (environment: string) => Promise<TokenSet | undefined>;
-      getStoredPATTokens: (environment: string) => Promise<{ accessToken: string, accessExpiry: Date, clientId: string, clientSecret: string } | undefined>;
+      getStoredPATTokens: (environment: string) => Promise<PATTokenSet | undefined>;
       validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
       storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => Promise<void>;
       
@@ -93,10 +95,10 @@ declare global {
       writeConfig: (config: any) => Promise<any>;
     
       // Logo file management
-      writeLogo: (buffer: any, fileName: any) => Promise<any>;
-      checkLogoExists: (fileName: any) => Promise<any>;
+      writeLogo: (buffer: Uint8Array<ArrayBufferLike>, fileName: string) => Promise<any>;
+      checkLogoExists: (fileName: string) => Promise<any>;
       getUserDataPath: () => Promise<any>;
-      getLogoDataUrl: (fileName: any) => Promise<any>;
+      getLogoDataUrl: (fileName: string) => Promise<any>;
     };
   }
 }
