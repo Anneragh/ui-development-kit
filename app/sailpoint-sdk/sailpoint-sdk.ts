@@ -103,6 +103,39 @@ export const listAccessModelMetadataAttributeValue = (requestParameters: sdk.Acc
     const accessmodelmetadatav2025api = new sdk.AccessModelMetadataV2025Api(apiConfig);
     return handleApiCall(() => accessmodelmetadatav2025api.listAccessModelMetadataAttributeValue(requestParameters));
 }
+/**
+ * Bulk update Access Model Metadata Attribute Values using a filter
+ * @summary Metadata Attribute update by filter
+ * @param {AccessModelMetadataV2025ApiUpdateAccessModelMetadataByFilterRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const updateAccessModelMetadataByFilter = (requestParameters: sdk.AccessModelMetadataV2025ApiUpdateAccessModelMetadataByFilterRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.AccessModelMetadataBulkUpdateResponseV2025>> => {
+    const accessmodelmetadatav2025api = new sdk.AccessModelMetadataV2025Api(apiConfig);
+    return handleApiCall(() => accessmodelmetadatav2025api.updateAccessModelMetadataByFilter(requestParameters));
+}
+/**
+ * Bulk update Access Model Metadata Attribute Values using ids.
+ * @summary Metadata Attribute update by ids
+ * @param {AccessModelMetadataV2025ApiUpdateAccessModelMetadataByIdsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const updateAccessModelMetadataByIds = (requestParameters: sdk.AccessModelMetadataV2025ApiUpdateAccessModelMetadataByIdsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.AccessModelMetadataBulkUpdateResponseV2025>> => {
+    const accessmodelmetadatav2025api = new sdk.AccessModelMetadataV2025Api(apiConfig);
+    return handleApiCall(() => accessmodelmetadatav2025api.updateAccessModelMetadataByIds(requestParameters));
+}
+/**
+ * Bulk update Access Model Metadata Attribute Values using a query
+ * @summary Metadata Attribute update by query
+ * @param {AccessModelMetadataV2025ApiUpdateAccessModelMetadataByQueryRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const updateAccessModelMetadataByQuery = (requestParameters: sdk.AccessModelMetadataV2025ApiUpdateAccessModelMetadataByQueryRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.AccessModelMetadataBulkUpdateResponseV2025>> => {
+    const accessmodelmetadatav2025api = new sdk.AccessModelMetadataV2025Api(apiConfig);
+    return handleApiCall(() => accessmodelmetadatav2025api.updateAccessModelMetadataByQuery(requestParameters));
+}
 
 /**
  * Create an access profile. A user with `ROLE_SUBADMIN` or `SOURCE_SUBADMIN` authority must be associated with the access profile\'s source. The maximum supported length for the description field is 2000 characters. Longer descriptions will be preserved for existing access profiles. However, any new access profiles as well as any updates to existing descriptions are limited to 2000 characters. >**Note:** To use this endpoint, you need all the listed scopes.
@@ -2179,6 +2212,84 @@ export const getCustomPasswordInstructions = (requestParameters: sdk.CustomPassw
 }
 
 /**
+ * Creates a new custom user level for the tenant.
+ * @summary Create a custom user level
+ * @param {CustomUserLevelsV2025ApiCreateCustomUserLevelRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const createCustomUserLevel = (requestParameters: sdk.CustomUserLevelsV2025ApiCreateCustomUserLevelRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.UserLevelSummaryDTOV2025>> => {
+    const customuserlevelsv2025api = new sdk.CustomUserLevelsV2025Api(apiConfig);
+    return handleApiCall(() => customuserlevelsv2025api.createCustomUserLevel(requestParameters));
+}
+/**
+ * Deletes a specific user level by its ID.
+ * @summary Delete a user level
+ * @param {CustomUserLevelsV2025ApiDeleteUserLevelRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const deleteUserLevel = (requestParameters: sdk.CustomUserLevelsV2025ApiDeleteUserLevelRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<void>> => {
+    const customuserlevelsv2025api = new sdk.CustomUserLevelsV2025Api(apiConfig);
+    return handleApiCall(() => customuserlevelsv2025api.deleteUserLevel(requestParameters));
+}
+/**
+ * Fetches the details of a specific user level by its ID.
+ * @summary Retrieve a user level
+ * @param {CustomUserLevelsV2025ApiGetUserLevelRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const getUserLevel = (requestParameters: sdk.CustomUserLevelsV2025ApiGetUserLevelRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.UserLevelSummaryDTOV2025>> => {
+    const customuserlevelsv2025api = new sdk.CustomUserLevelsV2025Api(apiConfig);
+    return handleApiCall(() => customuserlevelsv2025api.getUserLevel(requestParameters));
+}
+/**
+ * Retrieves a list of authorization assignable right sets for the tenant.
+ * @summary List all uiAssignable right sets
+ * @param {CustomUserLevelsV2025ApiListAllAuthorizationRightSetsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const listAllAuthorizationRightSets = (requestParameters: sdk.CustomUserLevelsV2025ApiListAllAuthorizationRightSetsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.HierarchicalRightSetV2025>>> => {
+    const customuserlevelsv2025api = new sdk.CustomUserLevelsV2025Api(apiConfig);
+    return handleApiCall(() => customuserlevelsv2025api.listAllAuthorizationRightSets(requestParameters));
+}
+/**
+ * Retrieves a list of user levels for the tenant.
+ * @summary List user levels
+ * @param {CustomUserLevelsV2025ApiListUserLevelsRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const listUserLevels = (requestParameters: sdk.CustomUserLevelsV2025ApiListUserLevelsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.UserLevelSummaryDTOV2025>>> => {
+    const customuserlevelsv2025api = new sdk.CustomUserLevelsV2025Api(apiConfig);
+    return handleApiCall(() => customuserlevelsv2025api.listUserLevels(requestParameters));
+}
+/**
+ * Publishes a custom user level for the tenant, making it active and available.
+ * @summary Publish a custom user level
+ * @param {CustomUserLevelsV2025ApiPublishCustomUserLevelRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const publishCustomUserLevel = (requestParameters: sdk.CustomUserLevelsV2025ApiPublishCustomUserLevelRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.UserLevelPublishSummaryV2025>> => {
+    const customuserlevelsv2025api = new sdk.CustomUserLevelsV2025Api(apiConfig);
+    return handleApiCall(() => customuserlevelsv2025api.publishCustomUserLevel(requestParameters));
+}
+/**
+ * Updates the details of a specific user level using JSON Patch.
+ * @summary Update a user level
+ * @param {CustomUserLevelsV2025ApiUpdateUserLevelRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const updateUserLevel = (requestParameters: sdk.CustomUserLevelsV2025ApiUpdateUserLevelRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.UserLevelSummaryDTOV2025>> => {
+    const customuserlevelsv2025api = new sdk.CustomUserLevelsV2025Api(apiConfig);
+    return handleApiCall(() => customuserlevelsv2025api.updateUserLevel(requestParameters));
+}
+
+/**
  * This API creates a segment.  >**Note:** Segment definitions may take time to propagate to all identities.
  * @summary Create segment
  * @param {DataSegmentationV2025ApiCreateDataSegmentRequest} requestParameters Request parameters.
@@ -2479,7 +2590,7 @@ export const resetSourceEntitlements = (requestParameters: sdk.EntitlementsV2025
     return handleApiCall(() => entitlementsv2025api.resetSourceEntitlements(requestParameters));
 }
 /**
- * \"This API applies an update to every entitlement of the list.\\n\\nThe\\  \\ number of entitlements to update is limited to 50 items maximum.\\n\\nThe JsonPatch\\  \\ update follows the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard.\\  \\ allowed operations : `**{ \\\"op\\\": \\\"replace\\\", \\\"path\\\": \\\"/privileged\\\", \\\"\\  value\\\": boolean }**  **{ \\\"op\\\": \\\"replace\\\", \\\"path\\\": \\\"/requestable\\\",\\\"value\\\"\\  : boolean }**`\" 
+ * This API applies an update to every entitlement of the list.   The number of entitlements to update is limited to 50 items maximum.   The JsonPatch update follows the [JSON Patch](https://tools.ietf.org/html/rfc6902) standard. examples of allowed operations : `**{ \"op\": \"replace\", \"path\": \"/privileged\", \"value\": boolean }**` `**{ \"op\": \"replace\", \"path\": \"/requestable\",\"value\": boolean }**` `**{ \"op\": \"replace\", \"path\": \"/privilegeOverride/overrideLevel\",\"value\": string }**`  A token with ORG_ADMIN or API authority is required to call this API. 
  * @summary Bulk update an entitlement list
  * @param {EntitlementsV2025ApiUpdateEntitlementsInBulkRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
@@ -2770,7 +2881,7 @@ export const getAccessRequestRecommendationsConfig = (requestParameters: sdk.IAI
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getAccessRequestRecommendationsIgnoredItems = (requestParameters: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsIgnoredItemsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AccessRequestRecommendationActionItemResponseDtoV2025>>> => {
+export const getAccessRequestRecommendationsIgnoredItems = (requestParameters: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsIgnoredItemsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AccessRequestRecommendationActionItemResponseDtoV2025>>> => {
     const iaiaccessrequestrecommendationsv2025api = new sdk.IAIAccessRequestRecommendationsV2025Api(apiConfig);
     return handleApiCall(() => iaiaccessrequestrecommendationsv2025api.getAccessRequestRecommendationsIgnoredItems(requestParameters));
 }
@@ -2781,7 +2892,7 @@ export const getAccessRequestRecommendationsIgnoredItems = (requestParameters: s
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getAccessRequestRecommendationsRequestedItems = (requestParameters: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsRequestedItemsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AccessRequestRecommendationActionItemResponseDtoV2025>>> => {
+export const getAccessRequestRecommendationsRequestedItems = (requestParameters: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsRequestedItemsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AccessRequestRecommendationActionItemResponseDtoV2025>>> => {
     const iaiaccessrequestrecommendationsv2025api = new sdk.IAIAccessRequestRecommendationsV2025Api(apiConfig);
     return handleApiCall(() => iaiaccessrequestrecommendationsv2025api.getAccessRequestRecommendationsRequestedItems(requestParameters));
 }
@@ -2792,7 +2903,7 @@ export const getAccessRequestRecommendationsRequestedItems = (requestParameters:
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getAccessRequestRecommendationsViewedItems = (requestParameters: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsViewedItemsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AccessRequestRecommendationActionItemResponseDtoV2025>>> => {
+export const getAccessRequestRecommendationsViewedItems = (requestParameters: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsViewedItemsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.AccessRequestRecommendationActionItemResponseDtoV2025>>> => {
     const iaiaccessrequestrecommendationsv2025api = new sdk.IAIAccessRequestRecommendationsV2025Api(apiConfig);
     return handleApiCall(() => iaiaccessrequestrecommendationsv2025api.getAccessRequestRecommendationsViewedItems(requestParameters));
 }
@@ -3205,7 +3316,7 @@ export const getRoleMiningSessionStatus = (requestParameters: sdk.IAIRoleMiningV
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getRoleMiningSessions = (requestParameters: sdk.IAIRoleMiningV2025ApiGetRoleMiningSessionsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.RoleMiningSessionDtoV2025>>> => {
+export const getRoleMiningSessions = (requestParameters: sdk.IAIRoleMiningV2025ApiGetRoleMiningSessionsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.RoleMiningSessionDtoV2025>>> => {
     const iairoleminingv2025api = new sdk.IAIRoleMiningV2025Api(apiConfig);
     return handleApiCall(() => iairoleminingv2025api.getRoleMiningSessions(requestParameters));
 }
@@ -3342,6 +3453,17 @@ export const getRoleAssignment = (requestParameters: sdk.IdentitiesV2025ApiGetRo
 export const getRoleAssignments = (requestParameters: sdk.IdentitiesV2025ApiGetRoleAssignmentsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.GetRoleAssignments200ResponseInnerV2025>>> => {
     const identitiesv2025api = new sdk.IdentitiesV2025Api(apiConfig);
     return handleApiCall(() => identitiesv2025api.getRoleAssignments(requestParameters));
+}
+/**
+ * The API returns a list of all entitlements assigned to an identity, either directly or through the role or access profile. A token with ORG_ADMIN or API authority is required to call this API.
+ * @summary List of entitlements by identity.
+ * @param {IdentitiesV2025ApiListEntitlementsByIdentityRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const listEntitlementsByIdentity = (requestParameters: sdk.IdentitiesV2025ApiListEntitlementsByIdentityRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.IdentityEntitlementsV2025>>> => {
+    const identitiesv2025api = new sdk.IdentitiesV2025Api(apiConfig);
+    return handleApiCall(() => identitiesv2025api.listEntitlementsByIdentity(requestParameters));
 }
 /**
  * This API returns a list of identities.
@@ -3512,7 +3634,7 @@ export const getHistoricalIdentity = (requestParameters: sdk.IdentityHistoryV202
 }
 /**
  * This method retrieves all access events for the identity Requires authorization scope of \'idn:identity-history:read\' 
- * @summary Lists all events for the given identity
+ * @summary List identity event history
  * @param {IdentityHistoryV2025ApiGetHistoricalIdentityEventsRequest} requestParameters Request parameters.
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
@@ -3583,7 +3705,7 @@ export const listIdentityAccessItems = (requestParameters: sdk.IdentityHistoryV2
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const listIdentitySnapshotAccessItems = (requestParameters: sdk.IdentityHistoryV2025ApiListIdentitySnapshotAccessItemsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.ListIdentityAccessItems200ResponseInnerV2025>>> => {
+export const listIdentitySnapshotAccessItems = (requestParameters: sdk.IdentityHistoryV2025ApiListIdentitySnapshotAccessItemsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.ListIdentitySnapshotAccessItems200ResponseInnerV2025>>> => {
     const identityhistoryv2025api = new sdk.IdentityHistoryV2025Api(apiConfig);
     return handleApiCall(() => identityhistoryv2025api.listIdentitySnapshotAccessItems(requestParameters));
 }
@@ -3922,6 +4044,28 @@ export const setMachineAccountMappings = (requestParameters: sdk.MachineAccountM
 }
 
 /**
+ * Create a new machine account subtype for a source.
+ * @summary Create subtype
+ * @param {MachineAccountsV2025ApiCreateMachineAccountSubtypeRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const createMachineAccountSubtype = (requestParameters: sdk.MachineAccountsV2025ApiCreateMachineAccountSubtypeRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SourceSubtypeV2025>> => {
+    const machineaccountsv2025api = new sdk.MachineAccountsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountsv2025api.createMachineAccountSubtype(requestParameters));
+}
+/**
+ * Delete a machine account subtype by its ID.
+ * @summary Delete subtype
+ * @param {MachineAccountsV2025ApiDeleteMachineAccountSubtypeRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const deleteMachineAccountSubtype = (requestParameters: sdk.MachineAccountsV2025ApiDeleteMachineAccountSubtypeRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<void>> => {
+    const machineaccountsv2025api = new sdk.MachineAccountsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountsv2025api.deleteMachineAccountSubtype(requestParameters));
+}
+/**
  * Use this API to return the details for a single machine account by its ID.  
  * @summary Machine account details
  * @param {MachineAccountsV2025ApiGetMachineAccountRequest} requestParameters Request parameters.
@@ -3933,6 +4077,39 @@ export const getMachineAccount = (requestParameters: sdk.MachineAccountsV2025Api
     return handleApiCall(() => machineaccountsv2025api.getMachineAccount(requestParameters));
 }
 /**
+ * Get a machine account subtype by its unique ID.
+ * @summary Retrieve subtype by subtype id
+ * @param {MachineAccountsV2025ApiGetMachineAccountSubtypeByIdRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const getMachineAccountSubtypeById = (requestParameters: sdk.MachineAccountsV2025ApiGetMachineAccountSubtypeByIdRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SourceSubtypeV2025>> => {
+    const machineaccountsv2025api = new sdk.MachineAccountsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountsv2025api.getMachineAccountSubtypeById(requestParameters));
+}
+/**
+ * Get a machine account subtype by source ID and technical name.
+ * @summary Retrieve subtype by source and technicalName
+ * @param {MachineAccountsV2025ApiGetMachineAccountSubtypeByTechnicalNameRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const getMachineAccountSubtypeByTechnicalName = (requestParameters: sdk.MachineAccountsV2025ApiGetMachineAccountSubtypeByTechnicalNameRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SourceSubtypeV2025>> => {
+    const machineaccountsv2025api = new sdk.MachineAccountsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountsv2025api.getMachineAccountSubtypeByTechnicalName(requestParameters));
+}
+/**
+ * Get all machine account subtypes for a given source.
+ * @summary Retrieve all subtypes by source
+ * @param {MachineAccountsV2025ApiListMachineAccountSubtypesRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const listMachineAccountSubtypes = (requestParameters: sdk.MachineAccountsV2025ApiListMachineAccountSubtypesRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.SourceSubtypeV2025>>> => {
+    const machineaccountsv2025api = new sdk.MachineAccountsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountsv2025api.listMachineAccountSubtypes(requestParameters));
+}
+/**
  * This returns a list of machine accounts.  
  * @summary Machine accounts list
  * @param {MachineAccountsV2025ApiListMachineAccountsRequest} requestParameters Request parameters.
@@ -3942,6 +4119,17 @@ export const getMachineAccount = (requestParameters: sdk.MachineAccountsV2025Api
 export const listMachineAccounts = (requestParameters: sdk.MachineAccountsV2025ApiListMachineAccountsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.MachineAccountV2025>>> => {
     const machineaccountsv2025api = new sdk.MachineAccountsV2025Api(apiConfig);
     return handleApiCall(() => machineaccountsv2025api.listMachineAccounts(requestParameters));
+}
+/**
+ * Update fields of a machine account subtype by its ID. Patchable fields include: `displayName`, `description`, `technicalName`.
+ * @summary Patch subtype
+ * @param {MachineAccountsV2025ApiPatchMachineAccountSubtypeRequest} requestParameters Request parameters.
+ * @param {*} [axiosOptions] Override http request option.
+ * @throws {RequiredError}
+ */
+export const patchMachineAccountSubtype = (requestParameters: sdk.MachineAccountsV2025ApiPatchMachineAccountSubtypeRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<sdk.SourceSubtypeV2025>> => {
+    const machineaccountsv2025api = new sdk.MachineAccountsV2025Api(apiConfig);
+    return handleApiCall(() => machineaccountsv2025api.patchMachineAccountSubtype(requestParameters));
 }
 /**
  * Use this API to update machine accounts details.  
@@ -6207,7 +6395,7 @@ export const deleteSearchAttributeConfig = (requestParameters: sdk.SearchAttribu
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getSearchAttributeConfig = (requestParameters: sdk.SearchAttributeConfigurationV2025ApiGetSearchAttributeConfigRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.SearchAttributeConfigV2025>>> => {
+export const getSearchAttributeConfig = (requestParameters: sdk.SearchAttributeConfigurationV2025ApiGetSearchAttributeConfigRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.SearchAttributeConfigV2025>>> => {
     const searchattributeconfigurationv2025api = new sdk.SearchAttributeConfigurationV2025Api(apiConfig);
     return handleApiCall(() => searchattributeconfigurationv2025api.getSearchAttributeConfig(requestParameters));
 }
@@ -7158,7 +7346,7 @@ export const setTagsToManyObjects = (requestParameters: sdk.TaggedObjectsV2025Ap
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const getPendingTaskHeaders = (requestParameters: sdk.TaskManagementV2025ApiGetPendingTaskHeadersRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<void>> => {
+export const getPendingTaskHeaders = (requestParameters: sdk.TaskManagementV2025ApiGetPendingTaskHeadersRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<void>> => {
     const taskmanagementv2025api = new sdk.TaskManagementV2025Api(apiConfig);
     return handleApiCall(() => taskmanagementv2025api.getPendingTaskHeaders(requestParameters));
 }
@@ -7337,7 +7525,7 @@ export const deleteSubscription = (requestParameters: sdk.TriggersV2025ApiDelete
  * @param {*} [axiosOptions] Override http request option.
  * @throws {RequiredError}
  */
-export const listSubscriptions = (requestParameters: sdk.TriggersV2025ApiListSubscriptionsRequest, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.SubscriptionV2025>>> => {
+export const listSubscriptions = (requestParameters: sdk.TriggersV2025ApiListSubscriptionsRequest = {}, apiConfig: sdk.Configuration): Promise<ApiResponse<Array<sdk.SubscriptionV2025>>> => {
     const triggersv2025api = new sdk.TriggersV2025Api(apiConfig);
     return handleApiCall(() => triggersv2025api.listSubscriptions(requestParameters));
 }

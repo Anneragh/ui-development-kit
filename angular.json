@@ -148,7 +148,9 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"],
+            "cache": true,
+            "cacheLocation": ".eslintcache"
           }
         }
       }
@@ -196,7 +198,15 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["projects/sailpoint-components/src/**/*.ts", "projects/sailpoint-components/src/**/*.html"]
+            "lintFilePatterns": [
+              "projects/sailpoint-components/src/**/*.ts",
+              "projects/sailpoint-components/src/**/*.html"
+            ],
+            "cache": true,
+            "cacheLocation": ".eslintcache",
+            "fix": false,
+            "maxWarnings": 0,
+            "quiet": false
           }
         }
       }
