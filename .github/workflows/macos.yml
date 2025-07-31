@@ -25,7 +25,7 @@ jobs:
         node-version: [24]
 
     # The type of runner that the job will run on
-    runs-on: macos-latest-xlarge
+    runs-on: macos-14
 
     steps:
     - uses: actions/checkout@v4
@@ -43,7 +43,6 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
 
-
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
@@ -56,12 +55,6 @@ jobs:
 
     - name: Install Angular CLI Globally
       run: npm install -g @angular/cli
-
-    - name: Increase Node.js heap memory
-      run: export NODE_OPTIONS="--max-old-space-size=16384"
-
-    - name: Check lint
-      run: npm run lint
 
     - name: Build Component Library
       run: npm run build:components

@@ -16,8 +16,6 @@ export default [
       'src/environments/*',
       'e2e/playwright.config.ts',
       'projects/sailpoint-components/src/lib/sailpoint-sdk.service.ts',
-      'projects/sailpoint-components/src/lib/transforms/**/*.ts',
-      'projects/sailpoint-components/src/lib/velocity-editor-dialog/**/*.ts',
       'node_modules/**'
     ]
   },

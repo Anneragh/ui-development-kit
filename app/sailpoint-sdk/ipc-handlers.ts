@@ -3,7 +3,6 @@ import * as sdkWrapper from './sailpoint-sdk';
 import * as sdk from 'sailpoint-api-client';
 import { apiConfig } from '../authentication/auth';
 
-
 export function setupSailPointSDKHandlers() {
 
 
