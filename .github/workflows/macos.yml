@@ -43,6 +43,10 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
 
+    - name: Increase Node.js heap memory
+      run: export NODE_OPTIONS="--max-old-space-size=8192"
+
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
