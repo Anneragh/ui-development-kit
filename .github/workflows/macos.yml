@@ -25,7 +25,7 @@ jobs:
       - name: Install Dependencies
         run: |
           yarn install
-          yarn add -D cli-truncate iconv-corefoundation
+          yarn add -D -W cli-truncate iconv-corefoundation
 
       - name: Install Angular CLI Globally
         run: yarn global add @angular/cli
