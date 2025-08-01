@@ -38,7 +38,7 @@ jobs:
         yarn install
 
     - name: Install Angular CLI Globally
-      run: yarn install -g @angular/cli
+      run: yarn global add @angular/cli
 
     - name: Check lint
       run: yarn lint
