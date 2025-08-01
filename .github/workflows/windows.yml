@@ -20,9 +20,6 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        node-version: [24]
 
     # The type of runner that the job will run on
     runs-on: windows-2022
@@ -30,49 +27,34 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Cache node modules
-      uses: actions/cache@v4
-      env:
-        cache-name: cache-node-modules
-      with:
-        # npm cache files are stored in `~/.npm`
-        path: ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '24'
+        cache: 'yarn'
 
     - name: Install Dependencies
       run: |
-        npm i
-        cd app
-        npm i
-        cd ..
+        yarn install
 
     - name: Install Angular CLI Globally
-      run: npm install -g @angular/cli
+      run: yarn install -g @angular/cli
 
     - name: Check lint
-      run: npm run lint
+      run: yarn lint
 
     - name: Build Component Library
-      run: npm run build:components
+      run: yarn build:components
 
     - name: Run headless unit test
-      run: npm run test
+      run: yarn test
 
     - name: Run headless e2e test
       run: |
-       npm run e2e
+       yarn e2e
 
     - name: Build the app
-      run: npm run electron:build
+      run: yarn electron:build
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4

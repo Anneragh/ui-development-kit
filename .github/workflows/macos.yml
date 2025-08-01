@@ -13,50 +13,35 @@ permissions:
 jobs:
   build:
     runs-on: macos-14
-    strategy:
-      matrix:
-        node-version: [24]
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '24'
+          cache: 'yarn'
 
       - name: Install Dependencies
         run: |
-          npm i && npm i -D cli-truncate iconv-corefoundation
-          npm --prefix ./app install
+          yarn install
+          yarn add -D cli-truncate iconv-corefoundation
 
       - name: Install Angular CLI Globally
-        run: npm install -g @angular/cli
+        run: yarn install -g @angular/cli
 
       - name: Run Lint (with increased memory)
-        run: npm run lint
+        run: yarn lint
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
       - name: Build Component Library
-        run: npm run build:components
+        run: yarn build:components
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
       - name: Build the App
-        run: npm run electron:build
+        run: yarn electron:build
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
