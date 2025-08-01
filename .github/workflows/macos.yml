@@ -28,7 +28,7 @@ jobs:
           yarn add -D cli-truncate iconv-corefoundation
 
       - name: Install Angular CLI Globally
-        run: yarn install -g @angular/cli
+        run: yarn global add @angular/cli
 
       - name: Run Lint (with increased memory)
         run: yarn lint
