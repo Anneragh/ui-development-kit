@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { ElectronApiFactoryService } from 'sailpoint-components';
 
 export type Connection = {
   connected: boolean;
@@ -41,7 +42,7 @@ export class ConnectionService implements OnDestroy {
   sessionStatus$ = this.sessionStatusSubject$.asObservable();
   currentEnvironment$ = this.currentEnvironmentSubject$.asObservable();
 
-  constructor() {
+  constructor(private apiFactoryService: ElectronApiFactoryService) {
   }
 
   ngOnDestroy(): void {
@@ -55,7 +56,7 @@ export class ConnectionService implements OnDestroy {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Use the lightweight token status check to avoid double validation
-      const tokenStatus = await window.electronAPI.checkAccessTokenStatus(environmentName);
+      const tokenStatus = await this.apiFactoryService.getApi().checkAccessTokenStatus(environmentName);
 
       console.log('tokenStatus', tokenStatus);
 
@@ -102,7 +103,7 @@ export class ConnectionService implements OnDestroy {
         throw new Error('No environment available for refresh');
       }
 
-      await window.electronAPI.refreshTokens(environment.name);
+      await this.apiFactoryService.getApi().refreshTokens(environment.name);
       await this.validateTokensAfterRefresh(environment.name);
     } catch (error) {
       console.error('Session refresh failed:', error);
@@ -119,7 +120,7 @@ export class ConnectionService implements OnDestroy {
   async validateTokensAfterRefresh(environmentName: string): Promise<void> {
     try {
       // Use the lightweight token status check to avoid double validation
-      const tokenStatus = await window.electronAPI.checkAccessTokenStatus(environmentName);
+      const tokenStatus = await this.apiFactoryService.getApi().checkAccessTokenStatus(environmentName);
 
       const sessionStatus: SessionStatus = {
         isValid: tokenStatus.accessTokenIsValid,
@@ -153,7 +154,7 @@ export class ConnectionService implements OnDestroy {
     }
 
     try {
-      const loginResult = await window.electronAPI.unifiedLogin(environment.name);
+      const loginResult = await this.apiFactoryService.getApi().unifiedLogin(environment.name);
       if (loginResult.success) {
         this.connectedSubject$.next({ connected: true, name: environment.name });
         await this.validateConnectionImmediately(environment.name);
@@ -180,13 +181,13 @@ export class ConnectionService implements OnDestroy {
     this.isSessionRefreshing = true;
 
     try {
-      const refreshResult = await window.electronAPI.refreshTokens(environment.name);
+      const refreshResult = await this.apiFactoryService.getApi().refreshTokens(environment.name);
       if (!refreshResult.success) {
         throw new Error('Failed to refresh tokens');
       }
       await this.validateTokensAfterRefresh(environment.name);
       console.log('Tokens validated successfully');
-      const loginResult = await window.electronAPI.unifiedLogin(environment.name);
+      const loginResult = await this.apiFactoryService.getApi().unifiedLogin(environment.name);
       if (loginResult.success) {
         this.connectedSubject$.next({ connected: true, name: environment.name });
         await this.validateConnectionImmediately(environment.name);

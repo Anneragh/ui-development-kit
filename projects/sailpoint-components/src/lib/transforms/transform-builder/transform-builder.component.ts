@@ -361,6 +361,7 @@ export interface MyDefinition extends Definition {
   properties: {
     name: string;
     description: string;
+    requiresPeriodicRefresh: boolean;
   };
 }
 
@@ -504,6 +505,7 @@ export function createDefinitionFromTransform(data: any): Definition {
     properties: {
       name: data.name,
       description: data.attributes.description || '',
+      requiresPeriodicRefresh: data.attributes.requiresPeriodicRefresh || false,
     },
     sequence: [deserializeToStep(data)],
   };
@@ -738,10 +740,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
       const stepType = step.type;
 
-      console.log(
-        `Checking if we can move step of type "${stepType}" at index ${targetIndex}`
-      );
-
       // Check if trying to insert after a single task type step
       if (targetIndex > 0) {
         const previousStep = targetSequence[targetIndex - 1];
@@ -918,7 +916,18 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     this.isSaving = true;
 
     try {
-      const serializedTransform = serializeStep(definition.sequence[0]);
+      // 1) serialize
+      const raw = serializeStep(definition.sequence[0]);
+
+      // 2) guard against non‑object
+      if (typeof raw !== 'object' || raw === null) {
+        // nothing we can auto‑save here
+        return;
+      }
+      const serializedTransform = raw as {
+        attributes?: Record<string, any>;
+        [k: string]: any;
+      };
       const transformId = this.isNewTransform
         ? 'new_transform'
         : this.transform?.id || 'unknown';
@@ -927,6 +936,18 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         typeof definitionName === 'string'
           ? definitionName
           : 'Untitled Transform';
+
+      // now it’s definitely an object
+      serializedTransform.attributes = serializedTransform.attributes || {};
+
+      if (definition.properties.requiresPeriodicRefresh) {
+        serializedTransform.attributes.requiresPeriodicRefresh = true;
+      } else {
+        delete serializedTransform.attributes.requiresPeriodicRefresh;
+        if (!Object.keys(serializedTransform.attributes).length) {
+          delete serializedTransform.attributes;
+        }
+      }
 
       this.autoSaveService.autoSave(
         transformId,
@@ -962,8 +983,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         typeof definitionName === 'string' ? definitionName : newTransform.name
       );
 
-      console.log('Saving transform to cloud:', newTransform);
-
       // If the transform already exists, update it
       if (this.transform?.id) {
         const transformUpdateRequest: TransformsV2025ApiUpdateTransformRequest =
@@ -992,7 +1011,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
         this.transform = response.data;
         this.isNewTransform = false;
-        this.autoSaveService.clearLocalSave('new_transform', true);
+        this.autoSaveService.clearLocalSave('new_transform');
         this.snackBar.open('Transform created successfully', 'Close', {
           duration: 3000,
         });
@@ -1040,7 +1059,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
       const transformId = this.isNewTransform
         ? 'new_transform'
         : this.transform?.id || 'unknown';
-      this.autoSaveService.clearLocalSave(transformId, this.isNewTransform);
+      this.autoSaveService.clearLocalSave(transformId);
 
       if (this.transform) {
         this.definition = createDefinitionFromTransform(this.transform);
@@ -1066,31 +1085,64 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   }
 
   public onDefinitionChanged(definition: Definition) {
-    console.log('onDefinitionChanged', definition);
     this.definition = definition;
     this.updateDefinitionJSON();
 
-    if (this.transform?.id) {
-      const parsedDef = JSON.parse(this.definitionJSON ?? '{}');
-
-      const hasChanges = this.autoSaveService.hasUnsavedChanges(
-        this.transform.id,
-        parsedDef
-      );
-
-      this.hasUnsavedChanges = hasChanges;
-    } else {
+    if (!this.transform?.id) {
       this.hasUnsavedChanges = false;
+      this.autoSaveSubject.next(definition);
+      return;
+    }
+
+    const firstStep = definition.sequence?.[0];
+    if (!firstStep) {
+      this.hasUnsavedChanges = false;
+      this.autoSaveSubject.next(definition);
+      return;
+    }
+
+    const raw = serializeStep(firstStep);
+
+    if (typeof raw !== 'object' || raw === null) {
+      console.warn('↪ raw is not an object, skipping diff');
+      this.hasUnsavedChanges = false;
+      this.autoSaveSubject.next(definition);
+      return;
+    }
+
+    const currentObj = raw as any;
+    currentObj.attributes = currentObj.attributes ?? {};
+    currentObj.attributes.requiresPeriodicRefresh =
+      definition.properties.requiresPeriodicRefresh;
+
+    const hasChanges = this.autoSaveService.hasUnsavedChanges(
+      this.transform.id,
+      currentObj
+    );
+
+    this.hasUnsavedChanges = hasChanges;
+
+    if (!hasChanges) {
+      this.autoSaveService.clearLocalSave(this.transform.id);
     }
 
     this.autoSaveSubject.next(definition);
   }
-
   private updateDefinitionJSON() {
     const transformedResult = this.definition?.sequence?.[0]
       ? serializeStep(this.definition.sequence[0])
       : undefined;
-    this.definitionJSON = JSON.stringify(transformedResult, null, 2);
+
+    if (transformedResult && typeof transformedResult === 'object') {
+      const tr = transformedResult as any;
+      tr.attributes = tr.attributes ?? {};
+      tr.attributes.requiresPeriodicRefresh =
+        this.definition!.properties.requiresPeriodicRefresh;
+
+      this.definitionJSON = JSON.stringify(tr, null, 2);
+    } else {
+      this.definitionJSON = JSON.stringify(transformedResult, null, 2);
+    }
   }
 
   public toggleToolboxClicked() {
@@ -1108,8 +1160,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     this.isReadonly = !this.isReadonly;
   }
 
-  public onSelectedStepIdChanged(selectedStepId: string | null) {
-    console.log('onSelectedStepIdChanged', selectedStepId);
+  public onSelectedStepIdChanged() {
     this.isEditorCollapsed = false;
   }
 
@@ -1240,42 +1291,39 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     });
   }
 
-  viewTransformDefinition(): void {
+  public viewTransformDefinition(): void {
     const selectedStepId = this.designer?.getSelectedStepId();
     const definition = this.designer?.getDefinition();
+    if (!definition) {
+      this.openMessageDialog('Definition not found', 'Error');
+      return;
+    }
 
-    let serializedTransform: string | undefined;
-
+    // grab the raw object
+    let obj: any;
     if (selectedStepId) {
-      if (!definition) {
-        this.openMessageDialog('Definition not found', 'Error');
-        return;
-      }
-
-      const selectedStep = this.findStepById(definition, selectedStepId);
-
-      if (!selectedStep) {
+      const step = this.findStepById(definition, selectedStepId);
+      if (!step) {
         this.openMessageDialog('Selected step not found', 'Error');
         return;
       }
-
-      serializedTransform = JSON.stringify(
-        serializeStep(selectedStep),
-        null,
-        2
-      );
-    } else if (definition?.sequence[0]) {
-      serializedTransform = JSON.stringify(
-        serializeStep(definition.sequence[0]),
-        null,
-        2
-      );
-    }
-
-    if (!serializedTransform) {
+      obj = serializeStep(step);
+    } else if (definition.sequence?.[0]) {
+      obj = serializeStep(definition.sequence[0]);
+    } else {
       this.openMessageDialog('No transform found to display.', 'Warning');
       return;
     }
+
+    // make sure it's an object and inject the flag
+    if (typeof obj === 'object' && obj !== null && definition.properties.requiresPeriodicRefresh === "true") {
+      obj.attributes = obj.attributes ?? {};
+      obj.attributes.requiresPeriodicRefresh =
+        definition.properties.requiresPeriodicRefresh;
+    }
+
+    // then stringify
+    const serializedTransform = JSON.stringify(obj, null, 2);
 
     this.dialog.open(GenericDialogComponent, {
       minWidth: '800px',
@@ -1333,7 +1381,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   ) {
     this.isReadonly = true; // Disable editing while opening editor
 
-    console.log('openVelocityEditor', properties, name, event);
     const currentValue = properties[name] || '';
     const dialogReference = this.editorDialog.open(
       VelocityEditorDialogComponent,
@@ -1356,10 +1403,8 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
 
     dialogReference.afterClosed().subscribe((result) => {
       this.isReadonly = false; // Re-enable editing after editor is closed
-      console.log('Velocity editor closed with result:', result);
       if (result !== undefined && result.saved) {
         properties[name] = result.code;
-        console.log('Updated properties:', properties);
         context.notifyPropertiesChanged();
       }
     });
@@ -1371,7 +1416,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     event: Event | MatSlideToggleChange,
     context: RootEditorContext | StepEditorContext
   ) {
-    console.log('updateProperty', properties, name, event);
     if (event instanceof MatSlideToggleChange) {
       properties[name] = event.checked;
     } else if (event instanceof InputEvent) {
@@ -1386,7 +1430,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     event: Event | MatSlideToggleChange,
     context: RootEditorContext | StepEditorContext
   ) {
-    console.log(event);
     if (event instanceof InputEvent) {
       properties[name] = parseFloat((event.target as HTMLInputElement).value);
     }
@@ -1399,9 +1442,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     event: Event,
     context: StepEditorContext
   ) {
-    console.log('removeBranch', branches, index);
     this.deleteBranchAtIndex(branches, index);
-    console.log('branches', branches);
     context.notifyChildrenChanged();
   }
 
@@ -1515,7 +1556,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     sourceName: Event | MatSlideToggleChange,
     context: RootEditorContext | StepEditorContext
   ) {
-    console.log('onSourceNameChanged', properties, name, sourceName);
     if ('notifyChildrenChanged' in context && 'notifyNameChanged' in context) {
       void this.loadAccountAttributes(context, sourceName as unknown as string);
     }
@@ -1539,20 +1579,14 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
 
     const cacheKey = `${sourceName}`;
-    console.log('getAccountAttributes', sourceName, cacheKey);
 
     // Check if we have cached data
     if (this.accountAttributesCache.has(cacheKey)) {
-      console.log(
-        'Account attributes cache:',
-        this.accountAttributesCache.get(cacheKey)
-      );
       return this.accountAttributesCache.get(cacheKey) || [];
     }
 
     // If not cached and not currently loading, start loading
     if (!this.loadingStates.get(cacheKey)) {
-      console.log('Cache miss - loading account attributes for:', sourceName);
       // Don't await this - let it load in the background
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       this.loadAccountAttributesForSource(sourceName).catch((error) => {
@@ -1596,12 +1630,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
         const attributes = userSchema
           ? userSchema.attributes?.map((value) => value.name)
           : [];
-
-        console.log(
-          'Loaded account attributes for source:',
-          sourceName,
-          attributes
-        );
 
         this.accountAttributesCache.set(cacheKey, attributes ?? []);
         this.loadingStates.set(cacheKey, false);
@@ -1687,7 +1715,6 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     }
 
     // const stepDef = this.definitionModel.steps[stepName];
-    // console.log('stepDef', stepDef);
 
     return false;
   }
