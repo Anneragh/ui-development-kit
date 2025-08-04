@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { ShortcutsComponent } from './shortcuts.component';
 
@@ -46,7 +45,7 @@ describe('ShortcutsComponent', () => {
 
   it('should call action when shortcut is clicked', () => {
     const shortcut = component.shortcutCategories[0].shortcuts[0];
-    const spy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const spy = jest.spyOn(window, 'open').mockImplementation(() => null);
 
     component.onShortcutClick(shortcut);
 
