@@ -33,6 +33,7 @@
     "build:components": "ng build sailpoint-components",
     "build:dev": "npm run build -- -c dev",
     "build:prod": "npm run build:components && npm run build -- -c production",
+    "build:sdk": "node scripts/build-sailpoint-sdk.js",
     "web:build": "npm run build -- -c web-production",
     "electron": "electron",
     "electron:tsc": "tsc -p tsconfig.serve.json",
@@ -44,7 +45,9 @@
     "e2e": "npm run build:prod && playwright test -c e2e/playwright.config.ts e2e/",
     "e2e:show-trace": "playwright show-trace e2e/tracing/trace.zip",
     "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "lint": "ng lint && ng lint sailpoint-components",
+    "lint": "ng lint",
+    "lint:components": "ng lint sailpoint-components",
+    "lint:all": "ng lint && ng lint sailpoint-components",
     "generate:component": "node scripts/generate-component.js"
   },
   "dependencies": {
@@ -73,7 +76,7 @@
     "lodash-es": "4.17.21",
     "prismjs": "1.30.0",
     "rxjs": "7.8.2",
-    "sailpoint-api-client": "1.6.4",
+    "sailpoint-api-client": "1.6.8",
     "sequential-workflow-designer": "0.29.0",
     "sequential-workflow-designer-angular": "0.29.0",
     "sequential-workflow-editor": "0.14.8",

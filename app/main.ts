@@ -2,7 +2,6 @@ import { app, BrowserWindow, ipcMain, screen, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import { harborPilotTransformChat } from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType, unifiedLogin, validateTokens, checkAccessTokenStatus, checkRefreshTokenStatus, getCurrentTokenDetails } from './authentication/auth';
 import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
@@ -217,11 +216,9 @@ try {
     return setGlobalAuthType(authType);
   });
 
-
   ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
     return await harborPilotTransformChat(chat);
   });
-
 
   ipcMain.handle('read-config', async () => {
     try {

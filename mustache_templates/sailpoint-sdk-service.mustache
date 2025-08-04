@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AxiosResponse } from 'axios';
 import * as sdk from 'sailpoint-api-client';
+import { ElectronApiFactoryService } from './services/electron-api-factory.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,12 +9,8 @@ import * as sdk from 'sailpoint-api-client';
 export class SailPointSDKService {
   private electronAPI: any;
 
-  constructor() {
-    if (window.electronAPI) {
-      this.electronAPI = window.electronAPI;
-    } else {
-      console.error('Electron API is not available');
-    }
+  constructor(private apiFactory: ElectronApiFactoryService) {
+    this.electronAPI = this.apiFactory.getApi();
   }
 
 {{#apiInfo}}{{#apis}}
