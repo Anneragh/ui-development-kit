@@ -14,7 +14,9 @@ export default [
       'dist/**/*',
       'release/**/*',
       'src/environments/*',
-      'e2e/playwright.config.ts'
+      'e2e/playwright.config.ts',
+      'projects/sailpoint-components/src/lib/sailpoint-sdk.service.ts',
+      'node_modules/**'
     ]
   },
   {
@@ -41,7 +43,7 @@ export default [
           './projects/sailpoint-components/tsconfig.lib.json',
           './projects/sailpoint-components/tsconfig.spec.json'
         ],
-        createDefaultProgram: true
+        createDefaultProgram: false
       }
     },
     plugins: {
@@ -88,7 +90,7 @@ export default [
           './src/tsconfig.spec.json',
           './projects/sailpoint-components/tsconfig.spec.json'
         ],
-        createDefaultProgram: true
+        createDefaultProgram: false
       }
     },
     plugins: {
@@ -116,7 +118,7 @@ export default [
         project: [
           './e2e/tsconfig.e2e.json'
         ],
-        createDefaultProgram: true
+        createDefaultProgram: false
       }
     },
     plugins: {

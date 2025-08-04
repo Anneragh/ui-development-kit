@@ -1,7 +1,6 @@
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { ElectronService } from './core/services';
 import { provideRouter, Routes } from '@angular/router';
 import { ConnectionService } from './services/connection.service';
 import { of } from 'rxjs';
@@ -29,7 +28,6 @@ describe('AppComponent', () => {
     void TestBed.configureTestingModule({
       declarations: [],
       providers: [
-        ElectronService,
         provideRouter(routes),
         { provide: ConnectionService, useValue: mockConnectionService }, // Mock ConnectionService
       ],

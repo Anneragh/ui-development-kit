@@ -19,9 +19,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { ThemeConfig, ThemeService } from 'sailpoint-components';
+import { ThemeConfig, ThemeService, ElectronApiFactoryService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
-import { ElectronService } from './core/services';
 import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './services/connection.service';
 import {
   ComponentInfo,
@@ -68,7 +67,7 @@ export class AppComponent implements OnDestroy, OnInit {
   logoPath = '';
 
   constructor(
-    private electronService: ElectronService,
+    private electronService: ElectronApiFactoryService,
     private translate: TranslateService,
     private connectionService: ConnectionService,
     private breakpointObserver: BreakpointObserver,
@@ -97,7 +96,7 @@ export class AppComponent implements OnDestroy, OnInit {
       });
 
     // Platform-specific logging
-    if (electronService.isElectron) {
+    if (electronService.getApi().isElectron) {
       console.log('Run in electron');
     } else {
       console.log('Run in browser');
@@ -271,7 +270,7 @@ export class AppComponent implements OnDestroy, OnInit {
    * Disconnects from Identity Security Cloud and navigates home.
    */
   async disconnectFromISC() {
-    await window.electronAPI.disconnectFromISC();
+    await this.electronService.getApi().disconnectFromISC();
     this.connectionService.connectedSubject$.next({ connected: false });
     this.router.navigate(['/home']).catch((error) => {
       console.error('Navigation error:', error);
