@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AxiosResponse } from 'axios';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from 'sailpoint-components';
+import { ElectronApiFactoryService } from 'sailpoint-components';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -17,8 +18,8 @@ export class IdentitiesComponent implements OnInit {
   identities: AxiosResponse<Array<IdentityV2025>, any> | undefined;
   loading = true;
 
-  constructor() {
-    this.sdk = new SailPointSDKService();
+  constructor(private electronApiFactory: ElectronApiFactoryService) {
+    this.sdk = new SailPointSDKService(this.electronApiFactory);
   }
 
   ngOnInit() {

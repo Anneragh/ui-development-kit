@@ -4,6 +4,7 @@ import { SailPointSDKService } from 'sailpoint-components';
 import { TenantV2025 } from 'sailpoint-api-client';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ElectronApiFactoryService } from 'sailpoint-components';
 
 @Component({
   selector: 'app-tenant-data',
@@ -17,8 +18,8 @@ export class TenantDataCardComponent implements OnInit {
   tenantDetails: TenantV2025 | undefined;
   loading = true;
 
-  constructor() {
-    this.sdk = new SailPointSDKService();
+  constructor(private electronApiFactory: ElectronApiFactoryService) {
+    this.sdk = new SailPointSDKService(this.electronApiFactory);
   }
 
   ngOnInit() {

@@ -5,6 +5,7 @@ import { SailPointSDKService } from 'sailpoint-components';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AxiosResponse } from 'axios';
+import { ElectronApiFactoryService } from 'sailpoint-components';
 
 @Component({
   selector: 'app-sources',
@@ -17,8 +18,8 @@ export class SourcesComponent implements OnInit {
   sources: AxiosResponse<Array<SourceV2025>, any> | undefined;
   loading = true;
 
-  constructor() {
-    this.sdk = new SailPointSDKService();
+  constructor(private electronApiFactory: ElectronApiFactoryService) {
+    this.sdk = new SailPointSDKService(this.electronApiFactory);
   }
 
   ngOnInit() {
