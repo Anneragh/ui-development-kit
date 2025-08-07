@@ -97,7 +97,6 @@ export class TransformsComponent implements OnInit {
   policiesChecked = 0;
   @ViewChild('scanProgressDialog') scanProgressTpl!: TemplateRef<any>;
   private progressRef?: MatDialogRef<any>;
-  private cancelRequested = false;
   totalTransforms = 0;
   transformsChecked = 0;
   CHECK_DELAY_MS = 200;
@@ -354,13 +353,13 @@ export class TransformsComponent implements OnInit {
     this.currentPhase = 'Initializing';
     this.grandProgress = 0;
     this.currentPhaseTotal = 0;
-    this.progressRef = this.dialog.open(this.scanProgressTpl, { disableClose: true, data: { showCancel: false } });
+    this.progressRef = this.dialog.open(this.scanProgressTpl, { disableClose: true});
     this.cdr.detectChanges();
 
     // compute totals
     const [pr, sr, tr] = await Promise.all([
       this.sdk.listIdentityProfiles(),
-      this.sdk.listSources(),
+      this.sdk.listSources(), 
       this.sdk.listTransforms()
     ]);
     this.totalProfiles = (pr.data ?? []).length;
@@ -426,7 +425,6 @@ export class TransformsComponent implements OnInit {
 
   private cleanupScan(): void {
     this.scanning = false;
-    this.cancelRequested = false;
     this.progressRef?.close();
     this.progressRef = undefined;
   }
@@ -437,7 +435,6 @@ export class TransformsComponent implements OnInit {
 
     const profiles = (await this.sdk.listIdentityProfiles()).data ?? [];
     for (const p of profiles) {
-      if (this.cancelRequested) return;
       this.grandProgress++;
       this.cdr.detectChanges();
 
@@ -485,7 +482,6 @@ export class TransformsComponent implements OnInit {
     }>;
 
     for (const src of sources) {
-      if (this.cancelRequested) return;
 
       let policies = [] as Array<{ fields?: unknown[]; name?: string; id?: string; usageType?: string; type?: string }>;
       try {
@@ -496,7 +492,6 @@ export class TransformsComponent implements OnInit {
       }
 
       for (const pol of policies) {
-        if (this.cancelRequested) return;
         this.grandProgress++;
         this.cdr.detectChanges();
 
@@ -531,7 +526,6 @@ export class TransformsComponent implements OnInit {
     this.totalTransforms = others.length;
 
     for (const t of others) {
-      if (this.cancelRequested) return;
 
       this.grandProgress++;
       this.cdr.detectChanges();

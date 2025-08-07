@@ -90,10 +90,6 @@
         <mat-progress-bar mode="determinate" [value]="grandTotal ? (grandProgress / grandTotal) * 100 : 0">
         </mat-progress-bar>
       </mat-dialog-content>
-
-      <mat-dialog-actions align="end">
-        <button *ngIf="showCancel" mat-button color="warn" (click)="cancelScan()">Cancel</button>
-      </mat-dialog-actions>
     </ng-template>
   </div>
 </div>
