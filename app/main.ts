@@ -216,10 +216,6 @@ try {
     return setGlobalAuthType(authType);
   });
 
-  ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
-    return await harborPilotTransformChat(chat);
-  });
-
   ipcMain.handle('read-config', async () => {
     try {
       const configPath = getConfigPath();
