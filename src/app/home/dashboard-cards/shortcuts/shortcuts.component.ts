@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ConnectionService } from 'src/app/services/connection.service';
+import { ConnectionService } from '../../../services/connection.service';
 
 @Component({
   selector: 'app-shortcuts',
