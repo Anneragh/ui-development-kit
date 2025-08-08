@@ -31,30 +31,30 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '24'
-        cache: 'yarn'
+        cache: 'npm'
 
     - name: Install Dependencies
       run: |
-        yarn install
+        npm install
 
     - name: Install Angular CLI Globally
-      run: yarn global add @angular/cli
+      run: npm install -g @angular/cli
 
     - name: Check lint
-      run: yarn lint
+      run: npm run lint
 
     - name: Build Component Library
-      run: yarn build:components
+      run: npm run build:components
 
     - name: Run headless unit test
-      run: yarn test
+      run: npm run test
 
     - name: Run headless e2e test
       run: |
-       yarn e2e
+       npm run e2e
 
     - name: Build the app
-      run: yarn electron:build
+      run: npm run electron:build
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4

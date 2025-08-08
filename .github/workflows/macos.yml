@@ -20,28 +20,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install Dependencies
         run: |
-          yarn install
-          yarn add -D -W cli-truncate iconv-corefoundation
+          npm i && npm i -D cli-truncate iconv-corefoundation
+          npm --prefix ./app install
 
       - name: Install Angular CLI Globally
-        run: yarn global add @angular/cli
+        run: npm install -g @angular/cli
 
       - name: Run Lint (with increased memory)
-        run: yarn lint
+        run: npm run lint
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
       - name: Build Component Library
-        run: yarn build:components
+        run: npm run build:components
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
       - name: Build the App
-        run: yarn electron:build
+        run: npm run electron:build
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
