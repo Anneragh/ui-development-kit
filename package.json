@@ -25,13 +25,13 @@
   "main": "electron-dist/main.js",
   "private": true,
   "workspaces": [
-    "app/*"
+    "app"
   ],
   "scripts": {
     "ng": "ng",
     "start": "concurrently \"npm run ng:serve\" \"npm run electron:dev-tsc\" \"npm run electron:dev\" --names \"angular,tsc,electron\" --prefix-colors \"#5C44E4,#3178C6,#FF3E00\"",
     "ng:serve": "ng serve -c web",
-    "build:all": "npm run build:sdk && npm run build:prod && npm run electron:build",
+    "build:all": "npm run -w build:sdk && npm run -w build:prod && npm run -w electron:build",
     "build": "npm run build:components && npm run electron:tsc && ng build --base-href ./",
     "build:components": "ng build sailpoint-components",
     "build:dev": "npm run build -- -c dev",
