@@ -92,9 +92,6 @@ declare global {
       getGlobalAuthType: () => Promise<AuthMethods>;
       setGlobalAuthType: (authType: AuthMethods) => Promise<void>;
       
-      // Harbor Pilot
-      harborPilotTransformChat: (chat: any) => Promise<any>;
-      
       // Config file management
       readConfig: () => Promise<any>;
       writeConfig: (config: any) => Promise<any>;
