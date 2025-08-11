@@ -322,7 +322,7 @@ function updateAppComponentHtml() {
       </a>`;
   
   // Find the closing </mat-nav-list> tag and insert before it
-  const navListEndRegex = /(.*)(\s+<\/mat-nav-list>)/s;
+  const navListEndRegex = /(.*?)(\s+<\/mat-nav-list>.*)/s;
   const match = content.match(navListEndRegex);
   
   if (match) {
