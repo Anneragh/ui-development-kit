@@ -58,8 +58,16 @@ export class ComponentSelectorService {
       icon: 'attachment',
       description: 'Manage attach rule in SailPoint.',
       enabled: false
-    }
-  ];
+    },
+        {
+            name: 'accounts',
+            displayName: 'Accounts',
+            route: '/accounts',
+            icon: 'dashboard',
+            description: 'Manage accounts in SailPoint.',
+            enabled: false
+        }
+    ];
 
   private enabledComponentsSubject = new BehaviorSubject<ComponentInfo[]>([]);
   enabledComponents$ = this.enabledComponentsSubject.asObservable();
