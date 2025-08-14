@@ -151,8 +151,22 @@ app.post('/api/auth/web-login', (req: Request, res: Response) => {
   req.session.oauthState = state;
   req.session.oauthStateData = stateData;
   
-  // Build the OAuth URL
-  const authUrl = `${SERVER_CONFIG.apiUrl}/oauth/authorize?client_id=${SERVER_CONFIG.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SERVER_CONFIG.redirectUri)}&scope=${encodeURIComponent(SERVER_CONFIG.scopes)}&state=${encodeURIComponent(state)}`;
+  // Extract tenant name from the tenant URL
+  // Expected format: https://beta-15156.identitynow-demo.com/
+  let tenantName = '';
+  try {
+    // Parse the tenant URL to extract the subdomain
+    const tenantUrl = new URL(SERVER_CONFIG.tenantUrl);
+    tenantName = tenantUrl.hostname.split('.')[0]; // e.g. "beta-15156"
+    console.log('Extracted tenant name:', tenantName);
+  } catch (error) {
+    console.error('Failed to parse tenant URL:', error);
+  }
+
+  // Build the OAuth URL using the SailPoint login domain format
+  const authUrl = `https://${tenantName}.login.identitynow-demo.com/oauth/authorize?client_id=${SERVER_CONFIG.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SERVER_CONFIG.redirectUri)}&scope=${encodeURIComponent(SERVER_CONFIG.scopes)}&state=${encodeURIComponent(state)}`;
+  
+  console.log('Generated auth URL:', authUrl);
   
   res.json({ 
     success: true, 
@@ -165,6 +179,8 @@ app.get('/oauth/callback', async (req: Request, res: Response) => {
   const { code, state, error } = req.query;
   
   console.log('OAuth callback received', { code: !!code, state: !!state, error });
+  console.log('Full URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
+  console.log('Session state:', req.session.oauthState);
   
   // Check if error was returned
   if (error) {
@@ -192,12 +208,33 @@ app.get('/oauth/callback', async (req: Request, res: Response) => {
     
     try {
       // Attempt to make a real token exchange
-      const tokenResponse = await axios.post(`${SERVER_CONFIG.apiUrl}/oauth/token`, {
-        grant_type: 'authorization_code',
-        client_id: SERVER_CONFIG.clientId,
-        client_secret: SERVER_CONFIG.clientSecret,
-        code,
-        redirect_uri: SERVER_CONFIG.redirectUri
+      // Extract tenant name for token endpoint
+      let tenantName = '';
+      try {
+        const tenantUrl = new URL(SERVER_CONFIG.tenantUrl);
+        tenantName = tenantUrl.hostname.split('.')[0]; 
+      } catch (error) {
+        console.error('Failed to parse tenant URL for token exchange:', error);
+        
+      }
+      
+      // Use the SailPoint token endpoint format with proper headers
+      console.log('Attempting token exchange with SailPoint');
+      const tokenEndpoint = `https://${tenantName}.api.identitynow-demo.com/oauth/token`;
+      console.log('Token endpoint:', tokenEndpoint);
+      
+      // Using form-urlencoded format as required by OAuth2 spec
+      const params = new URLSearchParams();
+      params.append('grant_type', 'authorization_code');
+      params.append('client_id', SERVER_CONFIG.clientId);
+      params.append('client_secret', SERVER_CONFIG.clientSecret);
+      params.append('code', code!.toString());
+      params.append('redirect_uri', SERVER_CONFIG.redirectUri);
+      
+      const tokenResponse = await axios.post(tokenEndpoint, params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       });
       
       const { access_token, refresh_token, expires_in } = tokenResponse.data;
@@ -239,7 +276,10 @@ app.get('/oauth/callback', async (req: Request, res: Response) => {
     delete req.session.oauthStateData;
     
     // Redirect to success URL
-    return res.redirect('/home?success=true');
+    console.log('Authentication successful, redirecting to Angular app');
+    
+    // Use a full URL to the Angular app instead of a relative path
+    return res.redirect('http://localhost:4200/home?success=true');
   } catch (error) {
     console.error('Error in OAuth callback:', error);
     return res.redirect('/home?error=callback_error');

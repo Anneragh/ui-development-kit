@@ -53,6 +53,7 @@ export class WebAuthComponent implements OnInit {
 
     try {
       // Call the server's authentication endpoint
+      console.log('Calling auth endpoint...');
       const response = await fetch('/api/auth/web-login', {
         method: 'POST',
         headers: {
@@ -62,11 +63,20 @@ export class WebAuthComponent implements OnInit {
       });
       
       const result = await response.json();
+      console.log('Auth response:', result);
       
       if (result.success && result.authUrl) {
-        // Redirect to the OAuth authorization URL
-        window.location.href = result.authUrl;
+        console.log('Redirecting to:', result.authUrl);
+        // Try window.open instead of window.location.href
+        window.open(result.authUrl, '_blank');
+        
+        // Also keep the original redirect as a backup with a slight delay
+        setTimeout(() => {
+          console.log('Fallback redirect executing...');
+          window.location.href = result.authUrl;
+        }, 100);
       } else {
+        console.error('Authentication failed, missing success or authUrl:', result);
         this.showError('Failed to initiate authentication');
         this.isLoading = false;
       }
