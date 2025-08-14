@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConnectionService } from '../services/connection.service';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -16,6 +16,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 import { ElectronApiFactoryService } from 'sailpoint-components';
+import { DOCUMENT } from '@angular/common';
+import { environment } from '../../environments/environment';
+import { WebAuthComponent, AuthEvent } from '../web-auth/web-auth.component';
 
 type AuthMethods = "oauth" | "pat";
 type OAuthValidationStatus = 'unknown' | 'valid' | 'invalid' | 'testing';
@@ -52,6 +55,8 @@ type ComponentState = {
   showEnvironmentDetails: boolean;
   oauthValidationStatus: OAuthValidationStatus;
   config: EnvironmentConfig;
+  isWebMode: boolean;
+  oauthInProgress: boolean;
 }
 
 @Component({
@@ -72,7 +77,8 @@ type ComponentState = {
     MatRadioModule,
     MatSnackBarModule,
     FormsModule,
-    SharedModule
+    SharedModule,
+    WebAuthComponent
   ]
 })
 export class HomeComponent implements OnInit {
@@ -93,15 +99,33 @@ export class HomeComponent implements OnInit {
       tenantUrl: '',
       baseUrl: '',
       authType: 'pat'
-    }
+    },
+    isWebMode: false,
+    oauthInProgress: false
   }
 
   constructor(
     private router: Router,
     private connectionService: ConnectionService,
     private snackBar: MatSnackBar,
-    private electronService: ElectronApiFactoryService
-  ) { }
+    private electronService: ElectronApiFactoryService,
+    @Inject(DOCUMENT) private document: Document
+  ) { 
+    // Check if running in web mode
+    this.state.isWebMode = environment.web === true;
+
+    // Check for OAuth callback parameters
+    if (this.state.isWebMode) {
+      const url = new URL(document.location.href);
+      if (url.searchParams.has('success')) {
+        this.showSnackbar('Login successful!');
+        this.checkLoginStatus();
+      } else if (url.searchParams.has('error')) {
+        const errorMessage = url.searchParams.get('message') || 'Unknown error';
+        this.showSnackbar(`OAuth error: ${errorMessage}`);
+      }
+    }
+  }
 
   ngOnInit(): void {
     void this.initializeComponent();
@@ -111,7 +135,8 @@ export class HomeComponent implements OnInit {
   private async initializeComponent(): Promise<void> {
     await Promise.all([
       this.loadTenants(),
-      this.initializeGlobalAuthMethod()
+      this.initializeGlobalAuthMethod(),
+      this.checkLoginStatus()
     ]);
 
     this.connectionService.connectedSubject$.subscribe((connection) => {
@@ -127,6 +152,47 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error('Error loading global auth method:', error);
       this.state.globalAuthMethod = 'pat';
+    }
+  }
+
+  // In web mode, check if the user is already logged in
+  async checkLoginStatus(): Promise<void> {
+    if (!this.state.isWebMode) return;
+
+    try {
+      const response = await fetch('/api/auth/login-status', {
+        credentials: 'include' // Important for session cookies
+      });
+      
+      const status = await response.json();
+      
+      if (status.isLoggedIn && status.environment) {
+        // Update connection state
+        this.connectionService.connectedSubject$.next({ 
+          connected: true, 
+          name: status.environment 
+        });
+        this.state.isConnected = true;
+        this.state.name = status.environment;
+        
+        // Get tenant information
+        const tenant = this.state.tenants.find(t => t.name === status.environment);
+        if (tenant) {
+          this.state.actualTenant = tenant;
+          this.state.selectedTenant = tenant.name;
+          
+          this.connectionService.currentEnvironmentSubject$.next({
+            name: tenant.name,
+            apiUrl: tenant.apiUrl,
+            baseUrl: tenant.tenantUrl,
+            authType: tenant.authType,
+            clientId: tenant.clientId || undefined,
+            clientSecret: tenant.clientSecret || undefined
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking login status:', error);
     }
   }
 
@@ -229,6 +295,12 @@ export class HomeComponent implements OnInit {
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);
     console.log('Authentication type:', this.state.actualTenant.authType);
 
+    // For web mode with OAuth
+    if (this.state.isWebMode && this.state.actualTenant.authType === 'oauth') {
+      //await this.handleWebOAuthLogin();
+      return;
+    }
+
     try {
       console.log("Validating tokens");
       const tokenStatus = await this.electronService.getApi().validateTokens(this.state.actualTenant.name);
@@ -245,6 +317,12 @@ export class HomeComponent implements OnInit {
         const loginResult = await this.electronService.getApi().unifiedLogin(this.state.actualTenant.name);
 
         if (loginResult.success) {
+          // For web mode with OAuth, we need to redirect to the authorization server
+          if (this.state.isWebMode && loginResult.authType === 'oauth' && loginResult.oauthUrl) {
+            window.location.href = loginResult.oauthUrl;
+            return;
+          }
+
           const tokenDetails = await this.electronService.getApi().getCurrentTokenDetails(this.state.actualTenant.name);
           if (tokenDetails.error || !tokenDetails.tokenDetails) {
             this.showSnackbar(`Failed to get token details. Please check your configuration and try again. \n\n${tokenDetails.error}`);
@@ -280,8 +358,45 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // Handle auth events from WebAuthComponent
+  handleAuthEvent(event: AuthEvent): void {
+    console.log('Auth event received:', event);
+    
+    if (event.success) {
+      // Update connection state on successful auth
+      this.state.isConnected = true;
+      this.state.name = event.username || 'User';
+      this.connectionService.connectedSubject$.next({ 
+        connected: true, 
+        name: event.username || 'User' 
+      });
+      this.showSnackbar(`Successfully authenticated as ${event.username}`);
+    } else {
+      // Handle logout or auth failure
+      this.state.isConnected = false;
+      this.connectionService.connectedSubject$.next({ connected: false });
+      if (event.message) {
+        this.showSnackbar(event.message);
+      }
+    }
+  }
+
   async disconnectFromISC(): Promise<void> {
-    await this.electronService.getApi().disconnectFromISC();
+    if (this.state.isWebMode) {
+      // Call logout endpoint for web mode
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+      } catch (error) {
+        console.error('Error during web logout:', error);
+      }
+    } else {
+      // Regular electron mode logout
+      await this.electronService.getApi().disconnectFromISC();
+    }
+    
     this.state.isConnected = false;
     this.connectionService.connectedSubject$.next({ connected: false });
   }

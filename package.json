@@ -27,7 +27,9 @@
   "scripts": {
     "ng": "ng",
     "start": "npm-run-all -p electron:serve ng:serve",
-    "ng:serve": "ng serve -c web",
+    "start:web": "concurrently \"npm run ng:serve\" \"npm run server:start\" --names \"angular,server\" --prefix-colors \"#5C44E4,#FF3E00\"",
+    "start:test": "concurrently \"npm run ng:serve\" \"npm run server:test\" --names \"angular,test-server\" --prefix-colors \"#5C44E4,#FF3E00\"",
+    "ng:serve": "ng serve -c web --proxy-config proxy.conf.json",
     "build": "npm run build:components && npm run electron:serve-tsc && ng build --base-href ./",
     "build:components": "ng build sailpoint-components",
     "build:dev": "npm run build -- -c dev",

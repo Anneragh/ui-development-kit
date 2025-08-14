@@ -7,7 +7,7 @@ import { PATTokenSet } from 'src/global';
  */
 export interface ElectronAPIInterface {
   // Unified authentication and connection
-  unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
+  unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string, authType?: string, oauthUrl?: string }>;
   disconnectFromISC: () => Promise<void>;
   checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
   checkRefreshTokenStatus: (environment: string) => Promise<RefreshTokenStatus>;

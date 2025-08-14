@@ -16,6 +16,27 @@
       color: var(--text-secondary);
       font-size: 16px;
     }
+
+    .web-mode-indicator {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      background-color: rgba(25, 118, 210, 0.1);
+      border-radius: 16px;
+      margin-top: 12px;
+      
+      mat-icon {
+        margin-right: 6px;
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+      }
+      
+      span {
+        font-weight: 500;
+        color: var(--primary-color);
+      }
+    }
   }
   
   .environment-card {
@@ -73,10 +94,16 @@
       
       .pat-section {
         margin-top: 16px;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 8px;
+        padding: 16px;
       }
       
       .oauth-section {
         margin-top: 16px;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 8px;
+        padding: 16px;
         
         .oauth-info {
           display: flex;
@@ -147,6 +174,31 @@
             }
           }
         }
+
+        .web-oauth-info {
+          margin-top: 16px;
+          padding: 12px;
+          background-color: rgba(0, 0, 0, 0.04);
+          border-radius: 6px;
+          
+          p {
+            margin: 4px 0;
+            font-size: 14px;
+          }
+          
+          strong {
+            font-weight: 500;
+            color: var(--text-primary);
+          }
+          
+          code {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+          }
+        }
       }
       
       .form-actions {
@@ -188,6 +240,25 @@
       .auth-method-select {
         width: 300px;
       }
+
+      .web-auth-type {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-radius: 6px;
+        width: 300px;
+        
+        mat-icon {
+          margin-right: 10px;
+          color: #673ab7;
+        }
+        
+        span {
+          font-weight: 500;
+          color: var(--text-primary);
+        }
+      }
     }
     
     .connection-action {
@@ -222,23 +293,49 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  
-  .connection-status {
-    text-align: center;
-    margin-bottom: 30px;
-    
-    .connected-icon {
-      color: var(--success-color);
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-    }
+
+  .connected-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
     
     h2 {
+      margin: 0;
       color: var(--text-primary);
-      margin-bottom: 16px;
+      font-weight: 500;
     }
+    
+    .disconnect-button {
+      display: flex;
+      align-items: center;
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+  
+  .connection-info {
+    margin-bottom: 24px;
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 16px;
+    
+    p {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      color: var(--text-primary);
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+  
+  .component-card {
+    margin-bottom: 20px;
   }
   
   mat-spinner {
@@ -310,6 +407,19 @@
       align-self: center;
     }
   }
+
+  .connection-section {
+    .auth-method-section {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      
+      .auth-method-select,
+      .web-auth-type {
+        width: 100%;
+      }
+    }
+  }
 }
 
 // CSS variables for theming
@@ -345,4 +455,3 @@
   background-color: #4caf50 !important;
   color: white !important;
 }
-  
