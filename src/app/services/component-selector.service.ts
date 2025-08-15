@@ -51,6 +51,14 @@ export class ComponentSelectorService {
       description: 'Manage identities in SailPoint.',
       enabled: false,
     },
+    {
+      name: 'attach-rule',
+      displayName: 'Attach Rule',
+      route: '/attach-rule',
+      icon: 'attachment',
+      description: 'Manage attach rule in SailPoint.',
+      enabled: false
+    }
   ];
 
   private enabledComponentsSubject = new BehaviorSubject<ComponentInfo[]>([]);

@@ -90,6 +90,18 @@
         <mat-icon class="card-icon">transform</mat-icon>
         Transforms
       </a>
+        <a
+        *ngIf="isComponentEnabled('attach-rule')"
+        mat-list-item
+        class="sidebar-link"
+        routerLink="/attach-rule"
+        routerLinkActive="active-link"
+        [class.disabled]="!isConnected"
+        (click)="onNavItemClick($event)"
+      >
+        <mat-icon class="card-icon">attachment</mat-icon>
+        Attach Rule
+      </a>
       <a
         *ngIf="isComponentEnabled('identities')"
         mat-list-item

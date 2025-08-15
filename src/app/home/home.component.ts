@@ -15,10 +15,16 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
+import { TenantDataCardComponent } from './dashboard-cards/tenant-data/tenant-data-card.component';
+import { SourcesComponent } from './dashboard-cards/sources/sources.component';
+import { IdentitiesComponent } from './dashboard-cards/identities/identities.component';
+import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/identity-profiles.component';
+import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 import { ElectronApiFactoryService } from 'sailpoint-components';
 import { DOCUMENT } from '@angular/common';
 import { environment } from '../../environments/environment';
 import { WebAuthComponent, AuthEvent } from '../web-auth/web-auth.component';
+
 
 type AuthMethods = "oauth" | "pat";
 type OAuthValidationStatus = 'unknown' | 'valid' | 'invalid' | 'testing';
@@ -64,6 +70,11 @@ type ComponentState = {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   imports: [
+    TenantDataCardComponent,
+    SourcesComponent,
+    IdentitiesComponent,
+    IdentityProfilesComponent,
+    ShortcutsComponent,
     CommonModule,
     MatDialogModule,
     MatButtonModule,
@@ -289,7 +300,7 @@ export class HomeComponent implements OnInit {
       this.showSnackbar('Cannot connect to ISC: No environment selected');
       return;
     }
-    
+
     this.state.loading = true;
 
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);

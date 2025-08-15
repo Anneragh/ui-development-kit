@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, screen, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
@@ -7,13 +7,26 @@ import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType,
 import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
 import { getStoredOAuthTokens } from './authentication/oauth';
 import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
+import isDev from 'electron-is-dev';
+import contextMenu from 'electron-context-menu';
 
-let win: BrowserWindow | undefined
+if (isDev) {
+  console.log('Running in development mode...');
+}
 
-const projectRoot = path.resolve(__dirname, '..', 'src'); // adjust if needed
-const args = process.argv.slice(1),
-  serve = args.some((val) => val === '--serve');
+contextMenu({
+  showSearchWithGoogle: true,
+  showCopyImage: true,
+  showCopyLink: true,
+});
 
+// Global variables
+let win: BrowserWindow | undefined;
+
+const args = process.argv.slice(1);
+const serve = args.some((val) => val === '--serve');
+
+// Utility functions
 function getConfigPath(): string {
   const userDataPath = app.getPath('userData');
   const configPath = path.join(userDataPath, 'config.json');
@@ -29,6 +42,7 @@ function ensureConfigDir(): void {
   }
 }
 
+// Main window creation
 function createWindow(): BrowserWindow {
   const size = screen.getPrimaryDisplay().workAreaSize;
 
@@ -44,9 +58,12 @@ function createWindow(): BrowserWindow {
       preload: path.join(__dirname, 'preload.js'),
       allowRunningInsecureContent: serve,
       contextIsolation: true,
-
-      //enableRemoteModule: false,
     },
+  });
+
+  win.webContents.setWindowOpenHandler((details) => {
+    shell.openExternal(details.url); // Open URL in user's browser
+    return { action: 'deny' }; // Prevent the app from opening the URL
   });
 
   if (serve) {
@@ -97,6 +114,8 @@ function createWindow(): BrowserWindow {
 }
 
 try {
+  //#region Main event handlers
+
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
@@ -120,7 +139,9 @@ try {
     }
   });
 
-  // Unified authentication and connection
+  //#endregion
+
+  //#region Custom IPC handlers
 
   ipcMain.handle('unified-login', async (event, environment: string) => {
     return unifiedLogin(environment);
@@ -142,7 +163,7 @@ try {
     return getCurrentTokenDetails(environment);
   });
 
-  // Token management
+
 
   ipcMain.handle('refresh-tokens', async (event, environment: string) => {
     return refreshTokens(environment);
@@ -164,7 +185,6 @@ try {
     return validateTokens(environment);
   });
 
-  // Environment management
 
   ipcMain.handle('get-tenants', () => {
     return getTenants();
@@ -195,9 +215,6 @@ try {
   ipcMain.handle('set-global-auth-type', async (event, authType: "oauth" | "pat") => {
     return setGlobalAuthType(authType);
   });
-
-
-  // Config file management
 
   ipcMain.handle('read-config', async () => {
     try {
@@ -235,7 +252,6 @@ try {
     }
   });
 
-  // Logo file management
 
   ipcMain.handle('write-logo', async (event, buffer, fileName) => {
     try {
@@ -280,7 +296,9 @@ try {
     }
   });
 
-  // SDK Functions
+  //#endregion
+
+  // Populate SDK handlers
   setupSailPointSDKHandlers();
 
 } catch (e) {
