@@ -122,8 +122,9 @@ export class HomeComponent implements OnInit {
     private electronService: ElectronApiFactoryService,
     @Inject(DOCUMENT) private document: Document
   ) { 
-    // Check if running in web mode
-    this.state.isWebMode = environment.web === true;
+    // Check if running in web mode - use isElectron getter
+    this.state.isWebMode = !this.electronService.isElectron;
+    console.log('App running in web mode:', this.state.isWebMode);
 
     // Check for OAuth callback parameters
     if (this.state.isWebMode) {
