@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort, SortDirection } from '@angular/material/sort';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -49,7 +49,7 @@ export class AccountsComponent implements OnInit {
 
   // Sort settings
   sortActive = 'name';
-  sortDirection = 'asc';
+  sortDirection: SortDirection = 'asc';
 
   // Filter form
   filterForm = new FormGroup({
@@ -135,9 +135,9 @@ export class AccountsComponent implements OnInit {
   }
 
   // Handle sort changes
-  onSortChange(event: any) {
+  onSortChange(event: Sort) {
     this.sortActive = event.active;
-    this.sortDirection = event.direction;
+    this.sortDirection = event.direction as SortDirection;
     void this.loadAccounts();
   }
 
