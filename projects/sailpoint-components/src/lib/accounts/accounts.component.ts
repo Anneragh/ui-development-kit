@@ -137,7 +137,7 @@ export class AccountsComponent implements OnInit {
   // Handle sort changes
   onSortChange(event: Sort) {
     this.sortActive = event.active;
-    this.sortDirection = event.direction as SortDirection;
+    this.sortDirection = event.direction;
     void this.loadAccounts();
   }
 
