@@ -5,6 +5,8 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,7 +33,8 @@ import { AccountV2025 } from 'sailpoint-api-client';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    GenericDialogComponent
   ],
   templateUrl: './accounts.component.html',
   styleUrl: './accounts.component.scss',
@@ -68,7 +71,7 @@ export class AccountsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private sdk: SailPointSDKService) {}
+  constructor(private sdk: SailPointSDKService, private dialog: MatDialog) {}
 
   ngOnInit() {
     // Load initial data
@@ -167,6 +170,16 @@ export class AccountsComponent implements OnInit {
   }
 
   viewAccount(account: AccountV2025): void {
-    console.log('Viewing account:', account);
+    // Format account details as JSON string with indentation
+    const details = JSON.stringify(account, null, 2);
+    
+    // Open dialog with account details
+    this.dialog.open(GenericDialogComponent, {
+      minWidth: '800px',
+      data: {
+        title: `Account Details: ${account.name || account.nativeIdentity || account.id}`,
+        message: details
+      }
+    });
   }
 }
