@@ -4,6 +4,11 @@
   flex-direction: column;
 }
 
+.table-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .toolbar-title {
   margin-left: 16px;
 }
@@ -12,6 +17,29 @@
   padding: 24px;
   flex: 1;
   overflow-y: auto;
+}
+
+.filter-panel {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.filter-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+:host-context(.dark-theme) .filter-panel {
+  background-color: #333;
 }
 
 mat-card {
