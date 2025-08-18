@@ -2,15 +2,46 @@ name: 'Release'
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 permissions:
   contents: write
   packages: write
 
 jobs:
-  release:
+  version:
+    name: Determine version and create GitHub release
+    runs-on: ubuntu-22.04
+    outputs:
+      published: ${{ steps.semantic.outputs.new_release_published }}
+      version: ${{ steps.semantic.outputs.new_release_version }}
+      tag: ${{ steps.semantic.outputs.new_release_git_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: main
+
+  build-and-publish:
+    needs: version
+    if: needs.version.outputs.published == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -18,6 +49,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.version.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -37,7 +71,7 @@ jobs:
       - name: Install Angular CLI Globally
         run: npm install -g @angular/cli
 
-      - name: Build and Publish
+      - name: Build and Publish artifacts to GitHub Release
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
