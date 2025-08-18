@@ -113,8 +113,14 @@
       </mat-paginator>
 
       <!-- No data message -->
-      <div *ngIf="accounts.length === 0" class="no-data-message">
+      <div *ngIf="accounts.length === 0 && !error" class="no-data-message">
         No accounts found.
+      </div>
+      
+      <!-- Error message -->
+      <div *ngIf="error" class="error-message mat-elevation-z1">
+        <mat-icon color="warn">error</mat-icon>
+        <span>Error loading accounts: {{ errorMessage }}</span>
       </div>
     </div>
   </div>

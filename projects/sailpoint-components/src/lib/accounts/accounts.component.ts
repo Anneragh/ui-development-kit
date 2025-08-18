@@ -43,6 +43,8 @@ export class AccountsComponent implements OnInit {
   title = 'Accounts';
   loading = true;
   accounts: AccountV2025[] = [];
+  error = false;
+  errorMessage = '';
   displayedColumns: string[] = ['id', 'name', 'nativeIdentity', 'sourceId', 'disabled', 'locked', 'actions'];
 
   // Sort settings
@@ -95,8 +97,14 @@ export class AccountsComponent implements OnInit {
     };
 
     this.loading = true;
+    this.error = false;
+    this.errorMessage = '';
+    
     try {
       const response = await this.sdk.listAccounts(request);
+      if (response.status !== 200) {
+        throw new Error(`Failed to load accounts: ${response.statusText}`);
+      }
       this.accounts = response.data;
       
       // Get total count from headers if available
@@ -109,9 +117,11 @@ export class AccountsComponent implements OnInit {
       }
       
       this.totalCount = count ?? 250; // Default to 250 if count not available
-      console.log('Loaded accounts:', this.accounts);
     } catch (error) {
       console.error('Error loading accounts:', error);
+      this.error = true;
+      this.errorMessage = error instanceof Error ? error.message : String(error);
+      this.accounts = [];
     } finally {
       this.loading = false;
     }
@@ -170,15 +180,15 @@ export class AccountsComponent implements OnInit {
   }
 
   viewAccount(account: AccountV2025): void {
-    // Format account details as JSON string with indentation
-    const details = JSON.stringify(account, null, 2);
-    
-    // Open dialog with account details
-    this.dialog.open(GenericDialogComponent, {
-      minWidth: '800px',
-      data: {
-        title: `Account Details: ${account.name || account.nativeIdentity || account.id}`,
-        message: details
+      // Format account details as JSON string with indentation
+      const details = JSON.stringify(account, null, 2);
+      
+      // Open dialog with account details
+      this.dialog.open(GenericDialogComponent, {
+        minWidth: '800px',
+        data: {
+          title: `Account Details: ${account.name || account.nativeIdentity || account.id}`,
+          message: details
       }
     });
   }
