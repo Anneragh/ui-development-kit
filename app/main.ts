@@ -7,18 +7,7 @@ import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType,
 import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
 import { getStoredOAuthTokens } from './authentication/oauth';
 import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
-import isDev from 'electron-is-dev';
-import contextMenu from 'electron-context-menu';
 
-if (isDev) {
-  console.log('Running in development mode...');
-}
-
-contextMenu({
-  showSearchWithGoogle: true,
-  showCopyImage: true,
-  showCopyLink: true,
-});
 
 // Global variables
 let win: BrowserWindow | undefined;
