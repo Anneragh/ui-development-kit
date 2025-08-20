@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ElectronApiFactoryService } from 'sailpoint-components';
+import { ElectronService, ElectronApiFactoryService } from 'sailpoint-components';
 
 export type ComponentInfo = {
   name: string;
@@ -19,6 +19,14 @@ export class ComponentSelectorService {
   private isElectron = false;
 
   private availableComponents: ComponentInfo[] = [
+    {
+      name: 'component-selector',
+      displayName: 'Component Selector',
+      route: '/component-selector',
+      icon: 'settings',
+      description: 'Manage components that are shown',
+      enabled: true,
+    },
     {
       name: 'transforms',
       displayName: 'Transforms',
@@ -72,8 +80,8 @@ export class ComponentSelectorService {
   private enabledComponentsSubject = new BehaviorSubject<ComponentInfo[]>([]);
   enabledComponents$ = this.enabledComponentsSubject.asObservable();
 
-  constructor(private apiFactoryService: ElectronApiFactoryService) {
-    this.isElectron = this.apiFactoryService.getApi() === window.electronAPI;
+  constructor(private electronService: ElectronService, private apiFactoryService: ElectronApiFactoryService) {
+    this.isElectron = this.electronService.isElectron;
     this.loadEnabledComponents()
       .then(() => {
         console.log('Components Loaded');

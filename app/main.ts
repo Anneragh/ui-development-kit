@@ -212,12 +212,32 @@ try {
         const configData = fs.readFileSync(configPath, 'utf-8');
         return JSON.parse(configData);
       } else {
-        const defaultConfig = {
-          components: {
-            enabled: [],
-          },
-          version: '1.0.0',
-        };
+        let defaultConfig;
+        const appConfigPath = path.join(app.getAppPath(), '../resources/assets/config.json');
+        
+        try {
+          if (fs.existsSync(appConfigPath)) {
+            const appConfigData = fs.readFileSync(appConfigPath, 'utf-8');
+            defaultConfig = JSON.parse(appConfigData);
+            console.log('Using config from app resources:', appConfigPath);
+          } else {
+            defaultConfig = {
+              components: {
+                enabled: ['component-selector'],
+              },
+              version: '1.0.0',
+            };
+            console.log('Using hardcoded default config');
+          }
+        } catch (configError) {
+          console.error('Error reading app config:', configError);
+          defaultConfig = {
+            components: {
+              enabled: ['component-selector'],
+            },
+            version: '1.0.0',
+          };
+        }
 
         ensureConfigDir();
         fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
