@@ -213,7 +213,7 @@ try {
         return JSON.parse(configData);
       } else {
         let defaultConfig;
-        const appConfigPath = path.join(app.getAppPath(), '../resources/assets/config.json');
+        const appConfigPath = path.join(process.resourcesPath, 'assets/config.json')
         
         try {
           if (fs.existsSync(appConfigPath)) {

@@ -1,6 +1,6 @@
 {
     "components": {
-        "enabled": ["component-selector"]
+      "enabled": ["component-selector"]
     },
     "version": "1.0.0"
-}
+  }
