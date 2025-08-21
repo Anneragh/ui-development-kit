@@ -382,52 +382,6 @@ export class ConfigService {
   // LOGO MANAGEMENT METHODS
 
   /**
-   * Saves a logo as base64 in the config
-   */
-  async saveLogoAsBase64(file: File, mode: 'light' | 'dark'): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const dataUrl = event.target?.result as string;
-          
-          // Update config
-          if (!this.config.themes) {
-            this.config.themes = {};
-          }
-          
-          if (!this.config.themes[mode]) {
-            this.config.themes[mode] = mode === 'light' ? this.defaultLightTheme : this.defaultDarkTheme;
-          }
-          
-          if (mode === 'light') {
-            this.config.themes.light!.logo = dataUrl;
-            this.config.themes.light!.logoFileName = file.name;
-          } else {
-            this.config.themes.dark!.logo = dataUrl;
-            this.config.themes.dark!.logoFileName = file.name;
-          }
-          
-          await this.saveConfig();
-          
-          // Emit logo updated event
-          this.logoUpdated$.next();
-          
-          resolve(dataUrl);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      reader.onerror = (error) => {
-        reject(error);
-      };
-      
-      reader.readAsDataURL(file);
-    });
-  }
-
-  /**
    * Gets the logo URL for the current theme
    */
   getLogoUrl(isDark: boolean): string {

@@ -185,6 +185,18 @@ export class ThemePickerComponent implements OnInit {
     });
   }
 
+  // Utility: Read file as base64 data URL
+  private readFileAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        resolve(event.target?.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   async onResetLogo() {
     if (this.mode === 'dark') {
       this.darkColors.logo = 'assets/icons/logo-dark.png';
@@ -213,22 +225,14 @@ export class ThemePickerComponent implements OnInit {
     try {
       if (this.selectedLogoFile) {
         // Convert file to base64 data URL directly
-        const dataUrl = await this.configService.saveLogoAsBase64(
-          this.selectedLogoFile, 
-          this.mode
-        );
+        const dataUrl = await this.readFileAsBase64(this.selectedLogoFile);
         
         const originalFileName = this.selectedLogoFile.name;
         const updatedColors = structuredClone(this.colors);
 
         // Update the logo in the current theme config
-        if (this.mode === 'dark') {
-          updatedColors.logo = dataUrl;
-          updatedColors.logoFileName = originalFileName;
-        } else {
-          updatedColors.logo = dataUrl;
-          updatedColors.logoFileName = originalFileName;
-        }
+        updatedColors.logo = dataUrl;
+        updatedColors.logoFileName = originalFileName;
         
         this.selectedLogoFileName = originalFileName;
         this.colors = updatedColors;
