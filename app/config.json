@@ -1,64 +1,6 @@
 {
   "components": {
-    "enabled": ["component-selector"],
-    "available": [
-      {
-        "name": "component-selector",
-        "displayName": "Component Selector",
-        "route": "/component-selector",
-        "icon": "settings",
-        "description": "Manage components that are shown",
-        "enabled": true
-      },
-      {
-        "name": "transforms",
-        "displayName": "Transforms",
-        "route": "/transforms",
-        "icon": "transform",
-        "description": "Manage data transformations for SailPoint.",
-        "enabled": true
-      },
-      {
-        "name": "theme-picker",
-        "displayName": "Theme Picker",
-        "route": "/theme-picker",
-        "icon": "palette",
-        "description": "Manage theme picker in SailPoint.",
-        "enabled": false
-      },
-      {
-        "name": "report-example",
-        "displayName": "Report Example",
-        "route": "/report-example",
-        "icon": "insert_chart",
-        "description": "Manage report example in SailPoint.",
-        "enabled": false
-      },
-      {
-        "name": "identities",
-        "displayName": "Identities",
-        "route": "/identities",
-        "icon": "assignment_ind",
-        "description": "Manage identities in SailPoint.",
-        "enabled": false
-      },
-      {
-        "name": "attach-rule",
-        "displayName": "Attach Rule",
-        "route": "/attach-rule",
-        "icon": "attachment",
-        "description": "Manage attach rule in SailPoint.",
-        "enabled": false
-      },
-      {
-        "name": "accounts",
-        "displayName": "Accounts",
-        "route": "/accounts",
-        "icon": "dashboard",
-        "description": "Manage accounts in SailPoint.",
-        "enabled": false
-      }
-    ]
+    "enabled": ["component-selector"]
   },
   "themes": {
     "light": {
@@ -68,7 +10,7 @@
       "secondaryText": "#415364",
       "hoverText": "#ffffff",
       "background": "#ffffff",
-      "logo": "assets/icons/logo.png",
+      "logo": "assets/icons/logo.png"
     },
     "dark": {
       "primary": "#54c0e8",

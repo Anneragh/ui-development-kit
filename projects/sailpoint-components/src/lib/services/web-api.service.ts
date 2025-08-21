@@ -32,11 +32,6 @@ export interface ElectronAPIInterface {
   readConfig: () => Promise<any>;
   writeConfig: (config: any) => Promise<any>;
 
-  // Logo file management
-  writeLogo: (buffer: Uint8Array<ArrayBufferLike>, fileName: string) => Promise<any>;
-  checkLogoExists: (fileName: string) => Promise<any>;
-  getUserDataPath: () => Promise<any>;
-  getLogoDataUrl: (fileName: string) => Promise<any>;
   
   // SailPoint SDK functions
   // These are dynamically added and would need to be proxied through the web service
@@ -263,40 +258,6 @@ export class WebApiService implements ElectronAPIInterface {
 
   async writeConfig(config: any): Promise<any> {
     return this.apiCall('config', 'POST', { config });
-  }
-
-  // Logo Management methods
-  async writeLogo(buffer: Uint8Array<ArrayBufferLike>, fileName: string): Promise<any> {
-    const formData = new FormData();
-    // Convert buffer to Blob
-    const blob = new Blob([buffer], { type: this.selectedLogoFile.type });
-    
-    formData.append('logo', blob, fileName);
-    
-    const response = await fetch(`${this.apiUrl}/logos`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-    });
-    
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Failed to upload logo: ${error}`);
-    }
-    
-    return response.json();
-  }
-
-  async checkLogoExists(fileName: string): Promise<any> {
-    return this.apiCall<boolean>(`logos/${encodeURIComponent(fileName)}/exists`, 'GET');
-  }
-
-  async getUserDataPath(): Promise<any> {
-    return this.apiCall<string>('user-data-path', 'GET');
-  }
-
-  async getLogoDataUrl(fileName: string): Promise<any> {
-    return this.apiCall<string>(`logos/${encodeURIComponent(fileName)}`, 'GET');
   }
 
   // Generic method to handle any SailPoint SDK API calls

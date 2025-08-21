@@ -91,11 +91,6 @@ declare global {
       readConfig: () => Promise<any>;
       writeConfig: (config: any) => Promise<any>;
     
-      // Logo file management
-      writeLogo: (buffer: Uint8Array<ArrayBufferLike>, fileName: string) => Promise<any>;
-      checkLogoExists: (fileName: string) => Promise<any>;
-      getUserDataPath: () => Promise<any>;
-      getLogoDataUrl: (fileName: string) => Promise<any>;
     };
   }
 }
