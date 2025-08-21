@@ -19,7 +19,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { ThemeConfig, ConfigService, ComponentInfo, ElectronApiFactoryService } from 'sailpoint-components';
+import { ConfigService, ComponentInfo, ElectronApiFactoryService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './services/connection.service';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -139,7 +139,7 @@ export class AppComponent implements OnDestroy, OnInit {
     combineLatest([
       this.configService.theme$,
       this.configService.isDark$,
-    ]).subscribe(([theme, isDark]) => {
+    ]).subscribe(([_, isDark]) => {
       this.isDarkTheme = isDark;
 
       // Resolve logo path based on current theme

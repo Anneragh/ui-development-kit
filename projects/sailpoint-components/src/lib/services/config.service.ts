@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ElectronApiFactoryService } from './electron-api-factory.service';
 import { ElectronService } from './electron.service';
 
@@ -242,7 +242,7 @@ export class ConfigService {
       component.enabled = enabledNames.includes(component.name);
     });
     
-    this.updateEnabledComponents();
+    void this.updateEnabledComponents();
   }
 
   // THEME MANAGEMENT METHODS
@@ -344,7 +344,7 @@ export class ConfigService {
     );
     if (component) {
       component.enabled = !component.enabled;
-      this.updateEnabledComponents();
+      void this.updateEnabledComponents();
     }
   }
 
@@ -357,7 +357,7 @@ export class ConfigService {
     );
     if (component) {
       component.enabled = true;
-      this.updateEnabledComponents();
+      void this.updateEnabledComponents();
     }
   }
 
