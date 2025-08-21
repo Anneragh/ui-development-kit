@@ -3,7 +3,7 @@ import { Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, View
 import { Router } from '@angular/router';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import * as d3 from 'd3';
-import { ThemeService } from '../../theme/theme.service';
+import { ConfigService } from '../../services/config.service';
 import { Subject, takeUntil } from 'rxjs';
 
 // Define interface for chart data
@@ -27,9 +27,9 @@ export class ManagerDistributionChartComponent implements OnChanges, OnDestroy {
 
   constructor(
     private router: Router,
-    private themeService: ThemeService
+    private configService: ConfigService
   ) {
-    this.themeService.isDark$
+    this.configService.isDark$
       .pipe(takeUntil(this.destroy$))
       .subscribe(isDark => {
         this.isDark = isDark;

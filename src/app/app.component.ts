@@ -19,13 +19,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { ThemeConfig, ThemeService, ElectronApiFactoryService } from 'sailpoint-components';
+import { ThemeConfig, ConfigService, ComponentInfo, ElectronApiFactoryService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './services/connection.service';
-import {
-  ComponentInfo,
-  ComponentSelectorService,
-} from './services/component-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
@@ -72,8 +68,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private connectionService: ConnectionService,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private themeService: ThemeService,
-    private componentSelectorService: ComponentSelectorService,
+    private configService: ConfigService,
   ) {
     // Set default language
     this.translate.setDefaultLang('en');
@@ -142,20 +137,18 @@ export class AppComponent implements OnDestroy, OnInit {
   ngOnInit(): void {
     // Combine theme config and dark mode stream for live updates
     combineLatest([
-      this.themeService.theme$,
-      this.themeService.isDark$,
+      this.configService.theme$,
+      this.configService.isDark$,
     ]).subscribe(([theme, isDark]) => {
       this.isDarkTheme = isDark;
 
       // Resolve logo path based on current theme
-      this.logoPath = isDark
-        ? theme?.logoDark || 'assets/icons/logo-dark.png'
-        : theme?.logoLight || 'assets/icons/logo.png';
+      this.logoPath = this.configService.getLogoUrl(isDark);
 
       // Apply logo with a cache-busting timestamp
       const logo = this.logoImageRef?.nativeElement;
       if (logo) {
-        logo.onload = () => this.themeService.logoUpdated$.next();
+        logo.onload = () => this.configService.logoUpdated$.next();
 
         const src = this.logoPath?.startsWith('data:')
           ? this.logoPath
@@ -169,7 +162,7 @@ export class AppComponent implements OnDestroy, OnInit {
     });
 
     // Watch component enablement state
-    this.componentSelectorService.enabledComponents$.subscribe((components) => {
+    this.configService.enabledComponents$.subscribe((components) => {
       this.enabledComponents = components;
     });
   }
@@ -228,24 +221,15 @@ export class AppComponent implements OnDestroy, OnInit {
    * Toggles between light and dark themes.
    */
   async toggleTheme(): Promise<void> {
-    const mode = this.isDarkTheme ? 'light' : 'dark';
-    const raw = this.themeService.getRawConfig();
-    let targetTheme = raw?.[`theme-${mode}`] as ThemeConfig | undefined;
-
-    if (!targetTheme) {
-      targetTheme = await this.themeService['getDefaultTheme'](mode);
-    }
-
-    await this.themeService.saveTheme(targetTheme, mode);
+    const newMode = this.isDarkTheme ? 'light' : 'dark';
+    await this.configService.setCurrentThemeMode(newMode);
   }
 
   /**
    * Falls back to default logo if logo fails to load.
    */
   useFallbackLogo() {
-    this.logoPath = this.isDarkTheme
-      ? 'assets/icons/logo-dark.png'
-      : 'assets/icons/logo.png';
+    this.logoPath = this.configService.getLogoUrl(this.isDarkTheme);
   }
 
   /**

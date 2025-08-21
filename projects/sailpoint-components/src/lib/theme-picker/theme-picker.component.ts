@@ -10,6 +10,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { ElectronApiFactoryService } from '../services/electron-api-factory.service';
+import { ConfigService, ThemeConfig } from '../services/config.service';
 
 // Angular Material UI modules
 import { MatButtonModule } from '@angular/material/button';
@@ -23,10 +24,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule     } from '@angular/material/select';
-
-
-// Theme management service and config interface
-import { ThemeService, ThemeConfig } from '../theme/theme.service';
 
 // Required for deep cloning
 declare function structuredClone<T>(value: T): T;
@@ -69,7 +66,7 @@ export class ThemePickerComponent implements OnInit {
   ];
 
   // Track current theme mode
-  mode: 'light' | 'dark' = this.themeService.getCurrentMode();
+  mode: 'light' | 'dark' = this.configService.getCurrentThemeMode();
 
   // Spinner visibility
   loading = false;
@@ -85,6 +82,8 @@ export class ThemePickerComponent implements OnInit {
       background: '',
       logoLight: '',
       logoDark: '',
+      logoLightFileName: '',
+      logoDarkFileName: '',
     };
   }
 
@@ -109,15 +108,13 @@ export class ThemePickerComponent implements OnInit {
   private ignoreNextDarkChange = false; // reserved for preventing recursive theme toggling (not used here)
 
   ngOnInit(): void {
-    // Restore mode from local storage
-    const storedMode =
-      (localStorage.getItem('themeMode') as 'light' | 'dark') ?? 'light';
-    this.mode = storedMode;
+    // Get current mode from config service
+    this.mode = this.configService.getCurrentThemeMode();
 
     // Load theme config for selected mode
     void this.loadThemeForMode().then(() => {
-      // Subscribe to dark mode changes from ThemeService
-      this.themeService.isDark$.subscribe((isDark) => {
+      // Subscribe to dark mode changes from ConfigService
+      this.configService.isDark$.subscribe((isDark) => {
         const newMode = isDark ? 'dark' : 'light';
         if (newMode === this.mode) return; // Avoid redundant updates
 
@@ -129,10 +126,9 @@ export class ThemePickerComponent implements OnInit {
 
   // Handler for manual mode toggle (e.g., from UI switch)
   async onModeChange() {
-    localStorage.setItem('themeMode', this.mode);
-    const loaded = await this.themeService.loadTheme(this.mode, false); // Don't apply automatically
+    await this.configService.setCurrentThemeMode(this.mode);
+    const loaded = this.configService.getThemeConfig(this.mode);
     this.colors = structuredClone(loaded);
-    this.themeService['applyTheme'](this.colors, this.mode); // Apply manually
   }
 
   // Set selected logo file from file input
@@ -162,12 +158,9 @@ export class ThemePickerComponent implements OnInit {
 
   // Load both light and dark themes into memory (from config or default)
   async loadThemeForMode(): Promise<void> {
-    const raw = this.themeService.getRawConfig();
-    this.lightColors =
-      raw?.['theme-light'] ??
-      (await this.themeService.getDefaultTheme('light'));
-    this.darkColors =
-      raw?.['theme-dark'] ?? (await this.themeService.getDefaultTheme('dark'));
+    // Get theme configurations from config service
+    this.lightColors = this.configService.getThemeConfig('light');
+    this.darkColors = this.configService.getThemeConfig('dark');
     // now populate the displayed “filename” field
     this.selectedLogoFileName =
       this.mode === 'dark'
@@ -176,7 +169,7 @@ export class ThemePickerComponent implements OnInit {
   }
 
   constructor(
-    private themeService: ThemeService,
+    private configService: ConfigService,
     private cdr: ChangeDetectorRef,
     private snackBar: MatSnackBar,
     private electronService: ElectronApiFactoryService
@@ -205,12 +198,12 @@ export class ThemePickerComponent implements OnInit {
     this.selectedLogoFile = undefined;
     this.selectedLogoFileName = '';
 
-    await this.themeService.saveTheme(
+    await this.configService.saveThemeConfig(
       this.mode === 'dark' ? this.darkColors : this.lightColors,
       this.mode
     );
 
-    this.themeService.logoUpdated$.next();
+    this.configService.logoUpdated$.next();
   }
 
   // Main action to apply the selected theme and optional new logo
@@ -220,45 +213,42 @@ export class ThemePickerComponent implements OnInit {
 
     try {
       if (this.selectedLogoFile) {
-        const buffer = await this.readFileAsBuffer(this.selectedLogoFile);
+        // Convert file to base64 data URL directly
+        const dataUrl = await this.configService.saveLogoAsBase64(
+          this.selectedLogoFile, 
+          this.mode
+        );
+        
         const originalFileName = this.selectedLogoFile.name;
-        const fileName = this.mode === 'dark' ? 'logo-dark.png' : 'logo.png';
-    
-        // Save the logo image to disk and wait for it to be ready
-        await this.electronService.getApi().writeLogo(buffer, fileName);
-        await this.themeService.waitForFile(fileName);
-
-        // Retrieve the base64 image URL for display
-        const base64 = await this.electronService.getApi().getLogoDataUrl(fileName);
         const updatedColors = structuredClone(this.colors);
 
-        // Assign the base64 image as the logo
+        // Update the logo in the current theme config
         if (this.mode === 'dark') {
-          updatedColors.logoDark = base64;
+          updatedColors.logoDark = dataUrl;
           updatedColors.logoDarkFileName = originalFileName;
         } else {
-          updatedColors.logoLight = base64;
-          updatedColors.logoLightFileName = originalFileName; // Keep original name for light mode
+          updatedColors.logoLight = dataUrl;
+          updatedColors.logoLightFileName = originalFileName;
         }
+        
         this.selectedLogoFileName = originalFileName;
         this.colors = updatedColors;
         this.selectedLogoFile = undefined;
       }
 
       // Save updated theme config
-      await this.themeService.saveTheme(
+      await this.configService.saveThemeConfig(
         this.mode === 'dark' ? this.darkColors : this.lightColors,
         this.mode
       );
 
-      // Apply the new theme to the UI
-      this.themeService['applyTheme'](this.colors, this.mode);
-      this.themeService.logoUpdated$.next(); // Notify subscribers (like the app component)
+      // Notify subscribers that theme has been updated
+      this.configService.logoUpdated$.next();
 
       // Wait for logo update event or timeout to avoid UI stalling
       await Promise.race([
         new Promise<void>((resolve) => {
-          const sub = this.themeService.logoUpdated$.subscribe(() => {
+          const sub = this.configService.logoUpdated$.subscribe(() => {
             resolve();
             sub.unsubscribe();
           });

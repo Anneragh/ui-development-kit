@@ -221,16 +221,99 @@ try {
             defaultConfig = JSON.parse(appConfigData);
             console.log('Using config from app resources:', appConfigPath);
           } else {
+            // Default configuration with components and themes
             defaultConfig = {
               components: {
                 enabled: ['component-selector'],
+                available: [
+                  {
+                    name: "component-selector",
+                    displayName: "Component Selector",
+                    route: "/component-selector",
+                    icon: "settings",
+                    description: "Manage components that are shown",
+                    enabled: true
+                  },
+                  {
+                    name: "transforms",
+                    displayName: "Transforms",
+                    route: "/transforms",
+                    icon: "transform",
+                    description: "Manage data transformations for SailPoint.",
+                    enabled: true
+                  },
+                  {
+                    name: "theme-picker",
+                    displayName: "Theme Picker",
+                    route: "/theme-picker",
+                    icon: "palette",
+                    description: "Manage theme picker in SailPoint.",
+                    enabled: false
+                  },
+                  {
+                    name: "report-example",
+                    displayName: "Report Example",
+                    route: "/report-example",
+                    icon: "insert_chart",
+                    description: "Manage report example in SailPoint.",
+                    enabled: false
+                  },
+                  {
+                    name: "identities",
+                    displayName: "Identities",
+                    route: "/identities",
+                    icon: "assignment_ind",
+                    description: "Manage identities in SailPoint.",
+                    enabled: false
+                  },
+                  {
+                    name: "attach-rule",
+                    displayName: "Attach Rule",
+                    route: "/attach-rule",
+                    icon: "attachment",
+                    description: "Manage attach rule in SailPoint.",
+                    enabled: false
+                  },
+                  {
+                    name: "accounts",
+                    displayName: "Accounts",
+                    route: "/accounts",
+                    icon: "dashboard",
+                    description: "Manage accounts in SailPoint.",
+                    enabled: false
+                  }
+                ]
               },
+              themes: {
+                light: {
+                  primary: "#0071ce",
+                  secondary: "#6c63ff",
+                  primaryText: "#415364",
+                  secondaryText: "#415364",
+                  hoverText: "#ffffff",
+                  background: "#ffffff",
+                  logoLight: "assets/icons/logo.png",
+                  logoDark: "assets/icons/logo-dark.png"
+                },
+                dark: {
+                  primary: "#54c0e8",
+                  secondary: "#f48fb1",
+                  primaryText: "#ffffff",
+                  secondaryText: "#cccccc",
+                  hoverText: "#54c0e8",
+                  background: "#151316",
+                  logoLight: "assets/icons/logo.png",
+                  logoDark: "assets/icons/logo-dark.png"
+                }
+              },
+              currentTheme: "light",
               version: '1.0.0',
             };
             console.log('Using hardcoded default config');
           }
         } catch (configError) {
           console.error('Error reading app config:', configError);
+          // Fallback default configuration
           defaultConfig = {
             components: {
               enabled: ['component-selector'],
@@ -252,6 +335,7 @@ try {
   ipcMain.handle('write-config', async (event, config) => {
     try {
       const configPath = getConfigPath();
+      console.log('Writing config to:', configPath);
       ensureConfigDir();
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
       return { success: true };
@@ -262,29 +346,65 @@ try {
   });
 
 
+  // These methods are now only used for handling base64 logo data in the config
   ipcMain.handle('write-logo', async (event, buffer, fileName) => {
     try {
-      const logoDir = path.join(app.getPath('userData'), 'assets', 'icons');
-      await fs.promises.mkdir(logoDir, { recursive: true });
-
-      const dest = path.join(logoDir, fileName);
-      await fs.promises.writeFile(dest, buffer);
+      // Convert buffer to base64 data URL
+      const base64 = buffer.toString('base64');
+      const ext = path.extname(fileName).substring(1); // e.g., png
+      const dataUrl = `data:image/${ext};base64,${base64}`;
+      
+      // Update config with the data URL
+      const configPath = getConfigPath();
+      if (fs.existsSync(configPath)) {
+        const configData = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        
+        // Initialize themes if needed
+        if (!configData.themes) {
+          configData.themes = { light: {}, dark: {} };
+        }
+        
+        // Update the appropriate theme based on file name
+        if (fileName.includes('dark')) {
+          if (!configData.themes.dark) configData.themes.dark = {};
+          configData.themes.dark.logoDark = dataUrl;
+        } else {
+          if (!configData.themes.light) configData.themes.light = {};
+          configData.themes.light.logoLight = dataUrl;
+        }
+        
+        fs.writeFileSync(configPath, JSON.stringify(configData, null, 2));
+      }
 
       return { success: true };
     } catch (error) {
-      console.error('Error writing logo file:', error);
-      throw new Error('Failed to write logo file');
+      console.error('Error saving logo data:', error);
+      throw new Error('Failed to save logo data');
     }
   });
 
   ipcMain.handle('check-logo-exists', async (event, fileName: string) => {
-    const fullPath = path.join(
-      app.getPath('userData'),
-      'assets',
-      'icons',
-      fileName
-    );
-    return fs.existsSync(fullPath);
+    try {
+      const configPath = getConfigPath();
+      if (fs.existsSync(configPath)) {
+        const configData = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        
+        if (configData.themes) {
+          // Check if the logo exists in config
+          if (fileName.includes('dark')) {
+            return Boolean(configData.themes.dark?.logoDark);
+          } else {
+            return Boolean(configData.themes.light?.logoLight);
+          }
+        }
+      }
+      
+      // Default to false if not found in config
+      return false;
+    } catch (error) {
+      console.error('Error checking logo existence:', error);
+      return false;
+    }
   });
 
   ipcMain.handle('get-user-data-path', () => {
@@ -293,12 +413,21 @@ try {
 
   ipcMain.handle('get-logo-data-url', async (event, fileName) => {
     try {
-      const userDataPath = app.getPath('userData');
-      const logoPath = path.join(userDataPath, 'assets', 'icons', fileName);
-      const buffer = await fs.promises.readFile(logoPath);
-      const base64 = buffer.toString('base64');
-      const ext = path.extname(fileName).substring(1); // e.g., png
-      return `data:image/${ext};base64,${base64}`;
+      const configPath = getConfigPath();
+      if (fs.existsSync(configPath)) {
+        const configData = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        
+        if (configData.themes) {
+          // Return the appropriate data URL from config
+          if (fileName.includes('dark')) {
+            return configData.themes.dark?.logoDark || null;
+          } else {
+            return configData.themes.light?.logoLight || null;
+          }
+        }
+      }
+      
+      return null;
     } catch (err) {
       console.error('Failed to get logo data URL:', err);
       return null;
