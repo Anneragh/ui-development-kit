@@ -225,64 +225,6 @@ try {
             defaultConfig = {
               components: {
                 enabled: ['component-selector'],
-                available: [
-                  {
-                    name: "component-selector",
-                    displayName: "Component Selector",
-                    route: "/component-selector",
-                    icon: "settings",
-                    description: "Manage components that are shown",
-                    enabled: true
-                  },
-                  {
-                    name: "transforms",
-                    displayName: "Transforms",
-                    route: "/transforms",
-                    icon: "transform",
-                    description: "Manage data transformations for SailPoint.",
-                    enabled: true
-                  },
-                  {
-                    name: "theme-picker",
-                    displayName: "Theme Picker",
-                    route: "/theme-picker",
-                    icon: "palette",
-                    description: "Manage theme picker in SailPoint.",
-                    enabled: false
-                  },
-                  {
-                    name: "report-example",
-                    displayName: "Report Example",
-                    route: "/report-example",
-                    icon: "insert_chart",
-                    description: "Manage report example in SailPoint.",
-                    enabled: false
-                  },
-                  {
-                    name: "identities",
-                    displayName: "Identities",
-                    route: "/identities",
-                    icon: "assignment_ind",
-                    description: "Manage identities in SailPoint.",
-                    enabled: false
-                  },
-                  {
-                    name: "attach-rule",
-                    displayName: "Attach Rule",
-                    route: "/attach-rule",
-                    icon: "attachment",
-                    description: "Manage attach rule in SailPoint.",
-                    enabled: false
-                  },
-                  {
-                    name: "accounts",
-                    displayName: "Accounts",
-                    route: "/accounts",
-                    icon: "dashboard",
-                    description: "Manage accounts in SailPoint.",
-                    enabled: false
-                  }
-                ]
               },
               themes: {
                 light: {
@@ -292,8 +234,7 @@ try {
                   secondaryText: "#415364",
                   hoverText: "#ffffff",
                   background: "#ffffff",
-                  logoLight: "assets/icons/logo.png",
-                  logoDark: "assets/icons/logo-dark.png"
+                  logo: "assets/icons/logo.png",
                 },
                 dark: {
                   primary: "#54c0e8",
@@ -302,8 +243,7 @@ try {
                   secondaryText: "#cccccc",
                   hoverText: "#54c0e8",
                   background: "#151316",
-                  logoLight: "assets/icons/logo.png",
-                  logoDark: "assets/icons/logo-dark.png"
+                  logo: "assets/icons/logo-dark.png"
                 }
               },
               currentTheme: "light",
@@ -367,10 +307,10 @@ try {
         // Update the appropriate theme based on file name
         if (fileName.includes('dark')) {
           if (!configData.themes.dark) configData.themes.dark = {};
-          configData.themes.dark.logoDark = dataUrl;
+          configData.themes.dark.logo = dataUrl;
         } else {
           if (!configData.themes.light) configData.themes.light = {};
-          configData.themes.light.logoLight = dataUrl;
+          configData.themes.light.logo = dataUrl;
         }
         
         fs.writeFileSync(configPath, JSON.stringify(configData, null, 2));
@@ -392,9 +332,9 @@ try {
         if (configData.themes) {
           // Check if the logo exists in config
           if (fileName.includes('dark')) {
-            return Boolean(configData.themes.dark?.logoDark);
+            return Boolean(configData.themes.dark?.logo);
           } else {
-            return Boolean(configData.themes.light?.logoLight);
+            return Boolean(configData.themes.light?.logo);
           }
         }
       }
@@ -420,9 +360,9 @@ try {
         if (configData.themes) {
           // Return the appropriate data URL from config
           if (fileName.includes('dark')) {
-            return configData.themes.dark?.logoDark || null;
+            return configData.themes.dark?.logo || null;
           } else {
-            return configData.themes.light?.logoLight || null;
+            return configData.themes.light?.logo || null;
           }
         }
       }

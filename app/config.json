@@ -68,8 +68,7 @@
       "secondaryText": "#415364",
       "hoverText": "#ffffff",
       "background": "#ffffff",
-      "logoLight": "assets/icons/logo.png",
-      "logoDark": "assets/icons/logo-dark.png"
+      "logo": "assets/icons/logo.png",
     },
     "dark": {
       "primary": "#54c0e8",
@@ -78,8 +77,7 @@
       "secondaryText": "#cccccc",
       "hoverText": "#54c0e8",
       "background": "#151316",
-      "logoLight": "assets/icons/logo.png",
-      "logoDark": "assets/icons/logo-dark.png"
+      "logo": "assets/icons/logo-dark.png"
     }
   },
   "currentTheme": "light",

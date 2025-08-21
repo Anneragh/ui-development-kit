@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { ElectronApiFactoryService } from './electron-api-factory.service';
+import { ElectronService } from './electron.service';
 
 // Theme Configuration Interface
 export interface ThemeConfig {
@@ -10,10 +11,8 @@ export interface ThemeConfig {
   secondaryText: string;
   hoverText: string;
   background: string;
-  logoLight?: string;
-  logoDark?: string;
-  logoLightFileName?: string;
-  logoDarkFileName?: string;
+  logo?: string;
+  logoFileName?: string;
 }
 
 // Component Information Interface
@@ -30,7 +29,6 @@ export interface ComponentInfo {
 export interface AppConfig {
   components: {
     enabled: string[];
-    available?: ComponentInfo[];
   };
   themes?: {
     light?: ThemeConfig;
@@ -115,10 +113,8 @@ export class ConfigService {
     secondaryText: '#415364',
     hoverText: '#ffffff',
     background: '#ffffff',
-    logoLight: 'assets/icons/logo.png',
-    logoDark: 'assets/icons/logo-dark.png',
-    logoLightFileName: 'Default Light Logo',
-    logoDarkFileName: 'Default Dark Logo',
+    logo: 'assets/icons/logo.png',
+    logoFileName: 'Default Light Logo',
   };
 
   private defaultDarkTheme: ThemeConfig = {
@@ -128,10 +124,8 @@ export class ConfigService {
     secondaryText: '#cccccc',
     hoverText: '#54c0e8',
     background: '#151316',
-    logoLight: 'assets/icons/logo.png',
-    logoDark: 'assets/icons/logo-dark.png',
-    logoLightFileName: 'Default Light Logo',
-    logoDarkFileName: 'Default Dark Logo',
+    logo: 'assets/icons/logo-dark.png',
+    logoFileName: 'Default Dark Logo',
   };
 
   // Observables for components and theme
@@ -150,8 +144,7 @@ export class ConfigService {
   // Last raw configuration read from disk
   private config: AppConfig = {
     components: {
-      enabled: ['component-selector'],
-      available: this.availableComponents
+      enabled: ['component-selector']
     },
     themes: {
       light: this.defaultLightTheme,
@@ -161,9 +154,9 @@ export class ConfigService {
     currentTheme: 'light'
   };
 
-  constructor(private electronService: ElectronApiFactoryService) {
+  constructor(private electronAPIService: ElectronApiFactoryService, private electronService: ElectronService) {
     // Check if we're running in Electron
-    this.isElectron = this.electronService.getApi().isElectron;
+    this.isElectron = this.electronService.isElectron;
     // Initialize the configuration
     void this.loadConfig().then(() => {
       // Initialize theme and components after config is loaded
@@ -181,7 +174,7 @@ export class ConfigService {
   async loadConfig(): Promise<AppConfig> {
     try {
       if (this.isElectron) {
-        this.config = await this.electronService.getApi().readConfig();
+        this.config = await this.electronAPIService.getApi().readConfig();
         
         // Ensure structure is complete
         if (!this.config.themes) {
@@ -197,10 +190,6 @@ export class ConfigService {
         
         if (!this.config.themes.dark) {
           this.config.themes.dark = this.defaultDarkTheme;
-        }
-        
-        if (!this.config.components.available) {
-          this.config.components.available = this.availableComponents;
         }
         
         if (!this.config.currentTheme) {
@@ -223,7 +212,7 @@ export class ConfigService {
   async saveConfig(): Promise<void> {
     try {
       if (this.isElectron) {
-        await this.electronService.getApi().writeConfig(this.config);
+        await this.electronAPIService.getApi().writeConfig(this.config);
       } else {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.config));
       }
@@ -246,9 +235,6 @@ export class ConfigService {
 
   // Initialize components based on loaded configuration
   private initializeComponents(): void {
-    if (this.config.components?.available) {
-      this.availableComponents = this.config.components.available;
-    }
     
     const enabledNames = this.config.components?.enabled || [];
     
@@ -332,16 +318,6 @@ export class ConfigService {
     this.themeSubject.next(config);
   }
 
-  /**
-   * Validates if a given logo path is a file or base64 URL.
-   */
-  isValidLogoPath(value?: string): boolean {
-    if (!value) return false;
-    if (value.startsWith('file://')) return true;
-    if (value.startsWith('data:')) return true;
-    if (value.startsWith('assets/')) return true;
-    return false;
-  }
 
   // COMPONENT MANAGEMENT METHODS
 
@@ -425,11 +401,11 @@ export class ConfigService {
           }
           
           if (mode === 'light') {
-            this.config.themes.light!.logoLight = dataUrl;
-            this.config.themes.light!.logoLightFileName = file.name;
+            this.config.themes.light!.logo = dataUrl;
+            this.config.themes.light!.logoFileName = file.name;
           } else {
-            this.config.themes.dark!.logoDark = dataUrl;
-            this.config.themes.dark!.logoDarkFileName = file.name;
+            this.config.themes.dark!.logo = dataUrl;
+            this.config.themes.dark!.logoFileName = file.name;
           }
           
           await this.saveConfig();
@@ -456,9 +432,8 @@ export class ConfigService {
    */
   getLogoUrl(isDark: boolean): string {
     const mode = isDark ? 'dark' : 'light';
-    const logoKey = isDark ? 'logoDark' : 'logoLight';
     
     const themeConfig = this.getThemeConfig(mode);
-    return themeConfig[logoKey] || (isDark ? 'assets/icons/logo-dark.png' : 'assets/icons/logo.png');
+    return themeConfig['logo'] || (isDark ? 'assets/icons/logo-dark.png' : 'assets/icons/logo.png');
   }
 }

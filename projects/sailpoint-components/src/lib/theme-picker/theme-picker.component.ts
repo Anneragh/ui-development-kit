@@ -80,10 +80,8 @@ export class ThemePickerComponent implements OnInit {
       secondaryText: '',
       hoverText: '',
       background: '',
-      logoLight: '',
-      logoDark: '',
-      logoLightFileName: '',
-      logoDarkFileName: '',
+      logo: '',
+      logoFileName: '',
     };
   }
 
@@ -112,16 +110,17 @@ export class ThemePickerComponent implements OnInit {
     this.mode = this.configService.getCurrentThemeMode();
 
     // Load theme config for selected mode
-    void this.loadThemeForMode().then(() => {
-      // Subscribe to dark mode changes from ConfigService
-      this.configService.isDark$.subscribe((isDark) => {
-        const newMode = isDark ? 'dark' : 'light';
-        if (newMode === this.mode) return; // Avoid redundant updates
+    void this.loadThemeForMode();
 
-        this.mode = newMode;
-        void this.loadThemeForMode(); // Reload theme config on mode change
-      });
+    // Subscribe to dark mode changes from ConfigService
+    this.configService.isDark$.subscribe((isDark) => {
+      const newMode = isDark ? 'dark' : 'light';
+      if (newMode === this.mode) return; // Avoid redundant updates
+
+      this.mode = newMode;
+      void this.loadThemeForMode(); // Reload theme config on mode change
     });
+
   }
 
   // Handler for manual mode toggle (e.g., from UI switch)
@@ -157,15 +156,15 @@ export class ThemePickerComponent implements OnInit {
   }
 
   // Load both light and dark themes into memory (from config or default)
-  async loadThemeForMode(): Promise<void> {
+  loadThemeForMode(): void {
     // Get theme configurations from config service
     this.lightColors = this.configService.getThemeConfig('light');
     this.darkColors = this.configService.getThemeConfig('dark');
     // now populate the displayed “filename” field
     this.selectedLogoFileName =
       this.mode === 'dark'
-        ? this.darkColors.logoDarkFileName || ''
-        : this.lightColors.logoLightFileName || '';
+        ? this.darkColors.logoFileName || ''
+        : this.lightColors.logoFileName || '';
   }
 
   constructor(
@@ -188,11 +187,11 @@ export class ThemePickerComponent implements OnInit {
 
   async onResetLogo() {
     if (this.mode === 'dark') {
-      this.darkColors.logoDark = 'assets/icons/logo-dark.png';
-      this.darkColors.logoDarkFileName = '';
+      this.darkColors.logo = 'assets/icons/logo-dark.png';
+      this.darkColors.logoFileName = '';
     } else {
-      this.lightColors.logoLight = 'assets/icons/logo.png';
-      this.lightColors.logoLightFileName = '';
+      this.lightColors.logo = 'assets/icons/logo.png';
+      this.lightColors.logoFileName = '';
     }
 
     this.selectedLogoFile = undefined;
@@ -224,11 +223,11 @@ export class ThemePickerComponent implements OnInit {
 
         // Update the logo in the current theme config
         if (this.mode === 'dark') {
-          updatedColors.logoDark = dataUrl;
-          updatedColors.logoDarkFileName = originalFileName;
+          updatedColors.logo = dataUrl;
+          updatedColors.logoFileName = originalFileName;
         } else {
-          updatedColors.logoLight = dataUrl;
-          updatedColors.logoLightFileName = originalFileName;
+          updatedColors.logo = dataUrl;
+          updatedColors.logoFileName = originalFileName;
         }
         
         this.selectedLogoFileName = originalFileName;
