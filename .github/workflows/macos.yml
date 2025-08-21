@@ -41,7 +41,7 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
       - name: Build the App
-        run: npm run electron:build
+        run: npm run electron:build -- --publish=never
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
 
@@ -49,4 +49,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: built-electron-app
-          path: release/sailpoint-ui-development-kit-1.0.0-arm64.dmg
+          path: release/**
