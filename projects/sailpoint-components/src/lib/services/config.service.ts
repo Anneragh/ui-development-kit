@@ -102,7 +102,7 @@ export class ConfigService {
       icon: 'dashboard',
       description: 'Manage accounts in SailPoint.',
       enabled: false,
-    },
+    }
   ];
 
   // Default theme configurations
