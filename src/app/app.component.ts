@@ -139,7 +139,7 @@ export class AppComponent implements OnDestroy, OnInit {
     combineLatest([
       this.configService.theme$,
       this.configService.isDark$,
-    ]).subscribe(([_, isDark]) => {
+    ]).subscribe(([, isDark]) => {
       this.isDarkTheme = isDark;
 
       // Resolve logo path based on current theme
@@ -148,7 +148,7 @@ export class AppComponent implements OnDestroy, OnInit {
       // Apply logo with a cache-busting timestamp
       const logo = this.logoImageRef?.nativeElement;
       if (logo) {
-        logo.onload = () => this.configService.logoUpdated$.next();
+        logo.onload = () => { this.configService.logoUpdated$.next(); return; };
 
         const src = this.logoPath?.startsWith('data:')
           ? this.logoPath
