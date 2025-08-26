@@ -139,6 +139,7 @@
         Report Example
       </a>
       <a
+        *ngIf="isComponentEnabled('component-selector')"
         mat-list-item
         class="sidebar-link"
         routerLink="/component-selector"
@@ -148,6 +149,11 @@
       >
         <mat-icon class="card-icon">settings</mat-icon>
         Component Selector
+      </a>
+      <a *ngIf="isComponentEnabled('accounts')" mat-list-item class="sidebar-link" routerLink="/accounts" routerLinkActive="active-link"
+        [class.disabled]="!isConnected" (click)="onNavItemClick($event)">
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Accounts
       </a>
 
       

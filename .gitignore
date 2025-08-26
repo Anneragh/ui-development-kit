@@ -60,4 +60,4 @@ openapi-generator-cli-*.jar
 openapi-generator-cli.jar
 /api-specs
 
-
+.env
