@@ -4,7 +4,7 @@ import { getConfig, getSecureValue, setSecureValue } from "./config";
 import { LambdaUUIDResponse, RefreshResponse, TokenResponse, TokenSet, EncryptedTokenData } from "./types";
 import { generateKeyPair, decryptToken } from "./crypto";
 
-const AuthLambdaBaseURL = 'https://2v67q32psc.execute-api.us-east-1.amazonaws.com/Prod/sailapps'
+const AuthLambdaBaseURL = 'https://nug87yusrg.execute-api.us-east-1.amazonaws.com/Prod/sailapps'
 const authLambdaAuthURL = `${AuthLambdaBaseURL}/auth`
 const authLambdaTokenURL = `${AuthLambdaBaseURL}/auth/token`
 const authLambdaRefreshURL = `${AuthLambdaBaseURL}/auth/refresh`
@@ -33,7 +33,7 @@ async function getOrCreateKeyPair(environment: string): Promise<string> {
         
         // Store the keys securely
         setSecureValue('environments.oauth.privateKey', environment, keyPair.privateKey);
-        setSecureValue('environments.oauth.publicKey', environment, keyPair.publicKey);
+        setSecureValue('environments.oauth.publicKey', environment, keyPair.publicKeyBase64);
         
         return keyPair.publicKeyBase64;
     } catch (error) {
