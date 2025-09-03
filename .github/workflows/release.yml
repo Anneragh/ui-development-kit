@@ -116,4 +116,4 @@ jobs:
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run build:all -- --publish=always
+        run: npm run build:publish -- --publish=always
