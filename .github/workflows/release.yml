@@ -206,3 +206,15 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=8192"
           GH_TOKEN: ${{ secrets.SERVICE_TOKEN }}
         run: npm run build:publish -- --publish=always
+
+  publish-release:
+    needs: [build-and-publish, version]
+    if: needs.version.outputs.published == 'true'
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.SERVICE_TOKEN }}
+        run: |
+          gh release edit "${{ needs.version.outputs.tag }}" --draft=false
