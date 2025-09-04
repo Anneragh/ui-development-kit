@@ -125,7 +125,7 @@ jobs:
             echo "merged=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-          if gh pr merge "$pr_number" --merge --delete-branch; then
+          if gh pr merge "$pr_number" --admin --merge --delete-branch; then
             echo "merged=true" >> $GITHUB_OUTPUT
           else
             echo "merged=false" >> $GITHUB_OUTPUT
