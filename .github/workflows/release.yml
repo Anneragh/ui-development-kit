@@ -73,7 +73,8 @@ jobs:
           if ! git diff --quiet -- app/package.json; then
             git add app/package.json
             git commit -m "chore(release): sync app/package.json version to ${{ steps.vars.outputs.version }}"
-            git push
+            git remote set-url origin https://${{ secrets.SERVICE_TOKEN }}@github.com/sailpoint-oss/ui-development-kit.git
+            git push --force origin main
           else
             echo "app/package.json already in sync"
           fi
@@ -83,6 +84,7 @@ jobs:
         shell: bash
         run: |
           git tag -a "${{ steps.vars.outputs.tag }}" -m "Release ${{ steps.vars.outputs.tag }}"
+          git remote set-url origin https://${{ secrets.SERVICE_TOKEN }}@github.com/sailpoint-oss/ui-development-kit.git
           git push origin "${{ steps.vars.outputs.tag }}"
 
       - name: Create GitHub Release
@@ -142,5 +144,5 @@ jobs:
       - name: Build and Publish artifacts to GitHub Release
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SERVICE_TOKEN }}
         run: npm run build:publish -- --publish=always
