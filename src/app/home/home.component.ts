@@ -56,7 +56,6 @@ type ComponentState = {
   tenants: Tenant[];
   selectedTenant: string;
   actualTenant?: Tenant;
-  globalAuthMethod: AuthMethods;
   showEnvironmentDetails: boolean;
   oauthValidationStatus: OAuthValidationStatus;
   config: EnvironmentConfig;
@@ -99,7 +98,6 @@ export class HomeComponent implements OnInit {
     tenants: [],
     selectedTenant: 'new',
     actualTenant: undefined,
-    globalAuthMethod: 'pat',
     showEnvironmentDetails: false,
     oauthValidationStatus: 'unknown',
     config: {
@@ -125,24 +123,13 @@ export class HomeComponent implements OnInit {
   // ===== INITIALIZATION =====
   private async initializeComponent(): Promise<void> {
     await Promise.all([
-      this.loadTenants(),
-      this.initializeGlobalAuthMethod()
+      this.loadTenants()
     ]);
 
     this.connectionService.connectedSubject$.subscribe((connection) => {
       this.state.isConnected = connection.connected;
       this.state.name = connection.name || '';
     })
-  }
-
-  async initializeGlobalAuthMethod(): Promise<void> {
-    try {
-      const authMethod = await this.electronService.getApi().getGlobalAuthType();
-      this.state.globalAuthMethod = authMethod as AuthMethods;
-    } catch (error) {
-      console.error('Error loading global auth method:', error);
-      this.state.globalAuthMethod = 'pat';
-    }
   }
 
   // Tenant Methods:
@@ -165,11 +152,10 @@ export class HomeComponent implements OnInit {
           clientSecret: activeTenant.clientSecret || undefined
         });
 
-        await this.refreshCurrentTenantAuthType();
         this.loadEnvironmentForEditing(activeTenant);
       } else {
         this.state.selectedTenant = 'new';
-        await this.resetConfig();
+        this.resetConfig();
       }
     } catch (error) {
       console.error('Error loading tenants:', error);
@@ -180,7 +166,7 @@ export class HomeComponent implements OnInit {
   async updateTenant(): Promise<void> {
     if (this.state.selectedTenant === 'new') {
       this.state.actualTenant = undefined;
-      await this.resetConfig();
+      this.resetConfig();
       return;
     }
 
@@ -190,41 +176,20 @@ export class HomeComponent implements OnInit {
 
     if (actualTenant) {
       await this.setActiveEnvironment(actualTenant.name);
-      await this.refreshCurrentTenantAuthType();
       this.loadEnvironmentForEditing(actualTenant);
     }
   }
 
-  async resetConfig(): Promise<void> {
-    const currentAuthType = await this.electronService.getApi().getGlobalAuthType();
-
+  resetConfig(): void {
     const config: EnvironmentConfig = {
       environmentName: '',
       tenantUrl: '',
       baseUrl: '',
-      authType: currentAuthType as AuthMethods
+      authType: 'oauth'
     };
 
     this.state.config = config;
     this.state.oauthValidationStatus = 'unknown';
-  }
-
-  async refreshCurrentTenantAuthType(): Promise<void> {
-    try {
-      const currentAuthType = await this.electronService.getApi().getGlobalAuthType();
-
-      if (this.state.actualTenant) {
-        this.state.actualTenant.authType = currentAuthType;
-        console.log(`Updated auth type for ${this.state.actualTenant.name}: ${currentAuthType}`);
-      }
-
-      const tenantIndex = this.state.tenants.findIndex(t => t.name === this.state.selectedTenant);
-      if (tenantIndex !== -1) {
-        this.state.tenants[tenantIndex].authType = currentAuthType;
-      }
-    } catch (error) {
-      console.error('Error refreshing auth type:', error);
-    }
   }
 
   // Session Management
@@ -461,7 +426,7 @@ export class HomeComponent implements OnInit {
           await this.testOAuthConnection();
         }
 
-        await this.resetConfig();
+        this.resetConfig();
         this.state.showEnvironmentDetails = false;
       } else {
         this.showSnackbar(String(result.error || 'Failed to save environment'));
@@ -482,7 +447,7 @@ export class HomeComponent implements OnInit {
       if (deleteResult.success) {
         // this.showSuccess('Environment deleted successfully!');
         await this.loadTenants();
-        await this.resetConfig();
+        this.resetConfig();
         this.state.selectedTenant = 'new';
         this.state.actualTenant = undefined;
         // this.showEnvironmentDetails$.next(false);
@@ -497,53 +462,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Event Handlers:
-
-  async onGlobalAuthMethodChange(): Promise<void> {
-    try {
-      await this.electronService.getApi().setGlobalAuthType(this.state.globalAuthMethod);
-      console.log('Global auth method updated to:', this.state.globalAuthMethod);
-
-      // Update the config to match the new global auth method
-      this.state.config.authType = this.state.globalAuthMethod;
-
-      // Update the actual tenant's auth type as well
-      if (this.state.actualTenant) {
-        this.state.actualTenant.authType = this.state.globalAuthMethod;
-        // await this.refreshCurrentTenantAuthType();
-      }
-    } catch (error) {
-      console.error('Error updating global auth method:', error);
-    }
-  }
-
-  async onConfigAuthTypeChange(): Promise<void> {
-    console.log('Config auth type changed to:', this.state.config.authType);
-
-    // Update global auth method to match config auth type  
-    this.state.globalAuthMethod = this.state.config.authType;
-
-    // Update actual tenant auth type if it exists
-    if (this.state.actualTenant) {
-      this.state.actualTenant.authType = this.state.config.authType;
-    }
-
-    // Update the global auth type in the backend
-    try {
-      await this.electronService.getApi().setGlobalAuthType(this.state.config.authType);
-    } catch (error) {
-      console.error('Error updating global auth method:', error);
-    }
-
-    if (this.state.config.authType === 'oauth') {
-      this.state.config.clientId = undefined;
-      this.state.config.clientSecret = undefined;
-    }
-
-    if (this.state.config.authType === 'oauth' && this.state.config.baseUrl) {
-      void this.testOAuthConnection();
-    }
-  }
 
   onTenantNameChange(): void {
     if (this.state.selectedTenant === 'new' && this.state.config.tempTenantName) {

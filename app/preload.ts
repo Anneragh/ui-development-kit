@@ -23,8 +23,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateEnvironment: (config: UpdateEnvironmentRequest) => ipcMain.invoke('update-environment', config),
   deleteEnvironment: (environment: string) => ipcMain.invoke('delete-environment', environment),
   setActiveEnvironment: (environment: string) => ipcMain.invoke('set-active-environment', environment),
-  getGlobalAuthType: () => ipcMain.invoke('get-global-auth-type'),
-  setGlobalAuthType: (authType: "oauth" | "pat") => ipcMain.invoke('set-global-auth-type', authType),
   
   // config file management
   readConfig: () => ipcMain.invoke('read-config'),

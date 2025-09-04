@@ -25,8 +25,6 @@ export interface ElectronAPIInterface {
   updateEnvironment: (config: UpdateEnvironmentRequest) => Promise<{ success: boolean, error?: string }>;
   deleteEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
   setActiveEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
-  getGlobalAuthType: () => Promise<AuthMethods>;
-  setGlobalAuthType: (authType: AuthMethods) => Promise<void>;
   
   // Config file management
   readConfig: () => Promise<any>;
@@ -238,17 +236,6 @@ export class WebApiService implements ElectronAPIInterface {
       this.activeEnvironment = environment;
     }
     return result;
-  }
-
-  async getGlobalAuthType(): Promise<AuthMethods> {
-    const result = await this.apiCall<{ authType: AuthMethods }>('auth/global-type', 'GET');
-    this.authType = result.authType;
-    return this.authType;
-  }
-
-  async setGlobalAuthType(authType: AuthMethods): Promise<void> {
-    await this.apiCall('auth/global-type', 'POST', { authType });
-    this.authType = authType;
   }
 
   // Config Management methods

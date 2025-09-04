@@ -84,8 +84,6 @@ declare global {
       updateEnvironment: (config: UpdateEnvironmentRequest) => Promise<{ success: boolean, error?: string }>;
       deleteEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
       setActiveEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
-      getGlobalAuthType: () => Promise<AuthMethods>;
-      setGlobalAuthType: (authType: AuthMethods) => Promise<void>;
       
       // Config file management
       readConfig: () => Promise<any>;

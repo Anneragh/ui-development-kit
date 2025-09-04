@@ -167,7 +167,7 @@
         <div class="auth-method-section">
           <mat-form-field appearance="outline" class="auth-method-select">
             <mat-label>Authentication Method</mat-label>
-            <mat-select [(value)]="state.globalAuthMethod" (selectionChange)="onGlobalAuthMethodChange()">
+            <mat-select [(value)]="state.config.authType">
               <mat-option value="pat">
                 <mat-icon>vpn_key</mat-icon>
                 Personal Access Token (PAT)

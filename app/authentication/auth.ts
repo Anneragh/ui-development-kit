@@ -3,7 +3,7 @@ import {
   TenantV2024Api,
   ConfigurationParameters,
 } from 'sailpoint-api-client';
-import { getConfig, setConfig } from './config';
+import { getConfig, setConfig,  getConfigEnvironment, setActiveEnvironementInConfig} from './config';
 import { getStoredOAuthTokens, OAuthLogin, refreshOAuthToken, validateOAuthTokens } from './oauth';
 import { getStoredPATTokens, refreshPATToken, validatePATToken } from './pat';
 import { TokenSet } from './types';
@@ -72,20 +72,10 @@ export function parseJwt(token: string): AuthPayload {
  */
 export const unifiedLogin = async (environment: string): Promise<{ success: boolean, error?: string }> => {
 
-  const authType = getGlobalAuthType();
-  console.log(`Starting ${authType} login for environment: ${environment}`);
 
   try {
     // First, ensure the environment exists in config
-    const config = getConfig();
-    if (!config.environments[environment]) {
-      return {
-        success: false,
-        error: `Environment '${environment}' not found in configuration`
-      };
-    }
-
-    const { tenanturl, baseurl } = config.environments[environment];
+    const { tenanturl, baseurl, authType } = getConfigEnvironment(environment);
 
     // Check for existing tokens and attempt refresh if needed
     const tokenStatus = validateTokens(environment);
@@ -213,11 +203,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
     }
 
     // Update global auth type to match the requested flow
-    config.authtype = authType;
-    config.activeenvironment = environment;
-
-    // Save the updated config
-    setConfig(config);
+    setActiveEnvironementInConfig(environment);
 
     if (authType === 'oauth') {
       // OAuth flow
@@ -314,7 +300,15 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
  */
 export const refreshTokens = async (environment: string): Promise<{ success: boolean, error?: string }> => {
   try {
-    const authType = getGlobalAuthType();
+    const config = getConfig();
+    if (!config.environments[environment]) {
+      return {
+        success: false,
+        error: `Environment '${environment}' not found in configuration`
+      };
+    }
+    const { tenanturl, baseurl, authType } = config.environments[environment];
+
     switch (authType) {
       case 'oauth': {
         const storedTokens = getStoredOAuthTokens(environment);
@@ -394,38 +388,6 @@ export const connectToISCWithToken = async (
   }
 };
 
-export const getGlobalAuthType = (): "oauth" | "pat" => {
-  try {
-    const config = getConfig();
-
-    // OAuth is the default as it requires the least variables to work
-    return (config.authtype as "oauth" | "pat" | undefined) || 'oauth';
-  } catch (error) {
-    console.error('Error getting global auth type:', error);
-    return 'oauth'; // Default to OAuth if error
-  }
-};
-
-export const setGlobalAuthType = (authType: "oauth" | "pat") => {
-  try {
-    const config = getConfig();
-
-    // Update the global auth type
-    config.authtype = authType;
-
-    // Write updated config file
-    setConfig(config);
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error setting global auth type:', error);
-    return {
-      success: false,
-      error: formatErrorAsString(error)
-    };
-  }
-};
-
 export type AccessTokenStatus = {
   authType: string;
   accessTokenIsValid: boolean;
@@ -457,7 +419,8 @@ export function getTokenDetails(token: string): TokenDetails {
 
 export function getCurrentTokenDetails(environment: string): { tokenDetails: TokenDetails | undefined, error?: string } {
   try {
-    switch (getGlobalAuthType()) {
+    const { tenanturl, baseurl, authType } = getConfigEnvironment(environment);
+    switch (authType) {
       case 'oauth':
         const oauthTokens = getStoredOAuthTokens(environment);
         if (!oauthTokens) {
@@ -487,7 +450,7 @@ export function getCurrentTokenDetails(environment: string): { tokenDetails: Tok
       default:
         return {
           tokenDetails: undefined,
-          error: 'Unsupported auth type: ' + getGlobalAuthType()
+          error: 'Unsupported auth type: ' + authType
         };
     }
   } catch (error) {
@@ -508,7 +471,7 @@ export function getCurrentTokenDetails(environment: string): { tokenDetails: Tok
  */
 export async function checkAccessTokenStatus(environment: string): Promise<AccessTokenStatus> {
   try {
-    const authType = getGlobalAuthType();
+    const { tenanturl, baseurl, authType } = getConfigEnvironment(environment);
 
     let storedTokens: TokenSet | undefined;
 
@@ -704,9 +667,10 @@ export function checkTokenExpired(token: string) {
   return expiry < now;
 }
 
-export function validateTokens(environment: string) {
+export function validateTokens(environment: string): { isValid: boolean, needsRefresh: boolean, authType: string } | undefined {
   try {
-    switch (getGlobalAuthType()) {
+    const { tenanturl, baseurl, authType } = getConfigEnvironment(environment);
+    switch (authType) {
       case 'oauth':
         const oauthValidation = validateOAuthTokens(environment);
         return {

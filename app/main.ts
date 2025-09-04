@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
-import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType, unifiedLogin, validateTokens, checkAccessTokenStatus, checkRefreshTokenStatus, getCurrentTokenDetails } from './authentication/auth';
+import { disconnectFromISC, refreshTokens, unifiedLogin, validateTokens, checkAccessTokenStatus, checkRefreshTokenStatus, getCurrentTokenDetails } from './authentication/auth';
 import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
 import { getStoredOAuthTokens } from './authentication/oauth';
 import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
@@ -174,7 +174,6 @@ try {
     return validateTokens(environment);
   });
 
-
   ipcMain.handle('get-tenants', () => {
     return getTenants();
   });
@@ -196,14 +195,6 @@ try {
       return setActiveEnvironment(environment);
     }
   );
-
-  ipcMain.handle('get-global-auth-type', async () => {
-    return getGlobalAuthType();
-  });
-
-  ipcMain.handle('set-global-auth-type', async (event, authType: "oauth" | "pat") => {
-    return setGlobalAuthType(authType);
-  });
 
   ipcMain.handle('read-config', async () => {
     try {
