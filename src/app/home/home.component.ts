@@ -102,12 +102,7 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    void this.initializeComponent();
-  }
-
-  // ===== INITIALIZATION =====
-  private async initializeComponent(): Promise<void> {
-    await this.loadTenants();
+    void this.loadTenants();
 
     this.connectionService.connectedSubject$.subscribe((connection) => {
       this.state.isConnected = connection.connected;
@@ -115,6 +110,7 @@ export class HomeComponent implements OnInit {
     })
     this.state.loading = false;
   }
+
 
   // Tenant Methods:
   async loadTenants(): Promise<void> {
@@ -231,6 +227,7 @@ export class HomeComponent implements OnInit {
 
           this.authenticating = false;
           this.dialog.closeAll();
+          await this.electronService.getApi().setActiveEnvironment(this.state.actualTenant.name);
         } else {
           this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${loginResult.error}`);
         }
