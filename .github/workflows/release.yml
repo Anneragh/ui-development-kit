@@ -7,11 +7,13 @@ on:
       - main
     paths:
       - 'package.json'
+      - 'app/package.json'
 
 
 permissions:
   contents: write
   packages: write
+  pull-requests: write
 
 jobs:
   version:
@@ -66,23 +68,79 @@ jobs:
           fi
 
       - name: Sync app/package.json version to root version
+        id: sync
         if: steps.check_tag.outputs.exists == 'false'
         shell: bash
         run: |
           tmpfile=$(mktemp)
           jq --arg v "${{ steps.vars.outputs.version }}" '.version=$v' app/package.json > "$tmpfile"
           mv "$tmpfile" app/package.json
-          if ! git diff --quiet -- app/package.json; then
-            git add app/package.json
-            git commit -m "chore(release): sync app/package.json version to ${{ steps.vars.outputs.version }}"
-            git remote set-url origin https://${{ secrets.SERVICE_TOKEN }}@github.com/sailpoint-oss/ui-development-kit.git
-            git push --force origin main
-          else
+          if git diff --quiet -- app/package.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
             echo "app/package.json already in sync"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Create PR to sync app/package.json version
+        id: cpr
+        if: steps.check_tag.outputs.exists == 'false' && steps.sync.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.SERVICE_TOKEN }}
+          commit-message: "chore(release): sync app/package.json version to ${{ steps.vars.outputs.version }}"
+          title: "chore(release): sync app/package.json version to ${{ steps.vars.outputs.version }}"
+          body: "Automated PR to sync app/package.json version to match root version ${{ steps.vars.outputs.version }}."
+          branch: "chore/sync-app-version/${{ steps.vars.outputs.version }}"
+          base: "main"
+          labels: |
+            release
+            automated pr
+          add-paths: |
+            app/package.json
+
+      - name: Ensure gh is available
+        if: steps.check_tag.outputs.exists == 'false' && steps.sync.outputs.changed == 'true'
+        shell: bash
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            type -p curl >/dev/null || sudo apt-get update
+            type -p curl >/dev/null || sudo apt-get install -y curl
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y gh
+          fi
+
+      - name: Attempt to merge sync PR
+        id: merge
+        if: steps.check_tag.outputs.exists == 'false' && steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.SERVICE_TOKEN }}
+        shell: bash
+        run: |
+          pr_number="${{ steps.cpr.outputs.pull-request-number }}"
+          if [ -z "$pr_number" ] || [ "$pr_number" = "0" ]; then
+            echo "merged=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          if gh pr merge "$pr_number" --merge --delete-branch; then
+            echo "merged=true" >> $GITHUB_OUTPUT
+          else
+            echo "merged=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Refresh local main after merge
+        if: steps.merge.outputs.merged == 'true'
+        shell: bash
+        run: |
+          git fetch origin main --prune
+          git checkout main
+          git pull --ff-only origin main
+
       - name: Create tag
-        if: steps.check_tag.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false' && (steps.sync.outputs.changed == 'false' || steps.merge.outputs.merged == 'true')
         shell: bash
         run: |
           git tag -a "${{ steps.vars.outputs.tag }}" -m "Release ${{ steps.vars.outputs.tag }}"
@@ -90,7 +148,7 @@ jobs:
           git push origin "${{ steps.vars.outputs.tag }}"
 
       - name: Create GitHub Release
-        if: steps.check_tag.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false' && (steps.sync.outputs.changed == 'false' || steps.merge.outputs.merged == 'true')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
@@ -99,13 +157,13 @@ jobs:
           draft: true
           prerelease: ${{ steps.vars.outputs.prerelease }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SERVICE_TOKEN }}
 
       - name: Set published output
         id: publish
         shell: bash
         run: |
-          if [ "${{ steps.check_tag.outputs.exists }}" = "false" ]; then
+          if [ "${{ steps.check_tag.outputs.exists }}" = "false" ] && { [ "${{ steps.sync.outputs.changed }}" = "false" ] || [ "${{ steps.merge.outputs.merged }}" = "true" ]; }; then
             echo "published=true" >> $GITHUB_OUTPUT
           else
             echo "published=false" >> $GITHUB_OUTPUT
