@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConnectionService } from '../services/connection.service';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,6 +22,7 @@ import { IdentitiesComponent } from './dashboard-cards/identities/identities.com
 import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/identity-profiles.component';
 import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 import { ElectronApiFactoryService } from 'sailpoint-components';
+import { GenericDialogComponent } from 'sailpoint-components'
 
 
 type AuthMethods = "oauth" | "pat";
@@ -83,7 +85,8 @@ type ComponentState = {
     MatRadioModule,
     MatSnackBarModule,
     FormsModule,
-    SharedModule
+    SharedModule,
+    GenericDialogComponent
   ]
 })
 export class HomeComponent implements OnInit {
@@ -111,7 +114,8 @@ export class HomeComponent implements OnInit {
     private router: Router,
     private connectionService: ConnectionService,
     private snackBar: MatSnackBar,
-    private electronService: ElectronApiFactoryService
+    private electronService: ElectronApiFactoryService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -236,6 +240,12 @@ export class HomeComponent implements OnInit {
     }
 
     this.state.loading = true;
+    this.dialog.open(GenericDialogComponent, {
+        data: {
+          title: `Logging into ISC...`,
+          message: "Please wait while we log you into the selected environment.",
+      }
+    });
 
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);
     console.log('Authentication type:', this.state.actualTenant.authType);
@@ -274,6 +284,7 @@ export class HomeComponent implements OnInit {
           this.state.name = this.state.actualTenant.name;
 
           this.state.loading = false;
+          this.dialog.closeAll();
         } else {
           this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${loginResult.error}`);
         }
@@ -288,6 +299,7 @@ export class HomeComponent implements OnInit {
       this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`);
     } finally {
       this.state.loading = false;
+      this.dialog.closeAll();
     }
   }
 

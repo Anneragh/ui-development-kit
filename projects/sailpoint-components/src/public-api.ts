@@ -11,6 +11,7 @@ export * from './lib/sailpoint-components.component';
 export * from './lib/sailpoint-components.service';
 export * from './lib/sailpoint-sdk.service';
 export * from './lib/theme-picker/theme-picker.component';
+export * from './lib/generic-dialog/generic-dialog.component';
 
 // Services
 export * from './lib/services';
