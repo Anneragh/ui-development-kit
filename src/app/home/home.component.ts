@@ -39,16 +39,6 @@ type Tenant = {
   tenantName: string;
 }
 
-type EnvironmentConfig = {
-  environmentName: string;
-  tempTenantName?: string;
-  tenantUrl: string;
-  baseUrl: string;
-  authType: AuthMethods;
-  clientId?: string;
-  clientSecret?: string;
-}
-
 type ComponentState = {
   isConnected: boolean;
   loading: boolean;
@@ -58,7 +48,6 @@ type ComponentState = {
   actualTenant?: Tenant;
   showEnvironmentDetails: boolean;
   oauthValidationStatus: OAuthValidationStatus;
-  config: EnvironmentConfig;
 }
 
 @Component({
@@ -93,20 +82,16 @@ export class HomeComponent implements OnInit {
   // State management
   state: ComponentState = {
     isConnected: false,
-    loading: false,
+    loading: true,
     name: '',
     tenants: [],
     selectedTenant: 'new',
     actualTenant: undefined,
     showEnvironmentDetails: false,
-    oauthValidationStatus: 'unknown',
-    config: {
-      environmentName: '',
-      tenantUrl: '',
-      baseUrl: '',
-      authType: 'pat'
-    }
+    oauthValidationStatus: 'unknown'
   }
+
+  authenticating = false;
 
   constructor(
     private router: Router,
@@ -122,14 +107,13 @@ export class HomeComponent implements OnInit {
 
   // ===== INITIALIZATION =====
   private async initializeComponent(): Promise<void> {
-    await Promise.all([
-      this.loadTenants()
-    ]);
+    await this.loadTenants();
 
     this.connectionService.connectedSubject$.subscribe((connection) => {
       this.state.isConnected = connection.connected;
       this.state.name = connection.name || '';
     })
+    this.state.loading = false;
   }
 
   // Tenant Methods:
@@ -152,10 +136,16 @@ export class HomeComponent implements OnInit {
           clientSecret: activeTenant.clientSecret || undefined
         });
 
-        this.loadEnvironmentForEditing(activeTenant);
       } else {
         this.state.selectedTenant = 'new';
-        this.resetConfig();
+        this.state.actualTenant = {
+          active: false,
+          apiUrl: '',
+          tenantUrl: '',
+          name: '',
+          authType: 'oauth',
+          tenantName: '',
+        };
       }
     } catch (error) {
       console.error('Error loading tenants:', error);
@@ -163,10 +153,16 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  async updateTenant(): Promise<void> {
+  updateTenant(): void {
     if (this.state.selectedTenant === 'new') {
-      this.state.actualTenant = undefined;
-      this.resetConfig();
+      this.state.actualTenant = {
+        active: false,
+        apiUrl: '',
+        tenantUrl: '',
+        name: '',
+        authType: 'oauth',
+        tenantName: '',
+      };
       return;
     }
 
@@ -174,23 +170,8 @@ export class HomeComponent implements OnInit {
     this.state.actualTenant = actualTenant;
     console.log(`Selected tenant:`, actualTenant);
 
-    if (actualTenant) {
-      await this.setActiveEnvironment(actualTenant.name);
-      this.loadEnvironmentForEditing(actualTenant);
-    }
   }
 
-  resetConfig(): void {
-    const config: EnvironmentConfig = {
-      environmentName: '',
-      tenantUrl: '',
-      baseUrl: '',
-      authType: 'oauth'
-    };
-
-    this.state.config = config;
-    this.state.oauthValidationStatus = 'unknown';
-  }
 
   // Session Management
   async connectToISC(): Promise<void> {
@@ -204,7 +185,7 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    this.state.loading = true;
+    this.authenticating = true;
     this.dialog.open(GenericDialogComponent, {
         data: {
           title: `Logging into ISC...`,
@@ -248,7 +229,7 @@ export class HomeComponent implements OnInit {
           this.state.isConnected = true;
           this.state.name = this.state.actualTenant.name;
 
-          this.state.loading = false;
+          this.authenticating = false;
           this.dialog.closeAll();
         } else {
           this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${loginResult.error}`);
@@ -263,7 +244,7 @@ export class HomeComponent implements OnInit {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`);
     } finally {
-      this.state.loading = false;
+      this.authenticating = false;
       this.dialog.closeAll();
     }
   }
@@ -275,7 +256,7 @@ export class HomeComponent implements OnInit {
   }
 
   async testOAuthConnection(): Promise<{ error?: Error }> {
-    if (!this.state.config.baseUrl) {
+    if (!this.state.actualTenant?.apiUrl) {
       this.state.oauthValidationStatus = 'invalid';
       return { error: new Error('Please provide API base URL') };
     }
@@ -283,7 +264,7 @@ export class HomeComponent implements OnInit {
     this.state.oauthValidationStatus = 'testing';
 
     try {
-      const oauthInfoUrl = `${this.state.config.baseUrl}/oauth/info`;
+      const oauthInfoUrl = `${this.state.actualTenant.apiUrl}/oauth/info`;
       const response = await fetch(oauthInfoUrl, {
         method: 'GET',
         headers: { 'Accept': 'application/json' }
@@ -297,46 +278,46 @@ export class HomeComponent implements OnInit {
       } else {
         this.state.oauthValidationStatus = 'invalid';
         console.error('OAuth endpoint validation failed:', response.status, response.statusText);
-        this.showSnackbar(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`);
-        return { error: new Error(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`) };
+        this.showSnackbar(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.actualTenant.apiUrl}`);
+        return { error: new Error(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.actualTenant.apiUrl}`) };
       }
     } catch (error) {
       console.error('OAuth endpoint validation error:', error);
       this.state.oauthValidationStatus = 'invalid';
-      this.showSnackbar(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`);
-      return { error: new Error(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`) };
+      this.showSnackbar(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.actualTenant.apiUrl}`);
+      return { error: new Error(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.actualTenant.apiUrl}`) };
     }
   }
 
   // Environment Methods:
 
   validateConfig(): boolean {
-    if (!this.state.config.environmentName.trim()) {
+    if (!this.state.actualTenant?.name.trim()) {
       this.showSnackbar('Environment name is required');
       return false;
     }
 
-    if (this.state.selectedTenant === 'new' && !this.state.config.tempTenantName?.trim()) {
+    if (this.state.selectedTenant === 'new' && !this.state.actualTenant.tenantName?.trim()) {
       this.showSnackbar('Tenant name is required to generate URLs');
       return false;
     }
 
-    if (!this.state.config.tenantUrl.trim()) {
+    if (!this.state.actualTenant.tenantUrl.trim()) {
       this.showSnackbar('Tenant URL is required');
       return false;
     }
 
-    if (!this.state.config.baseUrl.trim()) {
+    if (!this.state.actualTenant.apiUrl.trim()) {
       this.showSnackbar('Base URL is required');
       return false;
     }
 
-    if (this.state.config.authType === 'pat') {
-      if (!this.state.config.clientId?.trim()) {
+    if (this.state.actualTenant.authType === 'pat') {
+      if (!this.state.actualTenant.clientId?.trim()) {
         this.showSnackbar('Client ID is required for PAT authentication');
         return false;
       }
-      if (!this.state.config.clientSecret?.trim()) {
+      if (!this.state.actualTenant.clientSecret?.trim()) {
         this.showSnackbar('Client Secret is required for PAT authentication');
         return false;
       }
@@ -348,34 +329,6 @@ export class HomeComponent implements OnInit {
   toggleEnvironmentDetails(): void {
     const newValue = !this.state.showEnvironmentDetails;
     this.state.showEnvironmentDetails = newValue;
-
-    if (newValue) {
-      if (this.state.actualTenant) {
-        this.loadEnvironmentForEditing(this.state.actualTenant);
-      } else if (this.state.selectedTenant === 'new') {
-        void this.resetConfig();
-      }
-    }
-  }
-
-  loadEnvironmentForEditing(tenant: Tenant): void {
-    const config: EnvironmentConfig = {
-      environmentName: tenant.name,
-      tenantUrl: tenant.tenantUrl,
-      baseUrl: tenant.apiUrl,
-      authType: tenant.authType,
-      clientId: tenant.clientId || undefined,
-      clientSecret: tenant.clientSecret || undefined
-    };
-
-    this.state.config = config;
-    this.state.oauthValidationStatus = 'unknown';
-
-    console.log(`Loaded environment config for: ${tenant.name}`, config);
-
-    if (config.authType === 'oauth' && config.baseUrl) {
-      void this.testOAuthConnection();
-    }
   }
 
   async setActiveEnvironment(environmentName: string): Promise<void> {
@@ -398,22 +351,27 @@ export class HomeComponent implements OnInit {
       return;
     }
 
+    if (!this.state.actualTenant) {
+      this.showSnackbar('No environment data to save');
+      return;
+    }
+
     try {
-      const clientId = this.state.config.clientId?.trim() || undefined;
-      const clientSecret = this.state.config.clientSecret?.trim() || undefined;
+      const clientId = this.state.actualTenant.clientId?.trim() || undefined;
+      const clientSecret = this.state.actualTenant.clientSecret?.trim() || undefined;
 
       console.log('Saving environment with credentials:', {
-        environmentName: this.state.config.environmentName,
-        authType: this.state.config.authType,
+        environmentName: this.state.actualTenant.name,
+        authType: this.state.actualTenant.authType,
         hasClientId: !!clientId,
         hasClientSecret: !!clientSecret
       });
 
       const result = await this.electronService.getApi().updateEnvironment({
-        environmentName: this.state.config.environmentName,
-        tenantUrl: this.state.config.tenantUrl,
-        baseUrl: this.state.config.baseUrl,
-        authType: this.state.config.authType as 'oauth' | 'pat',
+        environmentName: this.state.actualTenant.name,
+        tenantUrl: this.state.actualTenant.tenantUrl,
+        baseUrl: this.state.actualTenant.apiUrl,
+        authType: this.state.actualTenant.authType as 'oauth' | 'pat',
         clientId: clientId,
         clientSecret: clientSecret,
       });
@@ -422,11 +380,10 @@ export class HomeComponent implements OnInit {
         this.showSnackbar(this.state.selectedTenant === 'new' ? 'Environment created successfully!' : 'Environment updated successfully!');
         await this.loadTenants();
 
-        if (this.state.config.authType === 'oauth') {
+        if (this.state.actualTenant.authType === 'oauth') {
           await this.testOAuthConnection();
         }
-
-        this.resetConfig();
+        //this.state.actualTenant = undefined;
         this.state.showEnvironmentDetails = false;
       } else {
         this.showSnackbar(String(result.error || 'Failed to save environment'));
@@ -447,9 +404,8 @@ export class HomeComponent implements OnInit {
       if (deleteResult.success) {
         // this.showSuccess('Environment deleted successfully!');
         await this.loadTenants();
-        this.resetConfig();
-        this.state.selectedTenant = 'new';
         this.state.actualTenant = undefined;
+        this.state.selectedTenant = 'new';
         // this.showEnvironmentDetails$.next(false);
         // this.isConnected$.next(false);
         // this.connectionService.setConnectionState(false);
@@ -464,11 +420,11 @@ export class HomeComponent implements OnInit {
 
 
   onTenantNameChange(): void {
-    if (this.state.selectedTenant === 'new' && this.state.config.tempTenantName) {
-      this.state.config.tenantUrl = `https://${this.state.config.tempTenantName}.identitynow.com`;
-      this.state.config.baseUrl = `https://${this.state.config.tempTenantName}.api.identitynow.com`;
+    if (this.state.selectedTenant === 'new' && this.state.actualTenant?.tenantName) {
+      this.state.actualTenant.tenantUrl = `https://${this.state.actualTenant.tenantName}.identitynow.com`;
+      this.state.actualTenant.apiUrl = `https://${this.state.actualTenant.tenantName}.api.identitynow.com`;
 
-      if (this.state.config.authType === 'oauth') {
+      if (this.state.actualTenant.authType === 'oauth') {
         void this.testOAuthConnection();
       }
     }
@@ -476,8 +432,9 @@ export class HomeComponent implements OnInit {
 
   onBaseUrlChange(): void {
     this.state.oauthValidationStatus = 'unknown';
+    
 
-    if (this.state.config.authType === 'oauth' && this.state.config.baseUrl) {
+    if (this.state.actualTenant?.authType === 'oauth' && this.state.actualTenant?.apiUrl) {
       setTimeout(() => {
         void this.testOAuthConnection();
       }, 1000);

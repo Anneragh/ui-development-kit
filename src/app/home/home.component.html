@@ -1,5 +1,5 @@
 <!-- Not Connected State - Show Environment Management and Connection -->
-<div *ngIf="!state.isConnected" class="home-container">
+<div *ngIf="!state.isConnected && !state.loading" class="home-container">
   <!-- Welcome Section -->
   <div class="welcome-section">
     <h1>Welcome to the SailPoint UI Development Kit</h1>
@@ -43,7 +43,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Environment Name</mat-label>
-              <input matInput [(ngModel)]="state.config.environmentName" name="environmentName"
+              <input matInput [(ngModel)]="state.actualTenant.name" name="environmentName"
                 placeholder="My Development Environment" [disabled]="state.selectedTenant !== 'new'" required>
               <mat-hint>A friendly name for this environment configuration</mat-hint>
             </mat-form-field>
@@ -52,7 +52,7 @@
           <div class="form-row" *ngIf="state.selectedTenant === 'new'">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Tenant Name (for URL generation)</mat-label>
-              <input matInput [(ngModel)]="state.config.tempTenantName" name="tempTenantName"
+              <input matInput [(ngModel)]="state.actualTenant.tenantName" name="tempTenantName"
                 (input)="onTenantNameChange()" placeholder="your-tenant-name" required>
               <mat-hint>Your SailPoint tenant identifier - used only to auto-generate URLs below</mat-hint>
             </mat-form-field>
@@ -61,7 +61,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Tenant URL</mat-label>
-              <input matInput [(ngModel)]="state.config.tenantUrl" name="tenantUrl"
+              <input matInput [(ngModel)]="state.actualTenant.tenantUrl" name="tenantUrl"
                 placeholder="https://your-tenant.identitynow.com" required>
             </mat-form-field>
           </div>
@@ -69,7 +69,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>API Base URL</mat-label>
-              <input matInput [(ngModel)]="state.config.baseUrl" name="baseUrl" (input)="onBaseUrlChange()"
+              <input matInput [(ngModel)]="state.actualTenant.apiUrl" name="baseUrl" (input)="onBaseUrlChange()"
                 placeholder="https://your-tenant.api.identitynow.com" required>
             </mat-form-field>
           </div>
@@ -78,7 +78,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Authentication Method</mat-label>
-              <mat-select [(value)]="state.config.authType" (selectionChange)="onConfigAuthTypeChange()">
+              <mat-select [(value)]="state.actualTenant.authType">
                 <mat-option value="pat">
                   <mat-icon>vpn_key</mat-icon>
                   Personal Access Token (PAT)
@@ -93,31 +93,31 @@
           </div>
 
           <!-- PAT Fields -->
-          <div *ngIf="state.config.authType === 'pat'" class="pat-section">
+          <div *ngIf="state.actualTenant.authType === 'pat'" class="pat-section">
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Client ID</mat-label>
-                <input matInput [(ngModel)]="state.config.clientId" name="clientId" required>
+                <input matInput [(ngModel)]="state.actualTenant.clientId" name="clientId" required>
               </mat-form-field>
             </div>
 
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Client Secret</mat-label>
-                <input matInput type="password" [(ngModel)]="state.config.clientSecret" name="clientSecret" required>
+                <input matInput type="password" [(ngModel)]="state.actualTenant.clientSecret" name="clientSecret" required>
               </mat-form-field>
             </div>
           </div>
 
           <!-- OAuth Info -->
-          <div *ngIf="state.config.authType === 'oauth'" class="oauth-section">
+          <div *ngIf="state.actualTenant.authType === 'oauth'" class="oauth-section">
             <p class="oauth-info">
               <mat-icon>info</mat-icon>
               OAuth authentication will open your browser for secure login.
             </p>
 
             <!-- OAuth Validation Status -->
-            <div class="oauth-validation" *ngIf="state.config.baseUrl">
+            <div class="oauth-validation" *ngIf="state.actualTenant.apiUrl">
               <div class="validation-indicator" [ngClass]="{
                 'validation-unknown': state.oauthValidationStatus === 'unknown',
                 'validation-testing': state.oauthValidationStatus === 'testing',
@@ -167,7 +167,7 @@
         <div class="auth-method-section">
           <mat-form-field appearance="outline" class="auth-method-select">
             <mat-label>Authentication Method</mat-label>
-            <mat-select [(value)]="state.config.authType">
+            <mat-select [(value)]="state.actualTenant.authType">
               <mat-option value="pat">
                 <mat-icon>vpn_key</mat-icon>
                 Personal Access Token (PAT)
@@ -184,10 +184,10 @@
                     color="primary"
                     (click)="connectToISC()" 
                     class="connect-button"
-                    [disabled]="state.loading">
+                    [disabled]="authenticating">
               <div class="button-content">
-                <mat-icon *ngIf="!state.loading">login</mat-icon>
-                <mat-spinner *ngIf="state.loading" diameter="20" class="button-spinner"></mat-spinner>
+                <mat-icon *ngIf="!authenticating">login</mat-icon>
+                <mat-spinner *ngIf="authenticating" diameter="20" class="button-spinner"></mat-spinner>
                 <span>Connect to Environment</span>
               </div>
             </button>
