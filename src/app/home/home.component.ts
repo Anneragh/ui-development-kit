@@ -45,7 +45,7 @@ type ComponentState = {
   name: string;
   tenants: Tenant[];
   selectedTenant: string;
-  actualTenant?: Tenant;
+  actualTenant: Tenant;
   showEnvironmentDetails: boolean;
   oauthValidationStatus: OAuthValidationStatus;
 }
@@ -86,7 +86,14 @@ export class HomeComponent implements OnInit {
     name: '',
     tenants: [],
     selectedTenant: 'new',
-    actualTenant: undefined,
+    actualTenant: {
+      active: false,
+      apiUrl: '',
+      tenantUrl: '',
+      name: '',
+      authType: 'oauth',
+      tenantName: '',
+    },
     showEnvironmentDetails: false,
     oauthValidationStatus: 'unknown'
   }
@@ -163,6 +170,10 @@ export class HomeComponent implements OnInit {
     }
 
     const actualTenant = this.state.tenants.find(tenant => tenant.name === this.state.selectedTenant);
+    if (!actualTenant) {
+      this.showSnackbar('Selected environment not found');
+      return;
+    }
     this.state.actualTenant = actualTenant;
     console.log(`Selected tenant:`, actualTenant);
 
@@ -401,7 +412,14 @@ export class HomeComponent implements OnInit {
       if (deleteResult.success) {
         // this.showSuccess('Environment deleted successfully!');
         await this.loadTenants();
-        this.state.actualTenant = undefined;
+        this.state.actualTenant = {
+          active: false,
+          apiUrl: '', 
+          tenantUrl: '',
+          name: '',
+          authType: 'oauth',
+          tenantName: '',
+        };
         this.state.selectedTenant = 'new';
         // this.showEnvironmentDetails$.next(false);
         // this.isConnected$.next(false);
