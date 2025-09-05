@@ -156,19 +156,7 @@
       <div *ngIf="state.selectedTenant !== 'new'" class="connection-section">
         <!-- Auth Method Selector -->
         <div class="auth-method-section">
-          <mat-form-field appearance="outline" class="auth-method-select">
-            <mat-label>Authentication Method</mat-label>
-            <mat-select [(value)]="state.actualTenant.authType">
-              <mat-option value="pat">
-                <mat-icon>vpn_key</mat-icon>
-                Personal Access Token (PAT)
-              </mat-option>
-              <mat-option value="oauth">
-                <mat-icon>verified_user</mat-icon>
-                OAuth Browser Authentication
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+
           <!-- Connection Button -->
           <div class="connection-action">
             <button mat-raised-button 
