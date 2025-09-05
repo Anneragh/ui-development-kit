@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConnectionService } from '../services/connection.service';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -79,7 +79,7 @@ type ComponentState = {
     GenericDialogComponent
   ]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
 
   defaultTenant: Tenant = {
@@ -104,6 +104,10 @@ export class HomeComponent implements OnInit {
   }
 
   authenticating = false;
+  oauthPolling = false;
+  oauthUuid: string | null = null;
+  oauthAuthUrl: string | null = null;
+  pollIntervalId: ReturnType<typeof setInterval> | undefined = undefined;
 
   constructor(
     private router: Router,
@@ -121,6 +125,11 @@ export class HomeComponent implements OnInit {
       this.state.name = connection.name || '';
     })
     this.state.loading = false;
+  }
+
+  ngOnDestroy(): void {
+    // Clean up polling when component is destroyed
+    this.stopPolling();
   }
 
 
@@ -214,6 +223,12 @@ export class HomeComponent implements OnInit {
       try {
         const loginResult = await this.electronService.getApi().unifiedLogin(this.state.actualTenant.name);
 
+        // Handle OAuth flow if we get UUID back (new authentication needed)
+        if (loginResult.success && loginResult.uuid) {
+          this.handleOAuthFlowWithData(loginResult.uuid, loginResult.authUrl);
+          return;
+        }
+
         if (loginResult.success) {
           const tokenDetails = await this.electronService.getApi().getCurrentTokenDetails(this.state.actualTenant.name);
           if (tokenDetails.error || !tokenDetails.tokenDetails) {
@@ -249,7 +264,10 @@ export class HomeComponent implements OnInit {
       this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`);
     } finally {
       this.authenticating = false;
-      this.dialog.closeAll();
+      // Only close dialogs if we're not in OAuth polling mode
+      if (!this.oauthPolling) {
+        this.dialog.closeAll();
+      }
     }
   }
 
@@ -442,6 +460,145 @@ export class HomeComponent implements OnInit {
       setTimeout(() => {
         void this.testOAuthConnection();
       }, 1000);
+    }
+  }
+
+  handleOAuthFlowWithData(uuid: string, authUrl?: string): void {
+    try {
+      this.oauthUuid = uuid;
+      this.oauthAuthUrl = authUrl || null;
+      this.oauthPolling = true;
+
+      // Close the initial dialog and show the OAuth dialog
+      this.dialog.closeAll();
+      
+      const dialogRef = this.dialog.open(GenericDialogComponent, {
+        data: {
+          title: 'OAuth Authentication',
+          message: `Please complete authentication in your browser.\n\nAuth ID: ${this.oauthUuid}${this.oauthAuthUrl ? `\n\nIf browser didn't open automatically, visit:\n${this.oauthAuthUrl}` : ''}`,
+          showCancel: true,
+          cancelText: 'Cancel'
+        },
+        disableClose: true
+      });
+
+      // Start polling for completion
+      this.startPolling();
+
+      // Handle dialog close (cancel)
+      dialogRef.afterClosed().subscribe(result => {
+        if (!result && this.oauthPolling) {
+          this.cancelOAuthFlow();
+        }
+      });
+    } catch (error) {
+      console.error('Error starting OAuth flow:', error);
+      this.showSnackbar(`Failed to start OAuth flow: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+
+  startPolling(): void {
+    if (this.pollIntervalId) {
+      clearInterval(this.pollIntervalId);
+    }
+
+    this.pollIntervalId = setInterval(async () => {
+      try {
+        if (!this.oauthUuid || !this.oauthPolling) {
+          this.stopPolling();
+          return;
+        }
+
+        const result = await this.electronService.getApi().checkOauthCodeFlowComplete(
+          this.oauthUuid, 
+          this.state.actualTenant.name
+        );
+
+        if (result.isComplete) {
+          this.stopPolling();
+          
+          if (result.success) {
+            // Authentication successful
+            await this.completeAuthentication();
+          } else {
+            // Authentication failed
+            this.dialog.closeAll();
+            this.showSnackbar(`OAuth authentication failed: ${result.error || 'Unknown error'}`);
+          }
+        }
+      } catch (error) {
+        console.error('Error polling OAuth status:', error);
+        this.stopPolling();
+        this.dialog.closeAll();
+        this.showSnackbar(`Error checking OAuth status: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }, 10000); // Poll every 10 seconds
+
+    // Set a timeout to stop polling after 5 minutes
+    setTimeout(() => {
+      if (this.oauthPolling) {
+        this.stopPolling();
+        this.dialog.closeAll();
+        this.showSnackbar('OAuth authentication timed out after 5 minutes');
+      }
+    }, 5 * 60 * 1000);
+  }
+
+  stopPolling(): void {
+    this.oauthPolling = false;
+    if (this.pollIntervalId) {
+      clearInterval(this.pollIntervalId);
+      this.pollIntervalId = undefined;
+    }
+  }
+
+  cancelOAuthFlow(): void {
+    this.stopPolling();
+    this.oauthUuid = null;
+    this.oauthAuthUrl = null;
+    this.authenticating = false;
+    this.showSnackbar('OAuth authentication cancelled');
+  }
+
+  async completeAuthentication(): Promise<void> {
+    try {
+      const tokenDetails = await this.electronService.getApi().getCurrentTokenDetails(this.state.actualTenant.name);
+      if (tokenDetails.error || !tokenDetails.tokenDetails) {
+        this.dialog.closeAll();
+        this.showSnackbar(`Failed to get token details. Please check your configuration and try again. \n\n${tokenDetails.error}`);
+        return;
+      }
+
+      this.connectionService.sessionStatusSubject$.next({
+        authType: this.state.actualTenant.authType,
+        isValid: true,
+        lastChecked: new Date(),
+        expiry: tokenDetails.tokenDetails.expiry,
+        needsRefresh: false
+      });
+      
+      this.connectionService.connectedSubject$.next({ 
+        connected: true, 
+        name: this.state.actualTenant.name 
+      });
+      
+      this.state.isConnected = true;
+      this.state.name = this.state.actualTenant.name;
+      this.authenticating = false;
+      
+      this.dialog.closeAll();
+      await this.electronService.getApi().setActiveEnvironment(this.state.actualTenant.name);
+      
+      this.showSnackbar('Successfully authenticated!');
+    } catch (error) {
+      console.error('Error completing authentication:', error);
+      this.dialog.closeAll();
+      this.showSnackbar(`Failed to complete authentication: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      this.oauthUuid = null;
+      this.oauthAuthUrl = null;
+      this.authenticating = false;
     }
   }
 

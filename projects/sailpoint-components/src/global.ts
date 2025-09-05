@@ -65,7 +65,7 @@ declare global {
   interface Window {
     electronAPI: {
       // Unified authentication and connection
-      unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
+      unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }>;
       disconnectFromISC: () => Promise<void>;
       checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
       getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
@@ -73,6 +73,7 @@ declare global {
       // Token management
       refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
       validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
+      checkOauthCodeFlowComplete: (uuid: string, environment: string) => Promise<{ isComplete: boolean, success?: boolean, error?: string }>;
 
       // Environment management
       getTenants: () => Promise<Tenant[]>;

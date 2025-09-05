@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Token management
   refreshTokens: (environment: string) => ipcMain.invoke('refresh-tokens', environment),
   validateTokens: (environment: string) => ipcMain.invoke('validate-tokens', environment),
+  checkOauthCodeFlowComplete: (uuid: string, environment: string) => ipcMain.invoke('check-oauth-code-flow-complete', uuid, environment),
 
   // Environment management
   getTenants: () => ipcMain.invoke('get-tenants'),

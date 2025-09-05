@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as url from 'url';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
 import { disconnectFromISC, refreshTokens, unifiedLogin, validateTokens, checkAccessTokenStatus, getCurrentTokenDetails } from './authentication/auth';
+import { checkOauthCodeFlowComplete } from './authentication/oauth';
 import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
 // Global variables
 let win: BrowserWindow | undefined;
@@ -153,6 +154,10 @@ try {
 
   ipcMain.handle('validate-tokens', async (event, environment: string) => {
     return validateTokens(environment);
+  });
+
+  ipcMain.handle('check-oauth-code-flow-complete', async (event, uuid: string, environment: string) => {
+    return checkOauthCodeFlowComplete(uuid, environment);
   });
 
   ipcMain.handle('get-tenants', () => {

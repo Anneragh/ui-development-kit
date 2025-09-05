@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
  */
 export interface ElectronAPIInterface {
   // Unified authentication and connection
-  unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
+  unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }>;
   disconnectFromISC: () => Promise<void>;
   checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
   getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
@@ -14,6 +14,7 @@ export interface ElectronAPIInterface {
   // Token management
   refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
   validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
+  checkOauthCodeFlowComplete: (uuid: string, environment: string) => Promise<{ isComplete: boolean, success?: boolean, error?: string }>;
 
   // Environment management
   getTenants: () => Promise<Tenant[]>;
@@ -144,9 +145,9 @@ export class WebApiService implements ElectronAPIInterface {
   }
 
   // Authentication and Connection methods
-  async unifiedLogin(environment: string): Promise<{ success: boolean, error?: string }> {
+  async unifiedLogin(environment: string): Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }> {
     try {
-      const result = await this.apiCall<{ success: boolean, error?: string }>('auth/login', 'POST', { environment });
+      const result = await this.apiCall<{ success: boolean, error?: string, uuid?: string, authUrl?: string }>('auth/login', 'POST', { environment });
       if (result.success) {
         this.activeEnvironment = environment;
       }
@@ -176,6 +177,10 @@ export class WebApiService implements ElectronAPIInterface {
 
   async validateTokens(environment: string): Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }> {
     return this.apiCall<{ isValid: boolean, needsRefresh: boolean, error?: string }>(`auth/validate-tokens/${environment}`, 'GET');
+  }
+
+  async checkOauthCodeFlowComplete(uuid: string, environment: string): Promise<{ isComplete: boolean, success?: boolean, error?: string }> {
+    return this.apiCall<{ isComplete: boolean, success?: boolean, error?: string }>(`auth/oauth-flow-complete`, 'POST', { uuid, environment });
   }
 
   // Environment Management methods

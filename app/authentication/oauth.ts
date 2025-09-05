@@ -144,9 +144,9 @@ export function validateOAuthTokens(environment: string) {
  * @param tenant - The tenant name
  * @param baseAPIUrl - The base API URL
  * @param environment - The environment name
- * @returns Promise resolving to the token set
+ * @returns Promise resolving to the UUID and auth URL for polling
  */
-export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: string, baseAPIUrl: string, environment: string }): Promise<{ success: boolean, error: string }> => {
+export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: string, baseAPIUrl: string, environment: string }): Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }> => {
     try {
         // Step 1: Get or create RSA key pair and get public key
         const publicKeyBase64 = await getOrCreateKeyPair(environment);
@@ -190,65 +190,71 @@ export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: 
             // Continue with the flow even if browser opening fails
         }
 
-        // Step 4: Poll Auth-Lambda for token using UUID
-        const pollInterval = 2000; // 2 seconds
-        const timeout = 5 * 60 * 1000; // 5 minutes
-        const startTime = Date.now();
-
-        while (Date.now() - startTime < timeout) {
-            try {
-                const tokenResponse = await fetch(`${authLambdaTokenURL}/${authData.id}`);
-
-                if (tokenResponse.ok) {
-                    const tokenData: TokenResponse = await tokenResponse.json();
-
-                    // Step 5: Get the private key for decryption
-                    const privateKey = getSecureValue('environments.oauth.privateKey', environment);
-                    if (!privateKey) {
-                        throw new Error('Private key not found for environment');
-                    }
-
-                    // Step 6: Decrypt the token info using the private key
-                    const decryptedToken = decryptToken(tokenData.tokenInfo, privateKey);
-                    console.log('Decrypted token info');
-
-                    // Validate that we have the required tokens
-                    if (!decryptedToken.access_token) {
-                        console.error('Missing accessToken in response');
-                        return { success: false, error: 'OAuth response missing access token' };
-                    }
-
-                    if (!decryptedToken.refresh_token) {
-                        console.error('Missing refreshToken in response');
-                        return { success: false, error: 'OAuth response missing refresh token' };
-                    }
-
-                    // Step 7: Parse and store the tokens
-                    const accessTokenClaims = parseJwt(decryptedToken.access_token);
-                    const refreshTokenClaims = parseJwt(decryptedToken.refresh_token);
-
-                    const tokenSet = {
-                        accessToken: decryptedToken.access_token,
-                        accessExpiry: new Date(accessTokenClaims.exp * 1000),
-                        refreshToken: decryptedToken.refresh_token,
-                        refreshExpiry: new Date(refreshTokenClaims.exp * 1000),
-                    };
-
-                    storeOAuthTokens(environment, tokenSet);
-                    return { success: true, error: '' };
-                }
-            } catch (err) {
-                console.error('Error polling for token:', err);
-            }
-
-            // We are polling the API every 2 seconds, to continue the exchange after the user has logged in
-            await new Promise(resolve => setTimeout(resolve, pollInterval));
-        }
-
-        return { success: false, error: 'Authentication timed out after 5 minutes' };
+        // Return the UUID and auth URL immediately for the frontend to start polling
+        return { success: true, uuid: authData.id, authUrl: authData.authURL };
     } catch (error) {
         console.error('OAuth login error:', error);
         return { success: false, error: 'OAuth login failed: ' + error };
+    }
+};
+
+/**
+ * Checks if the OAuth code flow is complete for a given UUID
+ * @param uuid - The UUID from the initial OAuth login
+ * @param environment - The environment name
+ * @returns Promise resolving to completion status and token storage result
+ */
+export const checkOauthCodeFlowComplete = async (uuid: string, environment: string): Promise<{ isComplete: boolean, success?: boolean, error?: string }> => {
+    try {
+        const tokenResponse = await fetch(`${authLambdaTokenURL}/${uuid}`);
+
+        if (tokenResponse.ok) {
+            const tokenData: TokenResponse = await tokenResponse.json();
+
+            // Step 5: Get the private key for decryption
+            const privateKey = getSecureValue('environments.oauth.privateKey', environment);
+            if (!privateKey) {
+                throw new Error('Private key not found for environment');
+            }
+
+            // Step 6: Decrypt the token info using the private key
+            const decryptedToken = decryptToken(tokenData.tokenInfo, privateKey);
+            console.log('Decrypted token info');
+
+            // Validate that we have the required tokens
+            if (!decryptedToken.access_token) {
+                console.error('Missing accessToken in response');
+                return { isComplete: true, success: false, error: 'OAuth response missing access token' };
+            }
+
+            if (!decryptedToken.refresh_token) {
+                console.error('Missing refreshToken in response');
+                return { isComplete: true, success: false, error: 'OAuth response missing refresh token' };
+            }
+
+            // Step 7: Parse and store the tokens
+            const accessTokenClaims = parseJwt(decryptedToken.access_token);
+            const refreshTokenClaims = parseJwt(decryptedToken.refresh_token);
+
+            const tokenSet = {
+                accessToken: decryptedToken.access_token,
+                accessExpiry: new Date(accessTokenClaims.exp * 1000),
+                refreshToken: decryptedToken.refresh_token,
+                refreshExpiry: new Date(refreshTokenClaims.exp * 1000),
+            };
+
+            storeOAuthTokens(environment, tokenSet);
+            return { isComplete: true, success: true };
+        } else if (tokenResponse.status === 404 || tokenResponse.status === 400) {
+            // Token not ready yet, continue polling (backend returns 400 when token not found)
+            return { isComplete: false };
+        } else {
+            // Some other error occurred
+            return { isComplete: true, success: false, error: `Token endpoint returned status: ${tokenResponse.status}` };
+        }
+    } catch (error) {
+        console.error('Error checking OAuth code flow completion:', error);
+        return { isComplete: true, success: false, error: `Error checking OAuth completion: ${error}` };
     }
 };
 

@@ -4,7 +4,7 @@ import {
   ConfigurationParameters,
 } from 'sailpoint-api-client';
 import { getConfig, setConfig,  getConfigEnvironment, setActiveEnvironementInConfig} from './config';
-import { getStoredOAuthTokens, OAuthLogin, refreshOAuthToken, validateOAuthTokens } from './oauth';
+import { getStoredOAuthTokens, OAuthLogin, refreshOAuthToken, validateOAuthTokens, checkOauthCodeFlowComplete } from './oauth';
 import { getStoredPATTokens, refreshPATToken, validatePATToken } from './pat';
 import { TokenSet } from './types';
 
@@ -70,7 +70,7 @@ export function parseJwt(token: string): AuthPayload {
  * @param request - The login request
  * @returns Promise resolving to the login result
  */
-export const unifiedLogin = async (environment: string): Promise<{ success: boolean, error?: string }> => {
+export const unifiedLogin = async (environment: string): Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }> => {
 
 
   try {
@@ -223,13 +223,22 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
         });
 
         if (!loginResult.success) {
-
           return {
             success: false,
             error: formatErrorAsString(loginResult.error)
           };
         }
 
+        // Return UUID and authUrl for frontend polling
+        if (loginResult.uuid) {
+          return {
+            success: true,
+            uuid: loginResult.uuid,
+            authUrl: loginResult.authUrl
+          };
+        }
+
+        // Fallback to old behavior (shouldn't happen with new implementation)
         const oauthTokens = getStoredOAuthTokens(environment);
         if (!oauthTokens) {
           return {
