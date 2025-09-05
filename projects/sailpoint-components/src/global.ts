@@ -1,6 +1,6 @@
-import { PATTokenSet } from "src/global";
+import { PATTokenSet } from 'src/global';
 
-export type AuthMethods = "oauth" | "pat";
+export type AuthMethods = 'oauth' | 'pat';
 
 export type UpdateEnvironmentRequest = {
   environmentName: string;
@@ -9,7 +9,8 @@ export type UpdateEnvironmentRequest = {
   authType: AuthMethods;
   clientId?: string;
   clientSecret?: string;
-}
+  openAIApiKey?: string;
+};
 
 export type Tenant = {
   active: boolean;
@@ -18,30 +19,31 @@ export type Tenant = {
   tenantUrl: string;
   clientId?: string;
   clientSecret?: string;
+  openAIApiKey?: string;
   authType: AuthMethods;
   tenantName: string;
-}
+};
 
 export type TokenSet = {
   accessToken: string;
   accessExpiry: Date;
   refreshToken: string;
   refreshExpiry: Date;
-}
+};
 
 export type AccessTokenStatus = {
   authType: AuthMethods;
   accessTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
-}
+};
 
 export type RefreshTokenStatus = {
-  authType: "oauth";
+  authType: 'oauth';
   refreshTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
-}
+};
 
 export type AuthPayload = {
   tenant_id: string;
@@ -66,33 +68,62 @@ declare global {
   interface Window {
     electronAPI: {
       // Unified authentication and connection
-      unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
+      unifiedLogin: (
+        environment: string
+      ) => Promise<{ success: boolean; error?: string }>;
       disconnectFromISC: () => Promise<void>;
-      checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
-      checkRefreshTokenStatus: (environment: string) => Promise<RefreshTokenStatus>;
-      getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
-      
+      checkAccessTokenStatus: (
+        environment: string
+      ) => Promise<AccessTokenStatus>;
+      checkRefreshTokenStatus: (
+        environment: string
+      ) => Promise<RefreshTokenStatus>;
+      getCurrentTokenDetails: (
+        environment: string
+      ) => Promise<{ tokenDetails: TokenDetails | undefined; error?: string }>;
+
       // Token management
-      refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
-      getStoredOAuthTokens: (environment: string) => Promise<TokenSet | undefined>;
-      getStoredPATTokens: (environment: string) => Promise<PATTokenSet | undefined>;
-      validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
-      storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => Promise<void>;
-      
+      refreshTokens: (
+        environment: string
+      ) => Promise<{ success: boolean; error?: string }>;
+      getStoredOAuthTokens: (
+        environment: string
+      ) => Promise<TokenSet | undefined>;
+      getStoredPATTokens: (
+        environment: string
+      ) => Promise<PATTokenSet | undefined>;
+      validateTokens: (
+        environment: string
+      ) => Promise<{ isValid: boolean; needsRefresh: boolean; error?: string }>;
+      storeClientCredentials: (
+        environment: string,
+        clientId: string,
+        clientSecret: string
+      ) => Promise<void>;
+
       // Environment management
       getTenants: () => Promise<Tenant[]>;
-      updateEnvironment: (config: UpdateEnvironmentRequest) => Promise<{ success: boolean, error?: string }>;
-      deleteEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
-      setActiveEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
+      updateEnvironment: (
+        config: UpdateEnvironmentRequest
+      ) => Promise<{ success: boolean; error?: string }>;
+      deleteEnvironment: (
+        environment: string
+      ) => Promise<{ success: boolean; error?: string }>;
+      setActiveEnvironment: (
+        environment: string
+      ) => Promise<{ success: boolean; error?: string }>;
       getGlobalAuthType: () => Promise<AuthMethods>;
       setGlobalAuthType: (authType: AuthMethods) => Promise<void>;
-      
+
       // Config file management
       readConfig: () => Promise<any>;
       writeConfig: (config: any) => Promise<any>;
-    
+
       // Logo file management
-      writeLogo: (buffer: Uint8Array<ArrayBufferLike>, fileName: string) => Promise<any>;
+      writeLogo: (
+        buffer: Uint8Array<ArrayBufferLike>,
+        fileName: string
+      ) => Promise<any>;
       checkLogoExists: (fileName: string) => Promise<any>;
       getUserDataPath: () => Promise<any>;
       getLogoDataUrl: (fileName: string) => Promise<any>;

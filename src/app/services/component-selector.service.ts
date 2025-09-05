@@ -9,7 +9,7 @@ export type ComponentInfo = {
   icon: string;
   description: string;
   enabled: boolean;
-}
+};
 
 @Injectable({
   providedIn: 'root',
@@ -57,8 +57,16 @@ export class ComponentSelectorService {
       route: '/attach-rule',
       icon: 'attachment',
       description: 'Manage attach rule in SailPoint.',
-      enabled: false
-    }
+      enabled: false,
+    },
+    {
+      name: 'certification-management',
+      displayName: 'Certification Management',
+      route: '/certification-management',
+      icon: 'dashboard',
+      description: 'Manage certification in SailPoint.',
+      enabled: false,
+    },
   ];
 
   private enabledComponentsSubject = new BehaviorSubject<ComponentInfo[]>([]);

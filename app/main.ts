@@ -3,10 +3,29 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
-import { disconnectFromISC, getGlobalAuthType, refreshTokens, setGlobalAuthType, unifiedLogin, validateTokens, checkAccessTokenStatus, checkRefreshTokenStatus, getCurrentTokenDetails } from './authentication/auth';
-import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
+import {
+  disconnectFromISC,
+  getGlobalAuthType,
+  refreshTokens,
+  setGlobalAuthType,
+  unifiedLogin,
+  validateTokens,
+  checkAccessTokenStatus,
+  checkRefreshTokenStatus,
+  getCurrentTokenDetails,
+} from './authentication/auth';
+import {
+  deleteEnvironment,
+  getTenants,
+  setActiveEnvironment,
+  updateEnvironment,
+  UpdateEnvironmentRequest,
+} from './authentication/config';
 import { getStoredOAuthTokens } from './authentication/oauth';
-import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
+import {
+  getStoredPATTokens,
+  storeClientCredentials,
+} from './authentication/pat';
 import isDev from 'electron-is-dev';
 import contextMenu from 'electron-context-menu';
 
@@ -151,70 +170,90 @@ try {
     return disconnectFromISC();
   });
 
-  ipcMain.handle('check-access-token-status', async (event, environment: string) => {
-    return checkAccessTokenStatus(environment);
-  });
+  ipcMain.handle(
+    'check-access-token-status',
+    async (event, environment: string) => {
+      return checkAccessTokenStatus(environment);
+    }
+  );
 
-  ipcMain.handle('check-refresh-token-status', async (event, environment: string) => {
-    return checkRefreshTokenStatus(environment);
-  });
+  ipcMain.handle(
+    'check-refresh-token-status',
+    async (event, environment: string) => {
+      return checkRefreshTokenStatus(environment);
+    }
+  );
 
-  ipcMain.handle('get-current-token-details', async (event, environment: string) => {
-    return getCurrentTokenDetails(environment);
-  });
-
-
+  ipcMain.handle(
+    'get-current-token-details',
+    async (event, environment: string) => {
+      return getCurrentTokenDetails(environment);
+    }
+  );
 
   ipcMain.handle('refresh-tokens', async (event, environment: string) => {
     return refreshTokens(environment);
   });
 
-  ipcMain.handle('get-stored-oauth-tokens', async (event, environment: string) => {
-    return getStoredOAuthTokens(environment);
-  });
+  ipcMain.handle(
+    'get-stored-oauth-tokens',
+    async (event, environment: string) => {
+      return getStoredOAuthTokens(environment);
+    }
+  );
 
-  ipcMain.handle('get-stored-pat-tokens', async (event, environment: string) => {
-    return getStoredPATTokens(environment);
-  });
+  ipcMain.handle(
+    'get-stored-pat-tokens',
+    async (event, environment: string) => {
+      return getStoredPATTokens(environment);
+    }
+  );
 
-  ipcMain.handle('store-client-credentials', async (event, environment: string, clientId: string, clientSecret: string) => {
-    return storeClientCredentials(environment, clientId, clientSecret);
-  });
+  ipcMain.handle(
+    'store-client-credentials',
+    async (
+      event,
+      environment: string,
+      clientId: string,
+      clientSecret: string
+    ) => {
+      return storeClientCredentials(environment, clientId, clientSecret);
+    }
+  );
 
   ipcMain.handle('validate-tokens', async (event, environment: string) => {
     return validateTokens(environment);
   });
 
-
   ipcMain.handle('get-tenants', () => {
     return getTenants();
   });
 
-  ipcMain.handle('update-environment', (event, config: UpdateEnvironmentRequest) => {
-    return updateEnvironment(config);
+  ipcMain.handle(
+    'update-environment',
+    (event, config: UpdateEnvironmentRequest) => {
+      return updateEnvironment(config);
+    }
+  );
+
+  ipcMain.handle('delete-environment', (event, environment: string) => {
+    return deleteEnvironment(environment);
   });
 
-  ipcMain.handle(
-    'delete-environment',
-    (event, environment: string) => {
-      return deleteEnvironment(environment);
-    }
-  );
-
-  ipcMain.handle(
-    'set-active-environment',
-    (event, environment: string) => {
-      return setActiveEnvironment(environment);
-    }
-  );
+  ipcMain.handle('set-active-environment', (event, environment: string) => {
+    return setActiveEnvironment(environment);
+  });
 
   ipcMain.handle('get-global-auth-type', async () => {
     return getGlobalAuthType();
   });
 
-  ipcMain.handle('set-global-auth-type', async (event, authType: "oauth" | "pat") => {
-    return setGlobalAuthType(authType);
-  });
+  ipcMain.handle(
+    'set-global-auth-type',
+    async (event, authType: 'oauth' | 'pat') => {
+      return setGlobalAuthType(authType);
+    }
+  );
 
   ipcMain.handle('read-config', async () => {
     try {
@@ -251,7 +290,6 @@ try {
       throw new Error('Failed to write config file');
     }
   });
-
 
   ipcMain.handle('write-logo', async (event, buffer, fileName) => {
     try {
@@ -300,7 +338,6 @@ try {
 
   // Populate SDK handlers
   setupSailPointSDKHandlers();
-
 } catch (e) {
   console.error('Error during app initialization', e);
 }

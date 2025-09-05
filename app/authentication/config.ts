@@ -1,9 +1,15 @@
-import { dialog, safeStorage } from "electron";
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "fs";
-import { dump, load } from "js-yaml";
-import { homedir } from "os";
-import path from "path";
-import { getStoredPATTokens } from "./pat";
+import { dialog, safeStorage } from 'electron';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs';
+import { dump, load } from 'js-yaml';
+import { homedir } from 'os';
+import path from 'path';
+import { getStoredPATTokens } from './pat';
 
 // Global values
 
@@ -19,11 +25,13 @@ export type Tenant = {
   tenantUrl: string;
   clientId: string | null;
   clientSecret: string | null;
-  authType: "oauth" | "pat";
+  openAIApiKey: string | null;
+  authType: 'oauth' | 'pat';
   tenantName: string;
-}
+};
 
 export const getTenants = (): Tenant[] => {
+  console.log('=== getTenants() called ===');
   try {
     const config = getConfig();
 
@@ -40,19 +48,44 @@ export const getTenants = (): Tenant[] => {
         hasClientSecret: !!storedPATTokens?.clientSecret,
         authType: config.authtype,
         clientIdLength: storedPATTokens?.clientId?.length || 0,
-        clientSecretLength: storedPATTokens?.clientSecret?.length || 0
+        clientSecretLength: storedPATTokens?.clientSecret?.length || 0,
       });
 
-      tenants.push({
+      const openAIApiKey = getSecureValue(
+        'environments.openai.apikey',
+        environment
+      );
+
+      console.log(`Loading OpenAI API Key for ${environment}:`, {
+        hasOpenAIApiKey: !!openAIApiKey,
+        openAIApiKeyLength: openAIApiKey?.length || 0,
+        openAIApiKeyPreview: openAIApiKey
+          ? `${openAIApiKey.substring(0, 8)}...`
+          : 'null',
+        rawValue: openAIApiKey, // Show the actual value for debugging
+      });
+
+      const tenant = {
         active: environment === activeEnv,
         name: environment,
         apiUrl: envConfig.baseurl,
         tenantUrl: envConfig.tenanturl,
         clientId: storedPATTokens?.clientId || null,
         clientSecret: storedPATTokens?.clientSecret || null,
+        openAIApiKey: openAIApiKey || null,
         authType: config.authtype,
         tenantName: environment,
+      };
+
+      console.log(`Final tenant object for ${environment}:`, {
+        name: tenant.name,
+        hasOpenAIApiKey: !!tenant.openAIApiKey,
+        openAIApiKeyValue: tenant.openAIApiKey
+          ? `${tenant.openAIApiKey.substring(0, 8)}...`
+          : 'null',
       });
+
+      tenants.push(tenant);
     }
     return tenants;
   } catch (error) {
@@ -63,18 +96,21 @@ export const getTenants = (): Tenant[] => {
 
 // When encryption is not available, we want to make it SUPER clear to the user, and give them a path forward.
 function showEncryptionUnavailableError() {
-  dialog.showErrorBox('Encryption unavailable', `Encryption is not available in your operating system.
+  dialog.showErrorBox(
+    'Encryption unavailable',
+    `Encryption is not available in your operating system.
 
     You can troubleshoot this on your own by reading the documentation here:
     https://www.electronjs.org/docs/latest/api/safe-storage and implementing one of the supported packages for your OS.
             
-    Please submit an issue on GitHub here: https://github.com/sailpoint-oss/ui-development-kit`);
+    Please submit an issue on GitHub here: https://github.com/sailpoint-oss/ui-development-kit`
+  );
 }
 
 // Config functions
 
 export interface CLIConfig {
-  authtype: "oauth" | "pat";
+  authtype: 'oauth' | 'pat';
   activeenvironment: string;
   environments: {
     [key: string]: {
@@ -117,35 +153,32 @@ export interface UpdateEnvironmentRequest {
   authType: 'oauth' | 'pat';
   clientId?: string;
   clientSecret?: string;
+  openAIApiKey?: string;
 }
 // This function will update the environment or create one if it doesn't exist
 export const updateEnvironment = (
-  configureRequest: UpdateEnvironmentRequest,
-): { success: boolean, error?: string } => {
+  configureRequest: UpdateEnvironmentRequest
+): { success: boolean; error?: string } => {
   try {
     let config: CLIConfig;
 
     // Read existing config or create new one
     try {
-
       config = getConfig();
-
     } catch (error) {
-
       // Create new config if file doesn't exist
       config = {
         authtype: 'oauth',
         activeenvironment: '',
-        environments: {}
+        environments: {},
       };
-
     }
 
     // Populate the environments API variables
     config.environments[configureRequest.environmentName] = {
       tenanturl: configureRequest.tenantUrl,
       baseurl: configureRequest.baseUrl,
-    }
+    };
 
     // Set the global auth type
     config.authtype = configureRequest.authType;
@@ -154,17 +187,46 @@ export const updateEnvironment = (
     config.activeenvironment = configureRequest.environmentName;
 
     // Save credentials securely if provided
-    console.log(`Processing credentials for environment: ${configureRequest.environmentName}`, {
-      authType: configureRequest.authType,
-      hasClientId: !!configureRequest.clientId,
-      hasClientSecret: !!configureRequest.clientSecret,
-    });
+    console.log(
+      `Processing credentials for environment: ${configureRequest.environmentName}`,
+      {
+        authType: configureRequest.authType,
+        hasClientId: !!configureRequest.clientId,
+        hasClientSecret: !!configureRequest.clientSecret,
+        hasOpenAIApiKey: !!configureRequest.openAIApiKey,
+      }
+    );
 
     if (configureRequest.clientId && configureRequest.clientSecret) {
       // Save new credentials
-      setSecureValue('environments.pat.clientid', configureRequest.environmentName, configureRequest.clientId);
-      setSecureValue('environments.pat.clientsecret', configureRequest.environmentName, configureRequest.clientSecret);
-      console.log(`PAT credentials saved for environment: ${configureRequest.environmentName}`);
+      setSecureValue(
+        'environments.pat.clientid',
+        configureRequest.environmentName,
+        configureRequest.clientId
+      );
+      setSecureValue(
+        'environments.pat.clientsecret',
+        configureRequest.environmentName,
+        configureRequest.clientSecret
+      );
+      console.log(
+        `PAT credentials saved for environment: ${configureRequest.environmentName}`
+      );
+    }
+
+    if (configureRequest.openAIApiKey) {
+      setSecureValue(
+        'environments.openai.apikey',
+        configureRequest.environmentName,
+        configureRequest.openAIApiKey
+      );
+      console.log(
+        `OpenAI API Key saved for environment: ${configureRequest.environmentName}`
+      );
+    } else {
+      console.log(
+        `No OpenAI API Key provided for environment: ${configureRequest.environmentName}`
+      );
     }
 
     // Write config file
@@ -175,14 +237,12 @@ export const updateEnvironment = (
     console.error('Error creating/updating environment:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
 };
 
-export const deleteEnvironment = (
-  environmentName: string,
-) => {
+export const deleteEnvironment = (environmentName: string) => {
   try {
     const config = getConfig();
 
@@ -190,7 +250,7 @@ export const deleteEnvironment = (
     if (!config.environments[environmentName]) {
       return {
         success: false,
-        error: `Environment '${environmentName}' does not exist`
+        error: `Environment '${environmentName}' does not exist`,
       };
     }
 
@@ -200,7 +260,8 @@ export const deleteEnvironment = (
     // If this was the active environment, clear it or set to another one
     if (config.activeenvironment === environmentName) {
       const remainingEnvs = Object.keys(config.environments);
-      config.activeenvironment = remainingEnvs.length > 0 ? remainingEnvs[0] : '';
+      config.activeenvironment =
+        remainingEnvs.length > 0 ? remainingEnvs[0] : '';
     }
 
     // Delete stored credentials
@@ -223,14 +284,12 @@ export const deleteEnvironment = (
     console.error('Error deleting environment:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
 };
 
-export const setActiveEnvironment = (
-  environmentName: string,
-) => {
+export const setActiveEnvironment = (environmentName: string) => {
   try {
     const config = getConfig();
 
@@ -238,7 +297,7 @@ export const setActiveEnvironment = (
     if (!config.environments[environmentName]) {
       return {
         success: false,
-        error: `Environment '${environmentName}' does not exist`
+        error: `Environment '${environmentName}' does not exist`,
       };
     }
 
@@ -253,7 +312,7 @@ export const setActiveEnvironment = (
     console.error('Error setting active environment:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
 };
@@ -272,7 +331,6 @@ function getSecureDir(): string {
 }
 
 function formatSecureFilename(key: string, environment: string): string {
-
   const safeKey = key.replace(/[^a-zA-Z0-9]/g, '_');
 
   // Create a safe filename by replacing special characters, this is needed since the environment name is whatever the user specified.
@@ -287,20 +345,23 @@ export function buildSecretFilePath(key: string, environment: string): string {
   return path.join(secureDir, filename);
 }
 
-export function getSecureValue(
-  key: string,
-  environment: string,
-): string {
+export function getSecureValue(key: string, environment: string): string {
   try {
     if (!safeStorage.isEncryptionAvailable()) {
-      showEncryptionUnavailableError()
+      showEncryptionUnavailableError();
       throw new Error('Encryption not available');
     }
 
     const filePath = buildSecretFilePath(key, environment);
 
+    console.log(`Getting secure value for ${key} in ${environment}:`, {
+      filePath,
+      fileExists: existsSync(filePath),
+    });
+
     // The value doesnt exist
     if (!existsSync(filePath)) {
+      console.log(`Secure value file does not exist: ${filePath}`);
       return '';
     }
 
@@ -309,6 +370,11 @@ export function getSecureValue(
 
     // Let electron decrypt the data
     let value = safeStorage.decryptString(encryptedData);
+
+    console.log(`Successfully retrieved secure value for ${key}:`, {
+      hasValue: !!value,
+      valueLength: value?.length || 0,
+    });
 
     return value;
   } catch (error) {
@@ -320,30 +386,35 @@ export function getSecureValue(
 export function setSecureValue(
   key: string,
   environment: string,
-  value: string,
+  value: string
 ) {
   try {
     if (!safeStorage.isEncryptionAvailable()) {
-      showEncryptionUnavailableError()
+      showEncryptionUnavailableError();
       throw new Error('Encryption not available');
     }
 
     const filePath = buildSecretFilePath(key, environment);
 
+    console.log(`Setting secure value for ${key} in ${environment}:`, {
+      filePath,
+      valueLength: value?.length || 0,
+      hasValue: !!value,
+    });
+
     // Let electron encrypt the data
     const encryptedData = safeStorage.encryptString(value);
 
     writeFileSync(filePath, encryptedData);
+
+    console.log(`Successfully saved secure value for ${key} to ${filePath}`);
   } catch (error) {
     console.error(`Error setting secure value for ${key}:`, error);
     throw error;
   }
 }
 
-export function deleteSecureValue(
-  key: string,
-  environment: string,
-) {
+export function deleteSecureValue(key: string, environment: string) {
   try {
     const filePath = buildSecretFilePath(key, environment);
 

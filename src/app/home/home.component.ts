@@ -22,8 +22,7 @@ import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/i
 import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 import { ElectronApiFactoryService } from 'sailpoint-components';
 
-
-type AuthMethods = "oauth" | "pat";
+type AuthMethods = 'oauth' | 'pat';
 type OAuthValidationStatus = 'unknown' | 'valid' | 'invalid' | 'testing';
 
 type Tenant = {
@@ -32,10 +31,11 @@ type Tenant = {
   tenantUrl: string;
   clientId?: string;
   clientSecret?: string;
+  openAIApiKey?: string;
   name: string;
   authType: AuthMethods;
   tenantName: string;
-}
+};
 
 type EnvironmentConfig = {
   environmentName: string;
@@ -45,7 +45,8 @@ type EnvironmentConfig = {
   authType: AuthMethods;
   clientId?: string;
   clientSecret?: string;
-}
+  openAIApiKey?: string;
+};
 
 type ComponentState = {
   isConnected: boolean;
@@ -58,7 +59,7 @@ type ComponentState = {
   showEnvironmentDetails: boolean;
   oauthValidationStatus: OAuthValidationStatus;
   config: EnvironmentConfig;
-}
+};
 
 @Component({
   selector: 'app-home',
@@ -83,11 +84,10 @@ type ComponentState = {
     MatRadioModule,
     MatSnackBarModule,
     FormsModule,
-    SharedModule
-  ]
+    SharedModule,
+  ],
 })
 export class HomeComponent implements OnInit {
-
   // State management
   state: ComponentState = {
     isConnected: false,
@@ -103,16 +103,16 @@ export class HomeComponent implements OnInit {
       environmentName: '',
       tenantUrl: '',
       baseUrl: '',
-      authType: 'pat'
-    }
-  }
+      authType: 'pat',
+    },
+  };
 
   constructor(
     private router: Router,
     private connectionService: ConnectionService,
     private snackBar: MatSnackBar,
     private electronService: ElectronApiFactoryService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     void this.initializeComponent();
@@ -120,20 +120,19 @@ export class HomeComponent implements OnInit {
 
   // ===== INITIALIZATION =====
   private async initializeComponent(): Promise<void> {
-    await Promise.all([
-      this.loadTenants(),
-      this.initializeGlobalAuthMethod()
-    ]);
+    await Promise.all([this.loadTenants(), this.initializeGlobalAuthMethod()]);
 
     this.connectionService.connectedSubject$.subscribe((connection) => {
       this.state.isConnected = connection.connected;
       this.state.name = connection.name || '';
-    })
+    });
   }
 
   async initializeGlobalAuthMethod(): Promise<void> {
     try {
-      const authMethod = await this.electronService.getApi().getGlobalAuthType();
+      const authMethod = await this.electronService
+        .getApi()
+        .getGlobalAuthType();
       this.state.globalAuthMethod = authMethod as AuthMethods;
     } catch (error) {
       console.error('Error loading global auth method:', error);
@@ -144,10 +143,12 @@ export class HomeComponent implements OnInit {
   // Tenant Methods:
   async loadTenants(): Promise<void> {
     try {
+      console.log('Loading tenants from backend...');
       const tenants = await this.electronService.getApi().getTenants();
+      console.log('Loaded tenants from backend:', tenants);
       this.state.tenants = tenants;
 
-      const activeTenant = tenants.find(tenant => tenant.active === true);
+      const activeTenant = tenants.find((tenant) => tenant.active === true);
       if (activeTenant) {
         this.state.selectedTenant = activeTenant.name;
         this.state.actualTenant = activeTenant;
@@ -158,8 +159,10 @@ export class HomeComponent implements OnInit {
           baseUrl: activeTenant.tenantUrl,
           authType: activeTenant.authType,
           clientId: activeTenant.clientId || undefined,
-          clientSecret: activeTenant.clientSecret || undefined
+          clientSecret: activeTenant.clientSecret || undefined,
         });
+
+        console.log('activeTenant 1', activeTenant);
 
         await this.refreshCurrentTenantAuthType();
         this.loadEnvironmentForEditing(activeTenant);
@@ -180,7 +183,9 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    const actualTenant = this.state.tenants.find(tenant => tenant.name === this.state.selectedTenant);
+    const actualTenant = this.state.tenants.find(
+      (tenant) => tenant.name === this.state.selectedTenant
+    );
     this.state.actualTenant = actualTenant;
     console.log(`Selected tenant:`, actualTenant);
 
@@ -192,13 +197,15 @@ export class HomeComponent implements OnInit {
   }
 
   async resetConfig(): Promise<void> {
-    const currentAuthType = await this.electronService.getApi().getGlobalAuthType();
+    const currentAuthType = await this.electronService
+      .getApi()
+      .getGlobalAuthType();
 
     const config: EnvironmentConfig = {
       environmentName: '',
       tenantUrl: '',
       baseUrl: '',
-      authType: currentAuthType as AuthMethods
+      authType: currentAuthType as AuthMethods,
     };
 
     this.state.config = config;
@@ -207,14 +214,20 @@ export class HomeComponent implements OnInit {
 
   async refreshCurrentTenantAuthType(): Promise<void> {
     try {
-      const currentAuthType = await this.electronService.getApi().getGlobalAuthType();
+      const currentAuthType = await this.electronService
+        .getApi()
+        .getGlobalAuthType();
 
       if (this.state.actualTenant) {
         this.state.actualTenant.authType = currentAuthType;
-        console.log(`Updated auth type for ${this.state.actualTenant.name}: ${currentAuthType}`);
+        console.log(
+          `Updated auth type for ${this.state.actualTenant.name}: ${currentAuthType}`
+        );
       }
 
-      const tenantIndex = this.state.tenants.findIndex(t => t.name === this.state.selectedTenant);
+      const tenantIndex = this.state.tenants.findIndex(
+        (t) => t.name === this.state.selectedTenant
+      );
       if (tenantIndex !== -1) {
         this.state.tenants[tenantIndex].authType = currentAuthType;
       }
@@ -226,7 +239,9 @@ export class HomeComponent implements OnInit {
   // Session Management
   async connectToISC(): Promise<void> {
     if (this.state.selectedTenant === 'new') {
-      this.showSnackbar('Cannot connect to ISC: Please select an environment or create a new one first');
+      this.showSnackbar(
+        'Cannot connect to ISC: Please select an environment or create a new one first'
+      );
       return;
     }
 
@@ -237,12 +252,19 @@ export class HomeComponent implements OnInit {
 
     this.state.loading = true;
 
-    console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);
+    console.log(
+      'Connecting to:',
+      this.state.actualTenant.name,
+      'at',
+      this.state.actualTenant.apiUrl
+    );
     console.log('Authentication type:', this.state.actualTenant.authType);
 
     try {
-      console.log("Validating tokens");
-      const tokenStatus = await this.electronService.getApi().validateTokens(this.state.actualTenant.name);
+      console.log('Validating tokens');
+      const tokenStatus = await this.electronService
+        .getApi()
+        .validateTokens(this.state.actualTenant.name);
 
       console.log('tokenStatus', tokenStatus);
 
@@ -253,12 +275,18 @@ export class HomeComponent implements OnInit {
       }
 
       try {
-        const loginResult = await this.electronService.getApi().unifiedLogin(this.state.actualTenant.name);
+        const loginResult = await this.electronService
+          .getApi()
+          .unifiedLogin(this.state.actualTenant.name);
 
         if (loginResult.success) {
-          const tokenDetails = await this.electronService.getApi().getCurrentTokenDetails(this.state.actualTenant.name);
+          const tokenDetails = await this.electronService
+            .getApi()
+            .getCurrentTokenDetails(this.state.actualTenant.name);
           if (tokenDetails.error || !tokenDetails.tokenDetails) {
-            this.showSnackbar(`Failed to get token details. Please check your configuration and try again. \n\n${tokenDetails.error}`);
+            this.showSnackbar(
+              `Failed to get token details. Please check your configuration and try again. \n\n${tokenDetails.error}`
+            );
             return;
           }
 
@@ -267,25 +295,36 @@ export class HomeComponent implements OnInit {
             isValid: tokenStatus.isValid,
             lastChecked: new Date(),
             expiry: tokenDetails.tokenDetails.expiry,
-            needsRefresh: tokenStatus.needsRefresh
+            needsRefresh: tokenStatus.needsRefresh,
           });
-          this.connectionService.connectedSubject$.next({ connected: true, name: this.state.actualTenant.name });
+          this.connectionService.connectedSubject$.next({
+            connected: true,
+            name: this.state.actualTenant.name,
+          });
           this.state.isConnected = true;
           this.state.name = this.state.actualTenant.name;
 
           this.state.loading = false;
         } else {
-          this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${loginResult.error}`);
+          this.showSnackbar(
+            `Failed to connect to the environment. Please check your configuration and try again. \n\n${loginResult.error}`
+          );
         }
       } catch (error) {
         console.error('Unified login failed:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        this.showSnackbar(
+          `Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`
+        );
       }
     } catch (error) {
       console.error('Error connecting to ISC:', error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      this.showSnackbar(`Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.showSnackbar(
+        `Failed to connect to the environment. Please check your configuration and try again. \n\n${errorMessage}`
+      );
     } finally {
       this.state.loading = false;
     }
@@ -309,7 +348,7 @@ export class HomeComponent implements OnInit {
       const oauthInfoUrl = `${this.state.config.baseUrl}/oauth/info`;
       const response = await fetch(oauthInfoUrl, {
         method: 'GET',
-        headers: { 'Accept': 'application/json' }
+        headers: { Accept: 'application/json' },
       });
 
       if (response.ok) {
@@ -319,15 +358,31 @@ export class HomeComponent implements OnInit {
         return { error: undefined };
       } else {
         this.state.oauthValidationStatus = 'invalid';
-        console.error('OAuth endpoint validation failed:', response.status, response.statusText);
-        this.showSnackbar(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`);
-        return { error: new Error(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`) };
+        console.error(
+          'OAuth endpoint validation failed:',
+          response.status,
+          response.statusText
+        );
+        this.showSnackbar(
+          `Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`
+        );
+        return {
+          error: new Error(
+            `Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`
+          ),
+        };
       }
     } catch (error) {
       console.error('OAuth endpoint validation error:', error);
       this.state.oauthValidationStatus = 'invalid';
-      this.showSnackbar(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`);
-      return { error: new Error(`Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`) };
+      this.showSnackbar(
+        `Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`
+      );
+      return {
+        error: new Error(
+          `Failed to reach OAuth endpoint.\n\nPlease check your API base URL: ${this.state.config.baseUrl}`
+        ),
+      };
     }
   }
 
@@ -339,7 +394,10 @@ export class HomeComponent implements OnInit {
       return false;
     }
 
-    if (this.state.selectedTenant === 'new' && !this.state.config.tempTenantName?.trim()) {
+    if (
+      this.state.selectedTenant === 'new' &&
+      !this.state.config.tempTenantName?.trim()
+    ) {
       this.showSnackbar('Tenant name is required to generate URLs');
       return false;
     }
@@ -388,7 +446,8 @@ export class HomeComponent implements OnInit {
       baseUrl: tenant.apiUrl,
       authType: tenant.authType,
       clientId: tenant.clientId || undefined,
-      clientSecret: tenant.clientSecret || undefined
+      clientSecret: tenant.clientSecret || undefined,
+      openAIApiKey: tenant.openAIApiKey || undefined,
     };
 
     this.state.config = config;
@@ -403,9 +462,13 @@ export class HomeComponent implements OnInit {
 
   async setActiveEnvironment(environmentName: string): Promise<void> {
     try {
-      const result = await this.electronService.getApi().setActiveEnvironment(environmentName);
+      const result = await this.electronService
+        .getApi()
+        .setActiveEnvironment(environmentName);
       if (result.success) {
-        console.log(`Successfully set ${environmentName} as active environment`);
+        console.log(
+          `Successfully set ${environmentName} as active environment`
+        );
       } else {
         console.error('Failed to set active environment:', result.error);
         this.showSnackbar('Failed to set active environment');
@@ -424,25 +487,48 @@ export class HomeComponent implements OnInit {
     try {
       const clientId = this.state.config.clientId?.trim() || undefined;
       const clientSecret = this.state.config.clientSecret?.trim() || undefined;
+      const openAIApiKey = this.state.config.openAIApiKey?.trim() || undefined;
 
       console.log('Saving environment with credentials:', {
         environmentName: this.state.config.environmentName,
         authType: this.state.config.authType,
         hasClientId: !!clientId,
-        hasClientSecret: !!clientSecret
+        hasClientSecret: !!clientSecret,
+        hasOpenAIApiKey: !!openAIApiKey,
       });
 
-      const result = await this.electronService.getApi().updateEnvironment({
+      const updateRequest = {
         environmentName: this.state.config.environmentName,
         tenantUrl: this.state.config.tenantUrl,
         baseUrl: this.state.config.baseUrl,
         authType: this.state.config.authType as 'oauth' | 'pat',
         clientId: clientId,
         clientSecret: clientSecret,
+        openAIApiKey: openAIApiKey,
+      };
+
+      console.log('Sending updateEnvironment request:', {
+        ...updateRequest,
+        clientId: clientId ? `${clientId.substring(0, 8)}...` : 'null',
+        clientSecret: clientSecret
+          ? `${clientSecret.substring(0, 8)}...`
+          : 'null',
+        openAIApiKey: openAIApiKey
+          ? `${openAIApiKey.substring(0, 8)}...`
+          : 'null',
       });
 
+      const result = await (
+        this.electronService.getApi() as any
+      ).updateEnvironment(updateRequest);
+
       if (result.success) {
-        this.showSnackbar(this.state.selectedTenant === 'new' ? 'Environment created successfully!' : 'Environment updated successfully!');
+        this.showSnackbar(
+          this.state.selectedTenant === 'new'
+            ? 'Environment created successfully!'
+            : 'Environment updated successfully!'
+        );
+        console.log('Environment saved successfully, reloading tenants...');
         await this.loadTenants();
 
         if (this.state.config.authType === 'oauth') {
@@ -466,7 +552,9 @@ export class HomeComponent implements OnInit {
     }
 
     try {
-      const deleteResult = await this.electronService.getApi().deleteEnvironment(this.state.actualTenant.name);
+      const deleteResult = await this.electronService
+        .getApi()
+        .deleteEnvironment(this.state.actualTenant.name);
       if (deleteResult.success) {
         // this.showSuccess('Environment deleted successfully!');
         await this.loadTenants();
@@ -489,8 +577,13 @@ export class HomeComponent implements OnInit {
 
   async onGlobalAuthMethodChange(): Promise<void> {
     try {
-      await this.electronService.getApi().setGlobalAuthType(this.state.globalAuthMethod);
-      console.log('Global auth method updated to:', this.state.globalAuthMethod);
+      await this.electronService
+        .getApi()
+        .setGlobalAuthType(this.state.globalAuthMethod);
+      console.log(
+        'Global auth method updated to:',
+        this.state.globalAuthMethod
+      );
 
       // Update the config to match the new global auth method
       this.state.config.authType = this.state.globalAuthMethod;
@@ -508,7 +601,7 @@ export class HomeComponent implements OnInit {
   async onConfigAuthTypeChange(): Promise<void> {
     console.log('Config auth type changed to:', this.state.config.authType);
 
-    // Update global auth method to match config auth type  
+    // Update global auth method to match config auth type
     this.state.globalAuthMethod = this.state.config.authType;
 
     // Update actual tenant auth type if it exists
@@ -518,7 +611,9 @@ export class HomeComponent implements OnInit {
 
     // Update the global auth type in the backend
     try {
-      await this.electronService.getApi().setGlobalAuthType(this.state.config.authType);
+      await this.electronService
+        .getApi()
+        .setGlobalAuthType(this.state.config.authType);
     } catch (error) {
       console.error('Error updating global auth method:', error);
     }
@@ -534,7 +629,10 @@ export class HomeComponent implements OnInit {
   }
 
   onTenantNameChange(): void {
-    if (this.state.selectedTenant === 'new' && this.state.config.tempTenantName) {
+    if (
+      this.state.selectedTenant === 'new' &&
+      this.state.config.tempTenantName
+    ) {
       this.state.config.tenantUrl = `https://${this.state.config.tempTenantName}.identitynow.com`;
       this.state.config.baseUrl = `https://${this.state.config.tempTenantName}.api.identitynow.com`;
 
@@ -558,7 +656,7 @@ export class HomeComponent implements OnInit {
 
   showSnackbar(message: string): void {
     this.snackBar.open(message, 'Close', {
-      duration: 3000
+      duration: 3000,
     });
   }
 }
