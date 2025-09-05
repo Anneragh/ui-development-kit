@@ -139,6 +139,7 @@
         Report Example
       </a>
       <a
+        *ngIf="isComponentEnabled('component-selector')"
         mat-list-item
         class="sidebar-link"
         routerLink="/component-selector"
@@ -159,7 +160,13 @@
         (click)="onNavItemClick($event)"
       >
         <mat-icon class="card-icon">rate_review</mat-icon>
-          Certification Management
+        Certification Management
+      </a>
+      <!-- Accounts -->
+      <a *ngIf="isComponentEnabled('accounts')" mat-list-item class="sidebar-link" routerLink="/accounts" routerLinkActive="active-link"
+        [class.disabled]="!isConnected" (click)="onNavItemClick($event)">
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Accounts
       </a>
 
     </mat-nav-list>

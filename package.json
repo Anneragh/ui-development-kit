@@ -1,6 +1,6 @@
 {
   "name": "sailpoint-ui-development-kit",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "description": "SailPoint UI development kit",
   "homepage": "https://sailpoint.com",
   "author": {
@@ -38,6 +38,7 @@
     "build:dev": "npm run build -- -c dev",
     "build:prod": "npm run build:components && npm run build -- -c production",
     "build:sdk": "node scripts/build-sailpoint-sdk.js",
+    "build:publish": "npm run build:prod && npm run electron:build",
     "web:build": "npm run build -- -c web-production",
     "electron": "electron",
     "electron:tsc": "tsc -p tsconfig.serve.json",

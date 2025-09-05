@@ -36,7 +36,7 @@ const componentDisplayName = componentName
 // Define paths
 const projectRoot = path.resolve(__dirname, '..');
 const componentDir = path.join(projectRoot, 'projects', 'sailpoint-components', 'src', 'lib', componentNameKebab);
-const serviceFile = path.join(projectRoot, 'src', 'app', 'services', 'component-selector.service.ts');
+const serviceFile = path.join(projectRoot, 'projects', 'sailpoint-components', 'src', 'lib', 'services', 'config.service.ts');
 const routesFile = path.join(projectRoot, 'src', 'app', 'app.routes.ts');
 const appComponentFile = path.join(projectRoot, 'src', 'app', 'app.component.html');
 

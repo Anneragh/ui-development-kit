@@ -1,63 +1,43 @@
 import { dialog, shell } from "electron";
 import { getTokenDetails, parseJwt } from "./auth";
 import { getConfig, getSecureValue, setSecureValue } from "./config";
-import { LambdaUUIDResponse, RefreshResponse, TokenResponse, TokenSet } from "./types";
+import { LambdaUUIDResponse, RefreshResponse, TokenResponse, TokenSet, EncryptedTokenData } from "./types";
+import { generateKeyPair, decryptToken } from "./crypto";
 
 const AuthLambdaBaseURL = 'https://nug87yusrg.execute-api.us-east-1.amazonaws.com/Prod/sailapps'
-const authLambdaUUIDURL = `${AuthLambdaBaseURL}/uuid`
-const authLambdaRefreshURL = `${AuthLambdaBaseURL}/refresh`
+const authLambdaAuthURL = `${AuthLambdaBaseURL}/auth`
+const authLambdaTokenURL = `${AuthLambdaBaseURL}/auth/token`
+const authLambdaRefreshURL = `${AuthLambdaBaseURL}/auth/refresh`
 
 
-// The token decrypt function for the second half of the OAuth lambda flow
-async function decryptTokenInfo(encryptedToken: string, encryptionKey: string): Promise<string> {
+/**
+ * Retrieves and securely stores RSA key pair for OAuth authentication
+ * @param environment - The environment name to store keys for
+ * @returns Promise resolving to the public key in Base64 format
+ */
+async function getOrCreateKeyPair(environment: string): Promise<string> {
     try {
-        // Split the IV and encrypted data
-        const parts = encryptedToken.split(':');
-        if (parts.length !== 2) {
-            throw new Error('invalid encrypted token format');
+        // Try to retrieve existing keys
+        const privateKey = getSecureValue('environments.oauth.privateKey', environment);
+        const publicKey = getSecureValue('environments.oauth.publicKey', environment);
+        
+        // If we have both keys, return the public key
+        if (privateKey && publicKey) {
+            console.log('Using existing RSA keys for environment:', environment);
+            return publicKey;
         }
-
-        // Convert hex-encoded IV and encrypted data to Buffer
-        const iv = Buffer.from(parts[0], 'hex');
-        const encryptedData = Buffer.from(parts[1], 'hex');
-
-        // Convert hex-encoded encryption key to Buffer
-        const key = Buffer.from(encryptionKey, 'hex');
-
-        // Create decipher
-        const crypto = require('crypto');
-        const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-        decipher.setAutoPadding(false); // We'll handle padding manually
-
-        // Decrypt the data
-        let decrypted = Buffer.concat([
-            decipher.update(encryptedData),
-            decipher.final()
-        ]);
-
-        // Remove PKCS7 padding
-        if (decrypted.length > 0) {
-            const paddingLen = decrypted[decrypted.length - 1];
-            // PKCS7 padding: padding length should be between 1 and block size (16 for AES)
-            if (paddingLen > 0 && paddingLen <= 16 && paddingLen <= decrypted.length) {
-                // Verify all padding bytes are the same
-                let validPadding = true;
-                for (let i = decrypted.length - paddingLen; i < decrypted.length; i++) {
-                    if (decrypted[i] !== paddingLen) {
-                        validPadding = false;
-                        break;
-                    }
-                }
-
-                if (validPadding) {
-                    decrypted = decrypted.subarray(0, decrypted.length - paddingLen);
-                }
-            }
-        }
-
-        return decrypted.toString('utf8');
+        
+        // Otherwise generate new keys
+        console.log('Generating new RSA keys for environment:', environment);
+        const keyPair = generateKeyPair(2048);
+        
+        // Store the keys securely
+        setSecureValue('environments.oauth.privateKey', environment, keyPair.privateKey);
+        setSecureValue('environments.oauth.publicKey', environment, keyPair.publicKeyBase64);
+        
+        return keyPair.publicKeyBase64;
     } catch (error) {
-        console.error('Decryption error:', error);
+        console.error('Error getting or creating key pair:', error);
         throw error;
     }
 }
@@ -168,79 +148,89 @@ export function validateOAuthTokens(environment: string) {
  */
 export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: string, baseAPIUrl: string, environment: string }): Promise<{ success: boolean, error: string }> => {
     try {
-        // Step 1: Request UUID, encryption key, and Auth URL from Auth-Lambda
-        const response = await fetch(authLambdaUUIDURL, {
+        // Step 1: Get or create RSA key pair and get public key
+        const publicKeyBase64 = await getOrCreateKeyPair(environment);
+        
+        // Step 2: Initiate authentication flow with the public key
+        const authResponse = await fetch(authLambdaAuthURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ tenant, apiBaseURL: baseAPIUrl }),
+            body: JSON.stringify({
+                tenant,
+                apiBaseURL: baseAPIUrl,
+                publicKey: publicKeyBase64
+            }),
         });
 
-        if (!response.ok) {
-            throw new Error(`Auth lambda returned non-200 status: ${response.status}`);
+        if (!authResponse.ok) {
+            throw new Error(`Auth lambda returned non-200 status: ${authResponse.status}`);
         }
 
-        const authResponse: LambdaUUIDResponse = await response.json();
-        console.log('Auth Response:', authResponse);
+        const authData: LambdaUUIDResponse = await authResponse.json();
+        console.log('Auth Response:', authData);
 
-        // Step 2: Present Auth URL to user
+        // Step 3: Present Auth URL to user
         console.log('Attempting to open browser for authentication');
         try {
             // Using Electron's shell.openExternal to open the browser
-            await shell.openExternal(authResponse.authURL);
+            await shell.openExternal(authData.authURL);
             console.log('Successfully opened OAuth URL in default browser');
 
         } catch (err) {
             dialog.showMessageBox({
                 title: 'OAuth Login',
                 message: 'Please manually open the OAuth login page below',
-                detail: authResponse.authURL,
+                detail: authData.authURL,
                 buttons: ['OK']
             });
             console.warn('Cannot open browser automatically. Please manually open OAuth login page below');
-            console.log('OAuth URL:', authResponse.authURL);
+            console.log('OAuth URL:', authData.authURL);
             // Continue with the flow even if browser opening fails
         }
 
-        // Step 3: Poll Auth-Lambda for token using UUID
+        // Step 4: Poll Auth-Lambda for token using UUID
         const pollInterval = 2000; // 2 seconds
         const timeout = 5 * 60 * 1000; // 5 minutes
         const startTime = Date.now();
 
         while (Date.now() - startTime < timeout) {
             try {
-                const tokenResponse = await fetch(`${authLambdaUUIDURL}/${authResponse.id}`);
+                const tokenResponse = await fetch(`${authLambdaTokenURL}/${authData.id}`);
 
                 if (tokenResponse.ok) {
                     const tokenData: TokenResponse = await tokenResponse.json();
 
-                    // Step 4:Decrypt the token info using the encryption key
-                    const decryptedTokenInfo = await decryptTokenInfo(tokenData.tokenInfo, authResponse.encryptionKey);
-                    console.log('Decrypted token info:', decryptedTokenInfo);
+                    // Step 5: Get the private key for decryption
+                    const privateKey = getSecureValue('environments.oauth.privateKey', environment);
+                    if (!privateKey) {
+                        throw new Error('Private key not found for environment');
+                    }
 
-                    const response: RefreshResponse = JSON.parse(decryptedTokenInfo);
-                    console.log('Parsed response:', response);
+                    // Step 6: Decrypt the token info using the private key
+                    const decryptedToken = decryptToken(tokenData.tokenInfo, privateKey);
+                    console.log('Decrypted token info');
 
                     // Validate that we have the required tokens
-                    if (!response.access_token) {
+                    if (!decryptedToken.access_token) {
                         console.error('Missing accessToken in response');
                         return { success: false, error: 'OAuth response missing access token' };
                     }
 
-                    if (!response.refresh_token) {
+                    if (!decryptedToken.refresh_token) {
                         console.error('Missing refreshToken in response');
                         return { success: false, error: 'OAuth response missing refresh token' };
                     }
 
-                    // Step 5: Parse and store the tokens
-                    const accessTokenClaims = parseJwt(response.access_token);
-                    const refreshTokenClaims = parseJwt(response.refresh_token);
+                    // Step 7: Parse and store the tokens
+                    const accessTokenClaims = parseJwt(decryptedToken.access_token);
+                    const refreshTokenClaims = parseJwt(decryptedToken.refresh_token);
 
                     const tokenSet = {
-                        accessToken: response.access_token,
+                        accessToken: decryptedToken.access_token,
                         accessExpiry: new Date(accessTokenClaims.exp * 1000),
-                        refreshToken: response.refresh_token,
+                        refreshToken: decryptedToken.refresh_token,
                         refreshExpiry: new Date(refreshTokenClaims.exp * 1000),
                     };
 
@@ -265,7 +255,6 @@ export const OAuthLogin = async ({ tenant, baseAPIUrl, environment }: { tenant: 
 /**
  * Refreshes OAuth tokens for a given environment using the provided refresh token
  * @param environment - The environment name to refresh tokens for
- * @param refreshToken - The refresh token to use for obtaining new tokens
  * @returns Promise resolving to the new token set
  */
 export const refreshOAuthToken = async (environment: string): Promise<void> => {
@@ -284,13 +273,14 @@ export const refreshOAuthToken = async (environment: string): Promise<void> => {
             throw new Error('No stored OAuth tokens found for environment');
         }
 
-        const apiUrl = envConfig.baseurl;;
+        const apiUrl = envConfig.baseurl;
+        const tenant = envConfig.tenanturl;
 
         // Prepare the refresh request body
         const refreshRequestBody = {
             refreshToken: storedTokens.refreshToken,
             apiBaseURL: apiUrl,
-            tenant: environment
+            tenant: tenant || environment
         };
 
         const response = await fetch(authLambdaRefreshURL, {

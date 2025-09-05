@@ -373,7 +373,7 @@ export class WebApiService implements ElectronAPIInterface {
   ): Promise<any> {
     const formData = new FormData();
     // Convert buffer to Blob
-    const blob = new Blob([buffer], { type: this.selectedLogoFile.type });
+    const blob = new Blob([buffer], { type: 'application/octet-stream' });
 
     formData.append('logo', blob, fileName);
 

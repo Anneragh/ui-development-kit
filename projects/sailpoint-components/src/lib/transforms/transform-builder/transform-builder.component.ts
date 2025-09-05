@@ -84,7 +84,7 @@ import {
 } from 'sailpoint-api-client';
 import { GenericDialogComponent } from '../../generic-dialog/generic-dialog.component';
 import { SailPointSDKService } from '../../sailpoint-sdk.service';
-import { ThemeService } from '../../theme/theme.service';
+import { ConfigService } from '../../services/config.service';
 import { VelocityEditorDialogComponent } from '../../velocity-editor-dialog/velocity-editor-dialog.component';
 import { AutoSaveService } from '../transform-builder/utils/autosave.service'; // Adjust path as needed
 import {
@@ -629,7 +629,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
     private sdk: SailPointSDKService,
     private autoSaveService: AutoSaveService,
     private snackBar: MatSnackBar,
-    private theme: ThemeService,
+    private configService: ConfigService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -847,7 +847,7 @@ export class TransformBuilderComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    this.themeSub = this.theme.isDark$.subscribe((dark) => {
+    this.themeSub = this.configService.isDark$.subscribe((dark) => {
       this.isDarkTheme = dark;
       this.showDesigner = false;
       setTimeout(() => {

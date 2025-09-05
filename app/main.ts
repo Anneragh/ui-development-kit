@@ -28,17 +28,6 @@ import {
 } from './authentication/pat';
 import isDev from 'electron-is-dev';
 import contextMenu from 'electron-context-menu';
-
-if (isDev) {
-  console.log('Running in development mode...');
-}
-
-contextMenu({
-  showSearchWithGoogle: true,
-  showCopyImage: true,
-  showCopyLink: true,
-});
-
 // Global variables
 let win: BrowserWindow | undefined;
 
@@ -262,12 +251,58 @@ try {
         const configData = fs.readFileSync(configPath, 'utf-8');
         return JSON.parse(configData);
       } else {
-        const defaultConfig = {
-          components: {
-            enabled: [],
-          },
-          version: '1.0.0',
-        };
+        let defaultConfig;
+        const appConfigPath = path.join(
+          process.resourcesPath,
+          'assets/config.json'
+        );
+
+        try {
+          if (fs.existsSync(appConfigPath)) {
+            const appConfigData = fs.readFileSync(appConfigPath, 'utf-8');
+            defaultConfig = JSON.parse(appConfigData);
+            console.log('Using config from app resources:', appConfigPath);
+          } else {
+            // Default configuration with components and themes
+            defaultConfig = {
+              components: {
+                enabled: ['component-selector'],
+              },
+              themes: {
+                light: {
+                  primary: '#0071ce',
+                  secondary: '#6c63ff',
+                  primaryText: '#415364',
+                  secondaryText: '#415364',
+                  hoverText: '#ffffff',
+                  background: '#ffffff',
+                  logo: 'assets/icons/logo.png',
+                },
+                dark: {
+                  primary: '#54c0e8',
+                  secondary: '#f48fb1',
+                  primaryText: '#ffffff',
+                  secondaryText: '#cccccc',
+                  hoverText: '#54c0e8',
+                  background: '#151316',
+                  logo: 'assets/icons/logo-dark.png',
+                },
+              },
+              currentTheme: 'light',
+              version: '1.0.0',
+            };
+            console.log('Using hardcoded default config');
+          }
+        } catch (configError) {
+          console.error('Error reading app config:', configError);
+          // Fallback default configuration
+          defaultConfig = {
+            components: {
+              enabled: ['component-selector'],
+            },
+            version: '1.0.0',
+          };
+        }
 
         ensureConfigDir();
         fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
@@ -282,6 +317,7 @@ try {
   ipcMain.handle('write-config', async (event, config) => {
     try {
       const configPath = getConfigPath();
+      console.log('Writing config to:', configPath);
       ensureConfigDir();
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
       return { success: true };

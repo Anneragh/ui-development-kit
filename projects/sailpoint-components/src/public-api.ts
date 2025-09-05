@@ -11,7 +11,6 @@ export * from './lib/sailpoint-components.component';
 export * from './lib/sailpoint-components.service';
 export * from './lib/sailpoint-sdk.service';
 export * from './lib/theme-picker/theme-picker.component';
-export * from './lib/theme/theme.service';
 
 // Services
 export * from './lib/services';
@@ -20,3 +19,4 @@ export * from './lib/transforms/transforms.component';
 export * from './lib/attach-rule/attach-rule.component';
 
 export * from './lib/certification-management/certification-management.component';
+export * from './lib/accounts/accounts.component';
