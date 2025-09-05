@@ -1,4 +1,3 @@
-import { PATTokenSet } from "src/global";
 
 export type AuthMethods = "oauth" | "pat";
 
@@ -69,16 +68,12 @@ declare global {
       unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
       disconnectFromISC: () => Promise<void>;
       checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
-      checkRefreshTokenStatus: (environment: string) => Promise<RefreshTokenStatus>;
       getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
       
       // Token management
       refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
-      getStoredOAuthTokens: (environment: string) => Promise<TokenSet | undefined>;
-      getStoredPATTokens: (environment: string) => Promise<PATTokenSet | undefined>;
       validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
-      storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => Promise<void>;
-      
+
       // Environment management
       getTenants: () => Promise<Tenant[]>;
       updateEnvironment: (config: UpdateEnvironmentRequest) => Promise<{ success: boolean, error?: string }>;

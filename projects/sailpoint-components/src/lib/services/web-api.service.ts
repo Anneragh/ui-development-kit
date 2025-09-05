@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { PATTokenSet } from 'src/global';
 
 /**
  * Interface that defines all the methods used from window.electronAPI
@@ -10,16 +9,12 @@ export interface ElectronAPIInterface {
   unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string }>;
   disconnectFromISC: () => Promise<void>;
   checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
-  checkRefreshTokenStatus: (environment: string) => Promise<RefreshTokenStatus>;
   getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
   
   // Token management
   refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
-  getStoredOAuthTokens: (environment: string) => Promise<TokenSet | undefined>;
-  getStoredPATTokens: (environment: string) => Promise< PATTokenSet| undefined>;
   validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
-  storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => Promise<void>;
-  
+
   // Environment management
   getTenants: () => Promise<Tenant[]>;
   updateEnvironment: (config: UpdateEnvironmentRequest) => Promise<{ success: boolean, error?: string }>;
@@ -170,10 +165,6 @@ export class WebApiService implements ElectronAPIInterface {
     return this.apiCall<AccessTokenStatus>(`auth/status/access/${environment}`, 'GET');
   }
 
-  async checkRefreshTokenStatus(environment: string): Promise<RefreshTokenStatus> {
-    return this.apiCall<RefreshTokenStatus>(`auth/status/refresh/${environment}`, 'GET');
-  }
-
   async getCurrentTokenDetails(environment: string): Promise<{ tokenDetails: TokenDetails | undefined, error?: string }> {
     return this.apiCall<{ tokenDetails: TokenDetails | undefined, error?: string }>(`auth/token-details/${environment}`, 'GET');
   }
@@ -183,37 +174,8 @@ export class WebApiService implements ElectronAPIInterface {
     return this.apiCall<{ success: boolean, error?: string }>(`auth/refresh`, 'POST', { environment });
   }
 
-  async getStoredOAuthTokens(environment: string): Promise<TokenSet | undefined> {
-    try {
-      return await this.apiCall<TokenSet | undefined>(`auth/oauth-tokens/${environment}`, 'GET');
-    } catch (error) {
-      console.error('Error getting OAuth tokens:', error);
-      return undefined;
-    }
-  }
-
-  async getStoredPATTokens(environment: string): Promise<PATTokenSet | undefined> {
-    try {
-      const result = await this.apiCall<PATTokenSet>(`auth/pat-tokens/${environment}`, 'GET');
-      if (result) {
-        // Convert string dates to Date objects
-        result.accessExpiry = new Date(result.accessExpiry);
-
-        return result;
-      }
-      return undefined;
-    } catch (error) {
-      console.error('Error getting PAT tokens:', error);
-      return undefined;
-    }
-  }
-
   async validateTokens(environment: string): Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }> {
     return this.apiCall<{ isValid: boolean, needsRefresh: boolean, error?: string }>(`auth/validate-tokens/${environment}`, 'GET');
-  }
-
-  async storeClientCredentials(environment: string, clientId: string, clientSecret: string): Promise<void> {
-    await this.apiCall('auth/store-credentials', 'POST', { environment, clientId, clientSecret });
   }
 
   // Environment Management methods

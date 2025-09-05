@@ -530,58 +530,6 @@ export async function checkAccessTokenStatus(environment: string): Promise<Acces
   }
 };
 
-/**
- * Checks the refresh token status for a given environment
- * @param environment - The environment name to check refresh token status for
- * @returns Refresh token status information
- */
-export function checkRefreshTokenStatus(environment: string): RefreshTokenStatus {
-  try {
-    const storedTokens = getStoredOAuthTokens(environment);
-
-    if (!storedTokens) {
-      return {
-        refreshTokenIsValid: false,
-        authType: 'oauth',
-        needsRefresh: false
-      };
-    }
-
-    if (!storedTokens.refreshToken) {
-      return {
-        refreshTokenIsValid: false,
-        authType: 'oauth',
-        needsRefresh: false
-      };
-    }
-
-    const parsedToken = parseJwt(storedTokens.refreshToken);
-    const expiry = new Date(parsedToken.exp * 1000);
-    const now = new Date();
-
-    if (expiry < now) {
-      return {
-        refreshTokenIsValid: false,
-        authType: 'oauth',
-        needsRefresh: true
-      };
-    }
-
-    return {
-      refreshTokenIsValid: true,
-      authType: 'oauth',
-      needsRefresh: false
-    };
-
-  } catch (error) {
-    console.error('Error checking refresh token status:', error);
-    return {
-      refreshTokenIsValid: false,
-      authType: 'oauth',
-      needsRefresh: false
-    };
-  }
-}
 
 export async function testAccessToken(environment: string, authType: string): Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }> {
 

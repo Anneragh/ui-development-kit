@@ -8,15 +8,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   unifiedLogin: (environment: string) => ipcMain.invoke('unified-login', environment),
   disconnectFromISC: () => ipcMain.invoke('disconnect-from-isc'),
   checkAccessTokenStatus: (environment: string) => ipcMain.invoke('check-access-token-status', environment),
-  checkRefreshTokenStatus: (environment: string) => ipcMain.invoke('check-refresh-token-status', environment),
   getCurrentTokenDetails: (environment: string) => ipcMain.invoke('get-current-token-details', environment),
   
   // Token management
   refreshTokens: (environment: string) => ipcMain.invoke('refresh-tokens', environment),
-  getStoredOAuthTokens: (environment: string) => ipcMain.invoke('get-stored-oauth-tokens', environment),
-  getStoredPATTokens: (environment: string) => ipcMain.invoke('get-stored-pat-tokens', environment),
   validateTokens: (environment: string) => ipcMain.invoke('validate-tokens', environment),
-  storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => ipcMain.invoke('store-client-credentials', environment, clientId, clientSecret),
 
   // Environment management
   getTenants: () => ipcMain.invoke('get-tenants'),

@@ -3,12 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
-import { disconnectFromISC, refreshTokens, unifiedLogin, validateTokens, checkAccessTokenStatus, checkRefreshTokenStatus, getCurrentTokenDetails } from './authentication/auth';
+import { disconnectFromISC, refreshTokens, unifiedLogin, validateTokens, checkAccessTokenStatus, getCurrentTokenDetails } from './authentication/auth';
 import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
-import { getStoredOAuthTokens } from './authentication/oauth';
-import { getStoredPATTokens, storeClientCredentials } from './authentication/pat';
-
-
 // Global variables
 let win: BrowserWindow | undefined;
 
@@ -132,6 +128,7 @@ try {
 
   //#region Custom IPC handlers
 
+
   ipcMain.handle('unified-login', async (event, environment: string) => {
     return unifiedLogin(environment);
   });
@@ -144,10 +141,6 @@ try {
     return checkAccessTokenStatus(environment);
   });
 
-  ipcMain.handle('check-refresh-token-status', async (event, environment: string) => {
-    return checkRefreshTokenStatus(environment);
-  });
-
   ipcMain.handle('get-current-token-details', async (event, environment: string) => {
     return getCurrentTokenDetails(environment);
   });
@@ -156,18 +149,6 @@ try {
 
   ipcMain.handle('refresh-tokens', async (event, environment: string) => {
     return refreshTokens(environment);
-  });
-
-  ipcMain.handle('get-stored-oauth-tokens', async (event, environment: string) => {
-    return getStoredOAuthTokens(environment);
-  });
-
-  ipcMain.handle('get-stored-pat-tokens', async (event, environment: string) => {
-    return getStoredPATTokens(environment);
-  });
-
-  ipcMain.handle('store-client-credentials', async (event, environment: string, clientId: string, clientSecret: string) => {
-    return storeClientCredentials(environment, clientId, clientSecret);
   });
 
   ipcMain.handle('validate-tokens', async (event, environment: string) => {

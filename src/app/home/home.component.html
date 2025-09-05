@@ -27,10 +27,6 @@
           </mat-select>
         </mat-form-field>
 
-        <button mat-icon-button (click)="loadTenants()" title="Refresh Environments" class="action-button">
-          <mat-icon>refresh</mat-icon>
-        </button>
-
         <button mat-icon-button (click)="toggleEnvironmentDetails()" title="Configure Environment"
           class="action-button">
           <mat-icon>{{ state.showEnvironmentDetails ? 'expand_less' : 'settings' }}</mat-icon>
