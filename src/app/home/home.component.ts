@@ -28,6 +28,8 @@ import { GenericDialogComponent } from 'sailpoint-components'
 type AuthMethods = "oauth" | "pat";
 type OAuthValidationStatus = 'unknown' | 'valid' | 'invalid' | 'testing';
 
+
+
 type Tenant = {
   active: boolean;
   apiUrl: string;
@@ -79,6 +81,16 @@ type ComponentState = {
 })
 export class HomeComponent implements OnInit {
 
+
+  defaultTenant: Tenant = {
+    active: false,
+    apiUrl: '',
+    tenantUrl: '',
+    name: '',
+    authType: 'oauth',
+    tenantName: '',
+  }
+
   // State management
   state: ComponentState = {
     isConnected: false,
@@ -86,14 +98,7 @@ export class HomeComponent implements OnInit {
     name: '',
     tenants: [],
     selectedTenant: 'new',
-    actualTenant: {
-      active: false,
-      apiUrl: '',
-      tenantUrl: '',
-      name: '',
-      authType: 'oauth',
-      tenantName: '',
-    },
+    actualTenant: this.defaultTenant,
     showEnvironmentDetails: false,
     oauthValidationStatus: 'unknown'
   }
@@ -130,25 +135,11 @@ export class HomeComponent implements OnInit {
         this.state.selectedTenant = activeTenant.name;
         this.state.actualTenant = activeTenant;
 
-        this.connectionService.currentEnvironmentSubject$.next({
-          name: activeTenant.name,
-          apiUrl: activeTenant.apiUrl,
-          baseUrl: activeTenant.tenantUrl,
-          authType: activeTenant.authType,
-          clientId: activeTenant.clientId || undefined,
-          clientSecret: activeTenant.clientSecret || undefined
-        });
+
 
       } else {
         this.state.selectedTenant = 'new';
-        this.state.actualTenant = {
-          active: false,
-          apiUrl: '',
-          tenantUrl: '',
-          name: '',
-          authType: 'oauth',
-          tenantName: '',
-        };
+        this.state.actualTenant = this.defaultTenant;
       }
     } catch (error) {
       console.error('Error loading tenants:', error);
@@ -158,14 +149,7 @@ export class HomeComponent implements OnInit {
 
   updateTenant(): void {
     if (this.state.selectedTenant === 'new') {
-      this.state.actualTenant = {
-        active: false,
-        apiUrl: '',
-        tenantUrl: '',
-        name: '',
-        authType: 'oauth',
-        tenantName: '',
-      };
+      this.state.actualTenant = this.defaultTenant;
       return;
     }
 
@@ -182,6 +166,9 @@ export class HomeComponent implements OnInit {
 
   // Session Management
   async connectToISC(): Promise<void> {
+
+
+
     if (this.state.selectedTenant === 'new') {
       this.showSnackbar('Cannot connect to ISC: Please select an environment or create a new one first');
       return;
@@ -191,6 +178,15 @@ export class HomeComponent implements OnInit {
       this.showSnackbar('Cannot connect to ISC: No environment selected');
       return;
     }
+
+    this.connectionService.currentEnvironmentSubject$.next({
+      name: this.state.actualTenant.name,
+      apiUrl: this.state.actualTenant.apiUrl,
+      baseUrl: this.state.actualTenant.tenantUrl,
+      authType: this.state.actualTenant.authType,
+      clientId: this.state.actualTenant.clientId || undefined,
+      clientSecret: this.state.actualTenant.clientSecret || undefined
+    });
 
     this.authenticating = true;
     this.dialog.open(GenericDialogComponent, {
@@ -412,14 +408,7 @@ export class HomeComponent implements OnInit {
       if (deleteResult.success) {
         // this.showSuccess('Environment deleted successfully!');
         await this.loadTenants();
-        this.state.actualTenant = {
-          active: false,
-          apiUrl: '', 
-          tenantUrl: '',
-          name: '',
-          authType: 'oauth',
-          tenantName: '',
-        };
+        this.state.actualTenant = this.defaultTenant;
         this.state.selectedTenant = 'new';
         // this.showEnvironmentDetails$.next(false);
         // this.isConnected$.next(false);

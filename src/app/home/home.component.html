@@ -147,11 +147,6 @@
               {{ state.selectedTenant === 'new' ? 'Create Environment' : 'Update Environment' }}
             </button>
 
-            <button mat-stroked-button type="button" (click)="resetConfig()" class="reset-button">
-              <mat-icon>refresh</mat-icon>
-              Reset
-            </button>
-
             <button mat-stroked-button color="warn" type="button" (click)="deleteEnvironment()"
               *ngIf="state.selectedTenant !== 'new'" class="delete-button">
               <mat-icon>delete</mat-icon>
