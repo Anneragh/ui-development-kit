@@ -22,7 +22,7 @@ import { IdentitiesComponent } from './dashboard-cards/identities/identities.com
 import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/identity-profiles.component';
 import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 import { ElectronApiFactoryService } from 'sailpoint-components';
-import { GenericDialogComponent } from 'sailpoint-components'
+import { GenericDialogComponent, OAuthDialogComponent } from 'sailpoint-components'
 
 
 type AuthMethods = "oauth" | "pat";
@@ -76,7 +76,8 @@ type ComponentState = {
     MatSnackBarModule,
     FormsModule,
     SharedModule,
-    GenericDialogComponent
+    GenericDialogComponent,
+    OAuthDialogComponent
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy {
@@ -471,13 +472,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       // Close the initial dialog and show the OAuth dialog
       this.dialog.closeAll();
-      
-      const dialogRef = this.dialog.open(GenericDialogComponent, {
+      const dialogRef = this.dialog.open(OAuthDialogComponent, {
         data: {
           title: 'OAuth Authentication',
-          message: `Please complete authentication in your browser.\n\nAuth ID: ${this.oauthUuid}${this.oauthAuthUrl ? `\n\nIf browser didn't open automatically, visit:\n${this.oauthAuthUrl}` : ''}`,
-          showCancel: true,
-          cancelText: 'Cancel'
+          uuid: this.oauthUuid,
+          authUrl: this.oauthAuthUrl || undefined
         },
         disableClose: true
       });
