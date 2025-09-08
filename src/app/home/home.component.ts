@@ -22,7 +22,7 @@ import { IdentitiesComponent } from './dashboard-cards/identities/identities.com
 import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/identity-profiles.component';
 import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 import { ElectronApiFactoryService } from 'sailpoint-components';
-import { GenericDialogComponent, OAuthDialogComponent } from 'sailpoint-components'
+import { GenericDialogComponent, OAuthDialogComponent, OAuthDialogData } from 'sailpoint-components'
 
 
 type AuthMethods = "oauth" | "pat";
@@ -406,7 +406,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.state.actualTenant.authType === 'oauth') {
           await this.testOAuthConnection();
         }
-        //this.state.actualTenant = undefined;
         this.state.showEnvironmentDetails = false;
       } else {
         this.showSnackbar(String(result.error || 'Failed to save environment'));
@@ -425,19 +424,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     try {
       const deleteResult = await this.electronService.getApi().deleteEnvironment(this.state.actualTenant.name);
       if (deleteResult.success) {
-        // this.showSuccess('Environment deleted successfully!');
         await this.loadTenants();
         this.state.actualTenant = this.defaultTenant;
         this.state.selectedTenant = 'new';
-        // this.showEnvironmentDetails$.next(false);
-        // this.isConnected$.next(false);
-        // this.connectionService.setConnectionState(false);
       } else {
-        // this.showError(String(deleteResult.error || 'Failed to delete environment'));
+        this.showSnackbar(String(deleteResult.error || 'Failed to delete environment'))
       }
     } catch (error) {
       console.error('Error deleting environment:', error);
-      // this.showError('Failed to delete environment');
+      this.showSnackbar('Failed to delete environment');
     }
   }
 
@@ -472,7 +467,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       // Close the initial dialog and show the OAuth dialog
       this.dialog.closeAll();
-      const dialogRef = this.dialog.open(OAuthDialogComponent, {
+      const dialogRef = this.dialog.open<OAuthDialogComponent, OAuthDialogData>(OAuthDialogComponent, {
         data: {
           title: 'OAuth Authentication',
           uuid: this.oauthUuid,
@@ -518,10 +513,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.stopPolling();
           
           if (result.success) {
-            // Authentication successful
             await this.completeAuthentication();
           } else {
-            // Authentication failed
             this.dialog.closeAll();
             this.showSnackbar(`OAuth authentication failed: ${result.error || 'Unknown error'}`);
           }
@@ -532,7 +525,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.dialog.closeAll();
         this.showSnackbar(`Error checking OAuth status: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
-    }, 10000); // Poll every 10 seconds
+    }, 10000);
 
     // Set a timeout to stop polling after 5 minutes
     setTimeout(() => {

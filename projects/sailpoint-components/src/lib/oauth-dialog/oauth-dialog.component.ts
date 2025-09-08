@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -172,7 +172,8 @@ export interface OAuthDialogData {
     mat-divider {
       margin: 24px 0;
     }
-  `]
+  `],
+  encapsulation: ViewEncapsulation.None
 })
 export class OAuthDialogComponent {
   constructor(
