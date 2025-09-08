@@ -115,7 +115,6 @@ export interface OAuthDialogData {
     }
 
     .confirmation-code {
-      font-family: 'Fira Code', monospace;
       font-size: 28px;
       font-weight: 700;
       letter-spacing: 3px;
