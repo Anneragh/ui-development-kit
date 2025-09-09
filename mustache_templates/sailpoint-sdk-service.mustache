@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { AxiosResponse } from 'axios';
 import * as sdk from 'sailpoint-api-client';
 import { ElectronApiFactoryService } from './services/electron-api-factory.service';
@@ -9,7 +10,7 @@ import { ElectronApiFactoryService } from './services/electron-api-factory.servi
 export class SailPointSDKService {
   private electronAPI: any;
 
-  constructor(private apiFactory: ElectronApiFactoryService) {
+  constructor(private apiFactory: ElectronApiFactoryService, private router: Router) {
     this.electronAPI = this.apiFactory.getApi();
   }
 
@@ -22,8 +23,19 @@ export class SailPointSDKService {
         
         if (now >= expiryDate) {
           console.log('Session expired during SDK call - notifying electron');
-          await this.electronAPI.refreshTokens();
+          const refreshState = await this.electronAPI.refreshTokens();
+          if (!refreshState.success) {
+            console.error('Token refresh failed:', refreshState.error);
+            this.router.navigate(['/home']).catch((error) => {
+                console.error('Navigation error:', error);
+              });
+          }
         }
+      } else {
+        console.log('No valid session - navigating to home');
+        this.router.navigate(['/home']).catch((error) => {
+            console.error('Navigation error:', error);
+          });
       }
     } catch (error) {
       console.error('Error checking session status:', error);
