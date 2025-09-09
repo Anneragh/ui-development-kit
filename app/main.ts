@@ -138,8 +138,8 @@ try {
     return disconnectFromISC();
   });
 
-  ipcMain.handle('check-access-token-status', async (event, environment: string) => {
-    return checkAccessTokenStatus(environment);
+  ipcMain.handle('check-access-token-status', async (event) => {
+    return checkAccessTokenStatus();
   });
 
   ipcMain.handle('get-current-token-details', async (event, environment: string) => {
@@ -148,8 +148,8 @@ try {
 
 
 
-  ipcMain.handle('refresh-tokens', async (event, environment: string) => {
-    return refreshTokens(environment);
+  ipcMain.handle('refresh-tokens', async (event) => {
+    return refreshTokens();
   });
 
   ipcMain.handle('validate-tokens', async (event, environment: string) => {

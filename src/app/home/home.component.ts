@@ -213,14 +213,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.log("Validating tokens");
       const tokenStatus = await this.electronService.getApi().validateTokens(this.state.actualTenant.name);
 
-      console.log('tokenStatus', tokenStatus);
-
-      if (!tokenStatus.isValid && tokenStatus.needsRefresh) {
-        this.showSnackbar('Refreshing session...');
-        await this.connectionService.manualRefreshSession();
-        return;
-      }
-
       try {
         const loginResult = await this.electronService.getApi().unifiedLogin(this.state.actualTenant.name);
 

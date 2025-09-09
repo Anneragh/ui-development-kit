@@ -7,6 +7,7 @@ import { getConfig, setConfig,  getConfigEnvironment, setActiveEnvironementInCon
 import { getStoredOAuthTokens, OAuthLogin, refreshOAuthToken, validateOAuthTokens, checkOauthCodeFlowComplete } from './oauth';
 import { getStoredPATTokens, refreshPATToken, validatePATToken } from './pat';
 import { TokenSet } from './types';
+import { ref } from 'process';
 
 export function formatErrorAsString(error: unknown): string {
   if (error instanceof Error) {
@@ -16,6 +17,8 @@ export function formatErrorAsString(error: unknown): string {
 }
 
 export let apiConfig: Configuration;
+let activeEnvironment: string | null = null;
+let refreshActive = false;
 
 export const disconnectFromISC = () => {
   try {
@@ -74,6 +77,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
 
 
   try {
+    activeEnvironment = environment;
     // First, ensure the environment exists in config
     const { tenanturl, baseurl, authType } = getConfigEnvironment(environment);
 
@@ -150,7 +154,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
         // Attempt to refresh tokens using cached refresh token
         console.log(`Attempting to refresh expired tokens for environment: ${environment}`);
         try {
-          const refreshResult = await refreshTokens(environment);
+          const refreshResult = await refreshTokens();
 
           if (!refreshResult.success) {
             return {
@@ -307,10 +311,23 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
  * @param environment - The environment name to refresh tokens for
  * @returns Promise resolving to the new token set
  */
-export const refreshTokens = async (environment: string): Promise<{ success: boolean, error?: string }> => {
+export const refreshTokens = async (): Promise<{ success: boolean, error?: string }> => {
+  while (refreshActive) {
+    console.log('Refresh already in progress, waiting...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  const tokenDetails = getCurrentTokenDetails(activeEnvironment || '');
+  if (tokenDetails.tokenDetails?.expiry && (new Date(tokenDetails.tokenDetails.expiry) > new Date())) {
+    return { success: true };
+  }
+
+  refreshActive = true;
+  const environment = activeEnvironment || '';
   try {
     const config = getConfig();
     if (!config.environments[environment]) {
+      refreshActive = false;
       return {
         success: false,
         error: `Environment '${environment}' not found in configuration`
@@ -322,25 +339,37 @@ export const refreshTokens = async (environment: string): Promise<{ success: boo
       case 'oauth': {
         const storedTokens = getStoredOAuthTokens(environment);
         if (!storedTokens || !storedTokens.refreshToken) {
+          refreshActive = false;
           return { success: false, error: 'No refresh token available for OAuth refresh' };
         }
 
         if (checkTokenExpired(storedTokens.refreshToken)) {
+          refreshActive = false;
           return { success: false, error: 'Refresh token has expired' };
         }
 
         await refreshOAuthToken(environment);
+        await connectToISCWithToken(baseurl, getStoredOAuthTokens(environment)!.accessToken);
+        refreshActive = false;
         return { success: true, error: undefined };
       }
 
       case 'pat':
         await refreshPATToken(environment);
+        await connectToISCWithPAT(
+          baseurl,
+          getStoredPATTokens(environment)!.clientId,
+          getStoredPATTokens(environment)!.clientSecret,
+        );
+        refreshActive = false;
         return { success: true, error: undefined };
 
       default:
+        refreshActive = false;
         return { success: false, error: 'Unsupported auth type: ' + authType };
     }
   } catch (error) {
+    refreshActive = false;
     console.error('Error refreshing tokens:', error);
     return { success: false, error: 'Error refreshing tokens: ' + error };
   }
@@ -478,7 +507,8 @@ export function getCurrentTokenDetails(environment: string): { tokenDetails: Tok
  * @param environment - The environment name to check access token status for
  * @returns Access token status information
  */
-export async function checkAccessTokenStatus(environment: string): Promise<AccessTokenStatus> {
+export async function checkAccessTokenStatus(): Promise<AccessTokenStatus> {
+  const environment = activeEnvironment || '';
   try {
     const { tenanturl, baseurl, authType } = getConfigEnvironment(environment);
 

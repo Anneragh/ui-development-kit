@@ -49,14 +49,14 @@ export class ConnectionService implements OnDestroy {
     this.isDestroyed = true;
   }
 
-  async validateConnectionImmediately(environmentName: string): Promise<void> {
+  async validateConnectionImmediately(): Promise<void> {
     try {
 
       // This timeout is needed to avoid a race condition that can occur between this service and the data being checked on the backend.
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Use the lightweight token status check to avoid double validation
-      const tokenStatus = await this.apiFactoryService.getApi().checkAccessTokenStatus(environmentName);
+      const tokenStatus = await this.apiFactoryService.getApi().checkAccessTokenStatus();
 
       console.log('tokenStatus', tokenStatus);
 
@@ -87,59 +87,6 @@ export class ConnectionService implements OnDestroy {
     }
   }
 
-  /**
-   * Handles session refresh for both OAuth and PAT tokens
-   */
-  async handleSessionRefresh(): Promise<void> {
-    if (this.isSessionRefreshing) {
-      return;
-    }
-
-    this.isSessionRefreshing = true;
-
-    try {
-      const environment = this.currentEnvironmentSubject$.value;
-      if (!environment) {
-        throw new Error('No environment available for refresh');
-      }
-
-      await this.apiFactoryService.getApi().refreshTokens(environment.name);
-      await this.validateTokensAfterRefresh(environment.name);
-    } catch (error) {
-      console.error('Session refresh failed:', error);
-      await this.handleSessionExpired();
-    } finally {
-      this.isSessionRefreshing = false;
-    }
-  }
-
-  /**
-   * Validates tokens after a refresh operation
-   * @param environmentName - The environment name to validate tokens for
-   */
-  async validateTokensAfterRefresh(environmentName: string): Promise<void> {
-    try {
-      // Use the lightweight token status check to avoid double validation
-      const tokenStatus = await this.apiFactoryService.getApi().checkAccessTokenStatus(environmentName);
-
-      const sessionStatus: SessionStatus = {
-        isValid: tokenStatus.accessTokenIsValid,
-        needsRefresh: tokenStatus.needsRefresh,
-        authType: tokenStatus.authType,
-        expiry: tokenStatus.expiry,
-        lastChecked: new Date()
-      };
-
-      this.sessionStatusSubject$.next(sessionStatus);
-
-      if (!tokenStatus.accessTokenIsValid) {
-        await this.handleSessionExpired();
-      }
-    } catch (error) {
-      console.error('Error validating tokens after refresh:', error);
-      await this.handleSessionExpired();
-    }
-  }
 
   async handleSessionExpired(): Promise<void> {
     this.connectedSubject$.next({ connected: false });
@@ -157,48 +104,12 @@ export class ConnectionService implements OnDestroy {
       const loginResult = await this.apiFactoryService.getApi().unifiedLogin(environment.name);
       if (loginResult.success) {
         this.connectedSubject$.next({ connected: true, name: environment.name });
-        await this.validateConnectionImmediately(environment.name);
+        await this.validateConnectionImmediately();
       } else {
         console.error('Failed to reconnect:', loginResult.error);
       }
     } catch (error) {
       console.error('Reconnection failed:', error);
-    }
-  }
-
-  // Public method for manual session refresh
-  async manualRefreshSession(): Promise<void> {
-    const environment = this.currentEnvironmentSubject$.value;
-
-    if (!environment) {
-      throw new Error('No active session to refresh');
-    }
-
-    if (this.isSessionRefreshing) {
-      return;
-    }
-
-    this.isSessionRefreshing = true;
-
-    try {
-      const refreshResult = await this.apiFactoryService.getApi().refreshTokens(environment.name);
-      if (!refreshResult.success) {
-        throw new Error('Failed to refresh tokens');
-      }
-      await this.validateTokensAfterRefresh(environment.name);
-      console.log('Tokens validated successfully');
-      const loginResult = await this.apiFactoryService.getApi().unifiedLogin(environment.name);
-      if (loginResult.success) {
-        this.connectedSubject$.next({ connected: true, name: environment.name });
-        await this.validateConnectionImmediately(environment.name);
-      } else {
-        console.error('Failed to reconnect:', loginResult.error);
-      }
-    } catch (error) {
-      console.error('Manual session refresh failed:', error);
-      throw error;
-    } finally {
-      this.isSessionRefreshing = false;
     }
   }
 

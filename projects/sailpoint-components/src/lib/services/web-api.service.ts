@@ -8,11 +8,11 @@ export interface ElectronAPIInterface {
   // Unified authentication and connection
   unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }>;
   disconnectFromISC: () => Promise<void>;
-  checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
+  checkAccessTokenStatus: () => Promise<AccessTokenStatus>;
   getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
   
   // Token management
-  refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
+  refreshTokens: () => Promise<{ success: boolean, error?: string }>;
   validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
   checkOauthCodeFlowComplete: (uuid: string, environment: string) => Promise<{ isComplete: boolean, success?: boolean, error?: string }>;
 
@@ -162,8 +162,8 @@ export class WebApiService implements ElectronAPIInterface {
     this.activeEnvironment = null;
   }
 
-  async checkAccessTokenStatus(environment: string): Promise<AccessTokenStatus> {
-    return this.apiCall<AccessTokenStatus>(`auth/status/access/${environment}`, 'GET');
+  async checkAccessTokenStatus(): Promise<AccessTokenStatus> {
+    return this.apiCall<AccessTokenStatus>(`auth/status/access/`, 'GET');
   }
 
   async getCurrentTokenDetails(environment: string): Promise<{ tokenDetails: TokenDetails | undefined, error?: string }> {
@@ -171,8 +171,8 @@ export class WebApiService implements ElectronAPIInterface {
   }
 
   // Token Management methods
-  async refreshTokens(environment: string): Promise<{ success: boolean, error?: string }> {
-    return this.apiCall<{ success: boolean, error?: string }>(`auth/refresh`, 'POST', { environment });
+  async refreshTokens(): Promise<{ success: boolean, error?: string }> {
+    return this.apiCall<{ success: boolean, error?: string }>(`auth/refresh`, 'POST', { });
   }
 
   async validateTokens(environment: string): Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }> {

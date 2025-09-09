@@ -13,11 +13,30 @@ export class SailPointSDKService {
     this.electronAPI = this.apiFactory.getApi();
   }
 
+  private async checkSessionBeforeCall(): Promise<void> {
+    try {
+      const sessionStatus = await this.electronAPI.checkAccessTokenStatus();
+      if (sessionStatus && sessionStatus.expiry) {
+        const now = new Date();
+        const expiryDate = new Date(sessionStatus.expiry);
+        
+        if (now >= expiryDate) {
+          console.log('Session expired during SDK call - notifying electron');
+          await this.electronAPI.refreshTokens();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking session status:', error);
+      throw error;
+    }
+  }
+
 {{#apiInfo}}{{#apis}}
 {{#operations}}
 {{#operation}}
 {{#useSingleRequestParameter}}
-{{nickname}}({{#allParams.0}}requestParameters: sdk.{{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}{{/allParams.0}}): Promise<AxiosResponse<{{#isArray}}Array<{{#returnProperty}}{{^isPrimitiveType}}sdk.{{/isPrimitiveType}}{{/returnProperty}}{{returnBaseType}}>{{/isArray}}{{^isArray}}{{#returnProperty}}{{#isPrimitiveType}}{{returnType}}{{/isPrimitiveType}}{{/returnProperty}}{{#returnProperty}}{{^isPrimitiveType}}sdk.{{returnType}}{{/isPrimitiveType}}{{/returnProperty}}{{/isArray}}{{^returnType}}void{{/returnType}}, any>> {
+async {{nickname}}({{#allParams.0}}requestParameters: sdk.{{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}{{/allParams.0}}): Promise<AxiosResponse<{{#isArray}}Array<{{#returnProperty}}{{^isPrimitiveType}}sdk.{{/isPrimitiveType}}{{/returnProperty}}{{returnBaseType}}>{{/isArray}}{{^isArray}}{{#returnProperty}}{{#isPrimitiveType}}{{returnType}}{{/isPrimitiveType}}{{/returnProperty}}{{#returnProperty}}{{^isPrimitiveType}}sdk.{{returnType}}{{/isPrimitiveType}}{{/returnProperty}}{{/isArray}}{{^returnType}}void{{/returnType}}, any>> {
+    await this.checkSessionBeforeCall();
     return this.electronAPI.{{nickname}}({{#allParams.0}}requestParameters{{/allParams.0}}) as Promise<AxiosResponse<{{#isArray}}Array<{{#returnProperty}}{{^isPrimitiveType}}sdk.{{/isPrimitiveType}}{{/returnProperty}}{{returnBaseType}}>{{/isArray}}{{^isArray}}{{#returnProperty}}{{#isPrimitiveType}}{{returnType}}{{/isPrimitiveType}}{{/returnProperty}}{{#returnProperty}}{{^isPrimitiveType}}sdk.{{returnType}}{{/isPrimitiveType}}{{/returnProperty}}{{/isArray}}{{^returnType}}void{{/returnType}}, any>>;
 }
 {{/useSingleRequestParameter}}
