@@ -121,16 +121,41 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     void this.loadTenants();
 
+
     this.connectionService.connectedSubject$.subscribe((connection) => {
       this.state.isConnected = connection.connected;
       this.state.name = connection.name || '';
     })
+
+    if (this.state.isConnected) {
+      void this.checkSessionStatus();
+    }
+
     this.state.loading = false;
+
   }
 
   ngOnDestroy(): void {
     // Clean up polling when component is destroyed
     this.stopPolling();
+  }
+
+  async checkSessionStatus(): Promise<void> {
+    if (this.state.isConnected) {
+      const status = await this.electronService.getApi().checkAccessTokenStatus();
+      if (!status.accessTokenIsValid) {
+        this.connectionService.sessionStatusSubject$.next({
+          authType: status.authType,
+          isValid: false,
+          lastChecked: new Date(),
+          expiry: status.expiry,
+          needsRefresh: status.needsRefresh
+        });
+        this.state.isConnected = false;
+        this.connectionService.connectedSubject$.next({ connected: false });
+        this.showSnackbar('Session has expired. Please log in again.');
+      }
+    }
   }
 
 
@@ -517,7 +542,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.dialog.closeAll();
         this.showSnackbar(`Error checking OAuth status: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
-    }, 10000);
+    }, 5000);
 
     // Set a timeout to stop polling after 5 minutes
     setTimeout(() => {

@@ -10,7 +10,7 @@ import { ElectronApiFactoryService } from './services/electron-api-factory.servi
 export class SailPointSDKService {
   private electronAPI: any;
 
-  constructor(private apiFactory: ElectronApiFactoryService) {
+  constructor(private apiFactory: ElectronApiFactoryService, private router: Router) {
     this.electronAPI = this.apiFactory.getApi();
   }
 
@@ -26,11 +26,16 @@ export class SailPointSDKService {
           const refreshState = await this.electronAPI.refreshTokens();
           if (!refreshState.success) {
             console.error('Token refresh failed:', refreshState.error);
-            // this.router.navigate(['/home']).catch((error) => {
-            //     console.error('Navigation error:', error);
-            //   });
+            this.router.navigate(['/home']).catch((error) => {
+                console.error('Navigation error:', error);
+              });
           }
         }
+      } else {
+        console.log('No valid session - navigating to home');
+        this.router.navigate(['/home']).catch((error) => {
+            console.error('Navigation error:', error);
+          });
       }
     } catch (error) {
       console.error('Error checking session status:', error);

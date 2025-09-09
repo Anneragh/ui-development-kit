@@ -3,10 +3,11 @@ import {
   TenantV2024Api,
   ConfigurationParameters,
 } from 'sailpoint-api-client';
-import { getConfig, setConfig,  getConfigEnvironment, setActiveEnvironementInConfig} from './config';
-import { getStoredOAuthTokens, OAuthLogin, refreshOAuthToken, validateOAuthTokens, checkOauthCodeFlowComplete } from './oauth';
+import { getConfig, setConfig,  getConfigEnvironment, setActiveEnvironementInConfig, getSecureValue} from './config';
+import { getStoredOAuthTokens, OAuthLogin, refreshOAuthToken, validateOAuthTokens, storeOAuthTokens, authLambdaTokenURL} from './oauth';
 import { getStoredPATTokens, refreshPATToken, validatePATToken } from './pat';
-import { TokenSet } from './types';
+import { decryptToken } from "./crypto";
+import { TokenSet, TokenResponse } from './types';
 import { ref } from 'process';
 
 export function formatErrorAsString(error: unknown): string {
@@ -682,3 +683,66 @@ export function validateTokens(environment: string): { isValid: boolean, needsRe
     };
   }
 }
+
+
+/**
+ * Checks if the OAuth code flow is complete for a given UUID
+ * @param uuid - The UUID from the initial OAuth login
+ * @param environment - The environment name
+ * @returns Promise resolving to completion status and token storage result
+ */
+export async function checkOauthCodeFlowComplete (uuid: string, environment: string): Promise<{ isComplete: boolean, success?: boolean, error?: string }> {
+    try {
+      const { tenanturl, baseurl, authType } = getConfigEnvironment(environment);
+        const tokenResponse = await fetch(`${authLambdaTokenURL}/${uuid}`);
+
+        if (tokenResponse.ok) {
+            const tokenData: TokenResponse = await tokenResponse.json();
+
+            // Step 5: Get the private key for decryption
+            const privateKey = getSecureValue('environments.oauth.privateKey', environment);
+            if (!privateKey) {
+                throw new Error('Private key not found for environment');
+            }
+
+            // Step 6: Decrypt the token info using the private key
+            const decryptedToken = decryptToken(tokenData.tokenInfo, privateKey);
+            console.log('Decrypted token info');
+
+            // Validate that we have the required tokens
+            if (!decryptedToken.access_token) {
+                console.error('Missing accessToken in response');
+                return { isComplete: true, success: false, error: 'OAuth response missing access token' };
+            }
+
+            if (!decryptedToken.refresh_token) {
+                console.error('Missing refreshToken in response');
+                return { isComplete: true, success: false, error: 'OAuth response missing refresh token' };
+            }
+
+            // Step 7: Parse and store the tokens
+            const accessTokenClaims = parseJwt(decryptedToken.access_token);
+            const refreshTokenClaims = parseJwt(decryptedToken.refresh_token);
+
+            const tokenSet = {
+                accessToken: decryptedToken.access_token,
+                accessExpiry: new Date(accessTokenClaims.exp * 1000),
+                refreshToken: decryptedToken.refresh_token,
+                refreshExpiry: new Date(refreshTokenClaims.exp * 1000),
+            };
+
+            storeOAuthTokens(environment, tokenSet);
+            connectToISCWithToken(baseurl, tokenSet.accessToken);
+            return { isComplete: true, success: true };
+        } else if (tokenResponse.status === 404 || tokenResponse.status === 400) {
+            // Token not ready yet, continue polling (backend returns 400 when token not found)
+            return { isComplete: false };
+        } else {
+            // Some other error occurred
+            return { isComplete: true, success: false, error: `Token endpoint returned status: ${tokenResponse.status}` };
+        }
+    } catch (error) {
+        console.error('Error checking OAuth code flow completion:', error);
+        return { isComplete: true, success: false, error: `Error checking OAuth completion: ${error}` };
+    }
+};
