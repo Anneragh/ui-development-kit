@@ -188,7 +188,7 @@ export class OAuthDialogComponent {
 
   copyUrl(): void {
     if (this.data.authUrl) {
-      navigator.clipboard.writeText(this.data.authUrl).then(() => {
+      void navigator.clipboard.writeText(this.data.authUrl).then(() => {
         console.log('URL copied to clipboard');
       });
     }
