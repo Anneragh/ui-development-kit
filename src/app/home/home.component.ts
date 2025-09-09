@@ -514,6 +514,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       clearInterval(this.pollIntervalId);
     }
 
+    
     this.pollIntervalId = setInterval(async () => {
       try {
         if (!this.oauthUuid || !this.oauthPolling) {
