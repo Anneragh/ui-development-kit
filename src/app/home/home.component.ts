@@ -515,34 +515,36 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     
-    this.pollIntervalId = setInterval(async () => {
-      try {
-        if (!this.oauthUuid || !this.oauthPolling) {
-          this.stopPolling();
-          return;
-        }
-
-        const result = await this.electronService.getApi().checkOauthCodeFlowComplete(
-          this.oauthUuid, 
-          this.state.actualTenant.name
-        );
-
-        if (result.isComplete) {
-          this.stopPolling();
-          
-          if (result.success) {
-            await this.completeAuthentication();
-          } else {
-            this.dialog.closeAll();
-            this.showSnackbar(`OAuth authentication failed: ${result.error || 'Unknown error'}`);
+    this.pollIntervalId = setInterval(() => {
+      void (async () => {
+        try {
+          if (!this.oauthUuid || !this.oauthPolling) {
+            this.stopPolling();
+            return;
           }
+
+          const result = await this.electronService.getApi().checkOauthCodeFlowComplete(
+            this.oauthUuid, 
+            this.state.actualTenant.name
+          );
+
+          if (result.isComplete) {
+            this.stopPolling();
+            
+            if (result.success) {
+              await this.completeAuthentication();
+            } else {
+              this.dialog.closeAll();
+              this.showSnackbar(`OAuth authentication failed: ${result.error || 'Unknown error'}`);
+            }
+          }
+        } catch (error) {
+          console.error('Error polling OAuth status:', error);
+          this.stopPolling();
+          this.dialog.closeAll();
+          this.showSnackbar(`Error checking OAuth status: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
-      } catch (error) {
-        console.error('Error polling OAuth status:', error);
-        this.stopPolling();
-        this.dialog.closeAll();
-        this.showSnackbar(`Error checking OAuth status: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
+      })();
     }, 5000);
 
     // Set a timeout to stop polling after 5 minutes
