@@ -56,7 +56,6 @@ export class AppComponent implements OnDestroy, OnInit {
   sessionStatusDisplay: string = 'Checking...';
 
   private subscriptions = new Subscription();
-  private timerInterval: ReturnType<typeof setTimeout> | undefined = undefined;
 
   // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
@@ -119,9 +118,6 @@ export class AppComponent implements OnDestroy, OnInit {
         console.log('App component received session status:', status);
         this.sessionStatus = status;
         this.sessionStatusDisplay = this.timeUntilExpiry || 'Checking...';
-
-        // Start timer for countdown when we have an expiry date
-        this.setupExpiryTimer();
       })
     );
 
@@ -178,44 +174,8 @@ export class AppComponent implements OnDestroy, OnInit {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-    this.clearExpiryTimer();
   }
 
-  private setupExpiryTimer(): void {
-    // Clear any existing timer
-    this.clearExpiryTimer();
-
-    // Only setup timer if we have an expiry date
-    if (this.sessionStatus?.expiry) {
-      // Update every second to show countdown
-      this.timerInterval = setInterval(() => {
-        // Trigger change detection to update the display
-        if (!this.sessionStatus) {
-          this.sessionStatusDisplay = 'Checking...';
-        }
-
-        if (!this.sessionStatus?.expiry) {
-          this.sessionStatusDisplay = 'Checking...';
-        }
-
-        const timeUntilExpiry = this.timeUntilExpiry || 'Checking...';
-
-        if (timeUntilExpiry === 'Expired') {
-          this.sessionStatusDisplay = 'Expired';
-          void this.connectionService.handleSessionExpired();
-        }
-
-        this.sessionStatusDisplay = timeUntilExpiry;
-      }, 1000);
-    }
-  }
-
-  private clearExpiryTimer(): void {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = undefined;
-    }
-  }
 
   /**
    * Toggles between light and dark themes.
@@ -259,21 +219,6 @@ export class AppComponent implements OnDestroy, OnInit {
     this.router.navigate(['/home']).catch((error) => {
       console.error('Navigation error:', error);
     });
-  }
-
-  async manualRefreshSession() {
-    try {
-      console.log('Manual refresh session button clicked');
-      console.log('Current connection state:', this.isConnected);
-      console.log('Current environment:', this.currentEnvironment);
-      console.log('Current session status:', this.sessionStatus);
-
-      await this.connectionService.manualRefreshSession();
-      console.log('Manual refresh completed successfully');
-    } catch (error) {
-      console.error('Manual refresh failed:', error);
-      // You could add a snackbar notification here if you want user feedback
-    }
   }
 
   // Getters for template
