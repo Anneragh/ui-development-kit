@@ -12,7 +12,7 @@ export type AuthMethods = "oauth" | "pat";
 export type SessionStatus = {
   isValid: boolean;
   needsRefresh: boolean;
-  authType?: AuthMethods;
+  authtype?: AuthMethods;
   expiry?: Date;
   lastChecked: Date;
 }
@@ -21,7 +21,7 @@ export type EnvironmentInfo = {
   name: string;
   apiUrl: string;
   baseUrl: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   clientId?: string;
   clientSecret?: string;
 }
@@ -63,7 +63,7 @@ export class ConnectionService implements OnDestroy {
       const sessionStatus: SessionStatus = {
         isValid: tokenStatus.accessTokenIsValid,
         needsRefresh: tokenStatus.needsRefresh,
-        authType: tokenStatus.authType,
+        authtype: tokenStatus.authtype,
         expiry: tokenStatus.expiry,
         lastChecked: new Date()
       };
@@ -80,7 +80,7 @@ export class ConnectionService implements OnDestroy {
       const sessionStatus: SessionStatus = {
         isValid: false,
         needsRefresh: false,
-        authType: undefined,
+        authtype: undefined,
         lastChecked: new Date()
       };
       this.sessionStatusSubject$.next(sessionStatus);

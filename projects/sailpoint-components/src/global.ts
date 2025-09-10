@@ -5,7 +5,7 @@ export type UpdateEnvironmentRequest = {
   environmentName: string;
   tenantUrl: string;
   baseUrl: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   clientId?: string;
   clientSecret?: string;
 }
@@ -17,7 +17,7 @@ export type Tenant = {
   tenantUrl: string;
   clientId?: string;
   clientSecret?: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   tenantName: string;
 }
 
@@ -29,14 +29,14 @@ export type TokenSet = {
 }
 
 export type AccessTokenStatus = {
-  authType: AuthMethods;
+  authtype: AuthMethods;
   accessTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
 }
 
 export type RefreshTokenStatus = {
-  authType: "oauth";
+  authtype: "oauth";
   refreshTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;

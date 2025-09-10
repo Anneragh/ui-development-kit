@@ -37,7 +37,7 @@ type Tenant = {
   clientId?: string;
   clientSecret?: string;
   name: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   tenantName: string;
 }
 
@@ -88,7 +88,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     apiUrl: '',
     tenantUrl: '',
     name: '',
-    authType: 'oauth',
+    authtype: 'oauth',
     tenantName: '',
   }
 
@@ -145,7 +145,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const status = await this.electronService.getApi().checkAccessTokenStatus();
       if (!status.accessTokenIsValid) {
         this.connectionService.sessionStatusSubject$.next({
-          authType: status.authType,
+          authtype: status.authtype,
           isValid: false,
           lastChecked: new Date(),
           expiry: status.expiry,
@@ -218,7 +218,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       name: this.state.actualTenant.name,
       apiUrl: this.state.actualTenant.apiUrl,
       baseUrl: this.state.actualTenant.tenantUrl,
-      authType: this.state.actualTenant.authType,
+      authtype: this.state.actualTenant.authtype,
       clientId: this.state.actualTenant.clientId || undefined,
       clientSecret: this.state.actualTenant.clientSecret || undefined
     });
@@ -232,7 +232,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);
-    console.log('Authentication type:', this.state.actualTenant.authType);
+    console.log('Authentication type:', this.state.actualTenant.authtype);
 
     try {
       console.log("Validating tokens");
@@ -255,7 +255,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
 
           this.connectionService.sessionStatusSubject$.next({
-            authType: this.state.actualTenant.authType,
+            authtype: this.state.actualTenant.authtype,
             isValid: tokenStatus.isValid,
             lastChecked: new Date(),
             expiry: tokenDetails.tokenDetails.expiry,
@@ -352,7 +352,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    if (this.state.actualTenant.authType === 'pat') {
+    if (this.state.actualTenant.authtype === 'pat') {
       if (!this.state.actualTenant.clientId?.trim()) {
         this.showSnackbar('Client ID is required for PAT authentication');
         return false;
@@ -402,7 +402,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       console.log('Saving environment with credentials:', {
         environmentName: this.state.actualTenant.name,
-        authType: this.state.actualTenant.authType,
+        authtype: this.state.actualTenant.authtype,
         hasClientId: !!clientId,
         hasClientSecret: !!clientSecret
       });
@@ -411,7 +411,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         environmentName: this.state.actualTenant.name,
         tenantUrl: this.state.actualTenant.tenantUrl,
         baseUrl: this.state.actualTenant.apiUrl,
-        authType: this.state.actualTenant.authType as 'oauth' | 'pat',
+        authtype: this.state.actualTenant.authtype as 'oauth' | 'pat',
         clientId: clientId,
         clientSecret: clientSecret,
       });
@@ -420,7 +420,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.showSnackbar(this.state.selectedTenant === 'new' ? 'Environment created successfully!' : 'Environment updated successfully!');
         await this.loadTenants();
 
-        if (this.state.actualTenant.authType === 'oauth') {
+        if (this.state.actualTenant.authtype === 'oauth') {
           await this.testOAuthConnection();
         }
         this.state.showEnvironmentDetails = false;
@@ -459,7 +459,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.state.actualTenant.tenantUrl = `https://${this.state.actualTenant.tenantName}.identitynow.com`;
       this.state.actualTenant.apiUrl = `https://${this.state.actualTenant.tenantName}.api.identitynow.com`;
 
-      if (this.state.actualTenant.authType === 'oauth') {
+      if (this.state.actualTenant.authtype === 'oauth') {
         void this.testOAuthConnection();
       }
     }
@@ -469,7 +469,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.state.oauthValidationStatus = 'unknown';
     
 
-    if (this.state.actualTenant?.authType === 'oauth' && this.state.actualTenant?.apiUrl) {
+    if (this.state.actualTenant?.authtype === 'oauth' && this.state.actualTenant?.apiUrl) {
       setTimeout(() => {
         void this.testOAuthConnection();
       }, 1000);
@@ -583,7 +583,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
 
       this.connectionService.sessionStatusSubject$.next({
-        authType: this.state.actualTenant.authType,
+        authtype: this.state.actualTenant.authtype,
         isValid: true,
         lastChecked: new Date(),
         expiry: tokenDetails.tokenDetails.expiry,

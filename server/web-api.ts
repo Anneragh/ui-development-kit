@@ -20,7 +20,7 @@ interface Tenant {
   tenantName: string;
   tenantUrl: string;
   apiUrl: string;
-  authType: 'pat' | 'oauth';
+  authtype: 'pat' | 'oauth';
   clientId?: string;
   clientSecret?: string;
   active: boolean;
@@ -36,14 +36,14 @@ interface TokenData {
 }
 
 interface AuthStatus {
-  authType: 'pat' | 'oauth';
+  authtype: 'pat' | 'oauth';
   accessTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
 }
 
 interface RefreshStatus {
-  authType: 'oauth';
+  authtype: 'oauth';
   refreshTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
@@ -155,7 +155,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     }
     
     // Perform authentication based on auth type
-    if (tenant.authType === 'pat') {
+    if (tenant.authtype === 'pat') {
       // Implement PAT authentication
       // This is a placeholder - implement actual PAT auth logic
       const tokenResponse = await performPATAuthentication(tenant);
@@ -198,7 +198,7 @@ app.get('/api/auth/status/access/:environment', (req: Request, res: Response) =>
   
   if (!tokenData) {
     return res.json({
-      authType: tenantStore[environment]?.authType || globalAuthType,
+      authtype: tenantStore[environment]?.authtype || globalAuthType,
       accessTokenIsValid: false,
       needsRefresh: true
     } as AuthStatus);
@@ -210,7 +210,7 @@ app.get('/api/auth/status/access/:environment', (req: Request, res: Response) =>
   const needsRefresh = tokenData.accessExpiry < new Date(now.getTime() + 10 * 60 * 1000);
   
   res.json({
-    authType: tenantStore[environment]?.authType || globalAuthType,
+    authtype: tenantStore[environment]?.authtype || globalAuthType,
     accessTokenIsValid: isValid,
     expiry: tokenData.accessExpiry,
     needsRefresh
@@ -223,7 +223,7 @@ app.get('/api/auth/status/refresh/:environment', (req: Request, res: Response) =
   
   if (!tokenData || !tokenData.refreshToken) {
     return res.json({
-      authType: 'oauth',
+      authtype: 'oauth',
       refreshTokenIsValid: false,
       needsRefresh: true
     } as RefreshStatus);
@@ -235,7 +235,7 @@ app.get('/api/auth/status/refresh/:environment', (req: Request, res: Response) =
   const needsRefresh = tokenData.refreshExpiry! < new Date(now.getTime() + 24 * 60 * 60 * 1000);
   
   res.json({
-    authType: 'oauth',
+    authtype: 'oauth',
     refreshTokenIsValid: isValid,
     expiry: tokenData.refreshExpiry,
     needsRefresh
@@ -274,7 +274,7 @@ app.post('/api/auth/refresh', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Environment or tokens not found' });
     }
     
-    if (tenant.authType === 'pat') {
+    if (tenant.authtype === 'pat') {
       // Refresh PAT token
       const tokenResponse = await refreshPATToken(tenant);
       tokenStore[environment] = {
@@ -328,7 +328,7 @@ app.get('/api/auth/pat-tokens/:environment', (req: Request, res: Response) => {
   const tokenData = tokenStore[environment];
   const tenant = tenantStore[environment];
   
-  if (!tokenData || !tenant || tenant.authType !== 'pat') {
+  if (!tokenData || !tenant || tenant.authtype !== 'pat') {
     return res.json(undefined);
   }
   
@@ -375,17 +375,17 @@ app.post('/api/auth/store-credentials', (req: Request, res: Response) => {
 });
 
 app.get('/api/auth/global-type', (req: Request, res: Response) => {
-  res.json({ authType: globalAuthType });
+  res.json({ authtype: globalAuthType });
 });
 
 app.post('/api/auth/global-type', (req: Request, res: Response) => {
-  const { authType } = req.body;
+  const { authtype } = req.body;
   
-  if (authType !== 'oauth' && authType !== 'pat') {
+  if (authtype !== 'oauth' && authtype !== 'pat') {
     return res.status(400).json({ error: 'Invalid auth type' });
   }
   
-  globalAuthType = authType;
+  globalAuthType = authtype;
   res.json({ success: true });
 });
 
@@ -396,9 +396,9 @@ app.get('/api/environments', (req: Request, res: Response) => {
 });
 
 app.post('/api/environments', (req: Request, res: Response) => {
-  const { environmentName, tenantUrl, baseUrl, authType, clientId, clientSecret } = req.body;
+  const { environmentName, tenantUrl, baseUrl, authtype, clientId, clientSecret } = req.body;
   
-  if (!environmentName || !tenantUrl || !baseUrl || !authType) {
+  if (!environmentName || !tenantUrl || !baseUrl || !authtype) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
   
@@ -407,7 +407,7 @@ app.post('/api/environments', (req: Request, res: Response) => {
     tenantName: environmentName,
     tenantUrl,
     apiUrl: baseUrl,
-    authType,
+    authtype,
     clientId,
     clientSecret,
     active: Object.keys(tenantStore).length === 0 // First environment is active by default

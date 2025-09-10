@@ -74,7 +74,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Authentication Method</mat-label>
-              <mat-select [(value)]="state.actualTenant.authType">
+              <mat-select [(value)]="state.actualTenant.authtype">
                 <mat-option value="pat">
                   <mat-icon>vpn_key</mat-icon>
                   Personal Access Token (PAT)
@@ -89,7 +89,7 @@
           </div>
 
           <!-- PAT Fields -->
-          <div *ngIf="state.actualTenant.authType === 'pat'" class="pat-section">
+          <div *ngIf="state.actualTenant.authtype === 'pat'" class="pat-section">
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Client ID</mat-label>
@@ -106,7 +106,7 @@
           </div>
 
           <!-- OAuth Info -->
-          <div *ngIf="state.actualTenant.authType === 'oauth'" class="oauth-section">
+          <div *ngIf="state.actualTenant.authtype === 'oauth'" class="oauth-section">
             <p class="oauth-info">
               <mat-icon>info</mat-icon>
               OAuth authentication will open your browser for secure login.

@@ -19,7 +19,7 @@ export type Tenant = {
   tenantUrl: string;
   clientId: string | null;
   clientSecret: string | null;
-  authType: "oauth" | "pat";
+  authtype: "oauth" | "pat";
   tenantName: string;
 }
 
@@ -38,7 +38,7 @@ export const getTenants = (): Tenant[] => {
         hasStoredTokens: !!storedPATTokens,
         hasClientId: !!storedPATTokens?.clientId,
         hasClientSecret: !!storedPATTokens?.clientSecret,
-        authType: envConfig.authType,
+        authtype: envConfig.authtype,
         clientIdLength: storedPATTokens?.clientId?.length || 0,
         clientSecretLength: storedPATTokens?.clientSecret?.length || 0
       });
@@ -50,7 +50,7 @@ export const getTenants = (): Tenant[] => {
         tenantUrl: envConfig.tenanturl,
         clientId: storedPATTokens?.clientId || null,
         clientSecret: storedPATTokens?.clientSecret || null,
-        authType: envConfig.authType,
+        authtype: envConfig.authtype,
         tenantName: environment,
       });
     }
@@ -81,12 +81,12 @@ export interface CLIConfig {
     [key: string]: {
       tenanturl: string;
       baseurl: string;
-      authType: "oauth" | "pat";
+      authtype: "oauth" | "pat";
     };
   };
 }
 
-export function getConfigEnvironment(environment: string): { tenanturl, baseurl, authType } {
+export function getConfigEnvironment(environment: string): { tenanturl, baseurl, authtype } {
   try {
     
   } catch (error) {
@@ -94,11 +94,11 @@ export function getConfigEnvironment(environment: string): { tenanturl, baseurl,
   }
       const config = getConfig();
       if (!config.environments[environment]) {
-        return { tenanturl: '', baseurl: '', authType: 'undefined' };
+        return { tenanturl: '', baseurl: '', authtype: 'undefined' };
       }
   
-      const { tenanturl, baseurl, authType } = config.environments[environment];
-      return { tenanturl, baseurl, authType };
+      const { tenanturl, baseurl, authtype } = config.environments[environment];
+      return { tenanturl, baseurl, authtype };
 }
 
 export function getConfig(): CLIConfig {
@@ -142,7 +142,7 @@ export interface UpdateEnvironmentRequest {
   environmentName: string;
   tenantUrl: string;
   baseUrl: string;
-  authType: 'oauth' | 'pat';
+  authtype: 'oauth' | 'pat';
   clientId?: string;
   clientSecret?: string;
 }
@@ -174,12 +174,12 @@ export const updateEnvironment = (
     config.environments[configureRequest.environmentName] = {
       tenanturl: configureRequest.tenantUrl,
       baseurl: configureRequest.baseUrl,
-      authType: configureRequest.authType,
+      authtype: configureRequest.authtype,
     }
 
     // Save credentials securely if provided
     console.log(`Processing credentials for environment: ${configureRequest.environmentName}`, {
-      authType: configureRequest.authType,
+      authtype: configureRequest.authtype,
       hasClientId: !!configureRequest.clientId,
       hasClientSecret: !!configureRequest.clientSecret,
     });

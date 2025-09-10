@@ -37,7 +37,7 @@ export type UpdateEnvironmentRequest = {
   environmentName: string;
   tenantUrl: string;
   baseUrl: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   clientId?: string;
   clientSecret?: string;
 }
@@ -49,7 +49,7 @@ export type Tenant = {
   tenantUrl: string;
   clientId?: string;
   clientSecret?: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   tenantName: string;
 }
 
@@ -61,14 +61,14 @@ export type TokenSet = {
 }
 
 export type AccessTokenStatus = {
-  authType: AuthMethods;
+  authtype: AuthMethods;
   accessTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
 }
 
 export type RefreshTokenStatus = {
-  authType: "oauth";
+  authtype: "oauth";
   refreshTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
@@ -102,7 +102,7 @@ export type AuthMethods = "oauth" | "pat";
 export class WebApiService implements ElectronAPIInterface {
   private apiUrl = '/api'; // Default API URL, can be configured
   private tenants: Tenant[] = [];
-  private authType: AuthMethods = 'pat';
+  private authtype: AuthMethods = 'pat';
   private activeEnvironment: string | null = null;
   private tokens: Map<string, TokenSet> = new Map();
 
