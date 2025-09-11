@@ -25,24 +25,11 @@
     
     <!-- Session Status Info -->
     <div *ngIf="sessionStatus || currentEnvironment" class="session-info">
-      <span class="session-type">{{ (sessionStatus?.authType || currentEnvironment?.authType || 'UNKNOWN') }}</span>
-      <span class="session-expiry" [ngClass]="{
-        'expiry-warning': sessionStatusDisplay !== 'Valid' && sessionStatusDisplay !== 'Checking...' && !sessionStatusDisplay.includes('Expired'),
-        'expiry-expired': sessionStatusDisplay === 'Expired' || sessionStatusDisplay === 'Invalid'
-      }">
-        {{ sessionStatusDisplay }}
-      </span>
+      <span class="session-type">{{ (sessionStatus?.authtype || currentEnvironment?.authtype || 'UNKNOWN') }}</span>
     </div>
   </div>  
   <!-- Session Actions -->
   <div *ngIf="isConnected" class="session-actions">
-    <button mat-icon-button 
-            (click)="manualRefreshSession()" 
-            [disabled]="isRefreshing"
-            title="Refresh Session"
-            class="refresh-button">
-      <mat-icon [class.spinning]="isRefreshing">{{ isRefreshing ? 'sync' : 'refresh' }}</mat-icon>
-    </button>
     
     <button mat-icon-button 
             (click)="disconnectFromISC()" 
@@ -139,6 +126,7 @@
         Report Example
       </a>
       <a
+        *ngIf="isComponentEnabled('component-selector')"
         mat-list-item
         class="sidebar-link"
         routerLink="/component-selector"
@@ -148,6 +136,11 @@
       >
         <mat-icon class="card-icon">settings</mat-icon>
         Component Selector
+      </a>
+      <a *ngIf="isComponentEnabled('accounts')" mat-list-item class="sidebar-link" routerLink="/accounts" routerLinkActive="active-link"
+        [class.disabled]="!isConnected" (click)="onNavItemClick($event)">
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Accounts
       </a>
 
       

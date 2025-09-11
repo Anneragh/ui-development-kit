@@ -12,7 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { ReportDataService } from './report-data.service';
-import { ThemeService } from '../theme/theme.service';
+import { ConfigService } from '../services/config.service';
 import { Subject, takeUntil } from 'rxjs';
 
 // Import chart components
@@ -60,9 +60,9 @@ export class ReportExampleComponent implements OnInit, OnDestroy {
   constructor(
     private sdk: SailPointSDKService, 
     private dataService: ReportDataService,
-    private themeService: ThemeService
+    private configService: ConfigService
   ) {
-    this.themeService.isDark$
+    this.configService.isDark$
       .pipe(takeUntil(this.destroy$))
       .subscribe(isDark => {
         this.isDark = isDark;

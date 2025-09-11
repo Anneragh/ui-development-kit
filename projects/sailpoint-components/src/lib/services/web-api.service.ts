@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { PATTokenSet } from 'src/global';
 
 /**
  * Interface that defines all the methods used from window.electronAPI
@@ -7,36 +6,26 @@ import { PATTokenSet } from 'src/global';
  */
 export interface ElectronAPIInterface {
   // Unified authentication and connection
-  unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string, authType?: string, oauthUrl?: string }>;
+  unifiedLogin: (environment: string) => Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }>;
   disconnectFromISC: () => Promise<void>;
-  checkAccessTokenStatus: (environment: string) => Promise<AccessTokenStatus>;
-  checkRefreshTokenStatus: (environment: string) => Promise<RefreshTokenStatus>;
+  checkAccessTokenStatus: () => Promise<AccessTokenStatus>;
   getCurrentTokenDetails: (environment: string) => Promise<{ tokenDetails: TokenDetails | undefined, error?: string }>;
   
   // Token management
-  refreshTokens: (environment: string) => Promise<{ success: boolean, error?: string }>;
-  getStoredOAuthTokens: (environment: string) => Promise<TokenSet | undefined>;
-  getStoredPATTokens: (environment: string) => Promise< PATTokenSet| undefined>;
+  refreshTokens: () => Promise<{ success: boolean, error?: string }>;
   validateTokens: (environment: string) => Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }>;
-  storeClientCredentials: (environment: string, clientId: string, clientSecret: string) => Promise<void>;
-  
+  checkOauthCodeFlowComplete: (uuid: string, environment: string) => Promise<{ isComplete: boolean, success?: boolean, error?: string }>;
+
   // Environment management
   getTenants: () => Promise<Tenant[]>;
   updateEnvironment: (config: UpdateEnvironmentRequest) => Promise<{ success: boolean, error?: string }>;
   deleteEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
   setActiveEnvironment: (environment: string) => Promise<{ success: boolean, error?: string }>;
-  getGlobalAuthType: () => Promise<AuthMethods>;
-  setGlobalAuthType: (authType: AuthMethods) => Promise<void>;
   
   // Config file management
   readConfig: () => Promise<any>;
   writeConfig: (config: any) => Promise<any>;
 
-  // Logo file management
-  writeLogo: (buffer: Uint8Array<ArrayBufferLike>, fileName: string) => Promise<any>;
-  checkLogoExists: (fileName: string) => Promise<any>;
-  getUserDataPath: () => Promise<any>;
-  getLogoDataUrl: (fileName: string) => Promise<any>;
   
   // SailPoint SDK functions
   // These are dynamically added and would need to be proxied through the web service
@@ -48,7 +37,7 @@ export type UpdateEnvironmentRequest = {
   environmentName: string;
   tenantUrl: string;
   baseUrl: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   clientId?: string;
   clientSecret?: string;
 }
@@ -60,7 +49,7 @@ export type Tenant = {
   tenantUrl: string;
   clientId?: string;
   clientSecret?: string;
-  authType: AuthMethods;
+  authtype: AuthMethods;
   tenantName: string;
 }
 
@@ -72,14 +61,14 @@ export type TokenSet = {
 }
 
 export type AccessTokenStatus = {
-  authType: AuthMethods;
+  authtype: AuthMethods;
   accessTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
 }
 
 export type RefreshTokenStatus = {
-  authType: "oauth";
+  authtype: "oauth";
   refreshTokenIsValid: boolean;
   expiry?: Date;
   needsRefresh: boolean;
@@ -113,7 +102,7 @@ export type AuthMethods = "oauth" | "pat";
 export class WebApiService implements ElectronAPIInterface {
   private apiUrl = '/api'; // Default API URL, can be configured
   private tenants: Tenant[] = [];
-  private authType: AuthMethods = 'pat';
+  private authtype: AuthMethods = 'pat';
   private activeEnvironment: string | null = null;
   private tokens: Map<string, TokenSet> = new Map();
 
@@ -156,9 +145,9 @@ export class WebApiService implements ElectronAPIInterface {
   }
 
   // Authentication and Connection methods
-  async unifiedLogin(environment: string): Promise<{ success: boolean, error?: string }> {
+  async unifiedLogin(environment: string): Promise<{ success: boolean, error?: string, uuid?: string, authUrl?: string }> {
     try {
-      const result = await this.apiCall<{ success: boolean, error?: string }>('auth/login', 'POST', { environment });
+      const result = await this.apiCall<{ success: boolean, error?: string, uuid?: string, authUrl?: string }>('auth/login', 'POST', { environment });
       if (result.success) {
         this.activeEnvironment = environment;
       }
@@ -173,12 +162,8 @@ export class WebApiService implements ElectronAPIInterface {
     this.activeEnvironment = null;
   }
 
-  async checkAccessTokenStatus(environment: string): Promise<AccessTokenStatus> {
-    return this.apiCall<AccessTokenStatus>(`auth/status/access/${environment}`, 'GET');
-  }
-
-  async checkRefreshTokenStatus(environment: string): Promise<RefreshTokenStatus> {
-    return this.apiCall<RefreshTokenStatus>(`auth/status/refresh/${environment}`, 'GET');
+  async checkAccessTokenStatus(): Promise<AccessTokenStatus> {
+    return this.apiCall<AccessTokenStatus>(`auth/status/access/`, 'GET');
   }
 
   async getCurrentTokenDetails(environment: string): Promise<{ tokenDetails: TokenDetails | undefined, error?: string }> {
@@ -186,41 +171,16 @@ export class WebApiService implements ElectronAPIInterface {
   }
 
   // Token Management methods
-  async refreshTokens(environment: string): Promise<{ success: boolean, error?: string }> {
-    return this.apiCall<{ success: boolean, error?: string }>(`auth/refresh`, 'POST', { environment });
-  }
-
-  async getStoredOAuthTokens(environment: string): Promise<TokenSet | undefined> {
-    try {
-      return await this.apiCall<TokenSet | undefined>(`auth/oauth-tokens/${environment}`, 'GET');
-    } catch (error) {
-      console.error('Error getting OAuth tokens:', error);
-      return undefined;
-    }
-  }
-
-  async getStoredPATTokens(environment: string): Promise<PATTokenSet | undefined> {
-    try {
-      const result = await this.apiCall<PATTokenSet>(`auth/pat-tokens/${environment}`, 'GET');
-      if (result) {
-        // Convert string dates to Date objects
-        result.accessExpiry = new Date(result.accessExpiry);
-
-        return result;
-      }
-      return undefined;
-    } catch (error) {
-      console.error('Error getting PAT tokens:', error);
-      return undefined;
-    }
+  async refreshTokens(): Promise<{ success: boolean, error?: string }> {
+    return this.apiCall<{ success: boolean, error?: string }>(`auth/refresh`, 'POST', { });
   }
 
   async validateTokens(environment: string): Promise<{ isValid: boolean, needsRefresh: boolean, error?: string }> {
     return this.apiCall<{ isValid: boolean, needsRefresh: boolean, error?: string }>(`auth/validate-tokens/${environment}`, 'GET');
   }
 
-  async storeClientCredentials(environment: string, clientId: string, clientSecret: string): Promise<void> {
-    await this.apiCall('auth/store-credentials', 'POST', { environment, clientId, clientSecret });
+  async checkOauthCodeFlowComplete(uuid: string, environment: string): Promise<{ isComplete: boolean, success?: boolean, error?: string }> {
+    return this.apiCall<{ isComplete: boolean, success?: boolean, error?: string }>(`auth/oauth-flow-complete`, 'POST', { uuid, environment });
   }
 
   // Environment Management methods
@@ -245,17 +205,6 @@ export class WebApiService implements ElectronAPIInterface {
     return result;
   }
 
-  async getGlobalAuthType(): Promise<AuthMethods> {
-    const result = await this.apiCall<{ authType: AuthMethods }>('auth/global-type', 'GET');
-    this.authType = result.authType;
-    return this.authType;
-  }
-
-  async setGlobalAuthType(authType: AuthMethods): Promise<void> {
-    await this.apiCall('auth/global-type', 'POST', { authType });
-    this.authType = authType;
-  }
-
   // Config Management methods
   async readConfig(): Promise<any> {
     return this.apiCall('config', 'GET');
@@ -263,40 +212,6 @@ export class WebApiService implements ElectronAPIInterface {
 
   async writeConfig(config: any): Promise<any> {
     return this.apiCall('config', 'POST', { config });
-  }
-
-  // Logo Management methods
-  async writeLogo(buffer: Uint8Array<ArrayBufferLike>, fileName: string): Promise<any> {
-    const formData = new FormData();
-    // Convert buffer to Blob
-    const blob = new Blob([buffer], { type: this.selectedLogoFile.type });
-    
-    formData.append('logo', blob, fileName);
-    
-    const response = await fetch(`${this.apiUrl}/logos`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-    });
-    
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Failed to upload logo: ${error}`);
-    }
-    
-    return response.json();
-  }
-
-  async checkLogoExists(fileName: string): Promise<any> {
-    return this.apiCall<boolean>(`logos/${encodeURIComponent(fileName)}/exists`, 'GET');
-  }
-
-  async getUserDataPath(): Promise<any> {
-    return this.apiCall<string>('user-data-path', 'GET');
-  }
-
-  async getLogoDataUrl(fileName: string): Promise<any> {
-    return this.apiCall<string>(`logos/${encodeURIComponent(fileName)}`, 'GET');
   }
 
   // Generic method to handle any SailPoint SDK API calls

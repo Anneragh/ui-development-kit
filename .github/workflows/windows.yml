@@ -54,10 +54,10 @@ jobs:
        npm run e2e
 
     - name: Build the app
-      run: npm run electron:build
+      run: npm run electron:build -- --publish=never
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: built-electron-app
-        path: release\sailpoint-ui-development-kit 1.0.0.exe
+        path: release/**

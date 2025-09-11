@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ComponentInfo, ComponentSelectorService } from '../services/component-selector.service';
+import { ComponentInfo, ConfigService } from 'sailpoint-components';
 
 
 @Component({
@@ -24,13 +24,13 @@ import { ComponentInfo, ComponentSelectorService } from '../services/component-s
 export class ComponentSelectorComponent implements OnInit {
   availableComponents: ComponentInfo[] = [];
 
-  constructor(private componentSelectorService: ComponentSelectorService) {}
+  constructor(private configService: ConfigService) {}
 
   ngOnInit(): void {
-    this.availableComponents = this.componentSelectorService.getEnabledComponents();
+    this.availableComponents = this.configService.getAvailableComponents();
   }
 
   onToggleComponent(componentName: ComponentInfo): void {
-    this.componentSelectorService.toggleComponent(componentName);
+    this.configService.toggleComponent(componentName);
   }
 }

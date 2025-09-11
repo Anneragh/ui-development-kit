@@ -19,13 +19,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { ThemeConfig, ThemeService, ElectronApiFactoryService } from 'sailpoint-components';
+import { ConfigService, ComponentInfo, ElectronApiFactoryService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
 import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './services/connection.service';
-import {
-  ComponentInfo,
-  ComponentSelectorService,
-} from './services/component-selector.service';
 import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
@@ -60,7 +56,6 @@ export class AppComponent implements OnDestroy, OnInit {
   sessionStatusDisplay: string = 'Checking...';
 
   private subscriptions = new Subscription();
-  private timerInterval: ReturnType<typeof setTimeout> | undefined = undefined;
 
   // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
@@ -72,8 +67,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private connectionService: ConnectionService,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private themeService: ThemeService,
-    private componentSelectorService: ComponentSelectorService,
+    private configService: ConfigService,
   ) {
     // Set default language
     this.translate.setDefaultLang('en');
@@ -124,9 +118,6 @@ export class AppComponent implements OnDestroy, OnInit {
         console.log('App component received session status:', status);
         this.sessionStatus = status;
         this.sessionStatusDisplay = this.timeUntilExpiry || 'Checking...';
-
-        // Start timer for countdown when we have an expiry date
-        this.setupExpiryTimer();
       })
     );
 
@@ -142,20 +133,18 @@ export class AppComponent implements OnDestroy, OnInit {
   ngOnInit(): void {
     // Combine theme config and dark mode stream for live updates
     combineLatest([
-      this.themeService.theme$,
-      this.themeService.isDark$,
-    ]).subscribe(([theme, isDark]) => {
+      this.configService.theme$,
+      this.configService.isDark$,
+    ]).subscribe(([, isDark]) => {
       this.isDarkTheme = isDark;
 
       // Resolve logo path based on current theme
-      this.logoPath = isDark
-        ? theme?.logoDark || 'assets/icons/logo-dark.png'
-        : theme?.logoLight || 'assets/icons/logo.png';
+      this.logoPath = this.configService.getLogoUrl(isDark);
 
       // Apply logo with a cache-busting timestamp
       const logo = this.logoImageRef?.nativeElement;
       if (logo) {
-        logo.onload = () => this.themeService.logoUpdated$.next();
+        logo.onload = () => { this.configService.logoUpdated$.next(); return; };
 
         const src = this.logoPath?.startsWith('data:')
           ? this.logoPath
@@ -169,7 +158,7 @@ export class AppComponent implements OnDestroy, OnInit {
     });
 
     // Watch component enablement state
-    this.componentSelectorService.enabledComponents$.subscribe((components) => {
+    this.configService.enabledComponents$.subscribe((components) => {
       this.enabledComponents = components;
     });
   }
@@ -185,67 +174,22 @@ export class AppComponent implements OnDestroy, OnInit {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-    this.clearExpiryTimer();
   }
 
-  private setupExpiryTimer(): void {
-    // Clear any existing timer
-    this.clearExpiryTimer();
-
-    // Only setup timer if we have an expiry date
-    if (this.sessionStatus?.expiry) {
-      // Update every second to show countdown
-      this.timerInterval = setInterval(() => {
-        // Trigger change detection to update the display
-        if (!this.sessionStatus) {
-          this.sessionStatusDisplay = 'Checking...';
-        }
-
-        if (!this.sessionStatus?.expiry) {
-          this.sessionStatusDisplay = 'Checking...';
-        }
-
-        const timeUntilExpiry = this.timeUntilExpiry || 'Checking...';
-
-        if (timeUntilExpiry === 'Expired') {
-          this.sessionStatusDisplay = 'Expired';
-          void this.connectionService.handleSessionExpired();
-        }
-
-        this.sessionStatusDisplay = timeUntilExpiry;
-      }, 1000);
-    }
-  }
-
-  private clearExpiryTimer(): void {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = undefined;
-    }
-  }
 
   /**
    * Toggles between light and dark themes.
    */
   async toggleTheme(): Promise<void> {
-    const mode = this.isDarkTheme ? 'light' : 'dark';
-    const raw = this.themeService.getRawConfig();
-    let targetTheme = raw?.[`theme-${mode}`] as ThemeConfig | undefined;
-
-    if (!targetTheme) {
-      targetTheme = await this.themeService['getDefaultTheme'](mode);
-    }
-
-    await this.themeService.saveTheme(targetTheme, mode);
+    const newMode = this.isDarkTheme ? 'light' : 'dark';
+    await this.configService.setCurrentThemeMode(newMode);
   }
 
   /**
    * Falls back to default logo if logo fails to load.
    */
   useFallbackLogo() {
-    this.logoPath = this.isDarkTheme
-      ? 'assets/icons/logo-dark.png'
-      : 'assets/icons/logo.png';
+    this.logoPath = this.configService.getLogoUrl(this.isDarkTheme);
   }
 
   /**
@@ -275,21 +219,6 @@ export class AppComponent implements OnDestroy, OnInit {
     this.router.navigate(['/home']).catch((error) => {
       console.error('Navigation error:', error);
     });
-  }
-
-  async manualRefreshSession() {
-    try {
-      console.log('Manual refresh session button clicked');
-      console.log('Current connection state:', this.isConnected);
-      console.log('Current environment:', this.currentEnvironment);
-      console.log('Current session status:', this.sessionStatus);
-
-      await this.connectionService.manualRefreshSession();
-      console.log('Manual refresh completed successfully');
-    } catch (error) {
-      console.error('Manual refresh failed:', error);
-      // You could add a snackbar notification here if you want user feedback
-    }
   }
 
   // Getters for template

@@ -13,7 +13,6 @@ export interface TokenValidationResult {
 
 export interface LambdaUUIDResponse {
     id: string;
-    encryptionKey: string;
     authURL: string;
     baseURL: string;
 }
@@ -27,4 +26,21 @@ export interface TokenResponse {
 export interface RefreshResponse {
     access_token: string;
     refresh_token: string;
+    token_type?: string;
+    expires_in?: number;
+    scope?: string;
+}
+
+export interface EncryptedTokenData {
+    version: string;
+    algorithm: {
+        symmetric: string;
+        asymmetric: string;
+    };
+    data: {
+        ciphertext: string;
+        encryptedKey: string;
+        iv: string;
+        authTag: string;
+    };
 }

@@ -1,6 +1,6 @@
 {
   "name": "sailpoint-ui-development-kit",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "description": "SailPoint UI development kit",
   "homepage": "https://sailpoint.com",
   "author": {
@@ -33,12 +33,13 @@
     "dev": "npm run start",
     "ng:serve:web": "ng serve -c web --proxy-config proxy.conf.json",
     "ng:serve": "ng serve -c web",
-    "build:all": "npm run -w build:sdk && npm run -w build:prod && npm run -w electron:build",
+    "build:all": "npm run build:sdk && npm run build:prod && npm run electron:build",
     "build": "npm run build:components && npm run electron:tsc && ng build --base-href ./",
     "build:components": "ng build sailpoint-components",
     "build:dev": "npm run build -- -c dev",
     "build:prod": "npm run build:components && npm run build -- -c production",
     "build:sdk": "node scripts/build-sailpoint-sdk.js",
+    "build:publish": "npm run build:prod && npm run electron:build",
     "web:build": "npm run build -- -c web-production",
     "electron": "electron",
     "electron:tsc": "tsc -p tsconfig.serve.json",
@@ -142,7 +143,14 @@
     "ts-node": "10.9.2",
     "typescript": "5.8.3",
     "wait-on": "8.0.3",
-    "webdriver-manager": "12.1.9"
+    "webdriver-manager": "12.1.9",
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/commit-analyzer": "13.0.0",
+    "@semantic-release/git": "10.0.1",
+    "@semantic-release/github": "10.3.4",
+    "@semantic-release/npm": "12.0.1",
+    "@semantic-release/release-notes-generator": "14.0.1",
+    "semantic-release": "24.2.3"
   },
   "engines": {
     "node": ">= 16.14.0 || >= 18.10.0"
