@@ -23,7 +23,6 @@ import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/i
 import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 import { ElectronApiFactoryService } from 'sailpoint-components';
 import { DOCUMENT } from '@angular/common';
-import { environment } from '../../environments/environment';
 import { WebAuthComponent, AuthEvent } from '../web-auth/web-auth.component';
 import { GenericDialogComponent, OAuthDialogComponent, OAuthDialogData } from 'sailpoint-components'
 
@@ -127,19 +126,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) { 
     // Check if running in web mode - use isElectron getter
     this.state.isWebMode = !this.electronService.isElectron;
-    console.log('App running in web mode:', this.state.isWebMode);
 
-    // Check for OAuth callback parameters
-    if (this.state.isWebMode) {
-      const url = new URL(document.location.href);
-      if (url.searchParams.has('success')) {
-        this.showSnackbar('Login successful!');
-        this.checkLoginStatus();
-      } else if (url.searchParams.has('error')) {
-        const errorMessage = url.searchParams.get('message') || 'Unknown error';
-        this.showSnackbar(`OAuth error: ${errorMessage}`);
-      }
-    }
   }
 
 
@@ -155,6 +142,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (this.state.isConnected) {
       void this.checkSessionStatus();
+    }
+
+    // Check for OAuth callback parameters
+    if (this.state.isWebMode) {
+      const url = new URL(document.location.href);
+      if (url.searchParams.has('success')) {
+        this.showSnackbar('Login successful!');
+        void this.checkLoginStatus();
+      } else if (url.searchParams.has('error')) {
+        const errorMessage = url.searchParams.get('message') || 'Unknown error';
+        this.showSnackbar(`OAuth error: ${errorMessage}`);
+      }
     }
 
     this.state.loading = false;
@@ -203,22 +202,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
         this.state.isConnected = true;
         this.state.name = status.environment;
-        
-        // Get tenant information
-        const tenant = this.state.tenants.find(t => t.name === status.environment);
-        if (tenant) {
-          this.state.actualTenant = tenant;
-          this.state.selectedTenant = tenant.name;
-          
-          this.connectionService.currentEnvironmentSubject$.next({
-            name: tenant.name,
-            apiUrl: tenant.apiUrl,
-            baseUrl: tenant.tenantUrl,
-            authtype: 'oauth',
-            clientId: tenant.clientId || undefined,
-            clientSecret: tenant.clientSecret || undefined
-          });
-        }
+      
       }
     } catch (error) {
       console.error('Error checking login status:', error);
@@ -227,6 +211,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Tenant Methods:
   async loadTenants(): Promise<void> {
+    if (this.state.isWebMode) return;
     try {
       const tenants = await this.electronService.getApi().getTenants();
       this.state.tenants = tenants;
@@ -298,7 +283,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);
-    console.log('Authentication type:', this.state.actualTenant.authtype);
 
 
     try {
@@ -419,7 +403,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (response.ok) {
         const oauthInfo = await response.json();
         this.state.oauthValidationStatus = 'valid';
-        console.log('OAuth info response:', oauthInfo);
         return { error: undefined };
       } else {
         this.state.oauthValidationStatus = 'invalid';

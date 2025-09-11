@@ -63,7 +63,6 @@ export class WebAuthComponent implements OnInit {
       });
       
       const result = await response.json();
-      console.log('Auth response:', result);
       
       if (result.success && result.authUrl) {
         console.log('Redirecting to:', result.authUrl);
