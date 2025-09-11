@@ -33,6 +33,7 @@ export class WebAuthComponent implements OnInit {
   isAuthenticated = false;
   username = '';
   errorMessage = '';
+  private csrfToken = '';
 
   constructor(private snackBar: MatSnackBar) { }
 
@@ -47,20 +48,50 @@ export class WebAuthComponent implements OnInit {
     }
   }
 
+  private async fetchCsrfToken(): Promise<string> {
+    try {
+      const response = await fetch('/api/auth/csrf-token', {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch CSRF token');
+      }
+      
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error('Error fetching CSRF token:', error);
+      throw error;
+    }
+  }
+
   async authenticate(): Promise<void> {
     this.isLoading = true;
     this.errorMessage = '';
 
     try {
+      // Fetch CSRF token first
+      console.log('Fetching CSRF token...');
+      this.csrfToken = await this.fetchCsrfToken();
+      
       // Call the server's authentication endpoint
       console.log('Calling auth endpoint...');
       const response = await fetch('/api/auth/web-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-csrf-token': this.csrfToken
         },
         credentials: 'include' // Important for session cookies
       });
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('CSRF token validation failed');
+        }
+        throw new Error(`Authentication request failed: ${response.status}`);
+      }
       
       const result = await response.json();
       
@@ -80,7 +111,8 @@ export class WebAuthComponent implements OnInit {
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      this.showError('Failed to connect to authentication service');
+      const message = error instanceof Error ? error.message : 'Failed to connect to authentication service';
+      this.showError(message);
       this.isLoading = false;
     }
   }
@@ -115,11 +147,30 @@ export class WebAuthComponent implements OnInit {
     this.isLoading = true;
     
     try {
-      await fetch('/api/auth/logout', {
+      // Fetch CSRF token for logout
+      if (!this.csrfToken) {
+        console.log('Fetching CSRF token for logout...');
+        this.csrfToken = await this.fetchCsrfToken();
+      }
+      
+      const response = await fetch('/api/auth/logout', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': this.csrfToken
+        },
         credentials: 'include'
       });
       
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('CSRF token validation failed');
+        }
+        throw new Error(`Logout request failed: ${response.status}`);
+      }
+      
+      // Clear the CSRF token after successful logout
+      this.csrfToken = '';
       this.isAuthenticated = false;
       this.username = '';
       this.authEvent.emit({
@@ -128,7 +179,8 @@ export class WebAuthComponent implements OnInit {
       this.showSuccess('Successfully logged out');
     } catch (error) {
       console.error('Logout error:', error);
-      this.showError('Failed to logout');
+      const message = error instanceof Error ? error.message : 'Failed to logout';
+      this.showError(message);
     } finally {
       this.isLoading = false;
     }

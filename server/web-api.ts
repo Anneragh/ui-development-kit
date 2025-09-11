@@ -2,7 +2,7 @@
  * Enhanced test server for the UI Development Kit web version
  * Implements a simplified authentication flow with server-side credentials
  */
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -12,6 +12,7 @@ import fs from 'fs';
 import axios from 'axios';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import Tokens = require("csrf")
 
 // Load environment variables from .env file
 dotenv.config();
@@ -51,12 +52,16 @@ declare module 'express-session' {
     username: string;
     oauthState?: string;
     oauthStateData?: OAuthState;
+    csrfSecret?: string;
   }
 }
 
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize CSRF tokens
+const tokens = new Tokens();
 
 // Configure session storage
 app.use(session({
@@ -73,6 +78,27 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+// CSRF middleware
+const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
+  // Skip CSRF for GET requests and OAuth callback
+  if (req.method === 'GET' || req.path === '/oauth/callback') {
+    return next();
+  }
+
+  // Ensure session has CSRF secret
+  if (!req.session.csrfSecret) {
+    req.session.csrfSecret = tokens.secretSync();
+  }
+
+  const token = req.headers['x-csrf-token'] as string || req.body._csrf;
+  
+  if (!token || !tokens.verify(req.session.csrfSecret, token)) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+
+  next();
+};
 
 // Configuration for OAuth - loaded from environment variables
 const SERVER_CONFIG = {
@@ -139,7 +165,7 @@ function parseJWT(token: string): any {
 }
 
 // Simplified authentication endpoint
-app.post('/api/auth/web-login', (req: Request, res: Response) => {
+app.post('/api/auth/web-login', csrfProtection, (req: Request, res: Response) => {
   console.log('POST /api/auth/web-login called');
   
   // Generate and store state parameter
@@ -295,7 +321,7 @@ app.get('/api/auth/login-status', (req: Request, res: Response) => {
 });
 
 // Logout endpoint
-app.post('/api/auth/logout', (req: Request, res: Response) => {
+app.post('/api/auth/logout', csrfProtection, (req: Request, res: Response) => {
   console.log('POST /api/auth/logout called');
   
   // Clear session
@@ -308,8 +334,23 @@ app.post('/api/auth/logout', (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
+// CSRF token endpoint
+app.get('/api/auth/csrf-token', (req: Request, res: Response) => {
+  console.log('GET /api/auth/csrf-token called');
+  
+  // Ensure session has CSRF secret
+  if (!req.session.csrfSecret) {
+    req.session.csrfSecret = tokens.secretSync();
+  }
+  
+  // Generate CSRF token
+  const csrfToken = tokens.create(req.session.csrfSecret);
+  
+  res.json({ csrfToken });
+});
+
 // SDK API proxy endpoint
-app.post('/api/sdk/:methodName', (req: Request, res: Response) => {
+app.post('/api/sdk/:methodName', csrfProtection, (req: Request, res: Response) => {
   console.log('POST /api/sdk called', req.params);
   const { methodName } = req.params;
   const { args } = req.body;
@@ -339,41 +380,6 @@ app.get('/api/config', (req: Request, res: Response) => {
   });
 });
 
-// Logo endpoints
-app.post('/api/logos', upload.single('logo'), (req: Request, res: Response) => {
-  console.log('POST /api/logos called');
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  
-  res.json({
-    filename: req.file.filename,
-    path: req.file.path
-  });
-});
-
-app.get('/api/logos/:fileName', (req: Request, res: Response) => {
-  console.log('GET /api/logos called', req.params);
-  const { fileName } = req.params;
-  const filePath = path.join(uploadDir, fileName);
-  
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'Logo not found' });
-  }
-  
-  const fileContent = fs.readFileSync(filePath);
-  const base64 = fileContent.toString('base64');
-  
-  // Get mime type based on file extension
-  const ext = path.extname(fileName).toLowerCase();
-  let mimeType = 'image/png';
-  if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
-  if (ext === '.gif') mimeType = 'image/gif';
-  if (ext === '.svg') mimeType = 'image/svg+xml';
-  
-  const dataUrl = `data:${mimeType};base64,${base64}`;
-  res.json(dataUrl);
-});
 
 // Serve the Angular app for all other routes
 app.get('*', (req: Request, res: Response) => {
@@ -385,9 +391,10 @@ app.listen(PORT, () => {
   console.log(`Web API server running on port ${PORT}`);
   console.log(`OAuth client configured for: ${SERVER_CONFIG.tenantUrl}`);
   console.log('Available endpoints:');
-  console.log('  POST /api/auth/web-login');
+  console.log('  POST /api/auth/web-login (CSRF protected)');
   console.log('  GET  /oauth/callback');
   console.log('  GET  /api/auth/login-status');
-  console.log('  POST /api/auth/logout');
-  console.log('  POST /api/sdk/:methodName');
+  console.log('  GET  /api/auth/csrf-token');
+  console.log('  POST /api/auth/logout (CSRF protected)');
+  console.log('  POST /api/sdk/:methodName (CSRF protected)');
 });
