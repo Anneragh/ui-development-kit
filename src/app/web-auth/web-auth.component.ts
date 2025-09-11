@@ -40,7 +40,7 @@ export class WebAuthComponent implements OnInit {
     // Check if we're handling an OAuth callback
     const queryParams = new URLSearchParams(window.location.search);
     if (queryParams.has('success')) {
-      this.checkLoginStatus();
+      void this.checkLoginStatus();
     } else if (queryParams.has('error')) {
       const error = queryParams.get('message') || 'Authentication failed';
       this.showError(error);
