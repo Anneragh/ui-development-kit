@@ -177,10 +177,7 @@ app.post('/api/auth/web-login', (req: Request, res: Response) => {
 // OAuth callback handler
 app.get('/oauth/callback', async (req: Request, res: Response) => {
   const { code, state, error } = req.query;
-  
-  console.log('OAuth callback received', { code: !!code, state: !!state, error });
-  console.log('Full URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
-  console.log('Session state:', req.session.oauthState);
+
   
   // Check if error was returned
   if (error) {

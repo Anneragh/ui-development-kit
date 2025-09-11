@@ -401,7 +401,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
 
       if (response.ok) {
-        const oauthInfo = await response.json();
+        await response.json();
         this.state.oauthValidationStatus = 'valid';
         return { error: undefined };
       } else {
