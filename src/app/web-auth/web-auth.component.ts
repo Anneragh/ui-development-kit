@@ -66,8 +66,7 @@ export class WebAuthComponent implements OnInit {
       
       if (result.success && result.authUrl) {
         console.log('Redirecting to:', result.authUrl);
-        // Try window.open instead of window.location.href
-        window.open(result.authUrl, '_blank');
+        window.location.href = result.authUrl;
         
         // Also keep the original redirect as a backup with a slight delay
         setTimeout(() => {
