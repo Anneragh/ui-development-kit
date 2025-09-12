@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConnectionService } from '../services/connection.service';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -22,6 +22,8 @@ import { IdentitiesComponent } from './dashboard-cards/identities/identities.com
 import { IdentityProfilesComponent } from './dashboard-cards/identity-profiles/identity-profiles.component';
 import { ShortcutsComponent } from './dashboard-cards/shortcuts/shortcuts.component';
 import { ElectronApiFactoryService } from 'sailpoint-components';
+import { DOCUMENT } from '@angular/common';
+import { WebAuthComponent, AuthEvent } from '../web-auth/web-auth.component';
 import { GenericDialogComponent, OAuthDialogComponent, OAuthDialogData } from 'sailpoint-components'
 
 
@@ -50,6 +52,8 @@ type ComponentState = {
   actualTenant: Tenant;
   showEnvironmentDetails: boolean;
   oauthValidationStatus: OAuthValidationStatus;
+  isWebMode: boolean;
+  oauthInProgress: boolean;
 }
 
 @Component({
@@ -76,7 +80,7 @@ type ComponentState = {
     MatSnackBarModule,
     FormsModule,
     SharedModule,
-    GenericDialogComponent,
+    WebAuthComponent,
     OAuthDialogComponent
   ]
 })
@@ -101,7 +105,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     selectedTenant: 'new',
     actualTenant: this.defaultTenant,
     showEnvironmentDetails: false,
-    oauthValidationStatus: 'unknown'
+    oauthValidationStatus: 'unknown',
+    isWebMode: false,
+    oauthInProgress: false
   }
 
   authenticating = false;
@@ -114,14 +120,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private connectionService: ConnectionService,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
     private electronService: ElectronApiFactoryService,
-    private dialog: MatDialog
-  ) { }
+    @Inject(DOCUMENT) private document: Document
+  ) { 
+    // Check if running in web mode - use isElectron getter
+    this.state.isWebMode = !this.electronService.isElectron;
+
+  }
+
 
   ngOnInit(): void {
     void this.loadTenants();
+    void this.checkLoginStatus()
 
-
+    
     this.connectionService.connectedSubject$.subscribe((connection) => {
       this.state.isConnected = connection.connected;
       this.state.name = connection.name || '';
@@ -129,6 +142,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (this.state.isConnected) {
       void this.checkSessionStatus();
+    }
+
+    // Check for OAuth callback parameters
+    if (this.state.isWebMode) {
+      const url = new URL(document.location.href);
+      if (url.searchParams.has('success')) {
+        this.showSnackbar('Login successful!');
+        void this.checkLoginStatus();
+      } else if (url.searchParams.has('error')) {
+        const errorMessage = url.searchParams.get('message') || 'Unknown error';
+        this.showSnackbar(`OAuth error: ${errorMessage}`);
+      }
     }
 
     this.state.loading = false;
@@ -158,9 +183,35 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // In web mode, check if the user is already logged in
+  async checkLoginStatus(): Promise<void> {
+    if (!this.state.isWebMode) return;
+
+    try {
+      const response = await fetch('/api/auth/login-status', {
+        credentials: 'include' // Important for session cookies
+      });
+      
+      const status = await response.json();
+      
+      if (status.isLoggedIn && status.environment) {
+        // Update connection state
+        this.connectionService.connectedSubject$.next({ 
+          connected: true, 
+          name: status.environment 
+        });
+        this.state.isConnected = true;
+        this.state.name = status.environment;
+      
+      }
+    } catch (error) {
+      console.error('Error checking login status:', error);
+    }
+  }
 
   // Tenant Methods:
   async loadTenants(): Promise<void> {
+    if (this.state.isWebMode) return;
     try {
       const tenants = await this.electronService.getApi().getTenants();
       this.state.tenants = tenants;
@@ -232,7 +283,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     console.log('Connecting to:', this.state.actualTenant.name, 'at', this.state.actualTenant.apiUrl);
-    console.log('Authentication type:', this.state.actualTenant.authtype);
+
 
     try {
       console.log("Validating tokens");
@@ -248,6 +299,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
 
         if (loginResult.success) {
+          // For web mode with OAuth, we need to redirect to the authorization server
+
           const tokenDetails = await this.electronService.getApi().getCurrentTokenDetails(this.state.actualTenant.name);
           if (tokenDetails.error || !tokenDetails.tokenDetails) {
             this.showSnackbar(`Failed to get token details. Please check your configuration and try again. \n\n${tokenDetails.error}`);
@@ -289,8 +342,45 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Handle auth events from WebAuthComponent
+  handleAuthEvent(event: AuthEvent): void {
+    console.log('Auth event received:', event);
+    
+    if (event.success) {
+      // Update connection state on successful auth
+      this.state.isConnected = true;
+      this.state.name = event.username || 'User';
+      this.connectionService.connectedSubject$.next({ 
+        connected: true, 
+        name: event.username || 'User' 
+      });
+      this.showSnackbar(`Successfully authenticated as ${event.username}`);
+    } else {
+      // Handle logout or auth failure
+      this.state.isConnected = false;
+      this.connectionService.connectedSubject$.next({ connected: false });
+      if (event.message) {
+        this.showSnackbar(event.message);
+      }
+    }
+  }
+
   async disconnectFromISC(): Promise<void> {
-    await this.electronService.getApi().disconnectFromISC();
+    if (this.state.isWebMode) {
+      // Call logout endpoint for web mode
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+      } catch (error) {
+        console.error('Error during web logout:', error);
+      }
+    } else {
+      // Regular electron mode logout
+      await this.electronService.getApi().disconnectFromISC();
+    }
+    
     this.state.isConnected = false;
     this.connectionService.connectedSubject$.next({ connected: false });
   }
@@ -311,9 +401,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
 
       if (response.ok) {
-        const oauthInfo = await response.json();
+        await response.json();
         this.state.oauthValidationStatus = 'valid';
-        console.log('OAuth info response:', oauthInfo);
         return { error: undefined };
       } else {
         this.state.oauthValidationStatus = 'invalid';

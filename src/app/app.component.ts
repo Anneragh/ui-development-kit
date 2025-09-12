@@ -124,7 +124,6 @@ export class AppComponent implements OnDestroy, OnInit {
     // Subscribe to current environment changes
     this.subscriptions.add(
       this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | undefined) => {
-        console.log('App component received environment:', environment);
         this.currentEnvironment = environment;
       })
     );
