@@ -13,6 +13,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import Tokens = require("csrf")
+import rateLimit from 'express-rate-limit';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -78,6 +79,13 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+
+const rateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // limit each IP to 5 requests per minute
+  message: { error: 'Too many request attempts. Please try again later.' }
+});
 
 // CSRF middleware
 const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
@@ -165,7 +173,7 @@ function parseJWT(token: string): any {
 }
 
 // Simplified authentication endpoint
-app.post('/api/auth/web-login', csrfProtection, (req: Request, res: Response) => {
+app.post('/api/auth/web-login', rateLimiter, csrfProtection, (req: Request, res: Response) => {
   console.log('POST /api/auth/web-login called');
   
   // Generate and store state parameter
@@ -201,7 +209,7 @@ app.post('/api/auth/web-login', csrfProtection, (req: Request, res: Response) =>
 });
 
 // OAuth callback handler
-app.get('/oauth/callback', async (req: Request, res: Response) => {
+app.get('/oauth/callback', rateLimiter, async (req: Request, res: Response) => {
   const { code, state, error } = req.query;
 
   
@@ -310,7 +318,7 @@ app.get('/oauth/callback', async (req: Request, res: Response) => {
 });
 
 // Check login status
-app.get('/api/auth/login-status', (req: Request, res: Response) => {
+app.get('/api/auth/login-status', rateLimiter, (req: Request, res: Response) => {
   console.log('GET /api/auth/login-status called');
   
   // Return current authentication status from session
@@ -321,7 +329,7 @@ app.get('/api/auth/login-status', (req: Request, res: Response) => {
 });
 
 // Logout endpoint
-app.post('/api/auth/logout', csrfProtection, (req: Request, res: Response) => {
+app.post('/api/auth/logout', rateLimiter, csrfProtection, (req: Request, res: Response) => {
   console.log('POST /api/auth/logout called');
   
   // Clear session
@@ -335,7 +343,7 @@ app.post('/api/auth/logout', csrfProtection, (req: Request, res: Response) => {
 });
 
 // CSRF token endpoint
-app.get('/api/auth/csrf-token', (req: Request, res: Response) => {
+app.get('/api/auth/csrf-token', rateLimiter, (req: Request, res: Response) => {
   console.log('GET /api/auth/csrf-token called');
   
   // Ensure session has CSRF secret
@@ -350,7 +358,7 @@ app.get('/api/auth/csrf-token', (req: Request, res: Response) => {
 });
 
 // SDK API proxy endpoint
-app.post('/api/sdk/:methodName', csrfProtection, (req: Request, res: Response) => {
+app.post('/api/sdk/:methodName', rateLimiter, csrfProtection, (req: Request, res: Response) => {
   console.log('POST /api/sdk called', req.params);
   const { methodName } = req.params;
   const { args } = req.body;
@@ -369,7 +377,7 @@ app.post('/api/sdk/:methodName', csrfProtection, (req: Request, res: Response) =
 });
 
 // Config endpoints
-app.get('/api/config', (req: Request, res: Response) => {
+app.get('/api/config', rateLimiter, (req: Request, res: Response) => {
   console.log('GET /api/config called');
   res.json({
     version: '1.0.0',
@@ -382,7 +390,7 @@ app.get('/api/config', (req: Request, res: Response) => {
 
 
 // Serve the Angular app for all other routes
-app.get('*', (req: Request, res: Response) => {
+app.get('*', rateLimiter, (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 

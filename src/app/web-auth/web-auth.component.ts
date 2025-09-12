@@ -58,7 +58,11 @@ export class WebAuthComponent implements OnInit {
         throw new Error('Failed to fetch CSRF token');
       }
       
-      const data = await response.json();
+      interface CsrfTokenResponse {
+        csrfToken: string;
+      }
+      
+      const data: CsrfTokenResponse = await response.json();
       return data.csrfToken;
     } catch (error) {
       console.error('Error fetching CSRF token:', error);
