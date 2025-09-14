@@ -33,10 +33,9 @@
             "inlineStyleLanguage": "scss",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
-              "node_modules/prismjs/themes/prism-tomorrow.css",
+              "node_modules/prismjs/themes/prism-tomorrow.css",   
               "src/styles.scss",
-              "@angular/material/prebuilt-themes/magenta-violet.css",
-              "src/styles.scss"
+              "@angular/material/prebuilt-themes/magenta-violet.css"     
             ],
             "scripts": [],
             "customWebpackConfig": {

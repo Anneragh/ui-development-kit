@@ -1,0 +1,444 @@
+<mat-card class="w-full">
+  <mat-card-header>
+    <mat-card-title>{{ breadcrumbLabel || getCurrentBreadcrumbLabel() }}</mat-card-title>
+    <mat-card-subtitle>Detailed information for certification</mat-card-subtitle>
+  </mat-card-header>
+  
+  <div class="header-status-indicators" *ngIf="certificationDetails?.certification">
+    <div class="status-indicator" [ngClass]="getStatusClass()">
+      <div class="status-dot"></div>
+      <span class="status-text">{{ getStatusText() }}</span>
+    </div>
+    <div class="phase-indicator" [ngClass]="getPhaseClass()">
+      <div class="phase-dot"></div>
+      <span class="phase-text">{{ certificationDetails.certification.phase || 'N/A' }}</span>
+    </div>
+  </div>
+  
+  <!-- Staged Certification Notice -->
+  <div class="staged-notice" *ngIf="isCertificationStaged()">
+    <mat-icon color="warn">info</mat-icon>
+    <span>This certification is in STAGED phase. Decision changes are disabled.</span>
+  </div>
+  
+  <mat-card-content class="w-full">
+    <div *ngIf="loading" class="spinner-container">
+      <mat-spinner diameter="75"></mat-spinner>
+    </div>
+    
+    <div *ngIf="error" class="error-message">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-button color="primary" (click)="loadCertificationDetails()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+    
+    <div *ngIf="!loading && !error && certificationDetails" class="certification-detail">
+
+      <!-- Campaign Information -->
+      <div class="detail-section" *ngIf="certificationDetails.certification.campaign">
+        <h3>Campaign Information</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <strong>Campaign Name:</strong>
+            <span>{{ certificationDetails.certification.campaign.name || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Campaign Type:</strong>
+            <span>{{ certificationDetails.certification.campaign.campaignType || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Campaign Description:</strong>
+            <span>{{ certificationDetails.certification.campaign.description || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Information -->
+      <div class="detail-section">
+        <h3>Progress Information</h3>
+        <div class="progress-grid">
+          <!-- Identities Progress -->
+          <div class="progress-item">
+            <nz-statistic 
+              [nzValue]="certificationDetails.certification.identitiesCompleted || 0" 
+              nzTitle="Identities Completed" 
+              [nzSuffix]="'/' + (certificationDetails.certification.identitiesTotal || 0)">
+            </nz-statistic>
+            <nz-progress 
+              [nzPercent]="getIdentitiesProgressPercent()" 
+              nzSize="small" 
+              [nzStatus]="getIdentitiesProgressStatus()">
+            </nz-progress>
+          </div>
+
+          <!-- Decisions Progress -->
+          <div class="progress-item">
+            <nz-statistic 
+              [nzValue]="certificationDetails.certification.decisionsMade || 0" 
+              nzTitle="Decisions Made" 
+              [nzSuffix]="'/' + (certificationDetails.certification.decisionsTotal || 0)">
+            </nz-statistic>
+            <nz-progress 
+              [nzPercent]="getDecisionsProgressPercent()" 
+              nzSize="small" 
+              [nzStatus]="getDecisionsProgressStatus()">
+            </nz-progress>
+          </div>
+
+          <!-- Due Date Countdown or Overdue Status -->
+          <div class="progress-item" *ngIf="deadline > 0">
+            <div *ngIf="!isOverdue">
+              <nz-countdown 
+                [nzValue]="deadline" 
+                nzTitle="Time Remaining"
+                [nzFormat]="getCountdownFormat()">
+              </nz-countdown>
+            </div>
+            <div *ngIf="isOverdue" class="overdue-status">
+              <nz-statistic 
+                nzTitle="Status" 
+                nzValue="OVERDUE"
+                [nzValueStyle]="{ color: '#ff4d4f' }">
+              </nz-statistic>
+              <nz-statistic 
+                nzTitle="Days Overdue" 
+                [nzValue]="getDaysOverdue()"
+                [nzValueStyle]="{ color: '#ff4d4f' }">
+              </nz-statistic>
+            </div>
+          </div>
+
+          <!-- Timeline Information -->
+          <div class="timeline-section">
+            <h4>Certification Timeline</h4>
+            <nz-timeline>
+              <nz-timeline-item nzColor="blue">
+                <strong>Created:</strong> {{ formatDate(certificationDetails.certification.created) }}
+              </nz-timeline-item>
+              
+              <nz-timeline-item 
+                *ngIf="certificationDetails.certification.signed" 
+                nzColor="green">
+                <strong>Signed:</strong> {{ formatDate(certificationDetails.certification.signed) }}
+              </nz-timeline-item>
+              
+              <nz-timeline-item 
+                *ngIf="!certificationDetails.certification.signed" 
+                nzColor="gray" 
+                [nzDot]="clockTemplate">
+                <strong>Signed:</strong> <em>Pending</em>
+              </nz-timeline-item>
+              
+              <nz-timeline-item 
+                [nzColor]="isOverdue ? 'red' : 'orange'">
+                <strong>Due:</strong> {{ formatDate(certificationDetails.certification.due) }}
+                <span *ngIf="isOverdue" class="overdue-text"> ({{ getDaysOverdue() }} days overdue)</span>
+              </nz-timeline-item>
+            </nz-timeline>
+            
+            <ng-template #clockTemplate>
+              <nz-icon nzType="clock-circle-o" style="font-size: 16px;" />
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviewer Information -->
+      <div class="detail-section" *ngIf="certificationDetails.reviewers.length > 0 || hasReassignment()">
+        <h3>Reviewers</h3>
+        <div class="reviewers-list">
+          <div *ngFor="let reviewer of certificationDetails.reviewers" class="reviewer-item">
+            <div class="reviewer-info">
+              <strong>{{ reviewer.name || 'N/A' }}</strong>
+              <span *ngIf="reviewer.email">({{ reviewer.email }})</span>
+            </div>
+            <div class="reviewer-actions" *ngIf="reviewer.id">
+              <button 
+                nz-button 
+                nzType="default" 
+                nzSize="small"
+                (click)="viewIdentity(reviewer.id, reviewer.name)"
+                class="view-identity-btn">
+                <span nz-icon nzType="user"></span>
+                View Identity
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Reassignment Information -->
+        <div *ngIf="hasReassignment()" class="reassignment-section">
+          <h4>Reassignment History</h4>
+          <div class="reassignment-item">
+            <div class="reassignment-header">
+              <mat-icon class="reassignment-icon">swap_horiz</mat-icon>
+              <div class="reassignment-details">
+                <div class="reassignment-from">
+                  <strong>Reassigned from:</strong>
+                  <span>{{ getReassignmentFromName() }}</span>
+                  <span *ngIf="getReassignmentFromEmail()">({{ getReassignmentFromEmail() }})</span>
+                </div>
+                <div class="reassignment-timestamp">
+                  <mat-icon class="timestamp-icon">schedule</mat-icon>
+                  <span>{{ formatDate(getReassignmentCreated()) }}</span>
+                </div>
+                <div *ngIf="getReassignmentComment()" class="reassignment-comment">
+                  <mat-icon class="comment-icon">comment</mat-icon>
+                  <span>{{ getReassignmentComment() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Access Review Items -->
+      <div class="detail-section" *ngIf="certificationDetails.accessReviewItems.length > 0">
+        <div class="section-header">
+          <h3>Access Review Items</h3>
+          <div class="bulk-action-controls" *ngIf="!certificationDetails.certification.completed">
+            <button 
+              nz-button 
+              nzType="default" 
+              nzSize="small"
+              (click)="toggleBulkActionMode()"
+              [nzLoading]="bulkActionLoading"
+              [disabled]="isCertificationStaged()"
+              nz-tooltip
+              [nzTooltipTitle]="isCertificationStaged() ? 'Bulk actions are disabled for STAGED certifications' : ''"
+              nzTooltipPlacement="top"
+              class="bulk-action-toggle">
+              <span nz-icon [nzType]="bulkActionMode ? 'close' : 'check-square'"></span>
+              {{ bulkActionMode ? 'Exit Bulk Mode' : 'Bulk Actions' }}
+            </button>
+            
+            <div class="bulk-action-panel" *ngIf="bulkActionMode">
+              <nz-select
+                [(ngModel)]="bulkActionDecision"
+                nzSize="small"
+                nzPlaceHolder="Select decision"
+                class="bulk-decision-select">
+                <nz-option nzValue="APPROVE" nzLabel="APPROVE"></nz-option>
+                <nz-option nzValue="REVOKE" nzLabel="REVOKE"></nz-option>
+              </nz-select>
+              
+              <button 
+                nz-button 
+                nzType="primary" 
+                nzSize="small"
+                [disabled]="isBulkActionDisabled()"
+                [nzLoading]="bulkActionLoading"
+                (click)="applyBulkDecision()"
+                class="bulk-apply-btn">
+                Apply to {{ setOfCheckedId.size }} items
+              </button>
+              
+              <span class="selected-count" *ngIf="setOfCheckedId.size > 0">
+                Selected {{ setOfCheckedId.size }} items
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <nz-table 
+          #accessReviewTable
+          nzShowPagination
+          nzShowSizeChanger
+          [nzData]="certificationDetails.accessReviewItems" 
+          [nzLoading]="loading"
+          nzSize="middle"
+          [nzPageSize]="10"
+          [nzPageSizeOptions]="[5, 10, 20, 50]"
+          nzShowTotal
+          [nzScroll]="{ x: 'max-content' }"
+          (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+          [class]="'access-review-table w-full' + (bulkActionMode ? ' bulk-mode' : '')">
+          
+          <thead>
+            <tr>
+              <!-- Bulk selection checkbox column -->
+              <th 
+                *ngIf="bulkActionMode"
+                [nzChecked]="checked"
+                [nzIndeterminate]="indeterminate"
+                nzLabel="Select all"
+                (nzCheckedChange)="onAllChecked($event)"
+                class="bulk-select-header">
+              </th>
+              
+              <th 
+                *ngFor="let column of accessReviewColumns"
+                [nzShowSort]="column.sortFn !== null"
+                [nzSortOrder]="column.sortOrder"
+                [nzSortFn]="column.sortFn"
+                [nzSortDirections]="column.sortDirections"
+                [nzShowFilter]="column.filterFn !== null && column.listOfFilter.length > 0"
+                [nzFilterFn]="column.filterFn"
+                [nzFilterMultiple]="column.filterMultiple"
+                [nzFilters]="column.listOfFilter"
+                [nzRight]="column.name === 'Decision' || column.name === 'Actions'">
+                {{ column.name }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of accessReviewTable.data; trackBy: trackByAccessReviewId">
+              <!-- Bulk selection checkbox cell -->
+              <td 
+                *ngIf="bulkActionMode"
+                [nzChecked]="setOfCheckedId.has(item.id)"
+                [nzDisabled]="isItemDisabledForBulkSelection(item)"
+                [nzLabel]="item.identitySummary?.name || 'Unknown'"
+                (nzCheckedChange)="onItemChecked(item.id, $event)"
+                class="bulk-select-cell">
+              </td>
+              
+              <td 
+                *ngFor="let column of accessReviewColumns"
+                [nzRight]="column.name === 'Decision' || column.name === 'Actions'">
+                <span 
+                  *ngIf="column.name === 'Comments'"
+                  [class]="column.cssClass ? column.cssClass(column.dataAccessor(item)) : ''">
+                  <span 
+                    *ngIf="item.comments" 
+                    nz-tooltip 
+                    [nzTooltipTitle]="item.comments"
+                    nzTooltipPlacement="topLeft"
+                    class="comments-cell">
+                    <nz-icon nzType="message" nzTheme="outline"></nz-icon>
+                    <span class="comments-text">{{ item.comments | slice:0:50 }}{{ item.comments.length > 50 ? '...' : '' }}</span>
+                  </span>
+                  <span *ngIf="!item.comments" class="no-comments">-</span>
+                </span>
+                <span 
+                  *ngIf="column.name === 'Actions'"
+                  [class]="column.cssClass ? column.cssClass(column.dataAccessor(item)) : ''">
+                  <button 
+                    nz-button 
+                    nzType="default" 
+                    nzSize="small"
+                    (click)="viewIdentity(item.identitySummary.identityId, item.identitySummary.name)"
+                    [disabled]="!item.identitySummary?.identityId"
+                    class="action-button">
+                    <span nz-icon nzType="user"></span>
+                    View Identity
+                  </button>
+                  <button 
+                    nz-button 
+                    nzType="default" 
+                    nzSize="small"
+                    (click)="viewAccessDetail(item)"
+                    class="action-button">
+                    <span nz-icon nzType="eye"></span>
+                    View Detail
+                  </button>
+                </span>
+                <div *ngIf="column.name === 'Decision' && item.completed"
+                  [class]="'decision-display ' + getDecisionDisplayClass(item)">
+                  {{ getDecisionDisplayValue(item) }}
+                  <span class="completed-indicator" nz-tooltip nzTooltipTitle="Completed - Read Only">
+                    <nz-icon nzType="lock" nzTheme="outline"></nz-icon>
+                  </span>
+                </div>
+                <!-- Editable Decision Column -->
+                <div *ngIf="column.name === 'Decision' && !item.completed" class="editable-decision-cell">
+                    <nz-select
+                      [nzDisabled]="isDecisionSelectDisabled(item)"
+                      [ngModel]="getCurrentDecision(item.id)"
+                      (ngModelChange)="onDecisionChange($event, item.id)"
+                      nzSize="small"
+                      nzPlaceHolder="Select decision"
+                      class="decision-select">
+                    <nz-option                  
+                      nzValue="APPROVE" 
+                      nzLabel="APPROVE">
+                    </nz-option>
+                    <nz-option                    
+                      nzValue="REVOKE" 
+                      nzLabel="REVOKE">
+                    </nz-option>
+                    <nz-option                    
+                      nzValue="PENDING" 
+                      nzLabel="PENDING">
+                    </nz-option>
+                  </nz-select>
+                </div>
+                
+                <!-- Regular columns -->
+                <span 
+                  *ngIf="column.name !== 'Comments' && column.name !== 'Actions' && column.name !== 'Decision'"
+                  [class]="column.cssClass ? column.cssClass(column.dataAccessor(item)) : ''">
+                  {{ column.formatter ? column.formatter(column.dataAccessor(item)) : column.dataAccessor(item) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </div>
+
+      <!-- Errors (if any) -->
+      <div class="detail-section" *ngIf="certificationDetails.errors && certificationDetails.errors.length > 0">
+        <h3>Errors</h3>
+        <div class="error-list">
+          <div *ngFor="let error of certificationDetails.errors" class="error-item">
+            <mat-icon color="warn">warning</mat-icon>
+            <span>{{ error }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-actions">
+        <div class="left-actions">
+          <button mat-button color="primary" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            Back to List
+          </button>
+          <button 
+            mat-button 
+            color="accent" 
+            (click)="loadCertificationDetails()">
+            <mat-icon>refresh</mat-icon>
+            Refresh
+          </button>
+        </div>
+        
+        <div class="right-actions">
+          <button 
+            mat-button 
+            color="warn" 
+            (click)="clearAllDecisionChanges()"
+            [disabled]="!hasPendingChanges()"
+            class="clear-changes-btn">
+            <mat-icon>clear</mat-icon>
+            Clear Changes
+          </button>
+          <button 
+            mat-button 
+            color="accent" 
+            (click)="saveDecisionChanges()"
+            [disabled]="!hasPendingChanges()"
+            class="save-changes-btn">
+            <mat-icon>save</mat-icon>
+            Save Changes ({{ decisionChanges.size }})
+          </button>
+          <button 
+            mat-button 
+            color="primary" 
+            (click)="signOffCertification()"
+            [disabled]="loading"
+            [matTooltip]="'Sign off this certification to complete the review process'"
+            matTooltipPosition="above"
+            class="sign-off-btn"
+            *ngIf="shouldShowSignOffButton()">
+            <mat-icon>check_circle</mat-icon>
+            Sign-Off
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

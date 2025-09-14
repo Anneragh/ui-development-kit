@@ -94,3 +94,241 @@ mat-card-actions button {
   right: 20px;
   z-index: 1000; /* stay above content */
 }
+
+/* Floating Action Button styles */
+.floating-action-button {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 1000 !important;
+}
+
+/* Breadcrumb styles */
+nz-breadcrumb {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+}
+
+nz-breadcrumb a {
+  color: #1890ff !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+}
+
+nz-breadcrumb a:hover {
+  color: #40a9ff !important;
+  text-decoration: underline !important;
+}
+
+nz-breadcrumb a.active {
+  color: #096dd9 !important;
+  font-weight: 600 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Detail view styles */
+.certification-detail {
+  padding: 20px 0;
+}
+
+.certification-detail p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.detail-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.detail-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+:host {
+  /* Dark mode overrides */
+  
+  :host-context(.dark-theme) .certification-table th {
+    background-color: #2c2c2c;
+    color: #ffffff;
+  }
+  
+  :host-context(.dark-theme) .certification-table td {
+    color: #ffffff;
+    border-color: #404040;
+  }
+  
+  :host-context(.dark-theme) .no-data-message {
+    color: #cccccc;
+  }
+  
+  :host-context(.dark-theme) .no-data-message mat-icon {
+    color: #cccccc;
+  }
+  
+  :host-context(.dark-theme) .certification-detail p {
+    color: #ffffff;
+  }
+  
+  :host-context(.dark-theme) nz-breadcrumb a {
+    color: #54c0e8 !important;
+  }
+  
+  :host-context(.dark-theme) nz-breadcrumb a:hover {
+    color: #7dd3f0 !important;
+  }
+  
+  :host-context(.dark-theme) nz-breadcrumb a.active {
+    color: #54c0e8 !important;
+  }
+  
+  /* ng-zorro table dark theme overrides */
+  :host-context(.dark-theme) .ant-table-thead > tr > th {
+    background-color: #2c2c2c !important;
+    color: #ffffff !important;
+    border-color: #404040 !important;
+  }
+  
+  :host-context(.dark-theme) .ant-table-tbody > tr > td {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #404040 !important;
+  }
+  
+  :host-context(.dark-theme) .ant-table-tbody > tr:hover > td {
+    background-color: #2c2c2c !important;
+  }
+  
+  :host-context(.dark-theme) .ant-table {
+    background-color: #1e1e1e !important;
+  }
+  
+  :host-context(.dark-theme) .ant-pagination {
+    color: #ffffff !important;
+  }
+  
+  :host-context(.dark-theme) .ant-pagination .ant-pagination-item {
+    background-color: #2c2c2c !important;
+    border-color: #404040 !important;
+  }
+  
+  :host-context(.dark-theme) .ant-pagination .ant-pagination-item a {
+    color: #ffffff !important;
+  }
+  
+  :host-context(.dark-theme) .ant-pagination .ant-pagination-item-active {
+    background-color: #54c0e8 !important;
+    border-color: #54c0e8 !important;
+  }
+  
+  :host-context(.dark-theme) .ant-pagination .ant-pagination-item-active a {
+    color: #ffffff !important;
+  }
+
+}
+
+.search-box {
+  padding: 8px;
+}
+
+.search-box input {
+  width: 188px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.search-box button {
+  width: 90px;
+}
+
+.search-button {
+  margin-right: 8px;
+}
+
+// Column visibility controls
+.column-controls {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// Column dropdown now uses ant-table-filter-dropdown class for consistent styling
+
+.column-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.column-list {
+  padding: 4px 0;
+}
+
+// Reduce divider spacing
+.column-dropdown nz-divider {
+  margin: 4px 0 !important;
+}
+
+.column-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  margin: 0 !important;
+  color: inherit;
+  
+  &:hover {
+    background-color: rgba(128, 128, 128, 0.2); // translucent gray works on both
+  }
+  
+  // Ensure consistent checkbox alignment
+  nz-checkbox {
+    margin-right: 8px !important;
+    margin-left: 0 !important;
+  }
+  
+  // Override any default label margins
+  &::before {
+    display: none !important;
+  }
+}
+
+/* Works for all themes */
+:host {
+  /* Easiest: make the pagination list flex and use gap */
+  ::ng-deep nz-pagination.ant-pagination > ul {
+    display: inline-flex !important; /* keep it inline with table footer */
+    gap: 2px !important;             /* <-- your desired spacing */
+    padding: 0;                       /* ensure no extra left padding */
+  }
+
+  /* Fallback for engines that ignore gap: add margins on li */
+  ::ng-deep nz-pagination.ant-pagination > ul > li {
+    margin-right: 2px !important;
+  }
+  ::ng-deep nz-pagination.ant-pagination > ul > li:last-child {
+    margin-right: 0 !important;
+  }
+
+  /* Optional: keep the size changer a bit away from the page buttons */
+  ::ng-deep nz-pagination.ant-pagination > ul > li.ant-pagination-options {
+    margin-left: 6px !important;
+  }
+}
+
