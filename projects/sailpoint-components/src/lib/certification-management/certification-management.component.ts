@@ -46,6 +46,7 @@ import {
   DownloadOutline,
   SmileOutline,
   GiftOutline,
+  ReloadOutline,
 } from '@ant-design/icons-angular/icons';
 import { NavigationItem, NavigationStackService } from './navigation-stack';
 import { NZ_I18N, NzI18nService, en_US } from 'ng-zorro-antd/i18n';
@@ -116,6 +117,7 @@ interface ColumnItem {
       DownloadOutline,
       SmileOutline,
       GiftOutline,
+      ReloadOutline,
     ]),
     { provide: NZ_I18N, useValue: en_US },
   ],
@@ -564,6 +566,13 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  /**
+   * Refresh the certification data by reloading from the API
+   */
+  async refreshCertifications(): Promise<void> {
+    await this.getCertificationManagement();
   }
 
   // View certification details in dialog (legacy method - now using navigation)

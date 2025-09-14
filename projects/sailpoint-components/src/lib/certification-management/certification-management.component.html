@@ -29,30 +29,50 @@
         <mat-card class="w-full">
           <mat-card-header>
             <mat-card-title>{{ getCurrentBreadcrumbLabel() }}</mat-card-title>
-            <mat-card-subtitle>Manage your certification management</mat-card-subtitle>
+            <mat-card-subtitle>Manage your certification management</mat-card-subtitle>    
           </mat-card-header>
-          
+ 
           <mat-card-content class="w-full">
             <div *ngIf="loading" class="spinner-container">
               <mat-spinner diameter="75"></mat-spinner>
             </div>
 
-            <!-- Column Visibility Controls -->
-            <div class="column-controls" *ngIf="!loading && filteredCertifications.length">
-              <nz-button-group>
-                <button 
-                  nz-button 
-                  nzType="default"
-                  nz-dropdown 
-                  [nzDropdownMenu]="columnMenu" 
-                  [nzVisible]="columnDropdownVisible"
-                  (nzVisibleChange)="columnDropdownVisible = $event"
-                  nzPlacement="bottomLeft">
-                  <nz-icon nzType="setting"></nz-icon>
-                  Columns
-                  <nz-icon nzType="down"></nz-icon>
-                </button>
-              </nz-button-group>
+            <!-- Table Controls Row -->
+            <div class="table-controls-row" *ngIf="!loading && filteredCertifications.length">
+              <!-- Refresh Button (Left) -->
+              <button 
+                nz-button 
+                nzType="default" 
+                (click)="refreshCertifications()"
+                [disabled]="loading"
+                nz-tooltip
+                nzTooltipTitle="Refresh certifications"
+                nzTooltipPlacement="bottom"
+                class="refresh-button">
+                <span nz-icon nzType="reload" [class.spinning]="loading"></span>
+                Refresh
+              </button>
+              
+              <!-- Spacer -->
+              <div class="spacer"></div>
+              
+              <!-- Column Controls (Right) -->
+              <div class="column-controls">
+                <nz-button-group>
+                  <button 
+                    nz-button 
+                    nzType="default"
+                    nz-dropdown 
+                    [nzDropdownMenu]="columnMenu" 
+                    [nzVisible]="columnDropdownVisible"
+                    (nzVisibleChange)="columnDropdownVisible = $event"
+                    nzPlacement="bottomRight">
+                    <nz-icon nzType="setting"></nz-icon>
+                    Columns
+                    <nz-icon nzType="down"></nz-icon>
+                  </button>
+                </nz-button-group>
+              </div>
             </div>
 
             <nz-table 
