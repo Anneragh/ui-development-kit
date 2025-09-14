@@ -43,6 +43,7 @@ import {
   QuestionCircleOutline,
   LockOutline,
   CheckSquareOutline,
+  DownloadOutline,
 } from '@ant-design/icons-angular/icons';
 import { NavigationItem, NavigationStackService } from './navigation-stack';
 import { NZ_I18N, NzI18nService, en_US } from 'ng-zorro-antd/i18n';
@@ -108,6 +109,7 @@ interface ColumnItem {
       QuestionCircleOutline,
       LockOutline,
       CheckSquareOutline,
+      DownloadOutline,
     ]),
     { provide: NZ_I18N, useValue: en_US },
   ],

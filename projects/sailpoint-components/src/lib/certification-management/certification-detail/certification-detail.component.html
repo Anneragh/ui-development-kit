@@ -200,6 +200,9 @@
       <div class="detail-section" *ngIf="certificationDetails.accessReviewItems.length > 0">
         <div class="section-header">
           <h3>Access Review Items</h3>
+        </div>
+        
+        <div class="section-controls">
           <div class="bulk-action-controls" *ngIf="!certificationDetails.certification.completed">
             <button 
               nz-button 
@@ -241,6 +244,42 @@
                 Selected {{ setOfCheckedId.size }} items
               </span>
             </div>
+          </div>
+          
+          <div class="section-actions">
+            <button 
+              nz-button 
+              nzType="default" 
+              nzSize="small"
+              (click)="downloadAccessReviewItemsCSV()"
+              [disabled]="!certificationDetails.accessReviewItems || certificationDetails.accessReviewItems.length === 0"
+              nz-tooltip
+              nzTooltipTitle="Download all access review items as CSV"
+              nzTooltipPlacement="top"
+              class="download-csv-btn">
+              <span nz-icon nzType="download"></span>
+              Download CSV
+            </button>
+            
+            <nz-upload
+              nzAccept=".csv"
+              [nzMultiple]="false"
+              [nzShowUploadList]="false"
+              [nzBeforeUpload]="loadCSV"
+              [nzDisabled]="!shouldShowLoadCSVButton()"
+              nz-tooltip
+              [nzTooltipTitle]="getLoadCSVTooltip()"
+              nzTooltipPlacement="top">
+              <button 
+                nz-button 
+                nzType="default" 
+                nzSize="small"
+                [disabled]="!shouldShowLoadCSVButton()"
+                class="load-csv-btn">
+                <span nz-icon nzType="upload"></span>
+                Load CSV
+              </button>
+            </nz-upload>
           </div>
         </div>
         

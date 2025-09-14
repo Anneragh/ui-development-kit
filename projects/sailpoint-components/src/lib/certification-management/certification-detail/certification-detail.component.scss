@@ -966,14 +966,48 @@
   }
 }
 
-/* Bulk Action Controls */
+/* Section Header and Controls */
 .section-header {
+  margin-bottom: 12px;
+}
+
+.section-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.download-csv-btn,
+.load-csv-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  span[nz-icon] {
+    font-size: 14px;
+  }
 }
 
 .bulk-action-controls {

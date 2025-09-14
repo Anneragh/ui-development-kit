@@ -28,6 +28,7 @@ import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzUploadModule } from 'ng-zorro-antd/upload';
 
 // Interface for comprehensive certification details
 interface CertificationDetails {
@@ -70,6 +71,7 @@ interface AccessReviewColumnItem {
     NzStatisticModule,
     NzTimelineModule,
     NzSelectModule,
+    NzUploadModule,
   ],
   templateUrl: './certification-detail.component.html',
   styleUrl: './certification-detail.component.scss',
@@ -1189,5 +1191,313 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  /**
+   * Download access review items as CSV
+   */
+  downloadAccessReviewItemsCSV(): void {
+    if (
+      !this.certificationDetails?.accessReviewItems ||
+      this.certificationDetails.accessReviewItems.length === 0
+    ) {
+      console.warn('No access review items to download');
+      return;
+    }
+
+    try {
+      // Get columns excluding Actions column
+      const exportColumns = this.accessReviewColumns.filter(
+        (column) => column.name !== 'Actions'
+      );
+
+      // Create CSV headers with ID as first column
+      const headers = [
+        'ID',
+        ...exportColumns.map((column) => this.escapeCSVField(column.name)),
+      ];
+      const csvContent = [headers.join(',')];
+
+      // Add data rows
+      this.certificationDetails.accessReviewItems.forEach((item) => {
+        const row = [
+          // First column: Item ID
+          this.escapeCSVField(item.id || ''),
+          // Rest of the columns
+          ...exportColumns.map((column) => {
+            let value = '';
+
+            if (column.dataAccessor) {
+              const rawValue = column.dataAccessor(item);
+
+              // Handle special cases for decision column
+              if (column.name === 'Decision') {
+                value = this.getCurrentDecision(item.id) || 'PENDING';
+              } else if (column.formatter) {
+                value = column.formatter(rawValue);
+              } else {
+                value = rawValue || '';
+              }
+            }
+
+            return this.escapeCSVField(String(value));
+          }),
+        ];
+
+        csvContent.push(row.join(','));
+      });
+
+      // Create and download the file
+      const csvString = csvContent.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+
+        // Generate filename with certification ID and timestamp
+        const certificationId =
+          this.certificationDetails.certification.id || 'certification';
+        const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+        link.setAttribute(
+          'download',
+          `access-review-items-${certificationId}-${timestamp}.csv`
+        );
+
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log('CSV download initiated successfully');
+      }
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      this.error = `Failed to download CSV: ${String(error)}`;
+    }
+  }
+
+  /**
+   * Escape CSV field to handle special characters and commas
+   */
+  private escapeCSVField(field: string): string {
+    if (!field) return '';
+
+    // If field contains comma, newline, or double quote, wrap in quotes and escape internal quotes
+    if (
+      field.includes(',') ||
+      field.includes('\n') ||
+      field.includes('\r') ||
+      field.includes('"')
+    ) {
+      return '"' + field.replace(/"/g, '""') + '"';
+    }
+
+    return field;
+  }
+
+  /**
+   * Check if Load CSV button should be shown
+   */
+  shouldShowLoadCSVButton(): boolean {
+    return (
+      !this.certificationDetails?.certification?.completed &&
+      this.isCertificationActive() &&
+      !this.isCertificationStaged()
+    );
+  }
+
+  /**
+   * Get tooltip text for Load CSV button
+   */
+  getLoadCSVTooltip(): string {
+    if (this.certificationDetails?.certification?.completed) {
+      return 'Load CSV is not available for completed certifications';
+    }
+    if (!this.isCertificationActive()) {
+      return 'Load CSV is only available for active certifications';
+    }
+    if (this.isCertificationStaged()) {
+      return 'Load CSV is not available for staged certifications';
+    }
+    return 'Upload CSV file to update decisions for access review items';
+  }
+
+  /**
+   * Load CSV file using nz-upload component
+   */
+  loadCSV = (file: File): boolean => {
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      this.error = 'Please select a valid CSV file';
+      return false;
+    }
+
+    // Read and process the CSV file
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csvContent = e.target?.result as string;
+      this.processCSVContent(csvContent);
+    };
+    reader.onerror = () => {
+      this.error = 'Error reading CSV file';
+    };
+    reader.readAsText(file);
+
+    // Return false to prevent automatic upload
+    return false;
+  };
+
+  /**
+   * Process CSV content and update decisions
+   */
+  private processCSVContent(csvContent: string): void {
+    try {
+      const lines = csvContent.split('\n').filter((line) => line.trim());
+
+      if (lines.length < 2) {
+        this.error =
+          'CSV file must contain at least a header row and one data row';
+        return;
+      }
+
+      // Parse header row to find column indices
+      const headers = this.parseCSVLine(lines[0]);
+      const idIndex = headers.findIndex(
+        (header) => header.toLowerCase() === 'id'
+      );
+      const decisionIndex = headers.findIndex(
+        (header) => header.toLowerCase() === 'decision'
+      );
+
+      if (idIndex === -1) {
+        this.error = 'CSV file must contain an "ID" column';
+        return;
+      }
+
+      if (decisionIndex === -1) {
+        this.error = 'CSV file must contain a "Decision" column';
+        return;
+      }
+
+      // Process data rows
+      let updatedCount = 0;
+      let skippedCount = 0;
+      const errors: string[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const row = this.parseCSVLine(lines[i]);
+
+        if (row.length <= Math.max(idIndex, decisionIndex)) {
+          errors.push(`Row ${i + 1}: Insufficient columns`);
+          continue;
+        }
+
+        const itemId = row[idIndex]?.trim();
+        const decision = row[decisionIndex]?.trim().toUpperCase();
+
+        if (!itemId) {
+          errors.push(`Row ${i + 1}: Missing item ID`);
+          continue;
+        }
+
+        // Validate decision value
+        if (!['APPROVE', 'REVOKE', 'PENDING'].includes(decision)) {
+          errors.push(
+            `Row ${
+              i + 1
+            }: Invalid decision "${decision}". Must be APPROVE, REVOKE, or PENDING`
+          );
+          continue;
+        }
+
+        // Find the corresponding access review item
+        const item = this.certificationDetails?.accessReviewItems.find(
+          (accessItem) => accessItem.id === itemId
+        );
+
+        if (!item) {
+          errors.push(`Row ${i + 1}: Item with ID "${itemId}" not found`);
+          continue;
+        }
+
+        // Only update if item is not completed
+        if (item.completed) {
+          skippedCount++;
+          continue;
+        }
+
+        // Update decision changes
+        if (decision === 'PENDING') {
+          // Remove from changes map if it exists (reverting to default state)
+          this.decisionChanges.delete(itemId);
+        } else {
+          // Store the change for APPROVE/REVOKE decisions
+          this.decisionChanges.set(itemId, decision);
+        }
+
+        // Also update the item in the data for immediate UI feedback
+        item.decision = decision;
+        updatedCount++;
+      }
+
+      // Show results
+      let message = `CSV processing completed. Updated ${updatedCount} items`;
+      if (skippedCount > 0) {
+        message += `, skipped ${skippedCount} completed items`;
+      }
+      if (errors.length > 0) {
+        message += `, ${errors.length} errors encountered`;
+        console.warn('CSV processing errors:', errors);
+      }
+
+      console.log(message);
+
+      // Clear any previous errors if processing was successful
+      if (errors.length === 0) {
+        this.error = null;
+      } else {
+        this.error = `CSV processing completed with ${errors.length} errors. Check console for details.`;
+      }
+    } catch (error) {
+      console.error('Error processing CSV:', error);
+      this.error = `Failed to process CSV file: ${String(error)}`;
+    }
+  }
+
+  /**
+   * Parse a CSV line, handling quoted fields
+   */
+  private parseCSVLine(line: string): string[] {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          // Escaped quote
+          current += '"';
+          i++; // Skip next quote
+        } else {
+          // Toggle quote state
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // Field separator
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+
+    // Add the last field
+    result.push(current.trim());
+
+    return result;
   }
 }
