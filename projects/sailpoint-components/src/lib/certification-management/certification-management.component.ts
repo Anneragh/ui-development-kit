@@ -44,6 +44,8 @@ import {
   LockOutline,
   CheckSquareOutline,
   DownloadOutline,
+  SmileOutline,
+  GiftOutline,
 } from '@ant-design/icons-angular/icons';
 import { NavigationItem, NavigationStackService } from './navigation-stack';
 import { NZ_I18N, NzI18nService, en_US } from 'ng-zorro-antd/i18n';
@@ -51,6 +53,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { CertificationDetailComponent } from './certification-detail/certification-detail.component';
 import { IdentityInfoComponent } from './identity-info/identity-info.component';
 import { AccessDetailComponent } from './access-detail/access-detail.component';
@@ -91,6 +94,7 @@ interface ColumnItem {
     NzInputModule,
     NzCheckboxModule,
     NzDividerModule,
+    NzToolTipModule,
     CertificationDetailComponent,
     IdentityInfoComponent,
     AccessDetailComponent,
@@ -110,6 +114,8 @@ interface ColumnItem {
       LockOutline,
       CheckSquareOutline,
       DownloadOutline,
+      SmileOutline,
+      GiftOutline,
     ]),
     { provide: NZ_I18N, useValue: en_US },
   ],
@@ -143,6 +149,11 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
   // Column visibility management
   visibleColumns: Set<string> = new Set();
   columnDropdownVisible = false;
+
+  // Joke button properties
+  isJokeButtonEnabled = false;
+  jokeButtonIcon = 'smile';
+  totalSavedDecisions = 0;
 
   // Table sort and filter configuration
   listOfColumns: ColumnItem[] = [
@@ -378,7 +389,6 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       this.connectionService.currentEnvironment$.subscribe(async (env) => {
         if (env?.name) {
           await this.loadOpenAIApiKey(env.name);
-          void this.generateJoke();
         }
       })
     );
@@ -587,6 +597,11 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
 
   // Show joke dialog
   async showJokeDialog(): Promise<void> {
+    // Only allow if button is enabled
+    if (!this.isJokeButtonEnabled) {
+      return;
+    }
+
     // Set loading state
     this.jokeLoading = true;
 
@@ -606,6 +621,9 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
         width: '500px',
         data: jokeData,
       });
+
+      // Reset button to initial state after showing joke
+      this.resetJokeButton();
     } catch (error) {
       console.error('Error in showJokeDialog:', error);
 
@@ -620,10 +638,46 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
         width: '500px',
         data: fallbackJoke,
       });
+
+      // Reset button to initial state after showing joke
+      this.resetJokeButton();
     } finally {
       // Always clear loading state
       this.jokeLoading = false;
     }
+  }
+
+  /**
+   * Get tooltip text for joke button
+   */
+  getJokeButtonTooltip(): string {
+    if (this.isJokeButtonEnabled) {
+      return 'Click for a surprise! 🎁';
+    } else {
+      const remaining = 10 - this.totalSavedDecisions;
+      return `Complete ${remaining} more decisions to unlock the joke! (${this.totalSavedDecisions}/10)`;
+    }
+  }
+
+  /**
+   * Update decision count and check if joke button should be enabled
+   */
+  updateDecisionCount(savedCount: number): void {
+    this.totalSavedDecisions += savedCount;
+
+    if (this.totalSavedDecisions >= 10 && !this.isJokeButtonEnabled) {
+      this.isJokeButtonEnabled = true;
+      this.jokeButtonIcon = 'gift';
+    }
+  }
+
+  /**
+   * Reset joke button to initial state
+   */
+  resetJokeButton(): void {
+    this.isJokeButtonEnabled = false;
+    this.jokeButtonIcon = 'smile';
+    this.totalSavedDecisions = 0;
   }
 
   // Track by function for ngFor

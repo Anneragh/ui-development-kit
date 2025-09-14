@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
@@ -80,6 +87,8 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
   @Input() certificationId!: string;
   @Input() onBack!: () => void;
   @Input() breadcrumbLabel?: string;
+
+  @Output() decisionsSaved = new EventEmitter<number>();
 
   private subscriptions = new Subscription();
   loading = false;
@@ -841,6 +850,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const changeCount = this.decisionChanges.size;
     console.log(
       'Saving decision changes:',
       Array.from(this.decisionChanges.entries())
@@ -859,6 +869,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
         ),
       });
       console.log('Decision changes saved successfully');
+
+      // Emit the number of decisions saved for joke button tracking
+      this.decisionsSaved.emit(changeCount);
     } catch (error) {
       console.error('Error saving decision changes:', error);
     } finally {

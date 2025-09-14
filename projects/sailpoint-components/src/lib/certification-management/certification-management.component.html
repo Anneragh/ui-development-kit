@@ -136,7 +136,6 @@
             </nz-dropdown-menu>
 
             <!-- Column Visibility Menu -->
-            <!-- Column Visibility Menu -->
             <nz-dropdown-menu #columnMenu="nzDropdownMenu">
               <div class="ant-table-filter-dropdown">
                 <div class="column-dropdown-header">
@@ -172,7 +171,8 @@
         <app-certification-detail 
           [certificationId]="getCurrentData()?.certificationId"
           [onBack]="goBack.bind(this)"
-          [breadcrumbLabel]="getCurrentBreadcrumbLabel()">
+          [breadcrumbLabel]="getCurrentBreadcrumbLabel()"
+          (decisionsSaved)="updateDecisionCount($event)">
         </app-certification-detail>
       </div>
 
@@ -212,10 +212,16 @@
   
   <!-- Floating Action Button positioned outside the card for proper positioning -->
   <button 
-    mat-fab 
-    color="primary" 
+    nz-button
+    nzType="primary"
+    nzShape="circle"
+    nzSize="large"
     (click)="showJokeDialog()"
+    [disabled]="!isJokeButtonEnabled"
+    nz-tooltip
+    [nzTooltipTitle]="getJokeButtonTooltip()"
+    nzTooltipPlacement="left"
     class="floating-action-button">
-    <mat-icon>help_outline</mat-icon>
+    <span nz-icon [nzType]="jokeButtonIcon"></span>
   </button>
 </div>
