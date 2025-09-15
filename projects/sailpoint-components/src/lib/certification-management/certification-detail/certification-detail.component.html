@@ -165,6 +165,17 @@
                 <span nz-icon nzType="user"></span>
                 View Identity
               </button>
+              <button 
+                nz-button 
+                nzType="default" 
+                nzSize="small"
+                (click)="remindReviewers()"
+                [nzLoading]="remindLoading"
+                [disabled]="remindLoading"
+                class="remind-btn">
+                <span nz-icon nzType="bell" *ngIf="!remindLoading"></span>
+                {{ remindLoading ? 'Sending...' : 'Remind' }}
+              </button>
             </div>
           </div>
         </div>

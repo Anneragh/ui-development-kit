@@ -36,6 +36,8 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import axios from 'axios';
 
 // Interface for comprehensive certification details
 interface CertificationDetails {
@@ -112,6 +114,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
 
   deadline: number = 0; // For countdown component
   isOverdue: boolean = false; // Track if certification is overdue
+  remindLoading: boolean = false; // Track loading state for remind button
 
   // Access review items table configuration
   accessReviewColumns: AccessReviewColumnItem[] = [
@@ -334,7 +337,8 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
 
   constructor(
     private sdk: SailPointSDKService,
-    private navStack: NavigationStackService
+    private navStack: NavigationStackService,
+    private message: NzMessageService
   ) {}
 
   ngOnInit() {
@@ -1512,5 +1516,112 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     result.push(current.trim());
 
     return result;
+  }
+
+  /**
+   * Send reminder to reviewers
+   */
+  async remindReviewers(): Promise<void> {
+    if (this.remindLoading) {
+      return; // Prevent multiple simultaneous calls
+    }
+
+    // Validate that we have reviewers to remind
+    if (
+      !this.certificationDetails?.reviewers ||
+      this.certificationDetails.reviewers.length === 0
+    ) {
+      this.message.warning('No reviewers found to send reminders to');
+      return;
+    }
+
+    // Validate that we have a certification ID
+    if (!this.certificationDetails?.certification?.id) {
+      this.message.error('Certification ID is missing. Cannot send reminders.');
+      return;
+    }
+
+    this.remindLoading = true;
+
+    try {
+      // Step 1: Get OAuth access token
+      const tokenResponse = await axios.post(
+        'https://devrel-ga-5420.api.identitynow-demo.com/oauth/token',
+        new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: '91083f4c-3b4d-4fff-b836-fb87dc0aff48',
+          client_secret:
+            'ba688b6b52996d29998045622feb67c0cdc6de3358cee529d5a2f8a8f6707fa9',
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+
+      const accessToken = tokenResponse.data.access_token;
+      if (!accessToken) {
+        this.message.error('Failed to obtain access token');
+        return;
+      }
+
+      // Step 2: Execute workflow with Bearer token
+      const workflowResponse = await axios.post(
+        'https://devrel-ga-5420.api.identitynow-demo.com/beta/workflows/execute/external/701c11e4-93f6-42fe-917a-3f9d7acc904e',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      // Check if the response contains an error message
+      if (workflowResponse?.data?.message) {
+        this.message.error(
+          `Failed to send reminders: ${workflowResponse.data.message}`
+        );
+        return;
+      }
+
+      // Check if we have a valid workflow execution ID
+      if (!workflowResponse?.data?.workflowExecutionId) {
+        this.message.error(
+          'Failed to send reminders: No execution ID received from workflow'
+        );
+        return;
+      }
+
+      // Show success message with reviewer count and execution ID
+      const reviewerCount = this.certificationDetails.reviewers.length;
+      this.message.success(
+        `Reminder sent successfully to ${reviewerCount} reviewer${
+          reviewerCount > 1 ? 's' : ''
+        } (Execution ID: ${workflowResponse.data.workflowExecutionId})`
+      );
+    } catch (error) {
+      // Show appropriate error message based on error type
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data?.message) {
+          this.message.error(
+            `Failed to send reminders: ${error.response.data.message}`
+          );
+        } else if (error.response?.status) {
+          this.message.error(
+            `Failed to send reminders: HTTP ${error.response.status} - ${error.response.statusText}`
+          );
+        } else {
+          this.message.error(`Failed to send reminders: ${error.message}`);
+        }
+      } else if (error instanceof Error) {
+        this.message.error(`Failed to send reminders: ${error.message}`);
+      } else {
+        this.message.error('Failed to send reminders. Please try again later.');
+      }
+    } finally {
+      this.remindLoading = false;
+    }
   }
 }

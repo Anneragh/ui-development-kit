@@ -1139,16 +1139,21 @@
 }
 
 .reviewer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-left: 12px;
 }
 
-.view-identity-btn {
+.view-identity-btn,
+.remind-btn {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 12px;
   padding: 4px 8px;
   height: auto;
+  min-width: auto;
   
   span[nz-icon] {
     font-size: 12px;
