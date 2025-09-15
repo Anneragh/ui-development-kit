@@ -13,24 +13,13 @@
     "noImplicitAny": false,
     "allowJs": true,
     "target": "ES2022",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2017",
-      "es2016",
-      "es2015",
-      "es2018",
-      "es2021",
-      "dom"
-    ],
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2017", "es2016", "es2015", "es2018", "es2021", "dom"],
     "useDefineForClassFields": false,
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "sailpoint-components": [
-        "projects/sailpoint-components/src/public-api"
-      ]
+      "sailpoint-components": ["projects/sailpoint-components/src/public-api"]
     }
   },
   "include": [
@@ -39,11 +28,10 @@
     "src/**/*.html",
     "src/**/*.css",
     "src/**/*.scss",
-    "src/**/*.json"
-, "projects/sailpoint-components/src/lib/theme/theme.service.ts"  ],
-  "exclude": [
-    "node_modules"
+    "src/**/*.json",
+    "projects/sailpoint-components/src/lib/theme/theme.service.ts"
   ],
+  "exclude": ["node_modules"],
   "angularCompilerOptions": {
     "strictTemplates": true,
     "fullTemplateTypeCheck": true,

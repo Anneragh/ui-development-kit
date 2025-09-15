@@ -26,7 +26,7 @@ export type Tenant = {
   clientId: string | null;
   clientSecret: string | null;
   openAIApiKey: string | null;
-  authType: 'oauth' | 'pat';
+  authtype: 'oauth' | 'pat';
   tenantName: string;
 };
 
@@ -35,7 +35,7 @@ export const getTenants = (): Tenant[] => {
   try {
     const config = getConfig();
 
-    const activeEnv = config.activeenvironment;
+    const activeEnv = config.activeuienvironment;
 
     const tenants: Tenant[] = [];
     for (let environment of Object.keys(config.environments)) {
@@ -46,7 +46,7 @@ export const getTenants = (): Tenant[] => {
         hasStoredTokens: !!storedPATTokens,
         hasClientId: !!storedPATTokens?.clientId,
         hasClientSecret: !!storedPATTokens?.clientSecret,
-        authType: config.authtype,
+        authtype: envConfig.authtype,
         clientIdLength: storedPATTokens?.clientId?.length || 0,
         clientSecretLength: storedPATTokens?.clientSecret?.length || 0,
       });
@@ -73,7 +73,7 @@ export const getTenants = (): Tenant[] => {
         clientId: storedPATTokens?.clientId || null,
         clientSecret: storedPATTokens?.clientSecret || null,
         openAIApiKey: openAIApiKey || null,
-        authType: config.authtype,
+        authtype: envConfig.authtype,
         tenantName: environment,
       };
 
@@ -112,12 +112,30 @@ function showEncryptionUnavailableError() {
 export interface CLIConfig {
   authtype: 'oauth' | 'pat';
   activeenvironment: string;
+  activeuienvironment?: string;
   environments: {
     [key: string]: {
       tenanturl: string;
       baseurl: string;
+      authtype: 'oauth' | 'pat';
     };
   };
+}
+
+export function getConfigEnvironment(environment: string): {
+  tenanturl;
+  baseurl;
+  authtype;
+} {
+  try {
+  } catch (error) {}
+  const config = getConfig();
+  if (!config.environments[environment]) {
+    return { tenanturl: '', baseurl: '', authtype: 'undefined' };
+  }
+
+  const { tenanturl, baseurl, authtype } = config.environments[environment];
+  return { tenanturl, baseurl, authtype };
 }
 
 export function getConfig(): CLIConfig {
@@ -126,6 +144,17 @@ export function getConfig(): CLIConfig {
     return load(configFile) as CLIConfig;
   } catch (error) {
     console.error('Error reading config file:', error);
+    throw error;
+  }
+}
+
+export function setActiveEnvironementInConfig(environment: string) {
+  try {
+    const config = getConfig();
+    config.activeenvironment = environment;
+    setConfig(config);
+  } catch (error) {
+    console.error('Error setting active environment in config:', error);
     throw error;
   }
 }
@@ -150,7 +179,7 @@ export interface UpdateEnvironmentRequest {
   environmentName: string;
   tenantUrl: string;
   baseUrl: string;
-  authType: 'oauth' | 'pat';
+  authtype: 'oauth' | 'pat';
   clientId?: string;
   clientSecret?: string;
   openAIApiKey?: string;
@@ -169,7 +198,8 @@ export const updateEnvironment = (
       // Create new config if file doesn't exist
       config = {
         authtype: 'oauth',
-        activeenvironment: '',
+        activeenvironment: configureRequest.environmentName,
+        activeuienvironment: configureRequest.environmentName,
         environments: {},
       };
     }
@@ -178,19 +208,14 @@ export const updateEnvironment = (
     config.environments[configureRequest.environmentName] = {
       tenanturl: configureRequest.tenantUrl,
       baseurl: configureRequest.baseUrl,
+      authtype: configureRequest.authtype,
     };
-
-    // Set the global auth type
-    config.authtype = configureRequest.authType;
-
-    // Set the global active environment
-    config.activeenvironment = configureRequest.environmentName;
 
     // Save credentials securely if provided
     console.log(
       `Processing credentials for environment: ${configureRequest.environmentName}`,
       {
-        authType: configureRequest.authType,
+        authtype: configureRequest.authtype,
         hasClientId: !!configureRequest.clientId,
         hasClientSecret: !!configureRequest.clientSecret,
         hasOpenAIApiKey: !!configureRequest.openAIApiKey,
@@ -302,7 +327,7 @@ export const setActiveEnvironment = (environmentName: string) => {
     }
 
     // Set as active environment
-    config.activeenvironment = environmentName;
+    config.activeuienvironment = environmentName;
 
     // Write updated config file
     setConfig(config);

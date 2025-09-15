@@ -19,7 +19,7 @@ import {
   JokeData,
 } from './joke-dialog/joke-dialog.component';
 import { ConnectionService } from 'src/app/services/connection.service';
-import { ElectronApiFactoryService } from 'sailpoint-components';
+import { ElectronApiFactoryService } from '../services/electron-api-factory.service';
 import z from 'zod/v4';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
