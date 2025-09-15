@@ -5,6 +5,7 @@ import tsparser from '@typescript-eslint/parser';
 import angular from '@angular-eslint/eslint-plugin';
 import angularTemplate from '@angular-eslint/eslint-plugin-template';
 import angularTemplateParser from '@angular-eslint/template-parser';
+import globals from "globals";
 
 export default [
   {
@@ -13,7 +14,9 @@ export default [
       'dist/**/*',
       'release/**/*',
       'src/environments/*',
-      'e2e/playwright.config.ts'
+      'e2e/playwright.config.ts',
+      'projects/sailpoint-components/src/lib/sailpoint-sdk.service.ts',
+      'node_modules/**'
     ]
   },
   {
@@ -21,6 +24,8 @@ export default [
     languageOptions: {
       parser: tsparser,
       globals: {
+        ...Object.fromEntries(Object.keys(globals.browser).map(key => ([key.trim(), globals.browser[key]]))),
+        ...globals.node,
         console: 'readonly',
         window: 'readonly',
         document: 'readonly',
@@ -38,7 +43,7 @@ export default [
           './projects/sailpoint-components/tsconfig.lib.json',
           './projects/sailpoint-components/tsconfig.spec.json'
         ],
-        createDefaultProgram: true
+        createDefaultProgram: false
       }
     },
     plugins: {
@@ -56,6 +61,7 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@angular-eslint/directive-selector': 'off',
+      '@typescript-eslint/triple-slash-reference': 'off',
       '@angular-eslint/component-selector': [
         'error',
         {
@@ -84,7 +90,7 @@ export default [
           './src/tsconfig.spec.json',
           './projects/sailpoint-components/tsconfig.spec.json'
         ],
-        createDefaultProgram: true
+        createDefaultProgram: false
       }
     },
     plugins: {
@@ -112,7 +118,7 @@ export default [
         project: [
           './e2e/tsconfig.e2e.json'
         ],
-        createDefaultProgram: true
+        createDefaultProgram: false
       }
     },
     plugins: {

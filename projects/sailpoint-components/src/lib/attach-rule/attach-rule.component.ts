@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   DragDropModule,
   CdkDrag,
@@ -179,12 +180,13 @@ const SLOTS: Slot[] = [ // rules and their location data is found (tested with P
     CommonModule, FormsModule,
     MatCardModule, MatFormFieldModule, MatSelectModule,
     MatIconModule, MatProgressSpinnerModule, MatButtonModule,
-    MatSnackBarModule, DragDropModule
+    MatSnackBarModule, DragDropModule, MatToolbarModule
   ],
   templateUrl: './attach-rule.component.html',
   styleUrls: ['./attach-rule.component.scss']
 })
 export class AttachRuleComponent implements OnInit {
+  title = 'Attach Rule';
   sources: SourceV2025[] = [];
   connectorRules: AvailableRule[] = [];
   availableRules: AvailableRule[] = [];

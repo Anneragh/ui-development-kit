@@ -1,3 +1,7 @@
+.mat-mdc-dialog-surface {
+  border-radius: .5rem !important;
+  overflow-y: auto !important;
+}
 .dark-theme .transform-preview-container {
   background-color: #1e1e1e !important;
   color: #ffffff !important;
@@ -53,6 +57,7 @@
 .transform-preview-container {
   background-color: #ffffff !important;
   padding: 20px 0;
+  overflow-y: auto;
 
   .dark-theme .mat-mdc-dialog-component-host,
   .dark-theme .mat-mdc-card,

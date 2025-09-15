@@ -393,8 +393,6 @@ export class GenericDialogComponent {
   copyToClipboard(): void {
     const textToCopy = this.formattedMessage;
     void window.navigator.clipboard.writeText(textToCopy).then(() => {
-      // Optional: show some feedback
-      console.log('Copied to clipboard');
     });
   }
 

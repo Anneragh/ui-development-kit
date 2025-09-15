@@ -1,26 +1,17 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, screen, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import {
-  connectToISC,
-  connectToISCWithOAuth,
-  disconnectFromISC,
-  getTenants,
-  harborPilotTransformChat,
-  OAuthLogin,
-  createOrUpdateEnvironment,
-  deleteEnvironment,
-  setActiveEnvironment,
-  getGlobalAuthType,
-} from './api';
 import { setupSailPointSDKHandlers } from './sailpoint-sdk/ipc-handlers';
+import { disconnectFromISC, refreshTokens, unifiedLogin, validateTokens, checkAccessTokenStatus, getCurrentTokenDetails, checkOauthCodeFlowComplete } from './authentication/auth';
+import { deleteEnvironment, getTenants, setActiveEnvironment, updateEnvironment, UpdateEnvironmentRequest } from './authentication/config';
+// Global variables
+let win: BrowserWindow | undefined;
 
-let win: BrowserWindow | null = null;
-const projectRoot = path.resolve(__dirname, '..', 'src'); // adjust if needed
-const args = process.argv.slice(1),
-  serve = args.some((val) => val === '--serve');
+const args = process.argv.slice(1);
+const serve = args.some((val) => val === '--serve');
 
+// Utility functions
 function getConfigPath(): string {
   const userDataPath = app.getPath('userData');
   const configPath = path.join(userDataPath, 'config.json');
@@ -36,6 +27,7 @@ function ensureConfigDir(): void {
   }
 }
 
+// Main window creation
 function createWindow(): BrowserWindow {
   const size = screen.getPrimaryDisplay().workAreaSize;
 
@@ -51,9 +43,12 @@ function createWindow(): BrowserWindow {
       preload: path.join(__dirname, 'preload.js'),
       allowRunningInsecureContent: serve,
       contextIsolation: true,
-
-      //enableRemoteModule: false,
     },
+  });
+
+  win.webContents.setWindowOpenHandler((details) => {
+    shell.openExternal(details.url); // Open URL in user's browser
+    return { action: 'deny' }; // Prevent the app from opening the URL
   });
 
   if (serve) {
@@ -97,13 +92,15 @@ function createWindow(): BrowserWindow {
     // Dereference the window object, usually you would store window
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win = null;
+    win = undefined;
   });
 
   return win;
 }
 
 try {
+  //#region Main event handlers
+
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
@@ -127,82 +124,62 @@ try {
     }
   });
 
-  ipcMain.handle(
-    'oauth-login',
-    async (event, tenant?: string, baseAPIUrl?: string) => {
-      if (!tenant || !baseAPIUrl) {
-        throw new Error('Tenant and baseAPIUrl are required');
-      }
-      return await OAuthLogin({ tenant, baseAPIUrl });
-    }
-  );
+  //#endregion
 
-  // Handle fetching users via IPC
-  ipcMain.handle(
-    'connect-to-isc',
-    async (
-      event,
-      apiUrl: string,
-      baseUrl: string,
-      clientId: string,
-      clientSecret: string
-    ) => {
-      if (clientId.startsWith('go-keyring-base64:')) {
-        const base64 = clientId.split('go-keyring-base64:')[1];
-        clientId = atob(base64);
-      }
+  //#region Custom IPC handlers
 
-      if (clientSecret.startsWith('go-keyring-base64:')) {
-        const base64 = clientSecret.split('go-keyring-base64:')[1];
-        clientSecret = atob(base64);
-      }
 
-      return await connectToISC(apiUrl, baseUrl, clientId, clientSecret);
-    }
-  );
-
-  ipcMain.handle(
-    'connect-to-isc-oauth',
-    async (event, apiUrl: string, baseUrl: string, accessToken: string) => {
-      return await connectToISCWithOAuth(apiUrl, baseUrl, accessToken);
-    }
-  );
-
-  ipcMain.handle('disconnect-from-isc', async () => {
-    return await disconnectFromISC();
+  ipcMain.handle('unified-login', async (event, environment: string) => {
+    return unifiedLogin(environment);
   });
 
-  ipcMain.handle('get-tenants', async () => {
-    return await getTenants();
+  ipcMain.handle('disconnect-from-isc', () => {
+    return disconnectFromISC();
   });
 
-  setupSailPointSDKHandlers();
-
-  ipcMain.handle('harbor-pilot-transform-chat', async (event, chat) => {
-    return await harborPilotTransformChat(chat);
+  ipcMain.handle('check-access-token-status', async (event) => {
+    return checkAccessTokenStatus();
   });
 
-  ipcMain.handle('create-or-update-environment', async (event, config) => {
-    return await createOrUpdateEnvironment(config);
+  ipcMain.handle('get-current-token-details', async (event, environment: string) => {
+    return getCurrentTokenDetails(environment);
+  });
+
+
+
+  ipcMain.handle('refresh-tokens', async (event) => {
+    return refreshTokens();
+  });
+
+  ipcMain.handle('validate-tokens', async (event, environment: string) => {
+    return validateTokens(environment);
+  });
+
+  ipcMain.handle('check-oauth-code-flow-complete', async (event, uuid: string, environment: string) => {
+    return checkOauthCodeFlowComplete(uuid, environment);
+  });
+
+  ipcMain.handle('get-tenants', () => {
+    return getTenants();
+  });
+
+  ipcMain.handle('update-environment', (event, config: UpdateEnvironmentRequest) => {
+    return updateEnvironment(config);
   });
 
   ipcMain.handle(
     'delete-environment',
-    async (event, environmentName: string) => {
-      return await deleteEnvironment(environmentName);
+    (event, environment: string) => {
+      return deleteEnvironment(environment);
     }
   );
 
   ipcMain.handle(
     'set-active-environment',
-    async (event, environmentName: string) => {
-      return await setActiveEnvironment(environmentName);
+    (event, environment: string) => {
+      return setActiveEnvironment(environment);
     }
   );
-
-  ipcMain.handle('get-global-auth-type', async () => {
-    return await getGlobalAuthType();
-  });
 
   ipcMain.handle('read-config', async () => {
     try {
@@ -211,12 +188,55 @@ try {
         const configData = fs.readFileSync(configPath, 'utf-8');
         return JSON.parse(configData);
       } else {
-        const defaultConfig = {
-          components: {
-            enabled: [],
-          },
-          version: '1.0.0',
-        };
+        let defaultConfig;
+        const appConfigPath = path.join(process.resourcesPath, 'assets/config.json')
+        
+        try {
+          if (fs.existsSync(appConfigPath)) {
+            const appConfigData = fs.readFileSync(appConfigPath, 'utf-8');
+            defaultConfig = JSON.parse(appConfigData);
+            console.log('Using config from app resources:', appConfigPath);
+          } else {
+            // Default configuration with components and themes
+            defaultConfig = {
+              components: {
+                enabled: ['component-selector'],
+              },
+              themes: {
+                light: {
+                  primary: "#0071ce",
+                  secondary: "#6c63ff",
+                  primaryText: "#415364",
+                  secondaryText: "#415364",
+                  hoverText: "#ffffff",
+                  background: "#ffffff",
+                  logo: "assets/icons/logo.png",
+                },
+                dark: {
+                  primary: "#54c0e8",
+                  secondary: "#f48fb1",
+                  primaryText: "#ffffff",
+                  secondaryText: "#cccccc",
+                  hoverText: "#54c0e8",
+                  background: "#151316",
+                  logo: "assets/icons/logo-dark.png"
+                }
+              },
+              currentTheme: "light",
+              version: '1.0.0',
+            };
+            console.log('Using hardcoded default config');
+          }
+        } catch (configError) {
+          console.error('Error reading app config:', configError);
+          // Fallback default configuration
+          defaultConfig = {
+            components: {
+              enabled: ['component-selector'],
+            },
+            version: '1.0.0',
+          };
+        }
 
         ensureConfigDir();
         fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
@@ -231,6 +251,7 @@ try {
   ipcMain.handle('write-config', async (event, config) => {
     try {
       const configPath = getConfigPath();
+      console.log('Writing config to:', configPath);
       ensureConfigDir();
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
       return { success: true };
@@ -240,48 +261,11 @@ try {
     }
   });
 
-  ipcMain.handle('write-logo', async (event, buffer, fileName) => {
-    try {
-      const logoDir = path.join(app.getPath('userData'), 'assets', 'icons');
-      await fs.promises.mkdir(logoDir, { recursive: true });
+  //#endregion
 
-      const dest = path.join(logoDir, fileName);
-      await fs.promises.writeFile(dest, buffer);
+  // Populate SDK handlers
+  setupSailPointSDKHandlers();
 
-      return { success: true };
-    } catch (error) {
-      console.error('Error writing logo file:', error);
-      throw new Error('Failed to write logo file');
-    }
-  });
-
-  ipcMain.handle('check-logo-exists', async (event, fileName: string) => {
-    const fullPath = path.join(
-      app.getPath('userData'),
-      'assets',
-      'icons',
-      fileName
-    );
-    return fs.existsSync(fullPath);
-  });
-
-  ipcMain.handle('get-user-data-path', () => {
-    return app.getPath('userData');
-  });
-
-  ipcMain.handle('get-logo-data-url', async (event, fileName) => {
-    try {
-      const userDataPath = app.getPath('userData');
-      const logoPath = path.join(userDataPath, 'assets', 'icons', fileName);
-      const buffer = await fs.promises.readFile(logoPath);
-      const base64 = buffer.toString('base64');
-      const ext = path.extname(fileName).substring(1); // e.g., png
-      return `data:image/${ext};base64,${base64}`;
-    } catch (err) {
-      console.error('Failed to get logo data URL:', err);
-      return null;
-    }
-  });
 } catch (e) {
   console.error('Error during app initialization', e);
 }

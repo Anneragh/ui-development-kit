@@ -36,7 +36,7 @@ const componentDisplayName = componentName
 // Define paths
 const projectRoot = path.resolve(__dirname, '..');
 const componentDir = path.join(projectRoot, 'projects', 'sailpoint-components', 'src', 'lib', componentNameKebab);
-const serviceFile = path.join(projectRoot, 'src', 'app', 'services', 'component-selector.service.ts');
+const serviceFile = path.join(projectRoot, 'projects', 'sailpoint-components', 'src', 'lib', 'services', 'config.service.ts');
 const routesFile = path.join(projectRoot, 'src', 'app', 'app.routes.ts');
 const appComponentFile = path.join(projectRoot, 'src', 'app', 'app.component.html');
 
@@ -316,28 +316,25 @@ function updateAppComponentHtml() {
   const content = fs.readFileSync(appComponentFile, 'utf8');
   
   const linkToAdd = `      <a *ngIf="isComponentEnabled('${componentNameKebab}')" mat-list-item class="sidebar-link" routerLink="/${componentNameKebab}" routerLinkActive="active-link"
-        [class.disabled]="!isConnected" (click)="!isConnected && $event.preventDefault()">
+        [class.disabled]="!isConnected" (click)="onNavItemClick($event)">
         <mat-icon class="card-icon">dashboard</mat-icon>
         ${componentDisplayName}
       </a>`;
   
-  // Find a good place to insert the link (after existing component links)
-  const linkRegex = /(.*<a \*ngIf="isComponentEnabled\('transforms'\)"[\s\S]*?<\/a>)([\s\S]*)/;
-  const linkMatch = content.match(linkRegex);
+  // Find the closing </mat-nav-list> tag and insert before it
+  const navListEndRegex = /(.*?)(\s+<\/mat-nav-list>.*)/s;
+  const match = content.match(navListEndRegex);
   
-  if (linkMatch) {
-    const beforeNewLink = linkMatch[1];
-    const afterNewLink = linkMatch[2];
+  if (match) {
+    const beforeNavListEnd = match[1];
+    const navListEndTag = match[2];
     
-    const updatedContent = content.replace(
-      linkRegex,
-      beforeNewLink + '\n' + linkToAdd + afterNewLink
-    );
+    const updatedContent = beforeNavListEnd + '\n' + linkToAdd + navListEndTag;
     
     fs.writeFileSync(appComponentFile, updatedContent);
     console.log(`✅ Updated: app.component.html`);
   } else {
-    console.error('❌ Could not find suitable place to add link in app.component.html');
+    console.error('❌ Could not find </mat-nav-list> tag in app.component.html');
   }
 }
 

@@ -20,9 +20,6 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        node-version: [20]
 
     # The type of runner that the job will run on
     runs-on: windows-2022
@@ -30,30 +27,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Cache node modules
-      uses: actions/cache@v4
-      env:
-        cache-name: cache-node-modules
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
       with:
-        # npm cache files are stored in `~/.npm`
-        path: ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '24'
+        cache: 'npm'
 
     - name: Install Dependencies
       run: |
-        npm i
-        cd app
-        npm i
-        cd ..
+        npm install
+
+    - name: Install Angular CLI Globally
+      run: npm install -g @angular/cli
 
     - name: Check lint
       run: npm run lint
@@ -69,10 +54,10 @@ jobs:
        npm run e2e
 
     - name: Build the app
-      run: npm run electron:build
+      run: npm run electron:build -- --publish=never
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: built-electron-app
-        path: release\sailpoint-ui-development-kit 1.0.0.exe
+        path: release/**

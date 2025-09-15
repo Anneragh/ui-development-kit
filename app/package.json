@@ -5,12 +5,11 @@
     "name": "Developer Relations",
     "email": "developer-relations@sailpoint.com"
   },
-  "version": "1.0.0",
+  "version": "1.0.9",
   "main": "main.js",
   "private": true,
   "dependencies": {
     "js-yaml": "^4.1.0",
-    "keytar": "^7.9.0",
-    "sailpoint-api-client": "1.6.0"
+    "sailpoint-api-client": "1.6.9"
   }
 }

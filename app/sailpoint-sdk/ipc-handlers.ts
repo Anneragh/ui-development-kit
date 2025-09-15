@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import * as sdkWrapper from './sailpoint-sdk';
 import * as sdk from 'sailpoint-api-client';
-import { apiConfig } from '../api';
+import { apiConfig } from '../authentication/auth';
 
 export function setupSailPointSDKHandlers() {
 
@@ -17,6 +17,15 @@ ipcMain.handle('list-access-model-metadata-attribute', async (event, request: sd
 });
 ipcMain.handle('list-access-model-metadata-attribute-value', async (event, request: sdk.AccessModelMetadataV2025ApiListAccessModelMetadataAttributeValueRequest) => {
     return await sdkWrapper.listAccessModelMetadataAttributeValue(request, apiConfig);
+});
+ipcMain.handle('update-access-model-metadata-by-filter', async (event, request: sdk.AccessModelMetadataV2025ApiUpdateAccessModelMetadataByFilterRequest) => {
+    return await sdkWrapper.updateAccessModelMetadataByFilter(request, apiConfig);
+});
+ipcMain.handle('update-access-model-metadata-by-ids', async (event, request: sdk.AccessModelMetadataV2025ApiUpdateAccessModelMetadataByIdsRequest) => {
+    return await sdkWrapper.updateAccessModelMetadataByIds(request, apiConfig);
+});
+ipcMain.handle('update-access-model-metadata-by-query', async (event, request: sdk.AccessModelMetadataV2025ApiUpdateAccessModelMetadataByQueryRequest) => {
+    return await sdkWrapper.updateAccessModelMetadataByQuery(request, apiConfig);
 });
 
 ipcMain.handle('create-access-profile', async (event, request: sdk.AccessProfilesV2025ApiCreateAccessProfileRequest) => {
@@ -94,7 +103,7 @@ ipcMain.handle('get-entitlement-details-for-identity', async (event, request: sd
 ipcMain.handle('list-access-request-status', async (event, request: sdk.AccessRequestsV2025ApiListAccessRequestStatusRequest = {}) => {
     return await sdkWrapper.listAccessRequestStatus(request, apiConfig);
 });
-ipcMain.handle('list-administrators-access-request-status', async (event, request: sdk.AccessRequestsV2025ApiListAdministratorsAccessRequestStatusRequest = {}) => {
+ipcMain.handle('list-administrators-access-request-status', async (event, request: sdk.AccessRequestsV2025ApiListAdministratorsAccessRequestStatusRequest) => {
     return await sdkWrapper.listAdministratorsAccessRequestStatus(request, apiConfig);
 });
 ipcMain.handle('load-account-selections', async (event, request: sdk.AccessRequestsV2025ApiLoadAccountSelectionsRequest) => {
@@ -178,11 +187,26 @@ ipcMain.handle('send-manual-discover-applications-csv-template', async (event, r
     return await sdkWrapper.sendManualDiscoverApplicationsCsvTemplate(request, apiConfig);
 });
 
+ipcMain.handle('approve-approval', async (event, request: sdk.ApprovalsV2025ApiApproveApprovalRequest) => {
+    return await sdkWrapper.approveApproval(request, apiConfig);
+});
 ipcMain.handle('get-approval', async (event, request: sdk.ApprovalsV2025ApiGetApprovalRequest) => {
     return await sdkWrapper.getApproval(request, apiConfig);
 });
 ipcMain.handle('get-approvals', async (event, request: sdk.ApprovalsV2025ApiGetApprovalsRequest = {}) => {
     return await sdkWrapper.getApprovals(request, apiConfig);
+});
+ipcMain.handle('reject-approval', async (event, request: sdk.ApprovalsV2025ApiRejectApprovalRequest) => {
+    return await sdkWrapper.rejectApproval(request, apiConfig);
+});
+ipcMain.handle('update-approvals-attributes', async (event, request: sdk.ApprovalsV2025ApiUpdateApprovalsAttributesRequest) => {
+    return await sdkWrapper.updateApprovalsAttributes(request, apiConfig);
+});
+ipcMain.handle('update-approvals-comments', async (event, request: sdk.ApprovalsV2025ApiUpdateApprovalsCommentsRequest) => {
+    return await sdkWrapper.updateApprovalsComments(request, apiConfig);
+});
+ipcMain.handle('update-approvals-reassign', async (event, request: sdk.ApprovalsV2025ApiUpdateApprovalsReassignRequest) => {
+    return await sdkWrapper.updateApprovalsReassign(request, apiConfig);
 });
 
 ipcMain.handle('create-source-app', async (event, request: sdk.AppsV2025ApiCreateSourceAppRequest) => {
@@ -391,6 +415,16 @@ ipcMain.handle('submit-reassign-certs-async', async (event, request: sdk.Certifi
     return await sdkWrapper.submitReassignCertsAsync(request, apiConfig);
 });
 
+ipcMain.handle('delete-classify-machine-account-from-source', async (event, request: sdk.ClassifySourceV2025ApiDeleteClassifyMachineAccountFromSourceRequest) => {
+    return await sdkWrapper.deleteClassifyMachineAccountFromSource(request, apiConfig);
+});
+ipcMain.handle('get-classify-machine-account-from-source-status', async (event, request: sdk.ClassifySourceV2025ApiGetClassifyMachineAccountFromSourceStatusRequest) => {
+    return await sdkWrapper.getClassifyMachineAccountFromSourceStatus(request, apiConfig);
+});
+ipcMain.handle('send-classify-machine-account-from-source', async (event, request: sdk.ClassifySourceV2025ApiSendClassifyMachineAccountFromSourceRequest) => {
+    return await sdkWrapper.sendClassifyMachineAccountFromSource(request, apiConfig);
+});
+
 ipcMain.handle('create-deploy', async (event, request: sdk.ConfigurationHubV2025ApiCreateDeployRequest) => {
     return await sdkWrapper.createDeploy(request, apiConfig);
 });
@@ -595,6 +629,28 @@ ipcMain.handle('get-custom-password-instructions', async (event, request: sdk.Cu
     return await sdkWrapper.getCustomPasswordInstructions(request, apiConfig);
 });
 
+ipcMain.handle('create-custom-user-level', async (event, request: sdk.CustomUserLevelsV2025ApiCreateCustomUserLevelRequest) => {
+    return await sdkWrapper.createCustomUserLevel(request, apiConfig);
+});
+ipcMain.handle('delete-user-level', async (event, request: sdk.CustomUserLevelsV2025ApiDeleteUserLevelRequest) => {
+    return await sdkWrapper.deleteUserLevel(request, apiConfig);
+});
+ipcMain.handle('get-user-level', async (event, request: sdk.CustomUserLevelsV2025ApiGetUserLevelRequest) => {
+    return await sdkWrapper.getUserLevel(request, apiConfig);
+});
+ipcMain.handle('list-all-authorization-right-sets', async (event, request: sdk.CustomUserLevelsV2025ApiListAllAuthorizationRightSetsRequest = {}) => {
+    return await sdkWrapper.listAllAuthorizationRightSets(request, apiConfig);
+});
+ipcMain.handle('list-user-levels', async (event, request: sdk.CustomUserLevelsV2025ApiListUserLevelsRequest = {}) => {
+    return await sdkWrapper.listUserLevels(request, apiConfig);
+});
+ipcMain.handle('publish-custom-user-level', async (event, request: sdk.CustomUserLevelsV2025ApiPublishCustomUserLevelRequest) => {
+    return await sdkWrapper.publishCustomUserLevel(request, apiConfig);
+});
+ipcMain.handle('update-user-level', async (event, request: sdk.CustomUserLevelsV2025ApiUpdateUserLevelRequest) => {
+    return await sdkWrapper.updateUserLevel(request, apiConfig);
+});
+
 ipcMain.handle('create-data-segment', async (event, request: sdk.DataSegmentationV2025ApiCreateDataSegmentRequest) => {
     return await sdkWrapper.createDataSegment(request, apiConfig);
 });
@@ -759,13 +815,13 @@ ipcMain.handle('get-access-request-recommendations', async (event, request: sdk.
 ipcMain.handle('get-access-request-recommendations-config', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsConfigRequest = {}) => {
     return await sdkWrapper.getAccessRequestRecommendationsConfig(request, apiConfig);
 });
-ipcMain.handle('get-access-request-recommendations-ignored-items', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsIgnoredItemsRequest) => {
+ipcMain.handle('get-access-request-recommendations-ignored-items', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsIgnoredItemsRequest = {}) => {
     return await sdkWrapper.getAccessRequestRecommendationsIgnoredItems(request, apiConfig);
 });
-ipcMain.handle('get-access-request-recommendations-requested-items', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsRequestedItemsRequest) => {
+ipcMain.handle('get-access-request-recommendations-requested-items', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsRequestedItemsRequest = {}) => {
     return await sdkWrapper.getAccessRequestRecommendationsRequestedItems(request, apiConfig);
 });
-ipcMain.handle('get-access-request-recommendations-viewed-items', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsViewedItemsRequest) => {
+ipcMain.handle('get-access-request-recommendations-viewed-items', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiGetAccessRequestRecommendationsViewedItemsRequest = {}) => {
     return await sdkWrapper.getAccessRequestRecommendationsViewedItems(request, apiConfig);
 });
 ipcMain.handle('set-access-request-recommendations-config', async (event, request: sdk.IAIAccessRequestRecommendationsV2025ApiSetAccessRequestRecommendationsConfigRequest) => {
@@ -881,7 +937,7 @@ ipcMain.handle('get-role-mining-session', async (event, request: sdk.IAIRoleMini
 ipcMain.handle('get-role-mining-session-status', async (event, request: sdk.IAIRoleMiningV2025ApiGetRoleMiningSessionStatusRequest) => {
     return await sdkWrapper.getRoleMiningSessionStatus(request, apiConfig);
 });
-ipcMain.handle('get-role-mining-sessions', async (event, request: sdk.IAIRoleMiningV2025ApiGetRoleMiningSessionsRequest) => {
+ipcMain.handle('get-role-mining-sessions', async (event, request: sdk.IAIRoleMiningV2025ApiGetRoleMiningSessionsRequest = {}) => {
     return await sdkWrapper.getRoleMiningSessions(request, apiConfig);
 });
 ipcMain.handle('get-saved-potential-roles', async (event, request: sdk.IAIRoleMiningV2025ApiGetSavedPotentialRolesRequest = {}) => {
@@ -921,6 +977,9 @@ ipcMain.handle('get-role-assignment', async (event, request: sdk.IdentitiesV2025
 });
 ipcMain.handle('get-role-assignments', async (event, request: sdk.IdentitiesV2025ApiGetRoleAssignmentsRequest) => {
     return await sdkWrapper.getRoleAssignments(request, apiConfig);
+});
+ipcMain.handle('list-entitlements-by-identity', async (event, request: sdk.IdentitiesV2025ApiListEntitlementsByIdentityRequest) => {
+    return await sdkWrapper.listEntitlementsByIdentity(request, apiConfig);
 });
 ipcMain.handle('list-identities', async (event, request: sdk.IdentitiesV2025ApiListIdentitiesRequest = {}) => {
     return await sdkWrapper.listIdentities(request, apiConfig);
@@ -1028,6 +1087,25 @@ ipcMain.handle('update-identity-profile', async (event, request: sdk.IdentityPro
     return await sdkWrapper.updateIdentityProfile(request, apiConfig);
 });
 
+ipcMain.handle('create-launcher', async (event, request: sdk.LaunchersV2025ApiCreateLauncherRequest) => {
+    return await sdkWrapper.createLauncher(request, apiConfig);
+});
+ipcMain.handle('delete-launcher', async (event, request: sdk.LaunchersV2025ApiDeleteLauncherRequest) => {
+    return await sdkWrapper.deleteLauncher(request, apiConfig);
+});
+ipcMain.handle('get-launcher', async (event, request: sdk.LaunchersV2025ApiGetLauncherRequest) => {
+    return await sdkWrapper.getLauncher(request, apiConfig);
+});
+ipcMain.handle('get-launchers', async (event, request: sdk.LaunchersV2025ApiGetLaunchersRequest = {}) => {
+    return await sdkWrapper.getLaunchers(request, apiConfig);
+});
+ipcMain.handle('put-launcher', async (event, request: sdk.LaunchersV2025ApiPutLauncherRequest) => {
+    return await sdkWrapper.putLauncher(request, apiConfig);
+});
+ipcMain.handle('start-launcher', async (event, request: sdk.LaunchersV2025ApiStartLauncherRequest) => {
+    return await sdkWrapper.startLauncher(request, apiConfig);
+});
+
 ipcMain.handle('create-lifecycle-state', async (event, request: sdk.LifecycleStatesV2025ApiCreateLifecycleStateRequest) => {
     return await sdkWrapper.createLifecycleState(request, apiConfig);
 });
@@ -1069,14 +1147,59 @@ ipcMain.handle('test-mfa-config', async (event, request: sdk.MFAConfigurationV20
     return await sdkWrapper.testMFAConfig(request, apiConfig);
 });
 
+ipcMain.handle('send-classify-machine-account', async (event, request: sdk.MachineAccountClassifyV2025ApiSendClassifyMachineAccountRequest) => {
+    return await sdkWrapper.sendClassifyMachineAccount(request, apiConfig);
+});
+
+ipcMain.handle('create-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiCreateMachineAccountMappingsRequest) => {
+    return await sdkWrapper.createMachineAccountMappings(request, apiConfig);
+});
+ipcMain.handle('delete-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiDeleteMachineAccountMappingsRequest) => {
+    return await sdkWrapper.deleteMachineAccountMappings(request, apiConfig);
+});
+ipcMain.handle('list-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiListMachineAccountMappingsRequest) => {
+    return await sdkWrapper.listMachineAccountMappings(request, apiConfig);
+});
+ipcMain.handle('set-machine-account-mappings', async (event, request: sdk.MachineAccountMappingsV2025ApiSetMachineAccountMappingsRequest) => {
+    return await sdkWrapper.setMachineAccountMappings(request, apiConfig);
+});
+
+ipcMain.handle('create-machine-account-subtype', async (event, request: sdk.MachineAccountsV2025ApiCreateMachineAccountSubtypeRequest) => {
+    return await sdkWrapper.createMachineAccountSubtype(request, apiConfig);
+});
+ipcMain.handle('delete-machine-account-subtype', async (event, request: sdk.MachineAccountsV2025ApiDeleteMachineAccountSubtypeRequest) => {
+    return await sdkWrapper.deleteMachineAccountSubtype(request, apiConfig);
+});
 ipcMain.handle('get-machine-account', async (event, request: sdk.MachineAccountsV2025ApiGetMachineAccountRequest) => {
     return await sdkWrapper.getMachineAccount(request, apiConfig);
+});
+ipcMain.handle('get-machine-account-subtype-by-id', async (event, request: sdk.MachineAccountsV2025ApiGetMachineAccountSubtypeByIdRequest) => {
+    return await sdkWrapper.getMachineAccountSubtypeById(request, apiConfig);
+});
+ipcMain.handle('get-machine-account-subtype-by-technical-name', async (event, request: sdk.MachineAccountsV2025ApiGetMachineAccountSubtypeByTechnicalNameRequest) => {
+    return await sdkWrapper.getMachineAccountSubtypeByTechnicalName(request, apiConfig);
+});
+ipcMain.handle('list-machine-account-subtypes', async (event, request: sdk.MachineAccountsV2025ApiListMachineAccountSubtypesRequest) => {
+    return await sdkWrapper.listMachineAccountSubtypes(request, apiConfig);
 });
 ipcMain.handle('list-machine-accounts', async (event, request: sdk.MachineAccountsV2025ApiListMachineAccountsRequest = {}) => {
     return await sdkWrapper.listMachineAccounts(request, apiConfig);
 });
+ipcMain.handle('patch-machine-account-subtype', async (event, request: sdk.MachineAccountsV2025ApiPatchMachineAccountSubtypeRequest) => {
+    return await sdkWrapper.patchMachineAccountSubtype(request, apiConfig);
+});
 ipcMain.handle('update-machine-account', async (event, request: sdk.MachineAccountsV2025ApiUpdateMachineAccountRequest) => {
     return await sdkWrapper.updateMachineAccount(request, apiConfig);
+});
+
+ipcMain.handle('delete-machine-classification-config', async (event, request: sdk.MachineClassificationConfigV2025ApiDeleteMachineClassificationConfigRequest) => {
+    return await sdkWrapper.deleteMachineClassificationConfig(request, apiConfig);
+});
+ipcMain.handle('get-machine-classification-config', async (event, request: sdk.MachineClassificationConfigV2025ApiGetMachineClassificationConfigRequest) => {
+    return await sdkWrapper.getMachineClassificationConfig(request, apiConfig);
+});
+ipcMain.handle('set-machine-classification-config', async (event, request: sdk.MachineClassificationConfigV2025ApiSetMachineClassificationConfigRequest) => {
+    return await sdkWrapper.setMachineClassificationConfig(request, apiConfig);
 });
 
 ipcMain.handle('create-machine-identity', async (event, request: sdk.MachineIdentitiesV2025ApiCreateMachineIdentityRequest) => {
@@ -1091,6 +1214,12 @@ ipcMain.handle('get-machine-identity', async (event, request: sdk.MachineIdentit
 ipcMain.handle('list-machine-identities', async (event, request: sdk.MachineIdentitiesV2025ApiListMachineIdentitiesRequest = {}) => {
     return await sdkWrapper.listMachineIdentities(request, apiConfig);
 });
+ipcMain.handle('list-machine-identity-user-entitlements', async (event, request: sdk.MachineIdentitiesV2025ApiListMachineIdentityUserEntitlementsRequest = {}) => {
+    return await sdkWrapper.listMachineIdentityUserEntitlements(request, apiConfig);
+});
+ipcMain.handle('start-machine-identity-aggregation', async (event, request: sdk.MachineIdentitiesV2025ApiStartMachineIdentityAggregationRequest) => {
+    return await sdkWrapper.startMachineIdentityAggregation(request, apiConfig);
+});
 ipcMain.handle('update-machine-identity', async (event, request: sdk.MachineIdentitiesV2025ApiUpdateMachineIdentityRequest) => {
     return await sdkWrapper.updateMachineIdentity(request, apiConfig);
 });
@@ -1103,6 +1232,9 @@ ipcMain.handle('delete-managed-client', async (event, request: sdk.ManagedClient
 });
 ipcMain.handle('get-managed-client', async (event, request: sdk.ManagedClientsV2025ApiGetManagedClientRequest) => {
     return await sdkWrapper.getManagedClient(request, apiConfig);
+});
+ipcMain.handle('get-managed-client-health-indicators', async (event, request: sdk.ManagedClientsV2025ApiGetManagedClientHealthIndicatorsRequest) => {
+    return await sdkWrapper.getManagedClientHealthIndicators(request, apiConfig);
 });
 ipcMain.handle('get-managed-client-status', async (event, request: sdk.ManagedClientsV2025ApiGetManagedClientStatusRequest) => {
     return await sdkWrapper.getManagedClientStatus(request, apiConfig);
@@ -1163,6 +1295,9 @@ ipcMain.handle('create-sources-within-multi-host', async (event, request: sdk.Mu
 });
 ipcMain.handle('delete-multi-host', async (event, request: sdk.MultiHostIntegrationV2025ApiDeleteMultiHostRequest) => {
     return await sdkWrapper.deleteMultiHost(request, apiConfig);
+});
+ipcMain.handle('delete-multi-host-sources', async (event, request: sdk.MultiHostIntegrationV2025ApiDeleteMultiHostSourcesRequest) => {
+    return await sdkWrapper.deleteMultiHostSources(request, apiConfig);
 });
 ipcMain.handle('get-acct-aggregation-groups', async (event, request: sdk.MultiHostIntegrationV2025ApiGetAcctAggregationGroupsRequest) => {
     return await sdkWrapper.getAcctAggregationGroups(request, apiConfig);
@@ -1354,8 +1489,8 @@ ipcMain.handle('patch-oauth-client', async (event, request: sdk.OAuthClientsV202
     return await sdkWrapper.patchOauthClient(request, apiConfig);
 });
 
-ipcMain.handle('get-org-config', async (event, request: sdk.OrgConfigV2025ApiGetOrgConfigRequest = {}) => {
-    return await sdkWrapper.getOrgConfig(request, apiConfig);
+ipcMain.handle('get-org-config', async (event, ) => {
+    return await sdkWrapper.getOrgConfig(apiConfig);
 });
 ipcMain.handle('get-valid-time-zones', async (event, request: sdk.OrgConfigV2025ApiGetValidTimeZonesRequest = {}) => {
     return await sdkWrapper.getValidTimeZones(request, apiConfig);
@@ -1704,7 +1839,7 @@ ipcMain.handle('create-search-attribute-config', async (event, request: sdk.Sear
 ipcMain.handle('delete-search-attribute-config', async (event, request: sdk.SearchAttributeConfigurationV2025ApiDeleteSearchAttributeConfigRequest) => {
     return await sdkWrapper.deleteSearchAttributeConfig(request, apiConfig);
 });
-ipcMain.handle('get-search-attribute-config', async (event, request: sdk.SearchAttributeConfigurationV2025ApiGetSearchAttributeConfigRequest) => {
+ipcMain.handle('get-search-attribute-config', async (event, request: sdk.SearchAttributeConfigurationV2025ApiGetSearchAttributeConfigRequest = {}) => {
     return await sdkWrapper.getSearchAttributeConfig(request, apiConfig);
 });
 ipcMain.handle('get-single-search-attribute-config', async (event, request: sdk.SearchAttributeConfigurationV2025ApiGetSingleSearchAttributeConfigRequest) => {
@@ -1852,6 +1987,9 @@ ipcMain.handle('import-accounts-schema', async (event, request: sdk.SourcesV2025
 ipcMain.handle('import-connector-file', async (event, request: sdk.SourcesV2025ApiImportConnectorFileRequest) => {
     return await sdkWrapper.importConnectorFile(request, apiConfig);
 });
+ipcMain.handle('import-entitlements', async (event, request: sdk.SourcesV2025ApiImportEntitlementsRequest) => {
+    return await sdkWrapper.importEntitlements(request, apiConfig);
+});
 ipcMain.handle('import-entitlements-schema', async (event, request: sdk.SourcesV2025ApiImportEntitlementsSchemaRequest) => {
     return await sdkWrapper.importEntitlementsSchema(request, apiConfig);
 });
@@ -1922,8 +2060,8 @@ ipcMain.handle('update-source-schema', async (event, request: sdk.SourcesV2025Ap
 ipcMain.handle('get-sed-batch-stats', async (event, request: sdk.SuggestedEntitlementDescriptionV2025ApiGetSedBatchStatsRequest) => {
     return await sdkWrapper.getSedBatchStats(request, apiConfig);
 });
-ipcMain.handle('get-sed-batches', async (event, ) => {
-    return await sdkWrapper.getSedBatches(apiConfig);
+ipcMain.handle('get-sed-batches', async (event, request: sdk.SuggestedEntitlementDescriptionV2025ApiGetSedBatchesRequest = {}) => {
+    return await sdkWrapper.getSedBatches(request, apiConfig);
 });
 ipcMain.handle('list-seds', async (event, request: sdk.SuggestedEntitlementDescriptionV2025ApiListSedsRequest = {}) => {
     return await sdkWrapper.listSeds(request, apiConfig);
@@ -1966,7 +2104,20 @@ ipcMain.handle('set-tags-to-many-objects', async (event, request: sdk.TaggedObje
     return await sdkWrapper.setTagsToManyObjects(request, apiConfig);
 });
 
-ipcMain.handle('get-pending-task-headers', async (event, request: sdk.TaskManagementV2025ApiGetPendingTaskHeadersRequest) => {
+ipcMain.handle('create-tag', async (event, request: sdk.TagsV2025ApiCreateTagRequest) => {
+    return await sdkWrapper.createTag(request, apiConfig);
+});
+ipcMain.handle('delete-tag-by-id', async (event, request: sdk.TagsV2025ApiDeleteTagByIdRequest) => {
+    return await sdkWrapper.deleteTagById(request, apiConfig);
+});
+ipcMain.handle('get-tag-by-id', async (event, request: sdk.TagsV2025ApiGetTagByIdRequest) => {
+    return await sdkWrapper.getTagById(request, apiConfig);
+});
+ipcMain.handle('list-tags', async (event, request: sdk.TagsV2025ApiListTagsRequest = {}) => {
+    return await sdkWrapper.listTags(request, apiConfig);
+});
+
+ipcMain.handle('get-pending-task-headers', async (event, request: sdk.TaskManagementV2025ApiGetPendingTaskHeadersRequest = {}) => {
     return await sdkWrapper.getPendingTaskHeaders(request, apiConfig);
 });
 ipcMain.handle('get-pending-tasks', async (event, request: sdk.TaskManagementV2025ApiGetPendingTasksRequest = {}) => {
@@ -2018,7 +2169,7 @@ ipcMain.handle('create-subscription', async (event, request: sdk.TriggersV2025Ap
 ipcMain.handle('delete-subscription', async (event, request: sdk.TriggersV2025ApiDeleteSubscriptionRequest) => {
     return await sdkWrapper.deleteSubscription(request, apiConfig);
 });
-ipcMain.handle('list-subscriptions', async (event, request: sdk.TriggersV2025ApiListSubscriptionsRequest) => {
+ipcMain.handle('list-subscriptions', async (event, request: sdk.TriggersV2025ApiListSubscriptionsRequest = {}) => {
     return await sdkWrapper.listSubscriptions(request, apiConfig);
 });
 ipcMain.handle('list-trigger-invocation-status', async (event, request: sdk.TriggersV2025ApiListTriggerInvocationStatusRequest = {}) => {
@@ -2149,6 +2300,9 @@ ipcMain.handle('get-workflow-execution', async (event, request: sdk.WorkflowsV20
 ipcMain.handle('get-workflow-execution-history', async (event, request: sdk.WorkflowsV2025ApiGetWorkflowExecutionHistoryRequest) => {
     return await sdkWrapper.getWorkflowExecutionHistory(request, apiConfig);
 });
+ipcMain.handle('get-workflow-execution-history-v2', async (event, request: sdk.WorkflowsV2025ApiGetWorkflowExecutionHistoryV2Request) => {
+    return await sdkWrapper.getWorkflowExecutionHistoryV2(request, apiConfig);
+});
 ipcMain.handle('get-workflow-executions', async (event, request: sdk.WorkflowsV2025ApiGetWorkflowExecutionsRequest) => {
     return await sdkWrapper.getWorkflowExecutions(request, apiConfig);
 });
@@ -2180,5 +2334,25 @@ ipcMain.handle('test-workflow', async (event, request: sdk.WorkflowsV2025ApiTest
     return await sdkWrapper.testWorkflow(request, apiConfig);
 });
 
+
+ipcMain.handle('generic-get', async(event, request: sdk.DefaultApiGenericGetRequest) => {
+    return await sdkWrapper.genericGet(request, apiConfig);
+});
+
+ipcMain.handle('generic-post', async(event, request: sdk.DefaultApiGenericPostRequest) => {
+    return await sdkWrapper.genericPost(request, apiConfig);
+});
+
+ipcMain.handle('generic-put', async(event, request: sdk.DefaultApiGenericPutRequest) => {
+    return await sdkWrapper.genericPut(request, apiConfig);
+});
+
+ipcMain.handle('generic-patch', async(event, request: sdk.DefaultApiGenericPatchRequest) => {
+    return await sdkWrapper.genericPatch(request, apiConfig);
+});
+
+ipcMain.handle('generic-delete', async(event, request: sdk.DefaultApiGenericDeleteRequest) => {
+    return await sdkWrapper.genericDelete(request, apiConfig);
+});
 
 }

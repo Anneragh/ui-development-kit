@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,18 +18,11 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { combineLatest } from 'rxjs';
-import { ThemeConfig, ThemeService } from 'sailpoint-components';
+import { Subscription, combineLatest } from 'rxjs';
+import { ConfigService, ComponentInfo, ElectronApiFactoryService } from 'sailpoint-components';
 import { APP_CONFIG } from '../environments/environment';
-import { ElectronService } from './core/services';
-import {
-  ComponentInfo,
-  ComponentSelectorService,
-} from './services/component-selector.service';
-import { ConnectionService } from './shared/connection.service';
+import { ConnectionService, Connection, SessionStatus, EnvironmentInfo } from './services/connection.service';
 import { MatSidenav } from '@angular/material/sidenav';
-
-declare const window: any;
 
 @Component({
   selector: 'app-root',
@@ -47,31 +40,44 @@ declare const window: any;
     MatButtonModule,
   ],
 })
-export class AppComponent implements OnInit {
+
+export class AppComponent implements OnDestroy, OnInit {
   @ViewChild('logoImage') logoImageRef!: ElementRef<HTMLImageElement>;
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
   // UI and state flags
   isSmallScreen: boolean = false;
   sidenavOpened = true;
-  isConnected = true;
+  isConnected = false;
   isDarkTheme = false;
+  connectionName: string = '';
+  sessionStatus: SessionStatus | undefined = undefined;
+  currentEnvironment: EnvironmentInfo | undefined = undefined;
+  sessionStatusDisplay: string = 'Checking...';
+
+  private subscriptions = new Subscription();
 
   // Active features and logo path
   enabledComponents: ComponentInfo[] = [];
   logoPath = '';
 
   constructor(
-    private electronService: ElectronService,
+    private electronService: ElectronApiFactoryService,
     private translate: TranslateService,
     private connectionService: ConnectionService,
-    private renderer: Renderer2,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private themeService: ThemeService,
-    private componentSelectorService: ComponentSelectorService
+    private configService: ConfigService,
   ) {
     // Set default language
+    this.translate.setDefaultLang('en');
+    console.log('APP_CONFIG', APP_CONFIG);
+
+    this.breakpointObserver.observe([Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall]).subscribe((result) => {
+      this.isSmallScreen = result.matches;
+      this.sidenavOpened = !this.isSmallScreen;
+    });
+
     this.translate.setDefaultLang('en');
     console.log('APP_CONFIG', APP_CONFIG);
 
@@ -84,42 +90,60 @@ export class AppComponent implements OnInit {
       });
 
     // Platform-specific logging
-    if (electronService.isElectron) {
+    if (electronService.getApi().isElectron) {
       console.log('Run in electron');
-      console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
-      console.log('NodeJS childProcess', this.electronService.childProcess);
     } else {
       console.log('Run in browser');
     }
 
-    // Monitor connection state and redirect on disconnect
-    this.connectionService.isConnected$.subscribe((connection) => {
-      this.isConnected = connection.connected;
-      if (!connection.connected) {
-        this.router.navigate(['/home']).catch((error) => {
-          console.error('Navigation error:', error);
-        });
-      }
-    });
+
+    // Subscribe to connection state changes
+    this.subscriptions.add(
+      this.connectionService.isConnected$.subscribe((connection: Connection) => {
+        console.log('App component received connection state:', connection);
+        this.isConnected = connection.connected;
+        this.connectionName = connection.name || '';
+        
+        if (!connection.connected) {
+          this.router.navigate(['/home']).catch((error) => {
+            console.error('Navigation error:', error);
+          });
+        }
+      })
+    );
+
+    // Subscribe to session status changes
+    this.subscriptions.add(
+      this.connectionService.sessionStatus$.subscribe((status: SessionStatus | undefined) => {
+        console.log('App component received session status:', status);
+        this.sessionStatus = status;
+        this.sessionStatusDisplay = this.timeUntilExpiry || 'Checking...';
+      })
+    );
+
+    // Subscribe to current environment changes
+    this.subscriptions.add(
+      this.connectionService.currentEnvironment$.subscribe((environment: EnvironmentInfo | undefined) => {
+        this.currentEnvironment = environment;
+      })
+    );
   }
 
   ngOnInit(): void {
     // Combine theme config and dark mode stream for live updates
     combineLatest([
-      this.themeService.theme$,
-      this.themeService.isDark$,
-    ]).subscribe(([theme, isDark]) => {
+      this.configService.theme$,
+      this.configService.isDark$,
+    ]).subscribe(([, isDark]) => {
       this.isDarkTheme = isDark;
 
       // Resolve logo path based on current theme
-      this.logoPath = isDark
-        ? theme?.logoDark || 'assets/icons/logo-dark.png'
-        : theme?.logoLight || 'assets/icons/logo.png';
+      this.logoPath = this.configService.getLogoUrl(isDark);
 
       // Apply logo with a cache-busting timestamp
       const logo = this.logoImageRef?.nativeElement;
       if (logo) {
-        logo.onload = () => this.themeService.logoUpdated$.next();
+        logo.onload = () => { this.configService.logoUpdated$.next(); return; };
 
         const src = this.logoPath?.startsWith('data:')
           ? this.logoPath
@@ -133,7 +157,7 @@ export class AppComponent implements OnInit {
     });
 
     // Watch component enablement state
-    this.componentSelectorService.enabledComponents$.subscribe((components) => {
+    this.configService.enabledComponents$.subscribe((components) => {
       this.enabledComponents = components;
     });
   }
@@ -147,28 +171,24 @@ export class AppComponent implements OnInit {
     );
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+
   /**
    * Toggles between light and dark themes.
    */
   async toggleTheme(): Promise<void> {
-    const mode = this.isDarkTheme ? 'light' : 'dark';
-    const raw = this.themeService.getRawConfig();
-    let targetTheme = raw?.[`theme-${mode}`] as ThemeConfig | undefined;
-
-    if (!targetTheme) {
-      targetTheme = await this.themeService['getDefaultTheme'](mode);
-    }
-
-    await this.themeService.saveTheme(targetTheme, mode);
+    const newMode = this.isDarkTheme ? 'light' : 'dark';
+    await this.configService.setCurrentThemeMode(newMode);
   }
 
   /**
    * Falls back to default logo if logo fails to load.
    */
   useFallbackLogo() {
-    this.logoPath = this.isDarkTheme
-      ? 'assets/icons/logo-dark.png'
-      : 'assets/icons/logo.png';
+    this.logoPath = this.configService.getLogoUrl(this.isDarkTheme);
   }
 
   /**
@@ -193,10 +213,56 @@ export class AppComponent implements OnInit {
    * Disconnects from Identity Security Cloud and navigates home.
    */
   async disconnectFromISC() {
-    await window.electronAPI.disconnectFromISC();
-    this.connectionService.setConnectionState(false);
+    await this.electronService.getApi().disconnectFromISC();
+    this.connectionService.connectedSubject$.next({ connected: false });
     this.router.navigate(['/home']).catch((error) => {
       console.error('Navigation error:', error);
     });
+  }
+
+  // Getters for template
+  get isSessionValid(): boolean {
+    return this.connectionService.isSessionValid;
+  }
+
+  get sessionExpiryTime(): string | undefined {
+    return this.connectionService.sessionExpiryTime;
+  }
+
+  get sessionExpiryDate(): Date | undefined {
+    return this.connectionService.sessionExpiryDate;
+  }
+
+  get timeUntilExpiry(): string | undefined {
+    const expiryDate = this.sessionExpiryDate;
+    if (!expiryDate) {
+      return undefined;
+    }
+
+    const now = new Date();
+    const timeDiff = expiryDate.getTime() - now.getTime();
+
+    if (timeDiff <= 0) {
+      return 'Expired';
+    }
+
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  }
+
+  get isRefreshing(): boolean {
+    return this.connectionService.isSessionRefreshing;
   }
 }

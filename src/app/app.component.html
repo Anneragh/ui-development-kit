@@ -22,20 +22,23 @@
   <div *ngIf="isConnected" class="connection-status-navbar">
     <mat-icon class="connected-icon">check_circle</mat-icon>
     <span class="connection-text">Connected</span>
+    
+    <!-- Session Status Info -->
+    <div *ngIf="sessionStatus || currentEnvironment" class="session-info">
+      <span class="session-type">{{ (sessionStatus?.authtype || currentEnvironment?.authtype || 'UNKNOWN') }}</span>
+    </div>
+  </div>  
+  <!-- Session Actions -->
+  <div *ngIf="isConnected" class="session-actions">
+    
+    <button mat-icon-button 
+            (click)="disconnectFromISC()" 
+            aria-label="Disconnect from tenant" 
+            title="Disconnect"
+            class="disconnect-button">
+      <mat-icon>logout</mat-icon>
+    </button>
   </div>
-
-  <!-- Disconnect Button -->
-  <button
-    id="disconnectButton"
-    *ngIf="isConnected"
-    mat-icon-button
-    (click)="disconnectFromISC()"
-    aria-label="Disconnect from tenant"
-    title="Disconnect"
-  >
-    <mat-icon>logout</mat-icon>
-  </button>
-
   <button mat-icon-button (click)="toggleTheme()" aria-label="Toggle theme">
     <mat-icon>{{ isDarkTheme ? "dark_mode" : "light_mode" }}</mat-icon>
   </button>
@@ -83,7 +86,7 @@
         [class.disabled]="!isConnected"
         (click)="onNavItemClick($event)"
       >
-        <mat-icon class="card-icon">transform</mat-icon>
+        <mat-icon class="card-icon">attachment</mat-icon>
         Attach Rule
       </a>
       <a
@@ -123,6 +126,7 @@
         Report Example
       </a>
       <a
+        *ngIf="isComponentEnabled('component-selector')"
         mat-list-item
         class="sidebar-link"
         routerLink="/component-selector"
@@ -132,6 +136,11 @@
       >
         <mat-icon class="card-icon">settings</mat-icon>
         Component Selector
+      </a>
+      <a *ngIf="isComponentEnabled('accounts')" mat-list-item class="sidebar-link" routerLink="/accounts" routerLinkActive="active-link"
+        [class.disabled]="!isConnected" (click)="onNavItemClick($event)">
+        <mat-icon class="card-icon">dashboard</mat-icon>
+        Accounts
       </a>
 
       

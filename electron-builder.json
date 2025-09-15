@@ -26,6 +26,10 @@
       "from": "resources/",
       "to": "resources",
       "filter": ["**/*"]
+    },
+    {
+      "from": "app/config.json",
+      "to": "assets/config.json"
     }
   ],
   "win": {

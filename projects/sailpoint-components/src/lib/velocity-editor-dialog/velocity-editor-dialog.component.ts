@@ -21,7 +21,7 @@ import { EditorView, basicSetup } from 'codemirror';
 import { smoothy } from 'thememirror';
 
 import { Subject, takeUntil } from 'rxjs';
-import { ThemeService } from '../theme/theme.service';
+import { ConfigService } from '../services/config.service';
 
 
 export interface VelocityEditorData {
@@ -63,7 +63,7 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
     private dialogRef: MatDialogRef<VelocityEditorDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VelocityEditorData,
     private fb: FormBuilder,
-    private themeService: ThemeService,
+    private configService: ConfigService,
     private changeRef: ChangeDetectorRef
   ) {
     this.originalCode = data.code || '';
@@ -80,7 +80,7 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
       this.onCancel();
     });
 
-    this.themeService.isDark$
+    this.configService.isDark$
       .pipe(takeUntil(this.destroy$))
       .subscribe(isDark => {
         this.isDark = isDark;
@@ -366,11 +366,11 @@ export class VelocityEditorDialogComponent implements OnInit, AfterViewInit, OnD
           } else if (directiveMatch[1] === 'end' || directiveMatch[1] === 'else') {
             // Simple directives without parameters
             directiveEnd = i + directiveMatch.length;
-            result.push(line.substring(i, directiveEnd));
+            result.push(line.substring(i, directiveEnd as number));
           } else {
             // Complex directives with parameters
             directiveEnd = this.findDirectiveEnd(line, i);
-            const directive = line.substring(i, directiveEnd).trim();
+            const directive = line.substring(i, directiveEnd as number).trim();
             result.push(directive);
           }
           

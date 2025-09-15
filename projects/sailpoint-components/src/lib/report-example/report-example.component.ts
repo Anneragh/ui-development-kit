@@ -12,13 +12,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IdentityV2025 } from 'sailpoint-api-client';
 import { SailPointSDKService } from '../sailpoint-sdk.service';
 import { ReportDataService } from './report-data.service';
-import { ThemeService } from '../theme/theme.service';
+import { ConfigService } from '../services/config.service';
 import { Subject, takeUntil } from 'rxjs';
 
 // Import chart components
 import { IdentityStatusChartComponent } from './identity-status-chart/identity-status-chart.component';
 import { ManagerDistributionChartComponent } from './manager-distribution-chart/manager-distribution-chart.component';
 import { LifecycleStateChartComponent } from './lifecycle-state-chart/lifecycle-state-chart.component';
+import { AxiosResponse } from 'axios';
 
 @Component({
   selector: 'app-report-example',
@@ -59,9 +60,9 @@ export class ReportExampleComponent implements OnInit, OnDestroy {
   constructor(
     private sdk: SailPointSDKService, 
     private dataService: ReportDataService,
-    private themeService: ThemeService
+    private configService: ConfigService
   ) {
-    this.themeService.isDark$
+    this.configService.isDark$
       .pipe(takeUntil(this.destroy$))
       .subscribe(isDark => {
         this.isDark = isDark;
@@ -128,7 +129,7 @@ export class ReportExampleComponent implements OnInit, OnDestroy {
         this.loadingMessage = `Loading identities... (${this.totalLoaded} loaded so far)`;
         
         // Create an array of promises for parallel requests
-        const batchPromises = [];
+        const batchPromises: Promise<AxiosResponse<IdentityV2025[]>>[] = [];
         
         for (let i = 0; i < MAX_PARALLEL_REQUESTS && !this.isCancelled; i++) {
           const currentOffset = offset + (i * BATCH_SIZE);
