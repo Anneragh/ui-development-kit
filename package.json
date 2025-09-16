@@ -143,7 +143,6 @@
     "ts-node": "10.9.2",
     "typescript": "5.8.3",
     "wait-on": "8.0.3",
-    "webdriver-manager": "12.1.9",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/commit-analyzer": "13.0.0",
     "@semantic-release/git": "10.0.1",
