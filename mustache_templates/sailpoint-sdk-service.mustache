@@ -55,4 +55,29 @@ async {{nickname}}({{#allParams.0}}requestParameters: sdk.{{classname}}{{operati
 {{/operation}}
 {{/operations}}
 {{/apis}}{{/apiInfo}}
+
+async genericGet(requestParameters: sdk.DefaultApiGenericGetRequest): Promise<AxiosResponse<any, any>> {
+    await this.checkSessionBeforeCall();
+    return this.electronAPI.genericGet(requestParameters) as Promise<AxiosResponse<any, any>>;
+}
+
+async genericPost(requestParameters: sdk.DefaultApiGenericPostRequest): Promise<AxiosResponse<any, any>> {
+    await this.checkSessionBeforeCall();
+    return this.electronAPI.genericPost(requestParameters) as Promise<AxiosResponse<any, any>>;
+}
+
+async genericPut(requestParameters: sdk.DefaultApiGenericPutRequest): Promise<AxiosResponse<any, any>> {
+    await this.checkSessionBeforeCall();
+    return this.electronAPI.genericPut(requestParameters) as Promise<AxiosResponse<any, any>>;
+}
+
+async genericPatch(requestParameters: sdk.DefaultApiGenericPatchRequest): Promise<AxiosResponse<any, any>> {
+    await this.checkSessionBeforeCall();
+    return this.electronAPI.genericPatch(requestParameters) as Promise<AxiosResponse<any, any>>;
+}
+
+async genericDelete(requestParameters: sdk.DefaultApiGenericDeleteRequest): Promise<AxiosResponse<any, any>> {
+    await this.checkSessionBeforeCall();
+    return this.electronAPI.genericDelete(requestParameters) as Promise<AxiosResponse<any, any>>;
+}
 }
