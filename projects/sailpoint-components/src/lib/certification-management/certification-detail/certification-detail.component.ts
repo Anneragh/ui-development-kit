@@ -44,6 +44,7 @@ interface CertificationDetails {
   certification: IdentityCertificationDtoV2025;
   reviewers: any[];
   accessReviewItems: any[];
+  campaign?: any; // Full campaign data from getCampaign API
   errors?: string[];
 }
 
@@ -372,21 +373,19 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
         certification: {} as IdentityCertificationDtoV2025,
         reviewers: [],
         accessReviewItems: [],
+        campaign: undefined,
         errors: [],
       };
 
-      // Collect all data with proper error handling
-      const promises = [
+      // First, fetch certification details to get campaign ID
+      const certificationResult = await Promise.allSettled([
         this.fetchCertificationDetails(this.certificationId),
         this.fetchReviewers(this.certificationId),
         this.fetchAccessReviewItems(this.certificationId),
-      ];
+      ]);
 
-      // Wait for all promises to complete (some may fail)
-      const results = await Promise.allSettled(promises);
-
-      // Process results and handle any errors
-      results.forEach((result, index) => {
+      // Process initial results
+      certificationResult.forEach((result, index) => {
         if (result.status === 'fulfilled') {
           switch (index) {
             case 0: // Certification details
@@ -410,6 +409,21 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
           console.error(errorMessage);
         }
       });
+
+      // Now fetch campaign data if we have a campaign ID
+      if (certificationDetails.certification.campaign?.id) {
+        try {
+          const campaignData = await this.fetchCampaignData(
+            certificationDetails.certification.campaign.id
+          );
+          certificationDetails.campaign = campaignData;
+          console.log('Enriched campaign data:', campaignData);
+        } catch (error) {
+          const errorMessage = `Failed to fetch campaign data: ${error}`;
+          certificationDetails.errors?.push(errorMessage);
+          console.error(errorMessage);
+        }
+      }
 
       this.certificationDetails = certificationDetails;
 
@@ -473,6 +487,21 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Fetch campaign data by campaign ID
+   */
+  private async fetchCampaignData(campaignId: string): Promise<any> {
+    try {
+      const response = await this.sdk.getCampaign({
+        id: campaignId,
+        detail: 'FULL',
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Campaign data: ${String(error)}`);
+    }
+  }
+
+  /**
    * Format date for display
    */
   formatDate(dateString: string | undefined): string {
@@ -498,6 +527,45 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     return this.certificationDetails.certification.completed
       ? 'status-completed'
       : 'status-pending';
+  }
+
+  /**
+   * Get comment requirement display text
+   */
+  getCommentRequirementText(requirement: string): string {
+    switch (requirement) {
+      case 'ALL_DECISIONS':
+        return 'All Decisions';
+      case 'REVOKE_ONLY_DECISIONS':
+        return 'Revoke Only';
+      case 'NO_DECISIONS':
+        return 'No Comments Required';
+      default:
+        return 'N/A';
+    }
+  }
+
+  /**
+   * Check if comment is required for decisions
+   */
+  requiresComment(requirement: string): boolean {
+    return (
+      requirement === 'ALL_DECISIONS' || requirement === 'REVOKE_ONLY_DECISIONS'
+    );
+  }
+
+  /**
+   * Get comment requirement message for information bar
+   */
+  getCommentRequirementMessage(requirement: string): string {
+    switch (requirement) {
+      case 'ALL_DECISIONS':
+        return 'Comments are required for all decisions in this campaign.';
+      case 'REVOKE_ONLY_DECISIONS':
+        return 'Comments are required for revoke decisions in this campaign.';
+      default:
+        return '';
+    }
   }
 
   /**

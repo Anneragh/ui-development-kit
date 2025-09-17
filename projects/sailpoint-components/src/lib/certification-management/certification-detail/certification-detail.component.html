@@ -53,7 +53,25 @@
             <strong>Campaign Description:</strong>
             <span>{{ certificationDetails.certification.campaign.description || 'N/A' }}</span>
           </div>
+          <div class="detail-item" *ngIf="certificationDetails.campaign">
+            <strong>Total Certifications:</strong>
+            <span>{{ certificationDetails.campaign.totalCertifications || 'N/A' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="certificationDetails.campaign">
+            <strong>Completed Certifications:</strong>
+            <span>{{ certificationDetails.campaign.completedCertifications || 'N/A' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="certificationDetails.campaign">
+            <strong>Comment Requirement:</strong>
+            <span>{{ getCommentRequirementText(certificationDetails.campaign.mandatoryCommentRequirement) }}</span>
+          </div>
         </div>
+      </div>
+
+      <!-- Comment Requirement Information Bar -->
+      <div class="comment-requirement-bar" *ngIf="certificationDetails.campaign && requiresComment(certificationDetails.campaign.mandatoryCommentRequirement)">
+        <mat-icon color="primary">info</mat-icon>
+        <span>{{ getCommentRequirementMessage(certificationDetails.campaign.mandatoryCommentRequirement) }}</span>
       </div>
 
       <!-- Progress Information -->
