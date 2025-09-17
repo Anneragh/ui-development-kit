@@ -107,7 +107,7 @@ export class IdentityInfoComponent implements OnInit, OnDestroy {
       this.identityId
     );
     this.setupBreadcrumb();
-    this.loadIdentity();
+    void this.loadIdentity();
   }
 
   ngOnDestroy(): void {
@@ -233,7 +233,7 @@ export class IdentityInfoComponent implements OnInit, OnDestroy {
    */
   getAttributeValue(key: string): string {
     if (!this.identity?.attributes) return 'N/A';
-    return this.identity.attributes[key] || 'N/A';
+    return String(this.identity.attributes[key]) || 'N/A';
   }
 
   /**

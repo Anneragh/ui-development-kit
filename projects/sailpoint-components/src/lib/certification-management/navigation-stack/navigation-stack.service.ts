@@ -117,7 +117,6 @@ export class NavigationStackService {
       return;
     }
 
-    const previousLevel = this.currentLevel;
     this.currentLevel = level;
 
     // Remove items after the target level

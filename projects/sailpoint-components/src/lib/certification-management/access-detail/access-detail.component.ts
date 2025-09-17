@@ -110,7 +110,7 @@ interface AccessReviewItem {
 }
 
 @Component({
-  selector: 'lib-access-detail',
+  selector: 'app-access-detail',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './access-detail.component.html',

@@ -202,7 +202,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.name,
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Campaign Name',
@@ -219,7 +219,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
               .indexOf(name.toLowerCase()) !== -1
         ),
       dataAccessor: (item) => item.campaign?.name,
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Campaign Type',
@@ -236,7 +236,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
               .indexOf(type.toLowerCase()) !== -1
         ),
       dataAccessor: (item) => item.campaign?.type,
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Campaign Description',
@@ -247,7 +247,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.campaign?.description,
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Completed',
@@ -265,8 +265,9 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
         return list.includes(itemStatus);
       },
       dataAccessor: (item) => item.completed,
-      formatter: (value) => (value ? 'Yes' : 'No'),
-      cssClass: (value) => (value ? 'status-completed' : 'status-pending'),
+      formatter: (value: boolean) => (value ? 'Yes' : 'No'),
+      cssClass: (value: boolean) =>
+        value ? 'status-completed' : 'status-pending',
     },
     {
       name: 'Identities Completed',
@@ -280,7 +281,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.identitiesCompleted,
-      formatter: (value) => (value || 0).toString(),
+      formatter: (value: number) => (value || 0).toString(),
     },
     {
       name: 'Identities Total',
@@ -294,7 +295,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.identitiesTotal,
-      formatter: (value) => (value || 0).toString(),
+      formatter: (value: number) => (value || 0).toString(),
     },
     {
       name: 'Created',
@@ -310,7 +311,8 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.created,
-      formatter: (value) => (value ? new Date(value).toLocaleString() : 'N/A'),
+      formatter: (value: string) =>
+        value ? new Date(value).toLocaleString() : 'N/A',
     },
     {
       name: 'Decisions Made',
@@ -324,7 +326,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.decisionsMade,
-      formatter: (value) => (value || 0).toString(),
+      formatter: (value: number) => (value || 0).toString(),
     },
     {
       name: 'Decisions Total',
@@ -338,7 +340,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.decisionsTotal,
-      formatter: (value) => (value || 0).toString(),
+      formatter: (value: number) => (value || 0).toString(),
     },
     {
       name: 'Due',
@@ -352,7 +354,8 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.due,
-      formatter: (value) => (value ? new Date(value).toLocaleString() : 'N/A'),
+      formatter: (value: string) =>
+        value ? new Date(value).toLocaleString() : 'N/A',
     },
     {
       name: 'Signed',
@@ -367,7 +370,8 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => item.signed,
-      formatter: (value) => (value ? new Date(value).toLocaleString() : 'N/A'),
+      formatter: (value: string) =>
+        value ? new Date(value).toLocaleString() : 'N/A',
     },
     {
       name: 'Reviewer Name',
@@ -384,7 +388,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
               .indexOf(name.toLowerCase()) !== -1
         ),
       dataAccessor: (item) => item.reviewer?.name,
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Phase',
@@ -399,7 +403,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
             (item.phase || '').toLowerCase().indexOf(phase.toLowerCase()) !== -1
         ),
       dataAccessor: (item) => item.phase,
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
   ];
 
@@ -422,9 +426,9 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
     this.i18n.setLocale(en_US);
     // Monitor environment changes and load OpenAI API Key
     this.subscriptions.add(
-      this.connectionService.currentEnvironment$.subscribe(async (env) => {
+      this.connectionService.currentEnvironment$.subscribe((env) => {
         if (env?.name) {
-          await this.loadOpenAIApiKey(env.name);
+          void this.loadOpenAIApiKey(String(env.name));
         }
       })
     );
@@ -612,7 +616,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
   }
 
   // View certification details in dialog (legacy method - now using navigation)
-  async onView(certification: IdentityCertificationDtoV2025): Promise<void> {
+  onView(certification: IdentityCertificationDtoV2025): void {
     try {
       if (!certification.id) {
         this.openMessageDialog('Certification ID is missing.', 'Error');
@@ -732,7 +736,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
     index: number,
     certification: IdentityCertificationDtoV2025
   ): string {
-    return certification.id || index.toString();
+    return String(certification.id) || index.toString();
   }
 
   /**
@@ -757,7 +761,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
               if (typeof value === 'object' && value instanceof Date) {
                 return value.toISOString();
               }
-              return value.toString();
+              return String(value);
             })
             .filter(Boolean)
         ),
@@ -829,9 +833,12 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
     const campaignMap = new Map<string, CampaignSummary>();
 
     this.certifications.forEach((certification) => {
-      const campaignName = certification.campaign?.name || 'Unknown Campaign';
-      const campaignType = certification.campaign?.type || 'Unknown Type';
-      const campaignDescription = certification.campaign?.description || '';
+      const campaignName =
+        String(certification.campaign?.name) || 'Unknown Campaign';
+      const campaignType =
+        String(certification.campaign?.type) || 'Unknown Type';
+      const campaignDescription =
+        String(certification.campaign?.description) || '';
 
       if (!campaignMap.has(campaignName)) {
         campaignMap.set(campaignName, {
@@ -872,7 +879,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       summary.madeDecisions += certification.decisionsMade || 0;
 
       // Count phases
-      const phase = certification.phase?.toLowerCase() || '';
+      const phase = String(certification.phase || '').toLowerCase();
       if (phase.includes('staged')) {
         summary.phaseCounts.staged++;
       } else if (phase.includes('active')) {
@@ -896,7 +903,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
       'Role Review': 'purple',
       Default: 'default',
     };
-    return typeColors[campaignType] || typeColors['Default'];
+    return typeColors[String(campaignType)] || typeColors['Default'];
   }
 
   /**

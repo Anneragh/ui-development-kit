@@ -166,8 +166,8 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
               .toLowerCase()
               .indexOf(name.toLowerCase()) !== -1
         ),
-      dataAccessor: (item) => item.identitySummary?.name,
-      formatter: (value) => value || 'N/A',
+      dataAccessor: (item) => String(item.identitySummary?.name || ''),
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Access Type',
@@ -197,7 +197,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
         if (item.accessSummary?.role) return 'Role';
         return 'Unknown';
       },
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Access Name',
@@ -220,25 +220,26 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       listOfFilter: [],
       filterFn: null,
       dataAccessor: (item) => {
-        return (
+        return String(
           item.accessSummary?.entitlement?.name ||
-          item.accessSummary?.accessProfile?.name ||
-          item.accessSummary?.role?.name ||
-          'N/A'
+            item.accessSummary?.accessProfile?.name ||
+            item.accessSummary?.role?.name ||
+            'N/A'
         );
       },
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Source',
       sortOrder: null,
       sortFn: (a: AccessReviewItemV2025, b: AccessReviewItemV2025) => {
         const getSource = (item: AccessReviewItemV2025) => {
-          return (
+          return String(
             item.accessSummary?.entitlement?.sourceName ||
-            item.accessSummary?.accessProfile?.entitlements?.[0]?.sourceName ||
-            item.accessSummary?.role?.entitlements?.[0]?.sourceName ||
-            'N/A'
+              item.accessSummary?.accessProfile?.entitlements?.[0]
+                ?.sourceName ||
+              item.accessSummary?.role?.entitlements?.[0]?.sourceName ||
+              'N/A'
           );
         };
         const sourceA = getSource(a);
@@ -258,14 +259,14 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
               .indexOf(source.toLowerCase()) !== -1
         ),
       dataAccessor: (item) => {
-        return (
+        return String(
           item.accessSummary?.entitlement?.sourceName ||
-          item.accessSummary?.accessProfile?.entitlements?.[0]?.sourceName ||
-          item.accessSummary?.role?.entitlements?.[0]?.sourceName ||
-          'N/A'
+            item.accessSummary?.accessProfile?.entitlements?.[0]?.sourceName ||
+            item.accessSummary?.role?.entitlements?.[0]?.sourceName ||
+            'N/A'
         );
       },
-      formatter: (value) => value || 'N/A',
+      formatter: (value: string) => value || 'N/A',
     },
     {
       name: 'Completed',
@@ -282,9 +283,10 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
         const itemStatus = item.completed ? 'Yes' : 'No';
         return list.includes(itemStatus);
       },
-      dataAccessor: (item) => item.completed,
-      formatter: (value) => (value ? 'Yes' : 'No'),
-      cssClass: (value) => (value ? 'status-completed' : 'status-pending'),
+      dataAccessor: (item) => Boolean(item.completed),
+      formatter: (value: boolean) => (value ? 'Yes' : 'No'),
+      cssClass: (value: boolean) =>
+        value ? 'status-completed' : 'status-pending',
     },
     {
       name: 'New Access',
@@ -301,9 +303,10 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
         const itemStatus = item.newAccess ? 'Yes' : 'No';
         return list.includes(itemStatus);
       },
-      dataAccessor: (item) => item.newAccess,
-      formatter: (value) => (value ? 'Yes' : 'No'),
-      cssClass: (value) => (value ? 'new-access-true' : 'new-access-false'),
+      dataAccessor: (item) => Boolean(item.newAccess),
+      formatter: (value: boolean) => (value ? 'Yes' : 'No'),
+      cssClass: (value: boolean) =>
+        value ? 'new-access-true' : 'new-access-false',
     },
     {
       name: 'Comments',
@@ -313,9 +316,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       filterMultiple: true,
       listOfFilter: [],
       filterFn: null,
-      dataAccessor: (item) => item.comments,
-      formatter: (value) => value || '-',
-      cssClass: (value) => (value ? 'comments-cell' : 'no-comments'),
+      dataAccessor: (item) => String(item.comments || ''),
+      formatter: (value: string) => value || '-',
+      cssClass: (value: string) => (value ? 'comments-cell' : 'no-comments'),
     },
     {
       name: 'Decision',
@@ -336,9 +339,10 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
             (item.decision || 'PENDING').toUpperCase() ===
             decision.toUpperCase()
         ),
-      dataAccessor: (item) => item.decision,
-      formatter: (value) => value || 'PENDING',
-      cssClass: (value) => {
+      dataAccessor: (item) =>
+        item.decision ? String(item.decision) : 'PENDING',
+      formatter: (value: string) => value || 'PENDING',
+      cssClass: (value: string) => {
         switch (value?.toUpperCase()) {
           case 'APPROVE':
             return 'decision-approve';
@@ -357,8 +361,8 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       filterMultiple: false,
       listOfFilter: [],
       filterFn: null,
-      dataAccessor: (item) => item,
-      formatter: (value) => '',
+      dataAccessor: () => '',
+      formatter: () => '',
       cssClass: () => 'actions-column',
     },
   ];
@@ -378,7 +382,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       }
 
       // If no cache, load from API
-      this.loadCertificationDetails();
+      void this.loadCertificationDetails();
     }
 
     // Listen to navigation events to reload from cache when returning to this component
@@ -475,7 +479,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
           certificationDetails.campaign = campaignData;
           console.log('Enriched campaign data:', campaignData);
         } catch (error) {
-          const errorMessage = `Failed to fetch campaign data: ${error}`;
+          const errorMessage = `Failed to fetch campaign data: ${String(
+            error
+          )}`;
           certificationDetails.errors?.push(errorMessage);
           console.error(errorMessage);
         }
@@ -634,7 +640,8 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     this.commentInputs = {};
     if (this.certificationDetails?.accessReviewItems) {
       this.certificationDetails.accessReviewItems.forEach((item) => {
-        this.commentInputs[item.id] = this.getCurrentComment(item.id);
+        this.commentInputs[String(item.id)] =
+          this.getCurrentComment(String(item.id)) || '';
       });
     }
   }
@@ -655,7 +662,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     // Check all items with pending changes
     for (const [itemId, decisionChange] of this.decisionChanges.entries()) {
       const item = this.certificationDetails.accessReviewItems.find(
-        (i) => i.id === itemId
+        (i) => i.id === String(itemId)
       );
       if (!item) continue;
 
@@ -673,11 +680,11 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       // If comment is required but missing, add to missing list
       if (commentRequired && !comment.trim()) {
         this.missingCommentItems.push({
-          id: itemId,
-          identityName: item.identitySummary?.name || 'Unknown',
-          accessType: item.accessSummary?.access?.type || 'Unknown',
-          accessName: item.accessSummary?.access?.name || 'Unknown',
-          decision: decision,
+          id: String(itemId),
+          identityName: String(item.identitySummary?.name) || 'Unknown',
+          accessType: String(item.accessSummary?.access?.type) || 'Unknown',
+          accessName: String(item.accessSummary?.access?.name) || 'Unknown',
+          decision: String(decision),
         });
       }
     }
@@ -689,7 +696,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
    * Track by function for access review items
    */
   trackByAccessReviewId(index: number, item: any): string {
-    return item.id || index.toString();
+    return String(item.id) || index.toString();
   }
 
   /**
@@ -851,7 +858,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       (remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
     );
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+    // const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
     let format = '';
 
@@ -962,7 +969,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
             accessReviewItem.accessSummary?.access?.name || 'Unknown Access'
           }`,
           icon: this.getAccessTypeIcon(
-            accessReviewItem.accessSummary?.access?.type
+            String(accessReviewItem.accessSummary?.access?.type)
           ),
         },
         metadata: {
@@ -1007,7 +1014,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       (i) => i.id === itemId
     );
     if (item) {
-      item.decision = newDecision;
+      item.decision = newDecision as any;
     }
 
     // Only track non-PENDING decisions in the changes map
@@ -1016,7 +1023,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       // But preserve the comment in commentInputs so user doesn't lose their work
       const existingChange = this.decisionChanges.get(itemId);
       if (existingChange?.comment) {
-        this.commentInputs[itemId] = existingChange.comment;
+        this.commentInputs[String(itemId)] = existingChange.comment;
       }
       this.decisionChanges.delete(itemId);
     } else {
@@ -1024,7 +1031,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       const existingChange = this.decisionChanges.get(itemId);
       // Check for existing comment in commentInputs if no existing change
       const existingComment =
-        existingChange?.comment || this.commentInputs[itemId] || '';
+        existingChange?.comment || this.commentInputs[String(itemId)] || '';
 
       this.decisionChanges.set(itemId, {
         decision: newDecision,
@@ -1046,16 +1053,16 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     }
 
     // Get existing decision change or create new one
-    const existingChange = this.decisionChanges.get(itemId);
+    const existingChange = this.decisionChanges.get(String(itemId));
     if (existingChange) {
       // Update existing change with new comment
       existingChange.comment = newComment;
     } else {
       // Create new change with current decision and new comment
-      const currentDecision = this.getCurrentDecision(itemId);
+      const currentDecision = this.getCurrentDecision(String(itemId));
       // Always create a decision change entry when comment is entered
       // If no decision is selected yet, use PENDING as placeholder
-      this.decisionChanges.set(itemId, {
+      this.decisionChanges.set(String(itemId), {
         decision: currentDecision !== 'PENDING' ? currentDecision : 'PENDING',
         comment: newComment,
       });
@@ -1068,36 +1075,37 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
   getCurrentDecision(itemId: string): string {
     try {
       // Check pending changes first
-      if (this.decisionChanges.has(itemId)) {
-        return this.decisionChanges.get(itemId)!.decision || 'PENDING';
+      if (this.decisionChanges.has(String(itemId))) {
+        return this.decisionChanges.get(String(itemId))!.decision || 'PENDING';
       }
 
       // Fall back to current item decision (which may have been reset to original)
       const item = this.certificationDetails?.accessReviewItems?.find(
-        (i) => i.id === itemId
+        (i) => i.id === String(itemId)
       );
-      return item?.decision || 'PENDING';
+      return item?.decision ? String(item.decision) : 'PENDING';
     } catch (error) {
       console.error('Error getting current decision:', error);
       return 'PENDING';
     }
   }
 
-  getCurrentComment(itemId: string): string {
+  getCurrentComment(itemId: string): string | null {
     try {
       // Check pending changes first
-      if (this.decisionChanges.has(itemId)) {
-        return this.decisionChanges.get(itemId)!.comment || '';
+      if (this.decisionChanges.has(String(itemId))) {
+        const comment = this.decisionChanges.get(String(itemId))!.comment;
+        return comment ? String(comment) : null;
       }
 
       // Fall back to current item comment
       const item = this.certificationDetails?.accessReviewItems?.find(
-        (i) => i.id === itemId
+        (i) => i.id === String(itemId)
       );
-      return item?.comments || '';
+      return item?.comments ? String(item.comments) : null;
     } catch (error) {
       console.error('Error getting current comment:', error);
-      return '';
+      return null;
     }
   }
 
@@ -1135,7 +1143,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     this.saveChangesLoading = true;
     try {
       const response = await this.sdk.makeIdentityDecision({
-        id: this.certificationDetails?.certification.id!,
+        id: this.certificationId,
         reviewDecisionV2025: reviewDecisionV2025,
       });
 
@@ -1165,7 +1173,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       // Reload the certification details to get updated data only on successful save
       await this.loadCertificationDetails();
     } catch (error) {
-      this.message.error('Failed to save decisions: ' + error, {
+      this.message.error(`Failed to save decisions: ${String(error)}`, {
         nzDuration: 6000,
       });
       // Don't clear decisionChanges or reload data on error - keep the changes for retry
@@ -1198,9 +1206,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     // Reset all items back to their original decisions (default to 'PENDING')
     if (this.certificationDetails?.accessReviewItems) {
       this.certificationDetails.accessReviewItems.forEach((item) => {
-        if (item.id && this.decisionChanges.has(item.id)) {
+        if (item.id && this.decisionChanges.has(String(item.id))) {
           // Reset to default decision (PENDING)
-          item.decision = 'PENDING';
+          item.decision = 'PENDING' as any;
         }
       });
     }
@@ -1219,7 +1227,11 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       if (!item || !item.id) {
         return 'PENDING';
       }
-      return this.decisionChanges.get(item.id) || item.decision || 'PENDING';
+      return (
+        this.decisionChanges.get(String(item.id))?.decision ||
+        String(item.decision) ||
+        'PENDING'
+      );
     } catch (error) {
       console.error('Error getting decision display value:', error);
       return 'PENDING';
@@ -1274,15 +1286,15 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
             if (typeof value === 'object' && value instanceof Date) {
               return value.toISOString();
             }
-            return value.toString();
+            return String(value);
           }).filter((value): value is string => Boolean(value))
         ),
       ];
 
       // Update filter options for this column
       column.listOfFilter = values.map((value) => ({
-        text: value!,
-        value: value!,
+        text: value,
+        value: value,
       }));
     });
   }
@@ -1327,11 +1339,12 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       (item) => !item.completed
     );
     this.checked = listOfEnabledData.every((item) =>
-      this.setOfCheckedId.has(item.id)
+      this.setOfCheckedId.has(String(item.id))
     );
     this.indeterminate =
-      listOfEnabledData.some((item) => this.setOfCheckedId.has(item.id)) &&
-      !this.checked;
+      listOfEnabledData.some((item) =>
+        this.setOfCheckedId.has(String(item.id))
+      ) && !this.checked;
   }
 
   /**
@@ -1348,14 +1361,14 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
   onAllChecked(checked: boolean): void {
     this.listOfCurrentPageData
       .filter((item) => !item.completed)
-      .forEach((item) => this.updateCheckedSet(item.id, checked));
+      .forEach((item) => this.updateCheckedSet(String(item.id), checked));
     this.refreshCheckedStatus();
   }
 
   /**
    * Apply bulk decision to selected items
    */
-  async applyBulkDecision(): Promise<void> {
+  applyBulkDecision(): void {
     if (this.setOfCheckedId.size === 0) {
       console.log('No items selected for bulk action');
       return;
@@ -1372,33 +1385,33 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       this.bulkCommentModalVisible = true;
     } else {
       // Apply decision directly without comment
-      await this.executeBulkDecision('');
+      this.executeBulkDecision('');
     }
   }
 
   /**
    * Execute the bulk decision with optional comment
    */
-  async executeBulkDecision(comment: string = ''): Promise<void> {
+  executeBulkDecision(comment: string = ''): void {
     this.bulkActionLoading = true;
 
     try {
       // Update decision changes for all selected items
       this.setOfCheckedId.forEach((itemId) => {
-        this.decisionChanges.set(itemId, {
+        this.decisionChanges.set(String(itemId), {
           decision: this.bulkActionDecision,
           comment: comment,
         });
 
         // Update the commentInputs to reflect in the textarea
-        this.commentInputs[itemId] = comment;
+        this.commentInputs[String(itemId)] = comment;
 
         // Also update the item in the data
         const item = this.certificationDetails?.accessReviewItems.find(
-          (i) => i.id === itemId
+          (i) => i.id === String(itemId)
         );
         if (item) {
-          item.decision = this.bulkActionDecision;
+          item.decision = this.bulkActionDecision as any;
         }
       });
 
@@ -1439,7 +1452,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
   /**
    * Handle bulk comment modal confirmation
    */
-  async onBulkCommentConfirm(): Promise<void> {
+  onBulkCommentConfirm(): void {
     if (
       this.isCommentRequiredForDecision(this.bulkActionDecision) &&
       !this.bulkCommentText.trim()
@@ -1450,7 +1463,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     }
 
     this.bulkCommentModalVisible = false;
-    await this.executeBulkDecision(this.bulkCommentText.trim());
+    this.executeBulkDecision(this.bulkCommentText.trim());
   }
 
   /**
@@ -1542,7 +1555,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
 
     // Restore state from cache
     this.certificationDetails = cached.certificationDetails;
-    this.decisionChanges = new Map(cached.decisionChanges);
+    this.decisionChanges = new Map(
+      cached.decisionChanges as Iterable<readonly [string, DecisionChange]>
+    );
     this.commentInputs = { ...cached.commentInputs };
 
     // Set loading to false and clear any errors since we're loading from cache
@@ -1587,7 +1602,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
    * Check if an item is disabled for bulk selection
    */
   isItemDisabledForBulkSelection(item: any): boolean {
-    return item.completed || this.isCertificationStaged();
+    return Boolean(item.completed) || this.isCertificationStaged();
   }
 
   /**
@@ -1615,7 +1630,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
    * Check if decision select should be disabled
    */
   isDecisionSelectDisabled(item: any): boolean {
-    return item.completed || this.isCertificationStaged();
+    return Boolean(item.completed) || this.isCertificationStaged();
   }
 
   /**
@@ -1715,7 +1730,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       this.certificationDetails.accessReviewItems.forEach((item) => {
         const row = [
           // First column: Item ID
-          this.escapeCSVField(item.id || ''),
+          this.escapeCSVField(String(item.id) || ''),
           // Rest of the columns
           ...exportColumns.map((column) => {
             let value = '';
@@ -1725,7 +1740,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
 
               // Handle special cases for decision column
               if (column.name === 'Decision') {
-                value = this.getCurrentDecision(item.id) || 'PENDING';
+                value = this.getCurrentDecision(String(item.id)) || 'PENDING';
               } else if (column.formatter) {
                 value = column.formatter(rawValue);
               } else {
@@ -1887,8 +1902,10 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
           continue;
         }
 
-        const itemId = row[idIndex]?.trim();
-        const decision = row[decisionIndex]?.trim().toUpperCase();
+        const itemId = String(row[idIndex] || '').trim();
+        const decision = String(row[decisionIndex] || '')
+          .trim()
+          .toUpperCase();
 
         if (!itemId) {
           errors.push(`Row ${i + 1}: Missing item ID`);
@@ -1907,7 +1924,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
 
         // Find the corresponding access review item
         const item = this.certificationDetails?.accessReviewItems.find(
-          (accessItem) => accessItem.id === itemId
+          (accessItem) => accessItem.id === String(itemId)
         );
 
         if (!item) {
@@ -1924,18 +1941,18 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
         // Update decision changes
         if (decision === 'PENDING') {
           // Remove from changes map if it exists (reverting to default state)
-          this.decisionChanges.delete(itemId);
+          this.decisionChanges.delete(String(itemId));
         } else {
           // Store the change for APPROVE/REVOKE decisions
-          const existingChange = this.decisionChanges.get(itemId);
-          this.decisionChanges.set(itemId, {
+          const existingChange = this.decisionChanges.get(String(itemId));
+          this.decisionChanges.set(String(itemId), {
             decision: decision,
             comment: existingChange?.comment || '',
           });
         }
 
         // Also update the item in the data for immediate UI feedback
-        item.decision = decision;
+        item.decision = decision as any;
         updatedCount++;
       }
 

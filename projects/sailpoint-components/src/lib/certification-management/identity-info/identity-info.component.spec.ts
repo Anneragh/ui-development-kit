@@ -8,7 +8,7 @@ describe('IdentityInfoComponent', () => {
   let component: IdentityInfoComponent;
   let fixture: ComponentFixture<IdentityInfoComponent>;
   let mockNavigationStackService: jasmine.SpyObj<NavigationStackService>;
-  let mockSailPointSDKService: jasmine.SpyObj<SailPointSDKService>;
+  // let mockSailPointSDKService: jasmine.SpyObj<SailPointSDKService>;
 
   beforeEach(async () => {
     const navigationStackServiceSpy = jasmine.createSpyObj(
@@ -35,9 +35,9 @@ describe('IdentityInfoComponent', () => {
     mockNavigationStackService = TestBed.inject(
       NavigationStackService
     ) as jasmine.SpyObj<NavigationStackService>;
-    mockSailPointSDKService = TestBed.inject(
-      SailPointSDKService
-    ) as jasmine.SpyObj<SailPointSDKService>;
+    // mockSailPointSDKService = TestBed.inject(
+    //   SailPointSDKService
+    // ) as jasmine.SpyObj<SailPointSDKService>;
 
     // Setup default mock behavior
     mockNavigationStackService.getStackState.and.returnValue(
@@ -117,11 +117,13 @@ describe('IdentityInfoComponent', () => {
 
   it('should navigate back when goBack is called', () => {
     component.goBack();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockNavigationStackService.pop).toHaveBeenCalled();
   });
 
   it('should navigate to specific level when navigateToLevel is called', () => {
     component.navigateToLevel(1);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockNavigationStackService.navigateToLevel).toHaveBeenCalledWith(1);
   });
 });

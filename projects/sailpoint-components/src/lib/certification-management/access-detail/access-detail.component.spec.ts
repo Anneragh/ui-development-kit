@@ -245,6 +245,6 @@ describe('AccessDetailComponent', () => {
   it('should handle invalid dates', () => {
     expect(component.formatDate('invalid-date')).toBe('invalid-date');
     expect(component.formatDate('')).toBe('N/A');
-    expect(component.formatDate(null as any)).toBe('N/A');
+    expect(component.formatDate(null as unknown as string)).toBe('N/A');
   });
 });
