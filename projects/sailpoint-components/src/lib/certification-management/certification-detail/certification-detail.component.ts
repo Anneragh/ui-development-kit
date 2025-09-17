@@ -37,6 +37,8 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import axios from 'axios';
 
 // Interface for comprehensive certification details
@@ -62,6 +64,12 @@ interface AccessReviewColumnItem {
   cssClass?: (value: any) => string;
 }
 
+// Interface for decision changes with optional comment
+interface DecisionChange {
+  decision: string;
+  comment?: string;
+}
+
 @Component({
   selector: 'app-certification-detail',
   standalone: true,
@@ -82,6 +90,8 @@ interface AccessReviewColumnItem {
     NzTimelineModule,
     NzSelectModule,
     NzUploadModule,
+    NzModalModule,
+    NzInputModule,
   ],
   templateUrl: './certification-detail.component.html',
   styleUrl: './certification-detail.component.scss',
@@ -102,7 +112,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
   editingDecisionId: string | null = null;
 
   // Track all changes made to decisions
-  decisionChanges: Map<string, string> = new Map();
+  decisionChanges: Map<string, DecisionChange> = new Map();
 
   // Bulk action state management
   bulkActionMode: boolean = false;
@@ -112,6 +122,23 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
   indeterminate = false;
   listOfCurrentPageData: readonly any[] = [];
   bulkActionLoading = false;
+
+  // Bulk comment modal state
+  bulkCommentModalVisible = false;
+  bulkCommentText = '';
+
+  // Individual comment inputs for table
+  commentInputs: { [key: string]: string } = {};
+
+  // Comment validation modal state
+  commentValidationModalVisible = false;
+  missingCommentItems: any[] = [];
+
+  // Save changes loading state
+  saveChangesLoading = false;
+
+  // Cache key for storing data in NavigationStack
+  private readonly CACHE_KEY = 'certificationData';
 
   deadline: number = 0; // For countdown component
   isOverdue: boolean = false; // Track if certification is overdue
@@ -344,12 +371,41 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.certificationId) {
+      // Try to load from NavigationStack cache first
+      if (this.loadFromNavigationStack()) {
+        console.log('Loaded certification details from NavigationStack cache');
+        return;
+      }
+
+      // If no cache, load from API
       this.loadCertificationDetails();
     }
+
+    // Listen to navigation events to reload from cache when returning to this component
+    this.subscriptions.add(
+      this.navStack.getNavigationEvents().subscribe((event) => {
+        if (event && event.type === 'navigate') {
+          // Check if we're returning to this certification detail
+          const currentItem = this.navStack.peek();
+          if (
+            currentItem &&
+            currentItem.component === 'certification-detail' &&
+            currentItem.data?.certificationId === this.certificationId
+          ) {
+            // Try to load from cache when returning to this component
+            this.loadFromNavigationStack();
+          }
+        }
+      })
+    );
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+
+    // Save current state to NavigationStack before destroying
+    this.saveToNavigationStack();
+
     // Clear maps to prevent memory leaks
     this.decisionChanges.clear();
     this.setOfCheckedId.clear();
@@ -426,6 +482,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       }
 
       this.certificationDetails = certificationDetails;
+
+      // Initialize comment inputs for each item
+      this.initializeCommentInputs();
 
       // Populate filter options for access review items
       this.populateAccessReviewFilterOptions();
@@ -566,6 +625,64 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       default:
         return '';
     }
+  }
+
+  /**
+   * Initialize comment inputs for all items
+   */
+  initializeCommentInputs(): void {
+    this.commentInputs = {};
+    if (this.certificationDetails?.accessReviewItems) {
+      this.certificationDetails.accessReviewItems.forEach((item) => {
+        this.commentInputs[item.id] = this.getCurrentComment(item.id);
+      });
+    }
+  }
+
+  /**
+   * Validate that all decisions requiring comments have comments
+   */
+  validateCommentRequirements(): boolean {
+    this.missingCommentItems = [];
+
+    if (!this.certificationDetails?.campaign?.mandatoryCommentRequirement) {
+      return true; // No comment requirements
+    }
+
+    const requirement =
+      this.certificationDetails.campaign.mandatoryCommentRequirement;
+
+    // Check all items with pending changes
+    for (const [itemId, decisionChange] of this.decisionChanges.entries()) {
+      const item = this.certificationDetails.accessReviewItems.find(
+        (i) => i.id === itemId
+      );
+      if (!item) continue;
+
+      const decision = decisionChange.decision;
+      const comment = decisionChange.comment || '';
+
+      // Check if comment is required for this decision
+      let commentRequired = false;
+      if (requirement === 'ALL_DECISIONS') {
+        commentRequired = true;
+      } else if (requirement === 'REVOKE_ONLY_DECISIONS') {
+        commentRequired = decision === 'REVOKE';
+      }
+
+      // If comment is required but missing, add to missing list
+      if (commentRequired && !comment.trim()) {
+        this.missingCommentItems.push({
+          id: itemId,
+          identityName: item.identitySummary?.name || 'Unknown',
+          accessType: item.accessSummary?.access?.type || 'Unknown',
+          accessName: item.accessSummary?.access?.name || 'Unknown',
+          decision: decision,
+        });
+      }
+    }
+
+    return this.missingCommentItems.length === 0;
   }
 
   /**
@@ -805,7 +922,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
    * View identity details
    */
   viewIdentity(identityId: string, name: string): void {
-    console.log('viewIdentity called with identityId:', identityId);
+    // Save current state before navigating away
+    this.saveToNavigationStack();
+
     if (identityId) {
       // Push identity info to navigation stack
       const identityNavItem: NavigationItem = {
@@ -819,7 +938,6 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
         },
       };
 
-      console.log('Pushing identity navigation item:', identityNavItem);
       this.navStack.push(identityNavItem);
     }
   }
@@ -895,10 +1013,23 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     // Only track non-PENDING decisions in the changes map
     if (newDecision === 'PENDING') {
       // Remove from changes map if it exists (reverting to default state)
+      // But preserve the comment in commentInputs so user doesn't lose their work
+      const existingChange = this.decisionChanges.get(itemId);
+      if (existingChange?.comment) {
+        this.commentInputs[itemId] = existingChange.comment;
+      }
       this.decisionChanges.delete(itemId);
     } else {
       // Store the change for APPROVE/REVOKE decisions
-      this.decisionChanges.set(itemId, newDecision);
+      const existingChange = this.decisionChanges.get(itemId);
+      // Check for existing comment in commentInputs if no existing change
+      const existingComment =
+        existingChange?.comment || this.commentInputs[itemId] || '';
+
+      this.decisionChanges.set(itemId, {
+        decision: newDecision,
+        comment: existingComment,
+      });
     }
 
     console.log('Decision changed:', {
@@ -908,6 +1039,29 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  onCommentChange(newComment: string, itemId: string): void {
+    if (!itemId) {
+      console.warn('No item ID provided for comment change');
+      return;
+    }
+
+    // Get existing decision change or create new one
+    const existingChange = this.decisionChanges.get(itemId);
+    if (existingChange) {
+      // Update existing change with new comment
+      existingChange.comment = newComment;
+    } else {
+      // Create new change with current decision and new comment
+      const currentDecision = this.getCurrentDecision(itemId);
+      // Always create a decision change entry when comment is entered
+      // If no decision is selected yet, use PENDING as placeholder
+      this.decisionChanges.set(itemId, {
+        decision: currentDecision !== 'PENDING' ? currentDecision : 'PENDING',
+        comment: newComment,
+      });
+    }
+  }
+
   /**
    * Get current decision for an item (including pending changes)
    */
@@ -915,7 +1069,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     try {
       // Check pending changes first
       if (this.decisionChanges.has(itemId)) {
-        return this.decisionChanges.get(itemId) || 'PENDING';
+        return this.decisionChanges.get(itemId)!.decision || 'PENDING';
       }
 
       // Fall back to current item decision (which may have been reset to original)
@@ -929,12 +1083,36 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  getCurrentComment(itemId: string): string {
+    try {
+      // Check pending changes first
+      if (this.decisionChanges.has(itemId)) {
+        return this.decisionChanges.get(itemId)!.comment || '';
+      }
+
+      // Fall back to current item comment
+      const item = this.certificationDetails?.accessReviewItems?.find(
+        (i) => i.id === itemId
+      );
+      return item?.comments || '';
+    } catch (error) {
+      console.error('Error getting current comment:', error);
+      return '';
+    }
+  }
+
   /**
    * Save all decision changes (placeholder for API call)
    */
   async saveDecisionChanges(): Promise<void> {
     if (this.decisionChanges.size === 0) {
       console.log('No changes to save');
+      return;
+    }
+
+    // Validate comment requirements before saving
+    if (!this.validateCommentRequirements()) {
+      this.commentValidationModalVisible = true;
       return;
     }
 
@@ -945,38 +1123,55 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     );
 
     const reviewDecisionV2025 = Array.from(this.decisionChanges.entries()).map(
-      ([id, decision]) => ({
+      ([id, decisionChange]) => ({
         id: id,
-        decision: decision as CertificationDecisionV2025,
+        decision: decisionChange.decision as CertificationDecisionV2025,
         bulk: true,
-        comments: 'TEST',
+        comments: decisionChange.comment || '',
       })
     );
     console.log('Review decision V2025:', reviewDecisionV2025);
 
-    this.loading = true;
+    this.saveChangesLoading = true;
     try {
       const response = await this.sdk.makeIdentityDecision({
         id: this.certificationDetails?.certification.id!,
         reviewDecisionV2025: reviewDecisionV2025,
       });
-      console.log('Decision changes saved successfully');
+
       console.log('Response:', response);
+      // Check if response indicates an error
+      if (response && typeof response === 'object' && 'status' in response) {
+        const status = (response as any).status;
+        if (status >= 400) {
+          const statusText = (response as any).statusText || `HTTP ${status}`;
+          const errorMessage = `Failed to save decisions: ${statusText}`;
+          throw new Error(errorMessage);
+        }
+      }
+
+      console.log('Decision changes saved successfully');
+      this.message.success('Decision changes saved successfully');
 
       // Emit the number of decisions saved for joke button tracking
       this.decisionsSaved.emit(changeCount);
+
+      // Clear NavigationStack cache after successful save to force reload of fresh data
+      this.clearNavigationStackCache();
+
+      // Clear decision changes only on successful save
+      this.decisionChanges.clear();
+
+      // Reload the certification details to get updated data only on successful save
+      await this.loadCertificationDetails();
     } catch (error) {
-      console.error('Error saving decision changes:', error);
+      this.message.error('Failed to save decisions: ' + error, {
+        nzDuration: 6000,
+      });
+      // Don't clear decisionChanges or reload data on error - keep the changes for retry
     } finally {
-      this.loading = false;
+      this.saveChangesLoading = false;
     }
-    this.decisionChanges.clear();
-
-    // Show success message or handle errors
-    console.log('Decision changes saved successfully');
-
-    // Reload the certification details to get updated data
-    await this.loadCertificationDetails();
   }
 
   /**
@@ -1166,12 +1361,37 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Check if comment is required for this decision
+    const commentRequired = this.isCommentRequiredForDecision(
+      this.bulkActionDecision
+    );
+
+    if (commentRequired) {
+      // Show modal to collect comment
+      this.bulkCommentText = '';
+      this.bulkCommentModalVisible = true;
+    } else {
+      // Apply decision directly without comment
+      await this.executeBulkDecision('');
+    }
+  }
+
+  /**
+   * Execute the bulk decision with optional comment
+   */
+  async executeBulkDecision(comment: string = ''): Promise<void> {
     this.bulkActionLoading = true;
 
     try {
       // Update decision changes for all selected items
       this.setOfCheckedId.forEach((itemId) => {
-        this.decisionChanges.set(itemId, this.bulkActionDecision);
+        this.decisionChanges.set(itemId, {
+          decision: this.bulkActionDecision,
+          comment: comment,
+        });
+
+        // Update the commentInputs to reflect in the textarea
+        this.commentInputs[itemId] = comment;
 
         // Also update the item in the data
         const item = this.certificationDetails?.accessReviewItems.find(
@@ -1183,7 +1403,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       });
 
       console.log(
-        `Applied ${this.bulkActionDecision} to ${this.setOfCheckedId.size} items`
+        `Applied ${this.bulkActionDecision} to ${this.setOfCheckedId.size} items with comment: ${comment}`
       );
 
       // Clear selections
@@ -1193,6 +1413,173 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       console.error('Error applying bulk decision:', error);
     } finally {
       this.bulkActionLoading = false;
+    }
+  }
+
+  /**
+   * Check if comment is required for a specific decision
+   */
+  isCommentRequiredForDecision(decision: string): boolean {
+    if (!this.certificationDetails?.campaign?.mandatoryCommentRequirement) {
+      return false;
+    }
+
+    const requirement =
+      this.certificationDetails.campaign.mandatoryCommentRequirement;
+
+    if (requirement === 'ALL_DECISIONS') {
+      return true;
+    } else if (requirement === 'REVOKE_ONLY_DECISIONS') {
+      return decision === 'REVOKE';
+    }
+
+    return false;
+  }
+
+  /**
+   * Handle bulk comment modal confirmation
+   */
+  async onBulkCommentConfirm(): Promise<void> {
+    if (
+      this.isCommentRequiredForDecision(this.bulkActionDecision) &&
+      !this.bulkCommentText.trim()
+    ) {
+      // Show error message if comment is required but not provided
+      console.warn('Comment is required for this decision');
+      return;
+    }
+
+    this.bulkCommentModalVisible = false;
+    await this.executeBulkDecision(this.bulkCommentText.trim());
+  }
+
+  /**
+   * Handle bulk comment modal cancellation
+   */
+  onBulkCommentCancel(): void {
+    this.bulkCommentModalVisible = false;
+    this.bulkCommentText = '';
+  }
+
+  /**
+   * Handle comment validation modal close
+   */
+  onCommentValidationModalClose(): void {
+    this.commentValidationModalVisible = false;
+    this.missingCommentItems = [];
+  }
+
+  /**
+   * Save current state to NavigationStack
+   */
+  private saveToNavigationStack(): void {
+    if (!this.certificationId || !this.certificationDetails) {
+      return;
+    }
+
+    // Get current navigation item
+    const currentItem = this.navStack.peek();
+    if (!currentItem) {
+      return;
+    }
+
+    // Store data in the navigation item's metadata
+    const cacheData = {
+      certificationDetails: { ...this.certificationDetails },
+      decisionChanges: Array.from(this.decisionChanges.entries()),
+      commentInputs: { ...this.commentInputs },
+      timestamp: Date.now(),
+    };
+
+    // Update the current navigation item with cached data
+    currentItem.metadata = {
+      ...currentItem.metadata,
+      [this.CACHE_KEY]: cacheData,
+    };
+  }
+
+  /**
+   * Load state from NavigationStack
+   */
+  private loadFromNavigationStack(): boolean {
+    if (!this.certificationId) {
+      console.log('Cannot load from NavigationStack - no certificationId');
+      return false;
+    }
+
+    console.log(
+      'Attempting to load from NavigationStack for certification:',
+      this.certificationId
+    );
+
+    // Get current navigation item
+    const currentItem = this.navStack.peek();
+    console.log('Current navigation item for loading:', currentItem);
+
+    if (!currentItem || !currentItem.metadata) {
+      console.log('No current navigation item or metadata found');
+      return false;
+    }
+
+    const cached = currentItem.metadata[this.CACHE_KEY];
+    console.log('Cached data found:', !!cached);
+
+    if (!cached) {
+      console.log('No cached data found for key:', this.CACHE_KEY);
+      return false;
+    }
+
+    // Check if cache is not too old (e.g., 30 minutes)
+    const cacheAge = Date.now() - cached.timestamp;
+    const maxCacheAge = 30 * 60 * 1000; // 30 minutes
+
+    if (cacheAge > maxCacheAge) {
+      // Remove expired cache
+      delete currentItem.metadata[this.CACHE_KEY];
+      console.log('Cache expired for certification:', this.certificationId);
+      return false;
+    }
+
+    // Restore state from cache
+    this.certificationDetails = cached.certificationDetails;
+    this.decisionChanges = new Map(cached.decisionChanges);
+    this.commentInputs = { ...cached.commentInputs };
+
+    // Set loading to false and clear any errors since we're loading from cache
+    this.loading = false;
+    this.error = null;
+
+    // Populate filter options for access review items
+    this.populateAccessReviewFilterOptions();
+
+    // Calculate deadline for countdown (convert due date to timestamp)
+    if (this.certificationDetails?.certification?.due) {
+      const dueDate = new Date(this.certificationDetails.certification.due);
+      this.deadline = dueDate.getTime();
+      // Only mark as overdue if certification is not completed and due date has passed
+      this.isOverdue =
+        !this.certificationDetails.certification.completed &&
+        dueDate < new Date();
+    }
+
+    console.log(
+      'Loaded from NavigationStack cache for certification:',
+      this.certificationId
+    );
+    return true;
+  }
+
+  /**
+   * Clear cache from NavigationStack
+   */
+  private clearNavigationStackCache(): void {
+    const currentItem = this.navStack.peek();
+    if (currentItem && currentItem.metadata) {
+      delete currentItem.metadata[this.CACHE_KEY];
+      console.log(
+        'Cleared NavigationStack cache for certification:',
+        this.certificationId
+      );
     }
   }
 
@@ -1540,7 +1927,11 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
           this.decisionChanges.delete(itemId);
         } else {
           // Store the change for APPROVE/REVOKE decisions
-          this.decisionChanges.set(itemId, decision);
+          const existingChange = this.decisionChanges.get(itemId);
+          this.decisionChanges.set(itemId, {
+            decision: decision,
+            comment: existingChange?.comment || '',
+          });
         }
 
         // Also update the item in the data for immediate UI feedback

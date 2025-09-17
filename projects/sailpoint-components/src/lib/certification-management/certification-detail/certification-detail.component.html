@@ -385,19 +385,36 @@
               <td 
                 *ngFor="let column of accessReviewColumns"
                 [nzRight]="column.name === 'Decision' || column.name === 'Actions'">
+                <!-- Comments Column -->
                 <span 
                   *ngIf="column.name === 'Comments'"
                   [class]="column.cssClass ? column.cssClass(column.dataAccessor(item)) : ''">
-                  <span 
-                    *ngIf="item.comments" 
-                    nz-tooltip 
-                    [nzTooltipTitle]="item.comments"
-                    nzTooltipPlacement="topLeft"
-                    class="comments-cell">
-                    <nz-icon nzType="message" nzTheme="outline"></nz-icon>
-                    <span class="comments-text">{{ item.comments | slice:0:50 }}{{ item.comments.length > 50 ? '...' : '' }}</span>
+                  
+                  <!-- Read-only comment display for completed items -->
+                  <span *ngIf="item.completed">
+                    <span 
+                      *ngIf="getCurrentComment(item.id)" 
+                      nz-tooltip 
+                      [nzTooltipTitle]="getCurrentComment(item.id)"
+                      nzTooltipPlacement="topLeft"
+                      class="comments-cell">
+                      <nz-icon nzType="message" nzTheme="outline"></nz-icon>
+                      <span class="comments-text">{{ getCurrentComment(item.id) | slice:0:50 }}{{ getCurrentComment(item.id).length > 50 ? '...' : '' }}</span>
+                    </span>
+                    <span *ngIf="!getCurrentComment(item.id)" class="no-comments">-</span>
                   </span>
-                  <span *ngIf="!item.comments" class="no-comments">-</span>
+                  
+                  <!-- Editable comment input for pending items -->
+                  <div *ngIf="!item.completed" class="editable-comment-cell">
+                    <textarea
+                      rows="2"
+                      nz-input
+                      [(ngModel)]="commentInputs[item.id]"
+                      (ngModelChange)="onCommentChange($event, item.id)"
+                      placeholder="Add comment..."
+                      class="comment-textarea">
+                    </textarea>
+                  </div>
                 </span>
                 <span 
                   *ngIf="column.name === 'Actions'"
@@ -509,10 +526,11 @@
             mat-button 
             color="accent" 
             (click)="saveDecisionChanges()"
-            [disabled]="!hasPendingChanges()"
+            [disabled]="!hasPendingChanges() || saveChangesLoading"
             class="save-changes-btn">
-            <mat-icon>save</mat-icon>
-            Save Changes ({{ decisionChanges.size }})
+            <mat-icon *ngIf="!saveChangesLoading">save</mat-icon>
+            <mat-spinner *ngIf="saveChangesLoading" diameter="16"></mat-spinner>
+            {{ saveChangesLoading ? 'Saving...' : 'Save Changes (' + decisionChanges.size + ')' }}
           </button>
           <button 
             mat-button 
@@ -531,3 +549,82 @@
     </div>
   </mat-card-content>
 </mat-card>
+
+<!-- Bulk Comment Modal -->
+<nz-modal
+  [(nzVisible)]="bulkCommentModalVisible"
+  nzTitle="Add Comment for Bulk Decision"
+  [nzFooter]="null"
+  (nzOnCancel)="onBulkCommentCancel()">
+  <div *nzModalContent>
+    <p>You are about to apply <strong>{{ bulkActionDecision }}</strong> to {{ setOfCheckedId.size }} items.</p>
+    <p *ngIf="isCommentRequiredForDecision(bulkActionDecision)" class="comment-required-text">
+      <mat-icon color="warn">warning</mat-icon>
+      A comment is required for this decision.
+    </p>
+    <div class="comment-input-section">
+      <label for="bulk-comment">Comment:</label>
+      <textarea
+        id="bulk-comment"
+        rows="4"
+        nz-input
+        [(ngModel)]="bulkCommentText"
+        placeholder="Enter your comment here..."
+        class="bulk-comment-textarea">
+      </textarea>
+    </div>
+    <div class="modal-actions">
+      <button nz-button (click)="onBulkCommentCancel()">Cancel</button>
+      <button 
+        nz-button 
+        nzType="primary" 
+        (click)="onBulkCommentConfirm()"
+        [disabled]="isCommentRequiredForDecision(bulkActionDecision) && !bulkCommentText.trim()">
+        Apply Decision
+      </button>
+    </div>
+  </div>
+</nz-modal>
+
+<!-- Comment Validation Modal -->
+<nz-modal
+  [(nzVisible)]="commentValidationModalVisible"
+  nzTitle="Missing Required Comments"
+  [nzFooter]="null"
+  (nzOnCancel)="onCommentValidationModalClose()">
+  <div *nzModalContent>
+    <div class="validation-header">
+      <mat-icon color="warn">warning</mat-icon>
+      <h4>Comments Required</h4>
+    </div>
+    <p>The following items require comments but are missing them:</p>
+    
+    <div class="missing-comments-list">
+      <div *ngFor="let item of missingCommentItems" class="missing-comment-item">
+        <div class="item-header">
+          <strong>{{ item.identityName }}</strong>
+          <span class="decision-badge" [ngClass]="'decision-' + item.decision.toLowerCase()">
+            {{ item.decision }}
+          </span>
+        </div>
+        <div class="item-details">
+          <div class="detail-row">
+            <span class="label">Access Type:</span>
+            <span class="value">{{ item.accessType }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Access Name:</span>
+            <span class="value">{{ item.accessName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="validation-actions">
+      <button nz-button (click)="onCommentValidationModalClose()">Close</button>
+      <button nz-button nzType="primary" (click)="onCommentValidationModalClose()">
+        Add Comments
+      </button>
+    </div>
+  </div>
+</nz-modal>
