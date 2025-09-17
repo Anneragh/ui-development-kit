@@ -38,9 +38,14 @@
   overflow-y: auto;
 }
 
+.content:first-of-type {
+  margin-bottom: 16px;
+}
+
 mat-card {
   width: 100%;
   margin: 0;
+  border-radius: 12px;
 }
 
 mat-card-content {
@@ -131,7 +136,7 @@ mat-card-actions button {
 nz-breadcrumb {
   display: flex !important;
   align-items: center !important;
-  margin-bottom: 16px !important;
+  margin-bottom: 8px !important;
 }
 
 nz-breadcrumb a {
@@ -260,6 +265,13 @@ nz-breadcrumb a.active {
   
   :host-context(.dark-theme) .ant-pagination .ant-pagination-item-active a {
     color: #ffffff !important;
+  }
+  
+  /* Dark theme mat-card styling */
+  :host-context(.dark-theme) mat-card {
+    background-color: #1e1e1e !important;
+    border-radius: 12px !important;
+    border: 1px solid #404040 !important;
   }
 
 }
@@ -568,6 +580,7 @@ mat-card-header {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
+  margin-bottom: 24px;
 }
 
 .stat-group {
