@@ -204,7 +204,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
         }
       }
     } else if (tokenStatus.isValid && tokenStatus.authtype !== authtype) {
-      console.log(`Found valid ${tokenStatus.authtype} tokens but user requested ${authtype} authentication. Proceeding with new ${authtype} authentication.`);
+      console.log(`Authentication type has changed, proceeding with new login`);
     }
 
     // Update global auth type to match the requested flow
@@ -263,7 +263,7 @@ export const unifiedLogin = async (environment: string): Promise<{ success: bool
           error: formatErrorAsString(connectionResult.error)
         };
       } catch (oauthError) {
-        console.error('OAuth login failed:', oauthError);
+        console.error('OAuth login failed:');
         return {
           success: false,
           error: oauthError instanceof Error ? oauthError.message : 'OAuth login failed'
