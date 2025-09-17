@@ -246,6 +246,17 @@
   animation: pulse 2s infinite;
 }
 
+.completed-status {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px;
+  background-color: #f6ffed;
+  border: 2px solid #52c41a;
+  border-radius: 8px;
+  animation: celebrate 2s ease-in-out infinite;
+}
+
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.7);
@@ -278,6 +289,21 @@
 .overdue-text {
   color: #ff4d4f;
   font-weight: 600;
+}
+
+.completed-late-text {
+  color: #52c41a;
+  font-weight: 600;
+  animation: celebrate 2s ease-in-out infinite;
+}
+
+@keyframes celebrate {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .detail-item {
@@ -764,6 +790,15 @@
   
   :host-context(.dark-theme) .overdue-text {
     color: #ff7875;
+  }
+  
+  :host-context(.dark-theme) .completed-late-text {
+    color: #73d13d;
+  }
+  
+  :host-context(.dark-theme) .completed-status {
+    background-color: #162312;
+    border-color: #52c41a;
   }
 }
 

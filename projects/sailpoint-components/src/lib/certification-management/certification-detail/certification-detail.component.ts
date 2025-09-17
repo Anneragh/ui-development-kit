@@ -297,7 +297,7 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       filterMultiple: true,
       listOfFilter: [
         { text: 'APPROVE', value: 'APPROVE' },
-        { text: 'REVOKED', value: 'REVOKED' },
+        { text: 'REVOKE', value: 'REVOKE' },
         { text: 'PENDING', value: 'PENDING' },
       ],
       filterFn: (list: string[], item: AccessReviewItemV2025) =>
@@ -420,7 +420,9 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       if (certificationDetails.certification.due) {
         const dueDate = new Date(certificationDetails.certification.due);
         this.deadline = dueDate.getTime();
-        this.isOverdue = dueDate < new Date(); // Check if due date has passed
+        // Only mark as overdue if certification is not completed and due date has passed
+        this.isOverdue =
+          !certificationDetails.certification.completed && dueDate < new Date();
       }
     } catch (error) {
       this.error = `Failed to load certification details: ${String(error)}`;
@@ -559,6 +561,20 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
     const today = new Date();
     const diffTime = today.getTime() - dueDate.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  /**
+   * Check if certification is completed and was overdue (finished late)
+   */
+  isCompletedAndOverdue(): boolean {
+    if (!this.certificationDetails?.certification) return false;
+
+    const certification = this.certificationDetails.certification;
+    if (!certification.completed || !certification.due) return false;
+
+    const dueDate = new Date(certification.due);
+    const today = new Date();
+    return dueDate < today;
   }
 
   /**
@@ -860,19 +876,24 @@ export class CertificationDetailComponent implements OnInit, OnDestroy {
       Array.from(this.decisionChanges.entries())
     );
 
+    const reviewDecisionV2025 = Array.from(this.decisionChanges.entries()).map(
+      ([id, decision]) => ({
+        id: id,
+        decision: decision as CertificationDecisionV2025,
+        bulk: true,
+        comments: 'TEST',
+      })
+    );
+    console.log('Review decision V2025:', reviewDecisionV2025);
+
     this.loading = true;
     try {
       const response = await this.sdk.makeIdentityDecision({
         id: this.certificationDetails?.certification.id!,
-        reviewDecisionV2025: Array.from(this.decisionChanges.entries()).map(
-          ([id, decision]) => ({
-            id: id,
-            decision: decision as CertificationDecisionV2025,
-            bulk: true,
-          })
-        ),
+        reviewDecisionV2025: reviewDecisionV2025,
       });
       console.log('Decision changes saved successfully');
+      console.log('Response:', response);
 
       // Emit the number of decisions saved for joke button tracking
       this.decisionsSaved.emit(changeCount);

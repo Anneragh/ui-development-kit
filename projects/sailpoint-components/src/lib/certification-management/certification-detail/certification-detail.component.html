@@ -90,23 +90,38 @@
 
           <!-- Due Date Countdown or Overdue Status -->
           <div class="progress-item" *ngIf="deadline > 0">
-            <div *ngIf="!isOverdue">
+            <div *ngIf="!isOverdue && !certificationDetails?.certification?.completed">
               <nz-countdown 
                 [nzValue]="deadline" 
                 nzTitle="Time Remaining"
                 [nzFormat]="getCountdownFormat()">
               </nz-countdown>
             </div>
-            <div *ngIf="isOverdue" class="overdue-status">
+            <div *ngIf="isOverdue || (certificationDetails?.certification?.completed && isCompletedAndOverdue())" 
+                 [class]="certificationDetails?.certification?.completed ? 'completed-status' : 'overdue-status'">
               <nz-statistic 
+                *ngIf="!certificationDetails?.certification?.completed"
                 nzTitle="Status" 
                 nzValue="OVERDUE"
                 [nzValueStyle]="{ color: '#ff4d4f' }">
               </nz-statistic>
               <nz-statistic 
+                *ngIf="certificationDetails?.certification?.completed"
+                nzTitle="Status" 
+                nzValue="Finished"
+                [nzValueStyle]="{ color: '#52c41a' }">
+              </nz-statistic>
+              <nz-statistic 
+                *ngIf="!certificationDetails?.certification?.completed"
                 nzTitle="Days Overdue" 
                 [nzValue]="getDaysOverdue()"
                 [nzValueStyle]="{ color: '#ff4d4f' }">
+              </nz-statistic>
+              <nz-statistic 
+                *ngIf="certificationDetails?.certification?.completed && isCompletedAndOverdue()"
+                nzTitle="Completed" 
+                nzValue="Well Done! 🎉"
+                [nzValueStyle]="{ color: '#52c41a' }">
               </nz-statistic>
             </div>
           </div>
@@ -133,9 +148,10 @@
               </nz-timeline-item>
               
               <nz-timeline-item 
-                [nzColor]="isOverdue ? 'red' : 'orange'">
+                [nzColor]="isOverdue ? (certificationDetails.certification.completed ? 'green' : 'red') : 'orange'">
                 <strong>Due:</strong> {{ formatDate(certificationDetails.certification.due) }}
-                <span *ngIf="isOverdue" class="overdue-text"> ({{ getDaysOverdue() }} days overdue)</span>
+                <span *ngIf="isOverdue && !certificationDetails.certification.completed" class="overdue-text"> ({{ getDaysOverdue() }} days overdue)</span>
+                <span *ngIf="isOverdue && certificationDetails.certification.completed" class="completed-late-text"> (Completed! Great job! 🎉)</span>
               </nz-timeline-item>
             </nz-timeline>
             
@@ -166,6 +182,7 @@
                 View Identity
               </button>
               <button 
+                *ngIf="!certificationDetails?.certification?.completed"
                 nz-button 
                 nzType="default" 
                 nzSize="small"
@@ -273,11 +290,11 @@
             </button>
             
             <nz-upload
+              *ngIf="shouldShowLoadCSVButton()"
               nzAccept=".csv"
               [nzMultiple]="false"
               [nzShowUploadList]="false"
               [nzBeforeUpload]="loadCSV"
-              [nzDisabled]="!shouldShowLoadCSVButton()"
               nz-tooltip
               [nzTooltipTitle]="getLoadCSVTooltip()"
               nzTooltipPlacement="top">
@@ -285,7 +302,6 @@
                 nz-button 
                 nzType="default" 
                 nzSize="small"
-                [disabled]="!shouldShowLoadCSVButton()"
                 class="load-csv-btn">
                 <span nz-icon nzType="upload"></span>
                 Load CSV
@@ -302,8 +318,9 @@
           [nzLoading]="loading"
           nzSize="middle"
           [nzPageSize]="10"
-          [nzPageSizeOptions]="[5, 10, 20, 50]"
-          nzShowTotal
+          [nzPageSizeOptions]="[5, 10, 20, 50, 100]"
+          [nzTotal]="certificationDetails.accessReviewItems.length"
+          [nzShowTotal]="totalTemplate"
           [nzScroll]="{ x: 'max-content' }"
           (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
           [class]="'access-review-table w-full' + (bulkActionMode ? ' bulk-mode' : '')">
@@ -429,6 +446,10 @@
           </tbody>
         </nz-table>
       </div>
+
+      <ng-template #totalTemplate let-total>
+        Total {{ total }} items
+      </ng-template>
 
       <!-- Errors (if any) -->
       <div class="detail-section" *ngIf="certificationDetails.errors && certificationDetails.errors.length > 0">

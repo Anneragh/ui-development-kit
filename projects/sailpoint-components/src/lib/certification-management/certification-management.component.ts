@@ -48,6 +48,7 @@ import {
   GiftOutline,
   ReloadOutline,
   BellOutline,
+  MessageOutline,
 } from '@ant-design/icons-angular/icons';
 import { NavigationItem, NavigationStackService } from './navigation-stack';
 import { NZ_I18N, NzI18nService, en_US } from 'ng-zorro-antd/i18n';
@@ -120,6 +121,7 @@ interface ColumnItem {
       GiftOutline,
       ReloadOutline,
       BellOutline,
+      MessageOutline,
     ]),
     { provide: NZ_I18N, useValue: en_US },
   ],
@@ -513,7 +515,7 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
         apiKey: this.openAIApiKey,
       });
       const { object } = await generateObject({
-        model: openai('gpt-4o-mini'),
+        model: openai('gpt-4o'),
         schema: z.object({
           joke: z.string(),
           punchline: z.string(),
@@ -662,7 +664,9 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
    * Get tooltip text for joke button
    */
   getJokeButtonTooltip(): string {
-    if (this.isJokeButtonEnabled) {
+    if (this.jokeLoading) {
+      return 'Generating your surprise... ⏳';
+    } else if (this.isJokeButtonEnabled) {
       return 'Click for a surprise! 🎁';
     } else {
       const remaining = 10 - this.totalSavedDecisions;

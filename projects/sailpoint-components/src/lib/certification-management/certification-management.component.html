@@ -84,7 +84,8 @@
               nzSize="middle"
               [nzPageSize]="10"
               [nzPageSizeOptions]="[5, 10, 20, 50]"
-              nzShowTotal
+              [nzTotal]="filteredCertifications.length"
+              [nzShowTotal]="totalTemplate"
               [nzScroll]="{ x: 'max-content' }"
               class="certification-table w-full"
               *ngIf="!loading && filteredCertifications.length">
@@ -144,6 +145,11 @@
                 </tr>
               </tbody>
             </nz-table>
+
+            <ng-template #totalTemplate let-total>
+              Total {{ total }} items
+            </ng-template>
+
             <!-- Search Bar -->
             <nz-dropdown-menu #menu="nzDropdownMenu">
               <div class="ant-table-filter-dropdown">
@@ -237,11 +243,11 @@
     nzShape="circle"
     nzSize="large"
     (click)="showJokeDialog()"
-    [disabled]="!isJokeButtonEnabled"
+    [disabled]="!isJokeButtonEnabled || jokeLoading"
     nz-tooltip
     [nzTooltipTitle]="getJokeButtonTooltip()"
     nzTooltipPlacement="left"
     class="floating-action-button">
-    <span nz-icon [nzType]="jokeButtonIcon"></span>
+    <span nz-icon [nzType]="jokeLoading ? 'loading' : jokeButtonIcon" [class.spinning]="jokeLoading"></span>
   </button>
 </div>
