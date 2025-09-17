@@ -27,11 +27,147 @@
       <!-- Certification List View (Default/Root Level) -->
       <div *ngSwitchCase="'certification-list'">
         <mat-card class="w-full">
+          <!-- Campaign Summary Section -->
+          <div *ngIf="!loading && campaignSummaries.length > 0" class="campaign-summary-section">
+            <mat-card-header>
+              <mat-card-title>
+                <nz-icon nzType="dashboard"></nz-icon>
+                Campaign Summary
+              </mat-card-title>
+              <mat-card-subtitle>Overview of all campaigns and their progress</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              
+              <nz-carousel 
+                nzAutoPlay 
+                nzAutoPlaySpeed="5000"
+                nzEffect="fade"
+                nzDots="true"
+                nzDotPosition="bottom"
+                class="campaign-carousel">
+                <div nz-carousel-content *ngFor="let summary of campaignSummaries" class="campaign-slide">
+                  <div class="campaign-header">
+                    <h4 class="campaign-name">{{ summary.campaignName }}</h4>
+                    <nz-tag [nzColor]="getCampaignTypeColor(summary.campaignType)">
+                      {{ summary.campaignType }}
+                    </nz-tag>
+                  </div>
+                  <p class="campaign-description" *ngIf="summary.campaignDescription">
+                    {{ summary.campaignDescription }}
+                  </p>
+                  
+                  <div class="statistics-grid">
+                    <!-- Certifications Statistics -->
+                    <div class="stat-group">
+                      <h5 class="stat-group-title">Certifications</h5>
+                      <div class="stat-row">
+                        <nz-statistic 
+                          nzTitle="Total" 
+                          [nzValue]="summary.totalCertifications"
+                          nzPrefix="📋">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Completed" 
+                          [nzValue]="summary.completedCertifications"
+                          nzPrefix="✅"
+                          [nzValueStyle]="{ color: '#52c41a' }">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Incomplete" 
+                          [nzValue]="summary.incompleteCertifications"
+                          nzPrefix="⏳"
+                          [nzValueStyle]="{ color: '#faad14' }">
+                        </nz-statistic>
+                      </div>
+                    </div>
+
+                    <!-- Identities Statistics -->
+                    <div class="stat-group">
+                      <h5 class="stat-group-title">Identities</h5>
+                      <div class="stat-row">
+                        <nz-statistic 
+                          nzTitle="Total" 
+                          [nzValue]="summary.totalIdentities"
+                          nzPrefix="👥">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Completed" 
+                          [nzValue]="summary.completedIdentities"
+                          nzPrefix="✅"
+                          [nzValueStyle]="{ color: '#52c41a' }">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Progress" 
+                          [nzValue]="getProgressPercentage(summary.completedIdentities, summary.totalIdentities)"
+                          nzSuffix="%"
+                          nzPrefix="📊"
+                          [nzValueStyle]="{ color: '#1890ff' }">
+                        </nz-statistic>
+                      </div>
+                    </div>
+
+                    <!-- Decisions Statistics -->
+                    <div class="stat-group">
+                      <h5 class="stat-group-title">Decisions</h5>
+                      <div class="stat-row">
+                        <nz-statistic 
+                          nzTitle="Total" 
+                          [nzValue]="summary.totalDecisions"
+                          nzPrefix="⚖️">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Made" 
+                          [nzValue]="summary.madeDecisions"
+                          nzPrefix="✅"
+                          [nzValueStyle]="{ color: '#52c41a' }">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Progress" 
+                          [nzValue]="getProgressPercentage(summary.madeDecisions, summary.totalDecisions)"
+                          nzSuffix="%"
+                          nzPrefix="📊"
+                          [nzValueStyle]="{ color: '#1890ff' }">
+                        </nz-statistic>
+                      </div>
+                    </div>
+
+                    <!-- Phase Statistics -->
+                    <div class="stat-group">
+                      <h5 class="stat-group-title">Phases</h5>
+                      <div class="stat-row">
+                        <nz-statistic 
+                          nzTitle="Staged" 
+                          [nzValue]="summary.phaseCounts.staged"
+                          nzPrefix="📋"
+                          [nzValueStyle]="{ color: '#722ed1' }">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Active" 
+                          [nzValue]="summary.phaseCounts.active"
+                          nzPrefix="🔄"
+                          [nzValueStyle]="{ color: '#fa8c16' }">
+                        </nz-statistic>
+                        <nz-statistic 
+                          nzTitle="Signed" 
+                          [nzValue]="summary.phaseCounts.signed"
+                          nzPrefix="✍️"
+                          [nzValueStyle]="{ color: '#52c41a' }">
+                        </nz-statistic>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </nz-carousel>
+            </mat-card-content>
+          </div>
+
+          <!-- Table Section -->
           <mat-card-header>
             <mat-card-title>{{ getCurrentBreadcrumbLabel() }}</mat-card-title>
             <mat-card-subtitle>Manage your certification management</mat-card-subtitle>    
           </mat-card-header>
- 
+
           <mat-card-content class="w-full">
             <div *ngIf="loading" class="spinner-container">
               <mat-spinner diameter="75"></mat-spinner>

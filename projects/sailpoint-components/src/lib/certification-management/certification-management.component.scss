@@ -405,3 +405,298 @@ nz-breadcrumb a.active {
   }
 }
 
+/* Campaign Summary Styles */
+.campaign-summary-section {
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  mat-card-header {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px 12px 0 0;
+    margin: -24px -24px 16px -24px;
+    padding: 16px 24px;
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1890ff;
+      margin: 0;
+      
+      nz-icon {
+        font-size: 24px;
+      }
+    }
+    
+    mat-card-subtitle {
+      color: #666;
+      margin: 4px 0 0 0;
+      font-size: 14px;
+    }
+  }
+}
+
+/* Align table section header with campaign summary header */
+mat-card-header {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px 12px 0 0;
+  margin: -24px -24px 16px -24px;
+  padding: 16px 24px;
+  
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1890ff;
+    margin: 0;
+    
+    nz-icon {
+      font-size: 24px;
+    }
+  }
+  
+  mat-card-subtitle {
+    color: #666;
+    margin: 4px 0 0 0;
+    font-size: 14px;
+  }
+}
+
+.campaign-carousel {
+  position: relative;
+  
+  ::ng-deep .ant-carousel {
+    .slick-list {
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+    
+    .slick-track {
+      display: flex;
+      align-items: stretch;
+    }
+    
+    .slick-slide {
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      
+      > div {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .slick-dots {
+      position: relative;
+      bottom: auto;
+      margin-top: 72px;
+      margin-bottom: 0;
+      
+      li {
+        margin: 0 4px;
+        
+        button {
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 50%;
+          width: 8px;
+          height: 8px;
+          border: none;
+        }
+        
+        &.slick-active button {
+          background: #1890ff;
+        }
+      }
+    }
+  }
+}
+
+.campaign-slide {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  margin: 0;
+  min-height: auto;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  left: 0;
+  transform: none;
+}
+
+.campaign-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f0f0f0;
+  
+  .campaign-name {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #262626;
+    flex: 1;
+  }
+  
+  nz-tag {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 16px;
+  }
+}
+
+.campaign-description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+  font-style: italic;
+}
+
+.statistics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.stat-group {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+  }
+  
+  .stat-group-title {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1890ff;
+    text-align: center;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+  flex-wrap: nowrap;
+  
+  ::ng-deep nz-statistic {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    
+    .ant-statistic-title {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .ant-statistic-content {
+      font-size: 18px;
+      font-weight: 700;
+      color: #262626;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .ant-statistic-content-prefix {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+    
+    .ant-statistic-content-suffix {
+      font-size: 16px;
+      margin-left: 4px;
+    }
+  }
+}
+
+/* Dark theme overrides for both headers */
+:host-context(.dark-theme) {
+  .campaign-summary-section {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+    border-color: #404040;
+  }
+  
+  mat-card-header {
+    background: rgba(44, 44, 44, 0.8);
+    
+    mat-card-title {
+      color: #54c0e8;
+    }
+    
+    mat-card-subtitle {
+      color: #cccccc;
+    }
+  }
+  
+  .campaign-slide {
+    background: rgba(44, 44, 44, 0.9);
+    
+    .campaign-header {
+      border-bottom-color: #404040;
+      
+      .campaign-name {
+        color: #ffffff;
+      }
+    }
+    
+    .campaign-description {
+      color: #cccccc;
+    }
+  }
+  
+  .stat-group {
+    background: rgba(44, 44, 44, 0.7);
+    border-color: #404040;
+    
+    &:hover {
+      background: rgba(44, 44, 44, 0.9);
+    }
+    
+    .stat-group-title {
+      color: #54c0e8;
+      border-bottom-color: #404040;
+    }
+  }
+  
+  .stat-row {
+    ::ng-deep nz-statistic {
+      .ant-statistic-title {
+        color: #cccccc;
+      }
+      
+      .ant-statistic-content {
+        color: #ffffff;
+      }
+    }
+  }
+}
+

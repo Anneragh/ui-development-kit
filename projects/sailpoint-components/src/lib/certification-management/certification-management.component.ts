@@ -49,6 +49,7 @@ import {
   ReloadOutline,
   BellOutline,
   MessageOutline,
+  DashboardOutline,
 } from '@ant-design/icons-angular/icons';
 import { NavigationItem, NavigationStackService } from './navigation-stack';
 import { NZ_I18N, NzI18nService, en_US } from 'ng-zorro-antd/i18n';
@@ -57,6 +58,9 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzCarouselModule } from 'ng-zorro-antd/carousel';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { CertificationDetailComponent } from './certification-detail/certification-detail.component';
 import { IdentityInfoComponent } from './identity-info/identity-info.component';
 import { AccessDetailComponent } from './access-detail/access-detail.component';
@@ -74,6 +78,25 @@ interface ColumnItem {
   dataAccessor?: (item: IdentityCertificationDtoV2025) => any;
   formatter?: (value: any) => string;
   cssClass?: (value: any) => string;
+}
+
+// Interface for campaign summary data
+interface CampaignSummary {
+  campaignName: string;
+  campaignType: string;
+  campaignDescription: string;
+  totalCertifications: number;
+  completedCertifications: number;
+  incompleteCertifications: number;
+  totalIdentities: number;
+  completedIdentities: number;
+  totalDecisions: number;
+  madeDecisions: number;
+  phaseCounts: {
+    staged: number;
+    active: number;
+    signed: number;
+  };
 }
 
 @Component({
@@ -98,6 +121,9 @@ interface ColumnItem {
     NzCheckboxModule,
     NzDividerModule,
     NzToolTipModule,
+    NzStatisticModule,
+    NzCarouselModule,
+    NzTagModule,
     CertificationDetailComponent,
     IdentityInfoComponent,
     AccessDetailComponent,
@@ -122,6 +148,7 @@ interface ColumnItem {
       ReloadOutline,
       BellOutline,
       MessageOutline,
+      DashboardOutline,
     ]),
     { provide: NZ_I18N, useValue: en_US },
   ],
@@ -160,6 +187,9 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
   isJokeButtonEnabled = false;
   jokeButtonIcon = 'smile';
   totalSavedDecisions = 0;
+
+  // Campaign summary properties
+  campaignSummaries: CampaignSummary[] = [];
 
   // Table sort and filter configuration
   listOfColumns: ColumnItem[] = [
@@ -560,6 +590,8 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
         // Initialize filtered data with all certifications
         this.filteredCertifications = [...this.certifications];
         // console.log('Certifications set to:', this.certifications);
+        // Generate campaign summaries
+        this.generateCampaignSummaries();
         // Populate filter options after loading data
         this.populateFilterOptions();
       } else {
@@ -788,5 +820,90 @@ export class CertificationManagementComponent implements OnInit, OnDestroy {
    */
   deselectAllColumns(): void {
     this.visibleColumns.clear();
+  }
+
+  /**
+   * Generate campaign summaries from certification data
+   */
+  generateCampaignSummaries(): void {
+    const campaignMap = new Map<string, CampaignSummary>();
+
+    this.certifications.forEach((certification) => {
+      const campaignName = certification.campaign?.name || 'Unknown Campaign';
+      const campaignType = certification.campaign?.type || 'Unknown Type';
+      const campaignDescription = certification.campaign?.description || '';
+
+      if (!campaignMap.has(campaignName)) {
+        campaignMap.set(campaignName, {
+          campaignName,
+          campaignType,
+          campaignDescription,
+          totalCertifications: 0,
+          completedCertifications: 0,
+          incompleteCertifications: 0,
+          totalIdentities: 0,
+          completedIdentities: 0,
+          totalDecisions: 0,
+          madeDecisions: 0,
+          phaseCounts: {
+            staged: 0,
+            active: 0,
+            signed: 0,
+          },
+        });
+      }
+
+      const summary = campaignMap.get(campaignName)!;
+
+      // Count certifications
+      summary.totalCertifications++;
+      if (certification.completed) {
+        summary.completedCertifications++;
+      } else {
+        summary.incompleteCertifications++;
+      }
+
+      // Aggregate identities
+      summary.totalIdentities += certification.identitiesTotal || 0;
+      summary.completedIdentities += certification.identitiesCompleted || 0;
+
+      // Aggregate decisions
+      summary.totalDecisions += certification.decisionsTotal || 0;
+      summary.madeDecisions += certification.decisionsMade || 0;
+
+      // Count phases
+      const phase = certification.phase?.toLowerCase() || '';
+      if (phase.includes('staged')) {
+        summary.phaseCounts.staged++;
+      } else if (phase.includes('active')) {
+        summary.phaseCounts.active++;
+      } else if (phase.includes('signed')) {
+        summary.phaseCounts.signed++;
+      }
+    });
+
+    this.campaignSummaries = Array.from(campaignMap.values());
+  }
+
+  /**
+   * Get color for campaign type tag
+   */
+  getCampaignTypeColor(campaignType: string): string {
+    const typeColors: { [key: string]: string } = {
+      'Access Review': 'blue',
+      'Identity Review': 'green',
+      'Entitlement Review': 'orange',
+      'Role Review': 'purple',
+      Default: 'default',
+    };
+    return typeColors[campaignType] || typeColors['Default'];
+  }
+
+  /**
+   * Calculate progress percentage
+   */
+  getProgressPercentage(completed: number, total: number): number {
+    if (total === 0) return 0;
+    return Math.round((completed / total) * 100);
   }
 }
