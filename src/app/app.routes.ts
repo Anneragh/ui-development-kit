@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AttachRuleComponent, IdentitiesComponent, REPORT_EXAMPLE_ROUTES, ThemePickerComponent, TransformBuilderComponent, TransformsComponent , AccountsComponent } from 'sailpoint-components';
+import { AttachRuleComponent, IdentitiesComponent, REPORT_EXAMPLE_ROUTES, ThemePickerComponent, TransformBuilderComponent, TransformsComponent , AccountsComponent, CertificationManagementComponent, AccessObjectsManagementComponent, ManageObjectsListComponent } from 'sailpoint-components';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './shared/components';
  
@@ -51,7 +51,24 @@ export const appRoutes: Routes = [
     path: 'accounts',
     component: AccountsComponent
   },
+  {
+    path: 'certification-management',
+    component: CertificationManagementComponent
+  },
 
+  {
+    path: 'access-objects-management',
+    component: AccessObjectsManagementComponent
+  },
+  {
+    path: 'access-objects-management/:type',
+    component: ManageObjectsListComponent
+  },
+  {
+    path: 'entitlement-details/:type/:id',
+  loadComponent: () => import('../../projects/sailpoint-components/src/lib/access-objects-management/entitlement-details/entitlement-details.component').then(m => m.EntitlementDetailsComponent)
+  },
+ 
   {
     path: '**',
     component: PageNotFoundComponent

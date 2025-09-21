@@ -102,6 +102,23 @@ export class ConfigService {
       icon: 'dashboard',
       description: 'Manage accounts in SailPoint.',
       enabled: false,
+    },
+     {
+      name: 'certification-management',
+      displayName: 'Certification Management',
+      route: '/certification-management',
+      icon: 'dashboard',
+      description: 'Manage certification in SailPoint.',
+      enabled: false,
+    }
+    ,
+    {
+      name: 'access-objects-management',
+      displayName: 'Access Objects Management',
+      route: '/access-objects-management',
+      icon: 'category',
+      description: 'Manage access objects (entitlements, roles) in SailPoint.',
+      enabled: false,
     }
   ];
 

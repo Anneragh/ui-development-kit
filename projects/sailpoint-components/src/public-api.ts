@@ -21,3 +21,6 @@ export * from './lib/transforms/transforms.component';
 export * from './lib/attach-rule/attach-rule.component';
 
 export * from './lib/accounts/accounts.component';
+export * from './lib/certification-management/certification-management.component';
+export * from './lib/access-objects-management/access-objects-management.component';
+export * from './lib/access-objects-management/manage-objects-list/manage-objects-list.component';
