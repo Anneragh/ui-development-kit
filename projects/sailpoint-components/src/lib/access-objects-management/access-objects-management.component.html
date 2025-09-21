@@ -1,0 +1,57 @@
+
+<div class="dashboard-page">
+  
+  <!-- Main Dashboard Grid -->
+  <div class="dashboard-grid">
+    <!-- Top Row - Stats Cards -->
+        <div class="dashboard-row">
+            <div class="dashboard-card stats-card">
+                <mat-card class="tile-card">
+                    <mat-card-header>
+                        <mat-card-title>Entitlements</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="loading" class="loading-container">
+                            <mat-spinner diameter="40"></mat-spinner>
+                        </div>
+                        <p *ngIf="!loading" class="access-count blue-count">{{ entitlementsCount }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="goToManage('entitlements')">Manage</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+            <div class="dashboard-card stats-card">
+                <mat-card class="tile-card">
+                    <mat-card-header>
+                        <mat-card-title>Roles</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="loading" class="loading-container">
+                            <mat-spinner diameter="40"></mat-spinner>
+                        </div>
+                        <p *ngIf="!loading" class="access-count blue-count">{{ rolesCount }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="goToManage('roles')">Manage</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+            <div class="dashboard-card stats-card">
+                <mat-card class="tile-card">
+                    <mat-card-header>
+                        <mat-card-title>Access Profiles</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="loading" class="loading-container">
+                            <mat-spinner diameter="40"></mat-spinner>
+                        </div>
+                        <p *ngIf="!loading" class="access-count blue-count">{{ accessProfilesCount }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="goToManage('accessProfiles')">Manage</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+        </div>
+

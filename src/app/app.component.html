@@ -142,11 +142,37 @@
         <mat-icon class="card-icon">dashboard</mat-icon>
         Accounts
       </a>
+       <!-- Certification Management -->
+      <a 
+        *ngIf="isComponentEnabled('certification-management')" 
+        mat-list-item class="sidebar-link" 
+        routerLink="/certification-management" 
+        routerLinkActive="active-link"
+        [class.disabled]="!isConnected"
+        (click)="onNavItemClick($event)"
+      >
+        <mat-icon class="card-icon">rate_review</mat-icon>
+          Certification Management
+      </a>
+
+      <!-- Access Objects Management -->
+      <a 
+        *ngIf="isComponentEnabled('access-objects-management')" 
+        mat-list-item class="sidebar-link" 
+        routerLink="/access-objects-management" 
+        routerLinkActive="active-link"
+        [class.disabled]="!isConnected"
+        (click)="onNavItemClick($event)"
+      >
+        <mat-icon class="card-icon">category</mat-icon>
+        Access Objects Management
+      </a>
 
       
     </mat-nav-list>
   </mat-sidenav>
 
+      
   <mat-sidenav-content>
     <div class="main-content">
       <router-outlet></router-outlet>

@@ -307,6 +307,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             return;
           }
 
+          console.log('Token details:', tokenDetails.tokenDetails);
+
           this.connectionService.sessionStatusSubject$.next({
             authtype: this.state.actualTenant.authtype,
             isValid: tokenStatus.isValid,

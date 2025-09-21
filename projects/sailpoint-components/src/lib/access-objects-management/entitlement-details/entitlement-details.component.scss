@@ -1,0 +1,58 @@
+/* Object details styling */
+.object-details {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #fafafa;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.object-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.object-label {
+  min-width: 120px;
+  font-weight: 600;
+  color: #1976d2;
+  margin-right: 1rem;
+}
+.object-value {
+  color: #333;
+  font-size: 1.05rem;
+}
+
+h2 {
+  margin-bottom: 1rem;
+}
+nav {
+  margin-bottom: 1rem;
+}
+nav button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #eee;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #333;
+  font-size: 1rem;
+  min-width: 120px;
+  transition: background 0.2s, color 0.2s;
+}
+nav button.active {
+  background: #1976d2 !important;
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.08);
+}
+div {
+  font-size: 1rem;
+}
+p {
+  margin: 0.5rem 0;
+}
+.details-container {
+  max-width: 850px;
+  margin: 0 auto;
+}

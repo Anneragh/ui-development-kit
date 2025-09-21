@@ -1,0 +1,69 @@
+.joke-dialog {
+  min-width: 400px;
+  max-width: 500px;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 16px 24px 8px 24px;
+  color: #1976d2;
+}
+
+.joke-content {
+  padding: 16px 24px;
+}
+
+.joke-setup {
+  margin-bottom: 20px;
+}
+
+.joke-text {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+  color: #333;
+}
+
+.punchline-section {
+  margin-top: 20px;
+}
+
+.punchline-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #ccc, transparent);
+  margin: 16px 0;
+}
+
+.punchline-text {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+  color: #1976d2;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.reveal-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.reveal-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+mat-dialog-actions {
+  padding: 8px 24px 16px 24px;
+  gap: 8px;
+}
+
+mat-dialog-actions button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

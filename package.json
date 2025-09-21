@@ -1,11 +1,11 @@
 {
   "name": "sailpoint-ui-development-kit",
   "version": "1.0.9",
-  "description": "SailPoint UI development kit",
+  "description": "SailPoint Enhanced",
   "homepage": "https://sailpoint.com",
   "author": {
-    "name": "Philip Ellis",
-    "email": "developer-relations@sailpoint.com"
+    "name": "Raghunath Anne",
+    "email": ""
   },
   "keywords": [
     "angular",

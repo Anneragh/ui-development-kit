@@ -1,0 +1,45 @@
+<div class="joke-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>smart_toy</mat-icon>
+    LaughSec - security with a laugh
+  </h2>
+
+  <mat-dialog-content class="joke-content">
+    <div class="joke-setup">
+      <p class="joke-text">{{ data.joke }}</p>
+    </div>
+
+    <div class="punchline-section" *ngIf="showPunchline">
+      <div class="punchline-divider"></div>
+      <p class="punchline-text">{{ data.punchline }}</p>
+    </div>
+
+    <div class="reveal-section" *ngIf="!showPunchline">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="revealPunchline()"
+        class="reveal-button"
+      >
+        <mat-icon>visibility</mat-icon>
+        Show Punchline
+      </button>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeDialog()">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="closeDialog()"
+      *ngIf="showPunchline"
+    >
+      <mat-icon>thumb_up</mat-icon>
+      Got it!
+    </button>
+  </mat-dialog-actions>
+</div>
