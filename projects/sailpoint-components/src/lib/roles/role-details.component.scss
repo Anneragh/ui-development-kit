@@ -1,0 +1,6 @@
+.role-details { padding: 1rem; }
+.description-section { margin-bottom: 1.5rem; }
+.desc-view p { white-space: pre-wrap; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: .5rem .75rem; }
+.actions { display: flex; gap: .5rem; }
+.loading { padding: 2rem; text-align: center; font-style: italic; }

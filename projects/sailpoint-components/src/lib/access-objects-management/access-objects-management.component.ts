@@ -23,6 +23,10 @@ export class AccessObjectsManagementComponent implements OnInit, OnDestroy{
     entitlementsCount: number = 0;
     rolesCount: number = 0;
     accessProfilesCount: number = 0;
+    sourcesCount: number | undefined;
+    governanceGroupsCount: number | undefined;
+    workReassignmentsCount: number | undefined;
+    approvalResponsibilitiesCount: number | undefined;
     identityId: string = 'd0d85d39b4fe4734beb2a4114fbbc5c9';
     loading = true;
 
@@ -34,7 +38,11 @@ export class AccessObjectsManagementComponent implements OnInit, OnDestroy{
   ) {console.log('AccessObjectsManagementComponent constructed');}
   goToManage(cardType: string) {
     console.log(`Navigating to manage ${cardType}`);
-    this.router.navigate(['/access-objects-management', cardType]);
+    if (cardType === 'governanceGroups') {
+      this.router.navigate(['/governance-groups']);
+    } else {
+      this.router.navigate(['/access-objects-management', cardType]);
+    }
   }
     ngOnDestroy(): void {
         // Clean up any subscriptions or resources here if needed
@@ -53,6 +61,10 @@ export class AccessObjectsManagementComponent implements OnInit, OnDestroy{
         console.log("All counts fetched");
         
     });
+  this.getSources();
+  this.getGovernanceGroups();
+  this.getWorkReassignments();
+  this.getApprovalResponsibilities();
   }
 
 async getEntitlementsCount() {
@@ -105,7 +117,33 @@ async getAccessProfileCount() {
   }
 
 getSources() {
-    alert('Other action...');
+    // Placeholder: implement real search / count logic for sources
+    this.sourcesCount = 0; // default until implemented
+  }
+
+  getGovernanceGroups() {
+    // Placeholder: implement search for governance groups where user is owner/member
+    this.governanceGroupsCount = 0;
+  }
+
+  getWorkReassignments() {
+    // Placeholder: count of items user has reassigned or can reassign
+    this.workReassignmentsCount = 0;
+  }
+
+  getApprovalResponsibilities() {
+    // Placeholder: count of pending approval items user is responsible for
+    this.approvalResponsibilitiesCount = 0;
+  }
+
+  viewWorkReassignments() {
+    // Placeholder navigation/logic
+    alert('Work Reassignments view not yet implemented');
+  }
+
+  viewApprovalResponsibilities() {
+    // Placeholder navigation/logic
+    alert('Approval Responsibilities view not yet implemented');
   }
   
 }

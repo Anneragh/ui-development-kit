@@ -16,14 +16,20 @@ import { EntitlementDocumentsV2025 } from 'sailpoint-api-client';
 })
 export class ManageObjectsListComponent implements OnInit {
   data: any[] = [];
-  displayedColumns: string[] = ['name', 'description', 'privileged', 'requestable', 'sourceName', 'actions'];
+  displayedColumns: string[] = ['name', 'description', 'privileged', 'requestable', 'actions'];
   title: string = 'Manage Objects';
   identityId: string = 'd0d85d39b4fe4734beb2a4114fbbc5c9';
+  objectType: string | null = null;
+  objectTypeLabel: string = '';
   constructor(private route: ActivatedRoute, private sdk: SailPointSDKService, private router: Router) {}
   manage(element: any) {
     const type = this.route.snapshot.paramMap.get('type');
     if (type && element.id) {
-      this.router.navigate([`/entitlement-details`, type, element.id]);
+      if (type === 'roles') {
+        this.router.navigate([`/role-details`, element.id]);
+      } else {
+        this.router.navigate([`/entitlement-details`, type, element.id]);
+      }
     }
   }
 
@@ -31,7 +37,18 @@ export class ManageObjectsListComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const type = params.get('type');
       if (type) {
+        this.objectType = type;
+        this.objectTypeLabel = type === 'accessProfiles' ? 'Access Profiles' : type.charAt(0).toLowerCase() === 'entitlements' ? 'Entitlements' : type.charAt(0).toUpperCase() + type.slice(1);
         this.title = `Manage ${type.charAt(0).toUpperCase() + type.slice(1)} I own`;
+        // Adjust columns: sourceName only for entitlements/accessProfiles
+        const hasSource = type === 'entitlements' || type === 'accessProfiles';
+        this.displayedColumns = ['name', 'description'];
+        if (type !== 'roles') {
+          this.displayedColumns.push('privileged');
+        }
+        this.displayedColumns.push('requestable');
+        if (hasSource) this.displayedColumns.push('sourceName');
+        this.displayedColumns.push('actions');
         this.loadData(type);
       }
     });
@@ -41,8 +58,7 @@ export class ManageObjectsListComponent implements OnInit {
     if (type === 'entitlements') {         
         await this.getEntitlements();      
     } else if (type === 'roles') {
-      const resp = await this.sdk.listRoles({});
-      this.data = (resp.data || []).map(r => ({ name: r.name, description: r.description, etc: r.id }));
+  await this.getRoles();
     } else if (type === 'accessProfiles') {
       const resp = await this.sdk.listAccessProfiles({});
       this.data = (resp.data || []).map(a => ({ name: a.name, description: a.description, etc: a.id }));
@@ -89,6 +105,29 @@ export class ManageObjectsListComponent implements OnInit {
      //this.rolesCount =res.headers['x-total-count'] ? Number(res.headers['x-total-count']) : 0;
   
     }
+
+  async getRoles() {
+    const request: any = {
+      searchV2025: {
+        indices: ['roles'],
+        query: {
+          query: "owner.id:" + this.identityId
+        },
+        sort: ['+name'],
+        from: 0,
+        size: 200
+      }
+    };
+    const res = await this.sdk.searchPost(request);
+    this.data = (res.data || []).map((r: any) => ({
+      id: r.id ?? '',
+      name: r.displayName ?? r.name ?? '',
+      description: r.description ?? '',
+      privileged: typeof r.privileged === 'boolean' ? r.privileged : false,
+      requestable: typeof r.requestable === 'boolean' ? r.requestable : false,
+      sourceName: (r.source && (r.source.displayName || r.source.name)) || ''
+    }));
+  }
   
   async getAccessProfileCount() {
       const request: any = {

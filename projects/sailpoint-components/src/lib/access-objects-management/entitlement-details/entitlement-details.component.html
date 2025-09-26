@@ -1,121 +1,287 @@
 <h2 style="margin-bottom: 1.5rem; color: #2c3e50; font-weight: 600;">Entitlement Details</h2>
 <nav aria-label="breadcrumb" style="margin-bottom: 1rem;">
-  <ol style="display: flex; list-style: none; padding: 0; margin: 0; color: #888;">
-    <li><a style="color: #1976d2; text-decoration: none; font-weight: 500;" href="/">Home</a></li>
-    <li style="margin: 0 0.5rem;">/</li>
-    <li><a style="color: #1976d2; text-decoration: none; font-weight: 500;" href="/entitlements">Entitlements</a></li>
-    <li style="margin: 0 0.5rem;">/</li>
-    <li style="color: #2c3e50; font-weight: 600;">{{ entitlement.displayName || entitlement.name }}</li>
+  <ol style="display:flex; list-style:none; padding:0; margin:0; color:#888;">
+    <li><a style="color:#1976d2; text-decoration:none; font-weight:500;" href="/">Home</a></li>
+    <li style="margin:0 0.5rem;">/</li>
+    <li><a style="color:#1976d2; text-decoration:none; font-weight:500;" href="/entitlements">Entitlements</a></li>
+    <li style="margin:0 0.5rem;">/</li>
+    <li style="color:#2c3e50; font-weight:600;">{{ entitlement?.displayName || entitlement?.name }}</li>
   </ol>
 </nav>
 
-<div *ngIf="entitlement" class="details-container">
-  <mat-horizontal-stepper [linear]="false" [selectedIndex]="activeStep" (selectionChange)="activeStep = $event.selectedIndex" style="margin-bottom: 2rem;">
-    <mat-step label="Entitlement Details">
-      <div class="object-details" style="background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(44,62,80,0.08); padding: 2rem;">
-        <div style="margin-top: 2rem; text-align: right;">
-          <button mat-raised-button color="primary" (click)="activeStep = 1">Next: Approval Configuration</button>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">ID:</span>
-          <span class="object-value">{{ entitlement.id }}</span>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">Name:</span>
-          <span class="object-value">{{ entitlement.displayName || entitlement.name }}</span>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem; align-items: flex-start;">
+<div *ngIf="entitlement; else loadingTpl" class="details-container">
+  <mat-tab-group>
+    <!-- TAB: Entitlement Details -->
+    <mat-tab label="Entitlement Details">
+      <div class="object-details" style="background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(44,62,80,0.08); padding:2rem;">
+        <div class="object-row" style="margin-bottom:1.2rem;"><span class="object-label">ID:</span><span class="object-value">{{ entitlement.id }}</span></div>
+        <div class="object-row" style="margin-bottom:1.2rem;"><span class="object-label">Name:</span><span class="object-value">{{ entitlement.displayName || entitlement.name }}</span></div>
+        <div class="object-row" style="margin-bottom:1.2rem; align-items:flex-start;">
           <span class="object-label">Description:</span>
-          <span class="object-value" *ngIf="!editingDescription" style="display: flex; align-items: center;">
-            <span style="margin-right: 0.5rem;">{{ entitlement.description }}</span>
-            <button mat-icon-button color="primary" (click)="startEditDescription()" style="vertical-align: middle; margin-left: 0.5rem;">
+          <span class="object-value" *ngIf="!editingDescription" style="display:flex; align-items:center;">
+            <span style="margin-right:0.5rem;">{{ entitlement.description }}</span>
+            <button mat-icon-button color="primary" (click)="startEditDescription()" style="margin-left:0.5rem;">
               <mat-icon>edit</mat-icon>
             </button>
           </span>
-          <span class="object-value" *ngIf="editingDescription" style="display: flex; align-items: center;">
-            <textarea [(ngModel)]="descriptionValue" rows="3" style="width: 60%; margin-right: 1rem; resize: vertical; padding: 8px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
-            <button mat-raised-button color="primary" (click)="updateDescription()" style="margin-right: 0.5rem;">Update</button>
+          <span class="object-value" *ngIf="editingDescription" style="display:flex; align-items:center;">
+            <textarea [(ngModel)]="descriptionValue" rows="3" style="width:60%; margin-right:1rem; resize:vertical; padding:8px; border-radius:6px; border:1px solid #ccc;"></textarea>
+            <button mat-raised-button color="primary" (click)="updateDescription()" style="margin-right:0.5rem;">Update</button>
             <button mat-button (click)="editingDescription = false">Cancel</button>
           </span>
         </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">Owner:</span>
-          <span class="object-value">{{ entitlement.owner?.displayName || entitlement.owner?.name || entitlement.owner?.id }}</span>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">Created:</span>
-          <span class="object-value">{{ entitlement.created | date:'medium' }}</span>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">Modified:</span>
-          <span class="object-value">{{ entitlement.modified | date:'medium' }}</span>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">Privileged:</span>
-          <span class="object-value">{{ entitlement.privileged ? 'Yes' : 'No' }}</span>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">Requestable:</span>
-          <span class="object-value">{{ entitlement.requestable ? 'Yes' : 'No' }}</span>
-        </div>
-        <div class="object-row" style="margin-bottom: 1.2rem;">
-          <span class="object-label">Source Name:</span>
-          <span class="object-value">{{ entitlement.source?.displayName || entitlement.source?.name }}</span>
-        </div>
+        <div class="object-row" style="margin-bottom:1.2rem;"><span class="object-label">Owner:</span><span class="object-value">{{ entitlement.owner?.displayName || entitlement.owner?.name || entitlement.owner?.id }}</span></div>
+        <div class="object-row" style="margin-bottom:1.2rem;"><span class="object-label">Created:</span><span class="object-value">{{ entitlement.created | date:'medium' }}</span></div>
+        <div class="object-row" style="margin-bottom:1.2rem;"><span class="object-label">Modified:</span><span class="object-value">{{ entitlement.modified | date:'medium' }}</span></div>
+        <div class="object-row" style="margin-bottom:1.2rem;"><span class="object-label">Privileged:</span><span class="object-value">{{ entitlement.privileged ? 'Yes' : 'No' }}</span></div>
+        <div class="object-row" style="margin-bottom:1.2rem;"><span class="object-label">Source Name:</span><span class="object-value">{{ entitlement.source?.displayName || entitlement.source?.name }}</span></div>
       </div>
-    </mat-step>
-    <mat-step label="Approval Configuration">
-      <mat-card style="margin-bottom: 2rem;">
-        <div style="margin-top: 2rem; text-align: left;">
-          <button mat-button (click)="activeStep = 0">Back to Details</button>
+    </mat-tab>
+
+    <!-- TAB: Approval Configuration (editable) -->
+    <mat-tab label="Approval Configuration">
+      <div style="padding:1rem 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="margin:0; font-weight:600;">Approval Steps</h3>
+          <button mat-raised-button color="primary" (click)="addApprovalStep()"><mat-icon style="margin-right:4px;">add</mat-icon>Add Step</button>
         </div>
-        <mat-card-title>Approval Schemes</mat-card-title>
-        <mat-card-content>
-          <div *ngIf="entitlementRequestConfig?.accessRequestConfig">
-            <div *ngFor="let scheme of entitlementRequestConfig.accessRequestConfig.approvalSchemes; let i = index" style="margin-bottom: 1.5rem;">
-              <div style="margin-bottom: 1rem;">
-                <strong>Level {{ i + 1 }} Approver Type:</strong> {{ scheme.approverType }}
-                <span *ngIf="scheme.approverId">({{ scheme.approverId }})</span>
+        <div cdkDropList (cdkDropListDropped)="dropApprovalStep($event)" style="display:flex; flex-direction:column; gap:12px;">
+          <div *ngFor="let step of editableApprovalSchemes; let i = index" cdkDrag style="background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:12px; box-shadow:0 2px 4px rgba(0,0,0,0.04); display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
+              <div style="display:flex; align-items:center; gap:8px; flex:1 1 260px;">
+                <mat-icon cdkDragHandle style="cursor:grab; color:#607d8b;">drag_indicator</mat-icon>
+                <strong>Level {{ i + 1 }}<span *ngIf="step.approverType==='GOVERNANCE_GROUP' && step.selectedWorkgroup" style="font-weight:500; color:#1976d2; margin-left:6px; font-size:0.85rem; background:#e3f2fd; padding:2px 6px; border-radius:12px;">{{ step.selectedWorkgroup.displayName || step.selectedWorkgroup.name || step.selectedWorkgroup.id }}</span></strong>
               </div>
-              <div *ngIf="scheme.approverType === 'GOVERNANCE_GROUP'">
-                <mat-card style="margin-bottom: 1rem;">
-                  <mat-card-title>Governance Group Members</mat-card-title>
-                  <mat-card-content>
-                    <div class="mat-elevation-z4" style="display: flex; gap: 2rem; margin-bottom: 2rem;">
-                      <div style="flex: 1;">
-                        <h4 style="margin-bottom: 1rem; color: #1976d2;">Available Identities</h4>
-                        <div cdkDropList [cdkDropListData]="availableIdentities[scheme.approverId]" (cdkDropListDropped)="onIdentityDrop($event, scheme.approverId, 'add')" class="mat-card mat-card-outlined" style="min-height: 200px; background: #fafafa; border-radius: 8px; padding: 1rem;">
-                          <div *ngFor="let identity of availableIdentities[scheme.approverId]" cdkDrag class="mat-list-item" style="margin-bottom: 0.5rem; background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(25,118,210,0.08); padding: 0.75rem; display: flex; align-items: center; cursor: grab;">
-                            <mat-icon style="margin-right: 0.5rem; color: #1976d2;">person_add</mat-icon>
-                            <span style="font-weight: 500;">{{ identity.displayName || identity.name }}</span>
-                            <span style="margin-left: auto; color: #888; font-size: 0.9em;">{{ identity.id }}</span>
-                          </div>
-                          <div *ngIf="!availableIdentities[scheme.approverId]?.length" style="color: #888; text-align: center; margin-top: 2rem;">No available identities</div>
-                        </div>
-                      </div>
-                      <div style="flex: 1;">
-                        <h4 style="margin-bottom: 1rem; color: #388e3c;">Workgroup Members</h4>
-                        <div cdkDropList [cdkDropListData]="governanceGroupMembers[scheme.approverId]" (cdkDropListDropped)="onIdentityDrop($event, scheme.approverId, 'remove')" class="mat-card mat-card-outlined" style="min-height: 200px; background: #fafafa; border-radius: 8px; padding: 1rem;">
-                          <div *ngFor="let member of governanceGroupMembers[scheme.approverId]" cdkDrag class="mat-list-item" style="margin-bottom: 0.5rem; background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(56,142,60,0.08); padding: 0.75rem; display: flex; align-items: center; cursor: grab;">
-                            <mat-icon style="margin-right: 0.5rem; color: #388e3c;">person</mat-icon>
-                            <span style="font-weight: 500;">{{ member.displayName || member.name }}</span>
-                            <span style="margin-left: auto; color: #888; font-size: 0.9em;">{{ member.id }}</span>
-                          </div>
-                          <div *ngIf="!governanceGroupMembers[scheme.approverId]?.length" style="color: #888; text-align: center; margin-top: 2rem;">No members in group</div>
-                        </div>
-                      </div>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
+              <mat-form-field appearance="outline" style="width:180px;">
+                <mat-label>Approver Type</mat-label>
+                <mat-select [(ngModel)]="step.approverType">
+                  <mat-option *ngFor="let t of approverTypes" [value]="t.value">{{ t.label }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field *ngIf="step.approverType==='GOVERNANCE_GROUP'" appearance="outline" style="width:280px;">
+                <mat-label>Governance Group</mat-label>
+                <input matInput [value]="step.selectedWorkgroup?.displayName || step.selectedWorkgroup?.name || step.approverId" disabled />
+              </mat-form-field>
+              <button mat-icon-button color="warn" (click)="removeApprovalStep(i)" aria-label="Remove step"><mat-icon>delete</mat-icon></button>
+            </div>
+            <div *ngIf="step.approverType==='GOVERNANCE_GROUP' && step.approverId" style="background:#f7f9fb; border:1px dashed #c2d4e3; padding:12px; border-radius:6px;">
+              <div style="font-weight:500; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><mat-icon style="font-size:18px; color:#1976d2;">group_add</mat-icon>Bulk Add Identities</div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start;">
+                <mat-form-field appearance="outline" style="min-width:220px; flex:1 1 260px;">
+                  <mat-label>Identity ID or name</mat-label>
+                  <input matInput [(ngModel)]="step.identityInputValue" (input)="onIdentitySearchChange(step)" (keyup.enter)="addPendingIdentityFromInput(step)" placeholder="Type to search identities" />
+                </mat-form-field>
+                <div *ngIf="step.identitySuggestions?.length" style="flex:1 1 100%; background:#fff; border:1px solid #d9e2ec; border-radius:4px; max-width:400px; padding:4px; display:flex; flex-direction:column; gap:2px;">
+                  <div *ngFor="let s of step.identitySuggestions" (click)="addIdentitySuggestion(step, s)" style="cursor:pointer; padding:4px 6px; border-radius:4px; display:flex; gap:6px; align-items:center; font-size:0.8rem;"><mat-icon style="font-size:16px; color:#1976d2;">person_add</mat-icon><span>{{ s.displayName }} ({{ s.id }})</span></div>
+                </div>
+                <button mat-stroked-button color="primary" (click)="addPendingIdentityFromInput(step)" [disabled]="!(step.identityInputValue || '').trim()">Add</button>
+                <button mat-raised-button color="accent" (click)="addAllPendingToGroup(step)" [disabled]="!step.pendingIdentities.length">Add All To Group</button>
+              </div>
+              <mat-chip-listbox *ngIf="step.pendingIdentities.length" style="margin-top:8px; display:block;">
+                <mat-chip-option *ngFor="let pid of step.pendingIdentities; let pi = index" (removed)="removePendingIdentity(step, pi)" selectable="false" removable="true" style="background:#e3f2fd; color:#0d47a1;">{{ pid }}<button matChipRemove aria-label="Remove"><mat-icon>close</mat-icon></button></mat-chip-option>
+              </mat-chip-listbox>
+              <div style="margin-top:16px;">
+                <div style="font-weight:500; margin-bottom:4px; display:flex; align-items:center; gap:6px;"><mat-icon style="font-size:18px; color:#388e3c;">group</mat-icon>Current Members</div>
+                <div *ngIf="(governanceGroupMembers[step.approverId] || []).length; else noMembers" style="display:flex; flex-wrap:wrap; gap:6px;">
+                  <div *ngFor="let m of governanceGroupMembers[step.approverId]" style="background:#fff; border:1px solid #d9e2ec; padding:4px 8px; border-radius:16px; display:flex; align-items:center; gap:6px; font-size:0.85rem;">
+                    <mat-icon style="font-size:16px; color:#388e3c;">person</mat-icon><span>{{ m.displayName || m.name || m.id }}</span>
+                    <button mat-icon-button color="warn" (click)="removeMemberFromGroup(step.approverId, m.id)" style="width:24px; height:24px; line-height:24px;"><mat-icon style="font-size:16px;">close</mat-icon></button>
+                  </div>
+                </div>
+                <ng-template #noMembers><div style="color:#777; font-size:0.85rem;">No members loaded.</div></ng-template>
               </div>
             </div>
           </div>
-          <div *ngIf="!entitlementRequestConfig?.accessRequestConfig">
-            <p>No approval config found.</p>
+        </div>
+        <div *ngIf="!editableApprovalSchemes.length" style="text-align:center; padding:2rem; color:#777; border:2px dashed #ccc; border-radius:8px; margin-top:1rem;">No approval steps configured. Click "Add Step" to begin.</div>
+        <div style="margin-top:1.5rem; display:flex; gap:1rem; align-items:center;">
+          <button mat-raised-button color="primary" (click)="saveApprovalConfig()" [disabled]="savingApproval"><mat-icon style="margin-right:4px;">save</mat-icon>{{ savingApproval ? 'Saving...' : 'Save Configuration' }}</button>
+          <span *ngIf="approvalError" style="color:#d32f2f;">{{ approvalError }}</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- TAB: Request Config (read-only steps) -->
+    <mat-tab label="Request Config">
+      <div style="padding:1rem 0;">
+        <h3 style="margin-top:0; font-weight:600;">Request Configuration</h3>
+        <div style="background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:16px; margin-bottom:16px; display:flex; align-items:center; gap:12px;">
+          <mat-checkbox [(ngModel)]="requestableValue">Allow this item to request from the request center?</mat-checkbox>
+          <button mat-raised-button color="primary" (click)="saveRequestConfig()" [disabled]="savingRequestConfig">{{ savingRequestConfig ? 'Saving...' : 'Save' }}</button>
+          <span *ngIf="requestConfigError" style="color:#d32f2f;">{{ requestConfigError }}</span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:24px;">
+          <!-- Access Config -->
+          <div style="flex:1 1 380px; min-width:320px; background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:16px;">
+            <h4 style="margin:0 0 12px 0; font-weight:600; display:flex; align-items:center; gap:6px;"><mat-icon style="font-size:18px; color:#1976d2;">login</mat-icon>Access Request Config</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <mat-checkbox [(ngModel)]="accessRequestConfigValues.requestCommentRequired">Request Comment Required</mat-checkbox>
+              <mat-checkbox [(ngModel)]="accessRequestConfigValues.denialCommentRequired">Denial Comment Required</mat-checkbox>
+              <mat-checkbox [(ngModel)]="accessRequestConfigValues.reauthorizationRequired">Reauthorization Required</mat-checkbox>
+            </div>
+            <div style="margin-top:16px;">
+              <strong style="display:block; margin-bottom:10px;">Access Approval Steps</strong>
+              <div *ngIf="accessApprovalSchemes.length; else noAccessSteps" style="display:flex; flex-direction:column; gap:10px;">
+                <div *ngFor="let step of accessApprovalSchemes; let ai = index" style="display:flex; align-items:flex-start; gap:12px;">
+                  <div style="width:32px; height:32px; min-width:32px; border-radius:50%; background:#1976d2; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; box-shadow:0 0 0 2px #e3f2fd; font-size:0.85rem;">{{ ai + 1 }}</div>
+                  <div style="flex:1; background:#f5f9fc; border:1px solid #d2e3f3; padding:8px 12px; border-radius:8px;">
+                    <div style="font-size:0.8rem; font-weight:600; letter-spacing:0.5px; color:#1565c0; text-transform:uppercase; margin-bottom:4px;">Level {{ ai + 1 }}</div>
+                    <div style="font-size:0.85rem;"><strong>{{ step.approverType }}</strong><span *ngIf="step.approverType==='GOVERNANCE_GROUP'" style="color:#0d47a1;"> — {{ step.selectedWorkgroup?.displayName || step.selectedWorkgroup?.name || step.approverId }}</span></div>
+                    <div *ngIf="step.approverType==='GOVERNANCE_GROUP' && step.approverId" style="margin-top:6px;">
+                      <div style="font-size:0.65rem; font-weight:600; color:#0d47a1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">Members</div>
+                      <div *ngIf="(governanceGroupMembers[step.approverId]||[]).length; else noAccessMembersList" style="display:flex; flex-wrap:wrap; gap:4px;">
+                        <span *ngFor="let m of governanceGroupMembers[step.approverId]" style="background:#fff; border:1px solid #d2e3f3; border-radius:12px; padding:2px 8px; font-size:10px; display:flex; align-items:center; gap:4px;"><mat-icon style="font-size:12px; color:#388e3c;">person</mat-icon>{{ m.displayName || m.name || m.id }}</span>
+                      </div>
+                      <ng-template #noAccessMembersList><span style="font-size:10px; color:#777;">No members loaded.</span></ng-template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noAccessSteps><div style="font-size:12px; color:#777;">No approval steps.</div></ng-template>
+            </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </mat-step>
-  </mat-horizontal-stepper>
+          <!-- Revocation Config -->
+          <div style="flex:1 1 380px; min-width:320px; background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:16px;">
+            <h4 style="margin:0 0 12px 0; font-weight:600; display:flex; align-items:center; gap:6px;"><mat-icon style="font-size:18px; color:#1976d2;">logout</mat-icon>Revocation Request Config</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <mat-checkbox [(ngModel)]="revocationRequestConfigValues.requestCommentRequired">requestCommentRequired</mat-checkbox>
+              <mat-checkbox [(ngModel)]="revocationRequestConfigValues.denialCommentRequired">denialCommentRequired</mat-checkbox>
+              <mat-checkbox [(ngModel)]="revocationRequestConfigValues.reauthorizationRequired">reauthorizationRequired</mat-checkbox>
+            </div>
+            <div style="margin-top:16px;">
+              <strong style="display:block; margin-bottom:10px;">Revocation Approval Steps</strong>
+              <div *ngIf="revocationApprovalSchemes.length; else noRevocationSteps" style="display:flex; flex-direction:column; gap:10px;">
+                <div *ngFor="let step of revocationApprovalSchemes; let ri = index" style="display:flex; align-items:flex-start; gap:12px;">
+                  <div style="width:32px; height:32px; min-width:32px; border-radius:50%; background:#ad1457; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; box-shadow:0 0 0 2px #fce4ec; font-size:0.85rem;">{{ ri + 1 }}</div>
+                  <div style="flex:1; background:#fdf5f8; border:1px solid #f3d1de; padding:8px 12px; border-radius:8px;">
+                    <div style="font-size:0.8rem; font-weight:600; letter-spacing:0.5px; color:#880e4f; text-transform:uppercase; margin-bottom:4px;">Level {{ ri + 1 }}</div>
+                    <div style="font-size:0.85rem;"><strong>{{ step.approverType }}</strong><span *ngIf="step.approverType==='GOVERNANCE_GROUP'" style="color:#880e4f;"> — {{ step.selectedWorkgroup?.displayName || step.selectedWorkgroup?.name || step.approverId }}</span></div>
+                    <div *ngIf="step.approverType==='GOVERNANCE_GROUP' && step.approverId" style="margin-top:6px;">
+                      <div style="font-size:0.65rem; font-weight:600; color:#880e4f; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">Members</div>
+                      <div *ngIf="(governanceGroupMembers[step.approverId]||[]).length; else noRevMembersList" style="display:flex; flex-wrap:wrap; gap:4px;">
+                        <span *ngFor="let m of governanceGroupMembers[step.approverId]" style="background:#fff; border:1px solid #f3d1de; border-radius:12px; padding:2px 8px; font-size:10px; display:flex; align-items:center; gap:4px;"><mat-icon style="font-size:12px; color:#388e3c;">person</mat-icon>{{ m.displayName || m.name || m.id }}</span>
+                      </div>
+                      <ng-template #noRevMembersList><span style="font-size:10px; color:#777;">No members loaded.</span></ng-template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noRevocationSteps><div style="font-size:12px; color:#777;">No approval steps.</div></ng-template>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <button mat-raised-button color="primary" (click)="saveFlowConfigs()" [disabled]="savingFlowConfigs">{{ savingFlowConfigs ? 'Saving...' : 'Save Flow Configs' }}</button>
+          <span *ngIf="flowConfigError" style="color:#d32f2f; margin-left:12px;">{{ flowConfigError }}</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- TAB: Members -->
+    <mat-tab label="Members" (opened)="!entitlementMembers.length && !loadingMembers ? fetchEntitlementMembers(true) : null">
+      <div style="padding:1rem 0;">
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:12px;">
+          <button mat-raised-button color="primary" (click)="fetchEntitlementMembers(true)" [disabled]="loadingMembers"><mat-icon style="margin-right:4px;">refresh</mat-icon>{{ loadingMembers ? 'Loading...' : 'Reload' }}</button>
+          <mat-form-field appearance="outline" style="width:240px;">
+            <mat-label>Search members</mat-label>
+            <input matInput [(ngModel)]="membersSearch" (keyup.enter)="fetchEntitlementMembers(true)" placeholder="Name or display name" />
+          </mat-form-field>
+            <button mat-stroked-button (click)="fetchEntitlementMembers(true)" [disabled]="loadingMembers">Search</button>
+          <span style="flex:1 1 auto;"></span>
+          <button mat-raised-button color="accent" (click)="downloadMembersCsv()" [disabled]="!entitlementMembers.length"><mat-icon style="margin-right:4px;">download</mat-icon>Download CSV ({{ entitlementMembers.length }})</button>
+        </div>
+        <div *ngIf="membersError" style="color:#d32f2f; margin-bottom:8px;">{{ membersError }}</div>
+        <div style="overflow:auto; max-height:480px; border:1px solid #e0e6ed; border-radius:6px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+            <thead style="background:#f5f7fa; position:sticky; top:0; z-index:1;">
+              <tr>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">#</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Display Name</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Name</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Email</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Identity ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of entitlementMembers; let i = index" style="border-bottom:1px solid #f0f2f5;">
+                <td style="padding:6px 10px; color:#607d8b;">{{ i + 1 }}</td>
+                <td style="padding:6px 10px; font-weight:500;">{{ m.displayName }}</td>
+                <td style="padding:6px 10px;">{{ m.name }}</td>
+                <td style="padding:6px 10px;">{{ m.email }}</td>
+                <td style="padding:6px 10px; font-family:monospace; font-size:0.75rem;">{{ m.id }}</td>
+              </tr>
+              <tr *ngIf="!loadingMembers && !entitlementMembers.length">
+                <td colspan="5" style="padding:12px; text-align:center; color:#777; font-size:0.85rem;">No members found.</td>
+              </tr>
+              <tr *ngIf="loadingMembers">
+                <td colspan="5" style="padding:16px; text-align:center; color:#1976d2; font-weight:500;">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px; display:flex; justify-content:center;" *ngIf="entitlementMembers.length && !loadingMembers && entitlementMembers.length < membersTotal">
+          <button mat-stroked-button (click)="fetchEntitlementMembers()">Load More</button>
+        </div>
+      </div>
+    </mat-tab>
+    <!-- TAB: Request History -->
+    <mat-tab label="Request History">
+      <div style="padding:1rem 0;">
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:12px;">
+          <button mat-raised-button color="primary" (click)="fetchRequestHistory(true)" [disabled]="loadingHistory"><mat-icon style="margin-right:4px;">history</mat-icon>{{ loadingHistory ? 'Loading...' : 'Reload' }}</button>
+          <mat-form-field appearance="outline" style="width:260px;">
+            <mat-label>Search requester / for</mat-label>
+            <input matInput [(ngModel)]="historySearch" (keyup.enter)="fetchRequestHistory(true)" placeholder="Requester or target" />
+          </mat-form-field>
+          <button mat-stroked-button (click)="fetchRequestHistory(true)" [disabled]="loadingHistory">Search</button>
+          <span style="flex:1 1 auto;"></span>
+          <span style="font-size:0.75rem; color:#607d8b;">{{ requestHistory.length }} / {{ historyTotal || '?' }} loaded</span>
+        </div>
+        <div *ngIf="historyError" style="color:#d32f2f; margin-bottom:8px;">{{ historyError }}</div>
+        <div style="overflow:auto; max-height:480px; border:1px solid #e0e6ed; border-radius:6px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+            <thead style="background:#f5f7fa; position:sticky; top:0; z-index:1;">
+              <tr>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">ID</th>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">State</th>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">Type</th>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">Requester</th>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">Requested For</th>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">Created</th>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">Modified</th>
+                <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e0e6ed;">Decisions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of requestHistory" style="border-bottom:1px solid #f0f2f5;">
+                <td style="padding:4px 8px; font-family:monospace; font-size:0.7rem;">{{ r.id }}</td>
+                <td style="padding:4px 8px;">{{ r.state }}</td>
+                <td style="padding:4px 8px;">{{ r.type }}</td>
+                <td style="padding:4px 8px;">{{ r.requester }}</td>
+                <td style="padding:4px 8px;">{{ r.requestedFor }}</td>
+                <td style="padding:4px 8px;">{{ r.created | date:'short' }}</td>
+                <td style="padding:4px 8px;">{{ r.modified | date:'short' }}</td>
+                <td style="padding:4px 8px;">
+                  <span *ngIf="r.decisions?.length; else noDecisions" style="display:inline-flex; flex-wrap:wrap; gap:4px;">
+                    <span *ngFor="let d of r.decisions" style="background:#eef3f8; padding:2px 6px; border-radius:12px; font-size:0.6rem;">{{ d.outcome || d.decision || d.state }}</span>
+                  </span>
+                  <ng-template #noDecisions><span style="font-size:0.6rem; color:#999;">—</span></ng-template>
+                </td>
+              </tr>
+              <tr *ngIf="!loadingHistory && !requestHistory.length">
+                <td colspan="8" style="padding:14px; text-align:center; color:#777;">No requests found.</td>
+              </tr>
+              <tr *ngIf="loadingHistory">
+                <td colspan="8" style="padding:16px; text-align:center; color:#1976d2; font-weight:500;">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px; display:flex; justify-content:center;" *ngIf="requestHistory.length && !loadingHistory && requestHistory.length < historyTotal">
+          <button mat-stroked-button (click)="fetchRequestHistory()">Load More</button>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>
-<div *ngIf="!entitlement">Loading...</div>
+<ng-template #loadingTpl><div>Loading...</div></ng-template>

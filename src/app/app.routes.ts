@@ -68,6 +68,18 @@ export const appRoutes: Routes = [
     path: 'entitlement-details/:type/:id',
   loadComponent: () => import('../../projects/sailpoint-components/src/lib/access-objects-management/entitlement-details/entitlement-details.component').then(m => m.EntitlementDetailsComponent)
   },
+  {
+    path: 'role-details/:id',
+    loadComponent: () => import('../../projects/sailpoint-components/src/lib/access-objects-management/role-details/role-details.component').then(m => m.RoleDetailsComponent)
+  },
+  {
+    path: 'governance-groups',
+    loadComponent: () => import('../../projects/sailpoint-components/src/lib/access-objects-management/governance-groups/governance-groups-list.component').then(m => m.GovernanceGroupsListComponent)
+  },
+  {
+    path: 'governance-group-details/:id',
+    loadComponent: () => import('../../projects/sailpoint-components/src/lib/access-objects-management/governance-groups/governance-group-details.component').then(m => m.GovernanceGroupDetailsComponent)
+  },
  
   {
     path: '**',

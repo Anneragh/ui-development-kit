@@ -1,9 +1,10 @@
 
 <div class="dashboard-page">
+    <h2 class="page-title">Objects I Own</h2>
   
   <!-- Main Dashboard Grid -->
   <div class="dashboard-grid">
-    <!-- Top Row - Stats Cards -->
+        <!-- Clean Row 1: Core owned objects -->
         <div class="dashboard-row">
             <div class="dashboard-card stats-card">
                 <mat-card class="tile-card">
@@ -11,9 +12,7 @@
                         <mat-card-title>Entitlements</mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
-                        <div *ngIf="loading" class="loading-container">
-                            <mat-spinner diameter="40"></mat-spinner>
-                        </div>
+                        <div *ngIf="loading" class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
                         <p *ngIf="!loading" class="access-count blue-count">{{ entitlementsCount }}</p>
                     </mat-card-content>
                     <mat-card-actions>
@@ -27,9 +26,7 @@
                         <mat-card-title>Roles</mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
-                        <div *ngIf="loading" class="loading-container">
-                            <mat-spinner diameter="40"></mat-spinner>
-                        </div>
+                        <div *ngIf="loading" class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
                         <p *ngIf="!loading" class="access-count blue-count">{{ rolesCount }}</p>
                     </mat-card-content>
                     <mat-card-actions>
@@ -40,16 +37,74 @@
             <div class="dashboard-card stats-card">
                 <mat-card class="tile-card">
                     <mat-card-header>
+                        <mat-card-title>Governance Groups</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="loading" class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+                        <p *ngIf="!loading" class="access-count blue-count">{{ governanceGroupsCount || 0 }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="goToManage('governanceGroups')">Manage</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+            <div class="dashboard-card stats-card">
+                <mat-card class="tile-card">
+                    <mat-card-header>
                         <mat-card-title>Access Profiles</mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
-                        <div *ngIf="loading" class="loading-container">
-                            <mat-spinner diameter="40"></mat-spinner>
-                        </div>
+                        <div *ngIf="loading" class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
                         <p *ngIf="!loading" class="access-count blue-count">{{ accessProfilesCount }}</p>
                     </mat-card-content>
                     <mat-card-actions>
                         <button mat-raised-button color="primary" (click)="goToManage('accessProfiles')">Manage</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Row 2: Other responsibilities -->
+        <div class="dashboard-row three-col">
+            <div class="dashboard-card stats-card">
+                <mat-card class="tile-card">
+                    <mat-card-header>
+                        <mat-card-title>Sources</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="loading" class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+                        <p *ngIf="!loading" class="access-count blue-count">{{ sourcesCount || 0 }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="goToManage('sources')">View</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+            <div class="dashboard-card stats-card">
+                <mat-card class="tile-card">
+                    <mat-card-header>
+                        <mat-card-title>My Work Reassignments</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="loading" class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+                        <p *ngIf="!loading" class="access-count blue-count">{{ workReassignmentsCount || 0 }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="viewWorkReassignments()">View</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+            <div class="dashboard-card stats-card">
+                <mat-card class="tile-card">
+                    <mat-card-header>
+                        <mat-card-title>Approval Responsibilities</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="loading" class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+                        <p *ngIf="!loading" class="access-count blue-count">{{ approvalResponsibilitiesCount || 0 }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="viewApprovalResponsibilities()">View</button>
                     </mat-card-actions>
                 </mat-card>
             </div>

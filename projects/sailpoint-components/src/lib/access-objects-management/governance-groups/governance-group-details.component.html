@@ -1,0 +1,54 @@
+<div class="group-details-page" *ngIf="!loadingGroup; else loadingTpl">
+  <h2>Governance Group: {{ group?.displayName || group?.name || groupId }}</h2>
+  <mat-tab-group>
+    <mat-tab label="Details">
+      <div class="details-section">
+        <p><strong>ID:</strong> {{ group?.id }}</p>
+        <p><strong>Name:</strong> {{ group?.displayName || group?.name }}</p>
+        <p><strong>Description:</strong> {{ group?.description || '-' }}</p>
+      </div>
+    </mat-tab>
+    <mat-tab label="Members">
+      <div *ngIf="loadingMembers" class="loading-inline"><mat-spinner diameter="32"></mat-spinner></div>
+      <table *ngIf="!loadingMembers" mat-table [dataSource]="members" class="mat-elevation-z1">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let m">{{ m.name }}</td>
+        </ng-container>
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let m">{{ m.type }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="memberColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: memberColumns;"></tr>
+      </table>
+      <div *ngIf="!loadingMembers && members.length===0" class="empty">No members.</div>
+    </mat-tab>
+    <mat-tab label="Associated">
+      <div *ngIf="loadingAssociated" class="loading-inline"><mat-spinner diameter="32"></mat-spinner></div>
+      <div *ngIf="!loadingAssociated">
+        <h3>Objects using this group as approver</h3>
+        <table mat-table [dataSource]="[...associated.entitlements, ...associated.roles, ...associated.accessProfiles, ...associated.sources]" class="mat-elevation-z1">
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let a">{{ a.type }}</td>
+          </ng-container>
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let a">{{ a.name }}</td>
+          </ng-container>
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let a">{{ a.id }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="assocColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: assocColumns;"></tr>
+        </table>
+        <div *ngIf="!loadingAssociated && !associated.entitlements.length && !associated.roles.length && !associated.accessProfiles.length && !associated.sources.length" class="empty">No associated objects found.</div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+<ng-template #loadingTpl>
+  <div class="loading"><mat-spinner diameter="48"></mat-spinner></div>
+</ng-template>

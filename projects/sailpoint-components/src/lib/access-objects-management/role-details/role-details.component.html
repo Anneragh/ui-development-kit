@@ -1,0 +1,348 @@
+<div class="role-details" *ngIf="role; else loadingTpl">
+  <h2 class="page-title">Role Details</h2>
+  <nav aria-label="breadcrumb" class="breadcrumb-list">
+    <ol>
+      <li><a routerLink="/">Home</a></li>
+      <li class="sep">/</li>
+  <li><a routerLink="/access-objects-management">Objects I own</a></li>
+      <li class="sep">/</li>
+  <li><a routerLink="/access-objects-management/roles">Roles</a></li>
+      <li class="sep">/</li>
+      <li class="current">{{ role.displayName || role.name }}</li>
+    </ol>
+  </nav>
+  <mat-tab-group (selectedIndexChange)="onTabChange($event)">
+    <mat-tab label="Role Details">
+      <div class="object-details">
+        <div class="object-row">
+          <span class="object-label">Status:</span>
+          <span class="object-value">
+            <button mat-raised-button color="primary" class="enable-btn" (click)="toggleRoleEnabled()" [disabled]="togglingEnabled">
+              <mat-icon>{{ role?.enabled ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+              <span>{{ togglingEnabled ? 'Saving…' : (role?.enabled ? 'Disable Role' : 'Enable Role') }}</span>
+            </button>
+          </span>
+        </div>
+        <div class="object-row">
+          <span class="object-label">ID:</span>
+          <span class="object-value">{{ role.id }}</span>
+        </div>
+        <div class="object-row">
+          <span class="object-label">Name:</span>
+          <span class="object-value">{{ role.displayName || role.name }}</span>
+        </div>
+        <div class="object-row object-row--description">
+          <span class="object-label">Description:</span>
+          <span class="object-value">
+            <textarea [(ngModel)]="descriptionValue" rows="3" class="desc-textarea" placeholder="Enter description"></textarea>
+            <button mat-raised-button color="primary" (click)="updateDescription()" [disabled]="descriptionValue === role?.description">Save</button>
+          </span>
+        </div>
+        <div class="object-row">
+          <span class="object-label">Requestable:</span>
+          <span class="object-value">{{ requestableValue ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="object-row">
+          <span class="object-label">Created:</span>
+          <span class="object-value">{{ role.created | date:'medium' }}</span>
+        </div>
+        <div class="object-row">
+          <span class="object-label">Modified:</span>
+          <span class="object-value">{{ role.modified | date:'medium' }}</span>
+        </div>
+      </div>
+    </mat-tab>
+  <mat-tab label="Manage Access">
+      <div class="manage-access-section">
+        <h3 class="section-title">Manage Access</h3>
+        <p class="section-sub">Add or remove access profiles and entitlements associated with this role.</p>
+        <div class="access-type-switch" role="tablist" aria-label="Access Type">
+          <button type="button" class="switch-btn" [class.active]="manageAccessType==='entitlements'" (click)="manageAccessType='entitlements'; onAccessTypeChange()">Entitlements</button>
+          <button type="button" class="switch-btn" [class.active]="manageAccessType==='accessProfiles'" (click)="manageAccessType='accessProfiles'; onAccessTypeChange()">Access Profiles</button>
+        </div>
+        <div class="access-toolbar">
+          <div class="left-group entitlement-multi full-line" *ngIf="manageAccessType==='entitlements'">
+            <mat-form-field appearance="outline" class="entitlement-selector full-width">
+              <mat-label>Select Entitlement to Add</mat-label>
+              <mat-select (openedChange)="onEntitlementDropdownOpen($event)" (selectionChange)="onSelectEntitlementToQueue($event.value)" [disabled]="entitlementOptionsLoading">
+                <mat-option *ngFor="let opt of filteredEntitlementOptions" [value]="opt">{{ opt.displayName || opt.name }} — {{ opt.sourceName || 'Unknown Source' }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="left-group full-line" *ngIf="manageAccessType==='accessProfiles'">
+            <mat-form-field appearance="outline" class="ap-selector full-width">
+              <mat-label>Select Access Profile to Add</mat-label>
+              <mat-select (openedChange)="onAccessProfileDropdownOpen($event)" (selectionChange)="onSelectAccessProfileToQueue($event.value)" [disabled]="accessProfileOptionsLoading">
+                <mat-option *ngFor="let ap of filteredAccessProfileOptions" [value]="ap">{{ ap.displayName || ap.name }} — {{ ap.sourceName || 'Unknown Source' }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="spacer"></div>
+          <div class="right-group" *ngIf="manageAccessType==='accessProfiles' && availableResults.length">
+            <span class="result-count">{{ availableResults.length }} results</span>
+          </div>
+        </div>
+
+        <div *ngIf="manageAccessType==='entitlements'">
+          <!-- Removed standalone available entitlements table -->
+          <div class="associated-block" *ngIf="associatedEntitlements.length">
+            <div class="associated-header">
+              <h4 class="subhead-inline">Current Items</h4>
+              <div class="header-row">
+                <button mat-stroked-button color="primary" class="download-btn" (click)="exportAssociatedEntitlements('csv')">Download CSV</button>
+                <button mat-icon-button class="download-icon" (click)="exportAssociatedEntitlements('json')" aria-label="Download JSON"><mat-icon>download</mat-icon></button>
+                <mat-form-field appearance="outline" class="assoc-entitlement-filter compact-field">
+                  <mat-label>Filter</mat-label>
+                  <input matInput [(ngModel)]="associatedEntitlementsFilterTerm" (input)="onAssociatedEntitlementsFilterChange()" placeholder="Name, source or text" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="pending-adds" *ngIf="pendingEntitlementAdds.length">
+              <div class="pending-intro">Queued Entitlements to Add:</div>
+              <table class="simple-table compact">
+                <thead><tr><th>Name</th><th>Source</th><th>Description</th><th style="width:90px;">Status</th><th style="width:70px;">Action</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let p of pendingEntitlementAdds" class="pending">
+                    <td>{{ p.displayName || p.name }}</td>
+                    <td>{{ p.sourceName || '—' }}</td>
+                    <td>{{ p.description || '—' }}</td>
+                    <td><span class="status-badge new">NEW</span></td>
+                    <td><button mat-icon-button color="warn" (click)="removePendingEntitlement(p)"><mat-icon>close</mat-icon></button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="actions" style="margin-top:.5rem;">
+                <button mat-flat-button color="primary" (click)="savePendingEntitlements()" [disabled]="accessSaving || !pendingEntitlementAdds.length">Save New ({{ pendingEntitlementAdds.length }})</button>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="simple-table spacious">
+                <thead><tr><th>Name</th><th>Description</th><th>Source</th><th style="width:80px; text-align:center;">Action</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let ent of filteredAssociatedEntitlements" tabindex="0">
+                    <td>{{ ent.displayName || ent.name || ent.id }}</td>
+                    <td>{{ ent.description || '—' }}</td>
+                    <td>{{ ent.sourceName || ent.source?.name || '—' }}</td>
+                    <td class="center"><button mat-icon-button color="warn" (click)="removeAccessItem(ent, 'entitlements')" aria-label="Remove"><mat-icon>delete</mat-icon></button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- pagination removed -->
+              <div class="empty" *ngIf="!filteredAssociatedEntitlements.length">No matches.</div>
+            </div>
+          </div>
+        </div>
+
+  <div *ngIf="manageAccessType==='accessProfiles'">
+          <div *ngIf="!associatedAccessProfiles.length" class="empty">No access profiles associated.</div>
+          <div *ngIf="associatedAccessProfiles.length" class="associated-header">
+            <h4 class="subhead-inline">Current Items</h4>
+            <div class="header-row">
+              <button mat-stroked-button color="primary" class="download-btn" (click)="exportAssociatedAccessProfiles('csv')">Download CSV</button>
+              <button mat-icon-button class="download-icon" (click)="exportAssociatedAccessProfiles('json')" aria-label="Download JSON"><mat-icon>download</mat-icon></button>
+              <mat-form-field appearance="outline" class="assoc-entitlement-filter compact-field">
+                <mat-label>Filter</mat-label>
+                <input matInput (input)="onAccessProfilesAssocFilterChange($event.target.value)" [value]="apAssocFilterTerm" placeholder="Name, source or text" />
+                <button *ngIf="apAssocFilterTerm" matSuffix mat-icon-button aria-label="Clear" (click)="onAccessProfilesAssocFilterChange('')"><mat-icon>close</mat-icon></button>
+              </mat-form-field>
+            </div>
+          </div>
+      <div class="table-wrapper" *ngIf="associatedAccessProfiles.length">
+            <table class="simple-table spacious">
+              <thead>
+                <tr><th>Name</th><th>Description</th><th>Source</th><th style="width:80px; text-align:center;">Action</th></tr>
+              </thead>
+              <tbody>
+        <tr *ngFor="let ap of filteredAccessProfiles" tabindex="0">
+                  <td>{{ ap.displayName || ap.name || ap.id }}</td>
+                  <td>{{ ap.description || '—' }}</td>
+                  <td>{{ ap.sourceName || ap.source?.name || '—' }}</td>
+                  <td class="center">
+                    <button mat-icon-button color="warn" (click)="removeAccessItem(ap, 'accessProfiles')" aria-label="Remove"><mat-icon>delete</mat-icon></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="empty" *ngIf="associatedAccessProfiles.length && !filteredAccessProfiles.length">No matches.</div>
+            <!-- pagination removed -->
+          </div>
+          <div class="pending-accessprofile-adds" *ngIf="pendingAccessProfileAdds.length && manageAccessType==='accessProfiles'">
+            <div class="pending-intro">Queued Access Profiles to Add:</div>
+            <table class="simple-table compact">
+              <thead><tr><th>Name</th><th>Source</th><th>Description</th><th style="width:90px;">Status</th><th style="width:70px;">Action</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let p of pendingAccessProfileAdds" class="pending">
+                  <td>{{ p.displayName || p.name }}</td>
+                  <td>{{ p.sourceName || '—' }}</td>
+                  <td>{{ p.description || '—' }}</td>
+                  <td><span class="status-badge new">NEW</span></td>
+                  <td><button mat-icon-button color="warn" (click)="removePendingAccessProfile(p)"><mat-icon>close</mat-icon></button></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="actions" style="margin-top:.5rem;">
+              <button mat-flat-button color="primary" (click)="savePendingAccessProfiles()" [disabled]="accessSaving || !pendingAccessProfileAdds.length">Save New ({{ pendingAccessProfileAdds.length }})</button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="accessError" class="error">{{ accessError }}</div>
+        <mat-progress-bar *ngIf="availableLoading || accessSaving || entitlementOptionsLoading" mode="indeterminate"></mat-progress-bar>
+      </div>
+    </mat-tab>
+    <mat-tab label="Request Config">
+      <div style="padding:1rem 0;">
+        <h3 style="margin-top:0; font-weight:600;">Request Configuration</h3>
+        <div style="background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:16px; margin-bottom:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <mat-checkbox [(ngModel)]="requestableValue">Requestable?</mat-checkbox>
+          <button mat-raised-button color="primary" (click)="saveRequestConfig()" [disabled]="savingRequestConfig">{{ savingRequestConfig ? 'Saving...' : 'Save' }}</button>
+          <span *ngIf="requestConfigError" style="color:#d32f2f;">{{ requestConfigError }}</span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:24px;">
+          <div style="flex:1 1 380px; min-width:320px; background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:16px;">
+            <h4 style="margin:0 0 12px 0; font-weight:600; display:flex; align-items:center; gap:6px;"><mat-icon style="font-size:18px; color:#1976d2;">login</mat-icon>Access Request Config</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <mat-checkbox [(ngModel)]="accessRequestConfigValues.requestCommentRequired">Request Comment Required</mat-checkbox>
+              <mat-checkbox [(ngModel)]="accessRequestConfigValues.denialCommentRequired">Denial Comment Required</mat-checkbox>
+              <mat-checkbox [(ngModel)]="accessRequestConfigValues.reauthorizationRequired">Reauthorization Required</mat-checkbox>
+            </div>
+          </div>
+          <div style="flex:1 1 380px; min-width:320px; background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:16px;">
+            <h4 style="margin:0 0 12px 0; font-weight:600; display:flex; align-items:center; gap:6px;"><mat-icon style="font-size:18px; color:#1976d2;">logout</mat-icon>Revocation Request Config</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <mat-checkbox [(ngModel)]="revocationRequestConfigValues.requestCommentRequired">Request Comment Required</mat-checkbox>
+              <mat-checkbox [(ngModel)]="revocationRequestConfigValues.denialCommentRequired">Denial Comment Required</mat-checkbox>
+              <mat-checkbox [(ngModel)]="revocationRequestConfigValues.reauthorizationRequired">Reauthorization Required</mat-checkbox>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px; display:flex; gap:1rem; align-items:center;">
+          <button mat-raised-button color="primary" (click)="saveFlowConfigs()" [disabled]="savingFlowConfigs">{{ savingFlowConfigs ? 'Saving...' : 'Save Flow Configs' }}</button>
+          <span *ngIf="flowConfigError" style="color:#d32f2f;">{{ flowConfigError }}</span>
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Members" (opened)="!roleMembers.length && !loadingMembers ? fetchRoleMembers(true) : null">
+      <div style="padding:1rem 0;">
+        <div class="members-toolbar">
+          <button mat-stroked-button color="primary" class="members-btn" (click)="fetchRoleMembers(true)" [disabled]="loadingMembers"><mat-icon style="margin-right:4px;">refresh</mat-icon>{{ loadingMembers ? 'Loading...' : 'Reload' }}</button>
+          <mat-form-field appearance="outline" class="members-filter compact-field">
+            <mat-label>Filter members</mat-label>
+            <input matInput [(ngModel)]="membersFilterTerm" (input)="onMembersFilterChange()" placeholder="Display name, name or email" />
+          </mat-form-field>
+          <span class="flex-spacer"></span>
+          <span class="members-count">{{ filteredRoleMembers.length }} / {{ membersTotal || '?' }} loaded</span>
+        </div>
+        <div *ngIf="membersError" style="color:#d32f2f; margin-bottom:8px;">{{ membersError }}</div>
+  <div style="overflow:auto; max-height:480px; border:1px solid #e0e6ed; border-radius:6px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+            <thead style="background:#f5f7fa; position:sticky; top:0; z-index:1;">
+              <tr>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">#</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Display Name</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Name</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Email</th>
+                <th style="text-align:left; padding:8px 10px; border-bottom:1px solid #e0e6ed;">Identity ID</th>
+              </tr>
+            </thead>
+            <tbody>
+  <tr *ngFor="let m of filteredRoleMembers; let i = index" style="border-bottom:1px solid #f0f2f5;">
+        <td style="padding:6px 10px; color:#607d8b;">{{ membersPage * membersPageSize + i + 1 }}</td>
+                <td style="padding:6px 10px; font-weight:500;">{{ m.displayName }}</td>
+                <td style="padding:6px 10px;">{{ m.name }}</td>
+                <td style="padding:6px 10px;">{{ m.email }}</td>
+                <td style="padding:6px 10px; font-family:monospace; font-size:0.75rem;">{{ m.id }}</td>
+              </tr>
+      <tr *ngIf="!loadingMembers && !filteredRoleMembers.length">
+                <td colspan="5" style="padding:12px; text-align:center; color:#777; font-size:0.85rem;">No members found.</td>
+              </tr>
+              <tr *ngIf="loadingMembers">
+                <td colspan="5" style="padding:16px; text-align:center; color:#1976d2; font-weight:500;">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <mat-paginator
+          *ngIf="roleMembers.length"
+          [length]="membersTotal || roleMembers.length"
+          [pageSize]="membersPageSize"
+          [pageIndex]="membersPage"
+          [pageSizeOptions]="membersPageSizeOptions"
+          (page)="onMembersPageChange($event)"
+          style="margin-top:8px;">
+        </mat-paginator>
+      </div>
+    </mat-tab>
+    <mat-tab label="Approval Configuration">
+      <div style="padding:1rem 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="margin:0; font-weight:600;">Approval Steps</h3>
+          <button mat-raised-button color="primary" (click)="addApprovalStep()"><mat-icon style="margin-right:4px;">add</mat-icon>Add Step</button>
+        </div>
+        <div cdkDropList (cdkDropListDropped)="dropApprovalStep($event)" style="display:flex; flex-direction:column; gap:12px;">
+          <div *ngFor="let step of editableApprovalSchemes; let i = index" cdkDrag style="background:#fff; border:1px solid #e0e6ed; border-radius:8px; padding:12px; box-shadow:0 2px 4px rgba(0,0,0,0.04); display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
+              <div style="display:flex; align-items:center; gap:8px; flex:1 1 260px;">
+                <mat-icon cdkDragHandle style="cursor:grab; color:#607d8b;">drag_indicator</mat-icon>
+                <strong>Level {{ i + 1 }}</strong>
+              </div>
+              <mat-form-field appearance="outline" style="width:180px;">
+                <mat-label>Approver Type</mat-label>
+                <mat-select [(ngModel)]="step.approverType">
+                  <mat-option *ngFor="let t of approverTypes" [value]="t.value">{{ t.label }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field *ngIf="step.approverType==='GOVERNANCE_GROUP'" appearance="outline" style="width:260px;">
+                <mat-label>Governance Group ID</mat-label>
+                <input matInput [(ngModel)]="step.approverId" placeholder="Enter group id" />
+              </mat-form-field>
+              <button mat-icon-button color="warn" (click)="removeApprovalStep(i)" aria-label="Remove step"><mat-icon>delete</mat-icon></button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!editableApprovalSchemes.length" style="text-align:center; padding:2rem; color:#777; border:2px dashed #ccc; border-radius:8px; margin-top:1rem;">No approval steps configured. Click "Add Step" to begin.</div>
+        <div style="margin-top:1.5rem; display:flex; gap:1rem; align-items:center;">
+          <button mat-raised-button color="primary" (click)="saveApprovalConfig()" [disabled]="savingFlowConfigs"><mat-icon style="margin-right:4px;">save</mat-icon>{{ savingFlowConfigs ? 'Saving...' : 'Save Configuration' }}</button>
+          <span *ngIf="flowConfigError" style="color:#d32f2f;">{{ flowConfigError }}</span>
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Request History">
+      <div class="history-section">
+        <div class="toolbar">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search History</mat-label>
+            <input matInput [(ngModel)]="historySearch" (keyup.enter)="requestHistory=[]; historyPage=0; fetchRequestHistory(true)" placeholder="Requester or Requested For" />
+          </mat-form-field>
+          <button mat-stroked-button (click)="requestHistory=[]; historyPage=0; fetchRequestHistory(true)" [disabled]="loadingHistory">Reload</button>
+        </div>
+        <div *ngIf="historyError" class="error">{{ historyError }}</div>
+    <div *ngIf="USE_DUMMY_HISTORY" style="font-size:11px; color:#607d8b; margin:.25rem 0 4px; font-style:italic;">Showing sample request history (dummy data).</div>
+        <table class="simple-table" *ngIf="requestHistory.length">
+          <thead><tr><th>State</th><th>Type</th><th>Requester</th><th>Requested For</th><th>Requested</th><th>Provisioned</th><th>Approvers</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of requestHistory">
+              <td>{{ r.state }}</td>
+              <td>{{ r.type }}</td>
+              <td>{{ r.requester }}</td>
+              <td>{{ r.requestedFor }}</td>
+              <td>{{ r.created | date:'short' }}</td>
+              <td>{{ r.provisioned | date:'short' }}</td>
+              <td matTooltip="{{ buildApproverTooltip(r) }}" matTooltipClass="history-tooltip" matTooltipShowDelay="250" style="white-space:nowrap; max-width:180px; overflow:hidden; text-overflow:ellipsis;">
+                {{ r.approverSummary || '—' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty" *ngIf="!loadingHistory && !requestHistory.length && !historyError">No request history found.</div>
+        <div class="load-more" *ngIf="requestHistory.length < historyTotal && !loadingHistory">
+          <button mat-stroked-button (click)="fetchRequestHistory()">Load More</button>
+        </div>
+        <mat-progress-bar *ngIf="loadingHistory" mode="indeterminate"></mat-progress-bar>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+<ng-template #loadingTpl>
+  <div class="loading">Loading role...</div>
+</ng-template>

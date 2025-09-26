@@ -310,6 +310,8 @@ async updateApprovalsReassign(requestParameters: sdk.ApprovalsV2025ApiUpdateAppr
     await this.checkSessionBeforeCall();
     return this.electronAPI.updateApprovalsReassign(requestParameters) as Promise<AxiosResponse<void, any>>;
 }
+  
+        // (Removed duplicate placeholder governance group helpers; using typed implementations further below)
 
 async createSourceApp(requestParameters: sdk.AppsV2025ApiCreateSourceAppRequest): Promise<AxiosResponse<sdk.SourceAppV2025, any>> {
     await this.checkSessionBeforeCall();

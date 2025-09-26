@@ -1,0 +1,42 @@
+<div class="governance-groups-page">
+  <h2>Governance Groups I Own</h2>
+  <div class="toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="search" (keyup.enter)="loadGroups()" placeholder="Name or description" />
+      <button *ngIf="search" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="loadGroups()">Search</button>
+  </div>
+
+  <div *ngIf="loading" class="loading"><mat-spinner diameter="48"></mat-spinner></div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table mat-table [dataSource]="groups" class="mat-elevation-z1" *ngIf="!loading && !error">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let g" (click)="viewDetails(g)" class="link">{{ g.name }}</td>
+    </ng-container>
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let g">{{ g.description || '-' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="memberCount">
+      <th mat-header-cell *matHeaderCellDef>Members</th>
+      <td mat-cell *matCellDef="let g">{{ g.memberCount }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let g">
+        <button mat-button color="primary" (click)="viewDetails(g)">Details</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <div *ngIf="!loading && !error && groups.length === 0" class="empty">No governance groups found.</div>
+</div>
